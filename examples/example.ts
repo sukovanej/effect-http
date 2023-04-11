@@ -1,8 +1,9 @@
-import { pipe } from '@effect/data/Function';
-import * as Effect from '@effect/io/Effect';
-import * as S from '@effect/schema/Schema';
+import * as Context from "@effect/data/Context";
+import { pipe } from "@effect/data/Function";
+import * as Effect from "@effect/io/Effect";
+import * as S from "@effect/schema/Schema";
 
-import * as Api from '../src';
+import * as Api from "../src";
 
 // Schemas
 
@@ -21,16 +22,27 @@ const standaSchema = S.record(S.string, S.union(S.string, S.number));
 
 type Standa = S.To<typeof standaSchema>;
 
+interface Stuff {
+  value: number;
+}
+
+const StuffService = Context.Tag<Stuff>();
+
+const dummyStuff = pipe(
+  Effect.succeed({ value: 42 }),
+  Effect.toLayer(StuffService),
+);
+
 // Handlers
 
 const handleMilan = ({ body }: Api.BodyInput<Milan>) =>
-  Effect.succeed({
+  Effect.map(StuffService, ({ value }) => ({
     ...body,
-    penisLength: body.penisLength + 10,
-  });
+    penisLength: body.penisLength + value,
+  }));
 
 const handleStanda = ({ body }: Api.BodyInput<Standa>) =>
-  Effect.succeed({ ...body, standa: 'je borec' });
+  Effect.succeed({ ...body, standa: "je borec" });
 
 const handleTest = ({ query: { name } }: Api.QueryInput<Lesnek>) =>
   Effect.succeed({ name });
@@ -38,38 +50,39 @@ const handleTest = ({ query: { name } }: Api.QueryInput<Lesnek>) =>
 const handleLesnek = ({ query }: Api.QueryInput<Lesnek>) =>
   pipe(
     Effect.succeed(`hello ${query.name}`),
-    Effect.tap(() => Effect.logDebug('hello world'))
+    Effect.tap(() => Effect.logDebug("hello world")),
   );
 
 // Api
 
 const app = pipe(
-  Api.make('My awesome pets API', '1.0.0'),
-  Api.useGet('/milan', { response: S.string }, () => Effect.succeed('test')),
+  Api.make("My awesome pets API", "1.0.0"),
+  Api.useGet("/milan", { response: S.string }, () => Effect.succeed("test")),
   Api.useGet(
-    '/lesnek',
+    "/lesnek",
     { response: S.string, query: lesnekSchema },
-    handleLesnek
+    handleLesnek,
   ),
   Api.useGet(
-    '/test',
+    "/test",
     { response: standaSchema, query: lesnekSchema },
-    handleTest
+    handleTest,
   ),
   Api.usePost(
-    '/standa',
+    "/standa",
     { response: standaSchema, body: standaSchema },
-    handleStanda
+    handleStanda,
   ),
   Api.usePost(
-    '/milan',
+    "/milan",
     { response: milanSchema, body: milanSchema },
-    handleMilan
+    handleMilan,
   ),
+  Api.provideLayer(dummyStuff),
   Api.listen(4000),
   Effect.flatMap(({ address, port }) =>
-    Effect.logInfo(`Listening on ${address}:${port}`)
-  )
+    Effect.logInfo(`Listening on ${address}:${port}`),
+  ),
 );
 
 Effect.runPromise(app);

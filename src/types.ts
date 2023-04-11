@@ -1,17 +1,19 @@
-import express from 'express';
-import * as OpenApi from 'schema-openapi';
+import express from "express";
+import * as OpenApi from "schema-openapi";
 
-import * as Effect from '@effect/io/Effect';
-import * as S from '@effect/schema/Schema';
+import * as Effect from "@effect/io/Effect";
+import * as S from "@effect/schema/Schema";
+
+import { ApiError } from "./errors";
 
 export type InputHandler<Query, Params, Body, Response, R> = (
-  input: Input<Query, Params, Body>
-) => Effect.Effect<R, AnyHandlerError, Response>;
+  input: Input<Query, Params, Body>,
+) => Effect.Effect<R, ApiError, Response>;
 
 export type FinalHandler<R> = (
   req: express.Request,
-  res: express.Response
-) => Effect.Effect<R, AnyHandlerError, void>;
+  res: express.Response,
+) => Effect.Effect<R, ApiError, void>;
 
 export interface Api<R> {
   openApiSpec: OpenApi.OpenAPISpec<OpenApi.OpenAPISchemaType>;
@@ -26,8 +28,6 @@ export interface Input<Query, Params, Body> {
 
 export type BodyInput<Body> = Input<unknown, unknown, Body>;
 export type QueryInput<Query> = Input<Query, unknown, unknown>;
-
-export type AnyHandlerError = NotFoundError | ServerError;
 
 export interface HandlerSchemas<Query, Params, Body, Response> {
   response: S.Schema<Response>;
@@ -52,7 +52,7 @@ export type AnyInputHandlerSchemas = InputHandlerSchemas<
 
 export type ComputeInputHandler<
   I extends AnyInputHandlerSchemas,
-  R
+  R,
 > = InputHandler<
   ComputeQuery<I>,
   ComputeParams<I>,
@@ -107,26 +107,3 @@ export interface Handler<Query, Params, Body, Response, R> {
 }
 
 export type AnyHandler<R = never> = Handler<any, any, any, any, R>;
-
-export type NotFoundError = { _tag: 'NotFoundError'; error: unknown };
-export type InvalidQueryError = { _tag: 'InvalidQueryError'; error: unknown };
-export type InvalidParamsError = { _tag: 'InvalidParamsError'; error: unknown };
-export type InvalidBodyError = { _tag: 'InvalidBodyError'; error: unknown };
-export type InvalidResponseError = {
-  _tag: 'InvalidResponseError';
-  error: unknown;
-};
-export type ServerError = { _tag: 'ServerError'; error: unknown };
-export type UnexpectedServerError = {
-  _tag: 'UnexpectedServerError';
-  error: unknown;
-};
-
-export type ApiError =
-  | NotFoundError
-  | InvalidQueryError
-  | InvalidParamsError
-  | InvalidBodyError
-  | InvalidResponseError
-  | ServerError
-  | UnexpectedServerError;
