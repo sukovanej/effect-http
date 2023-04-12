@@ -14,7 +14,11 @@ import {
   invalidParamsError,
   invalidQueryError,
 } from "./errors";
-import { EndpointSchemasToInput, SelectEndpointById } from "./internal";
+import {
+  EndpointSchemasToInput,
+  SelectEndpointById,
+  getSchema,
+} from "./internal";
 
 export type HttpClientProviderOptions = {
   headers: Record<string, string>;
@@ -147,15 +151,9 @@ export const client =
         { id, method, path, schemas: { query, params, body, response } },
       ) => {
         const parseResponse = S.parseEffect(response);
-        const encodeQuery = S.encodeEffect(
-          query === IgnoredSchemaId ? S.unknown : query,
-        );
-        const encodeParams = S.encodeEffect(
-          params === IgnoredSchemaId ? S.unknown : params,
-        );
-        const encodeBody = S.encodeEffect(
-          body === IgnoredSchemaId ? S.unknown : body,
-        );
+        const encodeQuery = S.encodeEffect(getSchema(query));
+        const encodeParams = S.encodeEffect(getSchema(params));
+        const encodeBody = S.encodeEffect(getSchema(body));
 
         const fn = (args: any) => {
           return pipe(

@@ -1,6 +1,6 @@
 import * as S from "@effect/schema/Schema";
 
-import { Endpoint } from "./api";
+import { Endpoint, IgnoredSchemaId } from "./api";
 
 type NonIgnoredFields<K extends keyof A, A> = K extends any
   ? A[K] extends S.Schema<any>
@@ -22,3 +22,8 @@ export type SelectEndpointById<Es extends Endpoint[], Id> = Extract<
   Es[number],
   { id: Id }
 >;
+
+export const getSchema = <A>(
+  input: S.Schema<A> | IgnoredSchemaId,
+): S.Schema<A> =>
+  input == IgnoredSchemaId ? (S.unknown as S.Schema<A>) : input;

@@ -16,6 +16,7 @@ import {
   invalidResponseError,
 } from "./errors";
 import { serverError } from "./errors";
+import { getSchema } from "./internal";
 import { Handler, Server } from "./server";
 
 const handleApiFailure = (
@@ -45,15 +46,9 @@ const toEndpoint = <E extends Endpoint>({
   endpoint: { schemas, path, method },
   layer,
 }: Handler<E, never>) => {
-  const parseQuery = S.parseEffect(
-    schemas.query === IgnoredSchemaId ? S.unknown : schemas.query,
-  );
-  const parseParams = S.parseEffect(
-    schemas.params === IgnoredSchemaId ? S.unknown : schemas.params,
-  );
-  const parseBody = S.parseEffect(
-    schemas.body === IgnoredSchemaId ? S.unknown : schemas.body,
-  );
+  const parseQuery = S.parseEffect(getSchema(schemas.query));
+  const parseParams = S.parseEffect(getSchema(schemas.params));
+  const parseBody = S.parseEffect(getSchema(schemas.body));
   const encodeResponse = S.parseEffect(schemas.response);
 
   return (req: express.Request, res: express.Response) =>
