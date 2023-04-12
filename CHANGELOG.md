@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.0.4
+
+### Patch Changes
+
+- de54069: Fix: provideLayer and provideService
+
 ## 0.0.3
 
 ### Patch Changes
