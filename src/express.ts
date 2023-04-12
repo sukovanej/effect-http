@@ -7,7 +7,7 @@ import { flow, pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
 import * as S from "@effect/schema/Schema";
 
-import { Endpoint } from "./api-types";
+import { Endpoint, IgnoredSchemaId } from "./api";
 import {
   ApiError,
   invalidBodyError,
@@ -44,9 +44,15 @@ const toEndpoint = <E extends Endpoint>({
   fn,
   endpoint: { schemas, path, method },
 }: Handler<E, never>) => {
-  const parseQuery = S.parseEffect(schemas.query);
-  const parseParams = S.parseEffect(schemas.params);
-  const parseBody = S.parseEffect(schemas.body);
+  const parseQuery = S.parseEffect(
+    schemas.query === IgnoredSchemaId ? S.unknown : schemas.query,
+  );
+  const parseParams = S.parseEffect(
+    schemas.params === IgnoredSchemaId ? S.unknown : schemas.params,
+  );
+  const parseBody = S.parseEffect(
+    schemas.body === IgnoredSchemaId ? S.unknown : schemas.body,
+  );
   const encodeResponse = S.parseEffect(schemas.response);
 
   return (req: express.Request, res: express.Response) =>
@@ -61,7 +67,7 @@ const toEndpoint = <E extends Endpoint>({
       Effect.bind("body", () =>
         pipe(parseBody(req.body), Effect.mapError(invalidBodyError)),
       ),
-      Effect.flatMap(fn),
+      Effect.flatMap((i: any) => fn(i)),
       Effect.flatMap(
         flow(encodeResponse, Effect.mapError(invalidResponseError)),
       ),
@@ -92,14 +98,14 @@ const toEndpoint = <E extends Endpoint>({
     );
 };
 
-export const handlerToRoute = <E extends Endpoint>(
+const handlerToRoute = <E extends Endpoint>(
   handler: Handler<E, never>,
 ): express.Router =>
   express
     .Router()
     [handler.endpoint.method](handler.endpoint.path, toEndpoint(handler));
 
-export const createSpec = <Hs extends Handler[]>(
+const createSpec = <Hs extends Handler[]>(
   self: Server<[], Hs>,
 ): OpenApi.OpenAPISpec<OpenApi.OpenAPISchemaType> => {
   return self.handlers.reduce(
@@ -112,19 +118,19 @@ export const createSpec = <Hs extends Handler[]>(
         );
       }
 
-      if (schemas.params !== S.unknown) {
+      if (schemas.params !== IgnoredSchemaId) {
         operationSpec.push(
           OpenApi.parameter("Path parameter", "path", schemas.params),
         );
       }
 
-      if (schemas.query !== S.unknown) {
+      if (schemas.query !== IgnoredSchemaId) {
         operationSpec.push(
           OpenApi.parameter("Query parameter", "query", schemas.query),
         );
       }
 
-      if (schemas.body !== S.unknown) {
+      if (schemas.body !== IgnoredSchemaId) {
         operationSpec.push(OpenApi.jsonRequest(schemas.body));
       }
 

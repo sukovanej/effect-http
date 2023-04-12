@@ -5,8 +5,9 @@ import * as Effect from "@effect/io/Effect";
 import * as Layer from "@effect/io/Layer";
 import * as S from "@effect/schema/Schema";
 
-import { Api, Endpoint } from "./api-types";
+import { Api, Endpoint } from "./api";
 import { ApiError } from "./errors";
+import { EndpointSchemasToInput } from "./internal";
 
 export type Server<
   UnimplementedEndpoints extends Endpoint[] = Endpoint[],
@@ -18,33 +19,18 @@ export type Server<
   handlers: Handlers;
 };
 
-type EndpointToFnInput<E extends Endpoint["schemas"]> = S.Spread<{
-  query: S.To<E["query"]>;
-  params: S.To<E["params"]>;
-  body: S.To<E["body"]>;
-}>;
-
-export type BodyInput<Body> = S.Spread<{
-  query: unknown;
-  params: unknown;
-  body: Body;
-}>;
-
-export type QueryInput<Query> = S.Spread<{
-  query: Query;
-  params: unknown;
-  body: unknown;
-}>;
+export type Body<Body> = S.Spread<{ body: Body }>;
+export type Query<Query> = S.Spread<{ query: Query }>;
 
 export type Handler<E extends Endpoint = Endpoint, R = any> = {
   fn: (
-    input: EndpointToFnInput<E["schemas"]>,
+    input: EndpointSchemasToInput<E["schemas"]>,
   ) => Effect.Effect<R, ApiError, S.To<E["schemas"]["response"]>>;
 
   endpoint: E;
 };
 
-export const make =
+export const server =
   (title: string, version: string) =>
   <A extends Endpoint[]>(api: Api<A>): Server<A, []> => ({
     _unimplementedEndpoints: api,
@@ -59,7 +45,7 @@ type DropEndpoint<Es extends Endpoint[], Id extends string> = Es extends [
 ]
   ? First extends { id: Id }
     ? Rest
-    : [First, ...DropEndpoint<Es, Id>]
+    : [First, ...(Rest extends Endpoint[] ? DropEndpoint<Rest, Id> : never)]
   : [];
 
 export const handle =

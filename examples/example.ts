@@ -3,9 +3,7 @@ import { pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
 import * as S from "@effect/schema/Schema";
 
-import * as Api from "../src/api";
-import * as Express from "../src/express";
-import * as Server from "../src/server";
+import * as Http from "../src";
 
 // Schemas
 
@@ -37,19 +35,19 @@ const dummyStuff = pipe(
 
 // Handlers
 
-const handleMilan = ({ body }: Server.BodyInput<Milan>) =>
+const handleMilan = ({ body }: Http.Body<Milan>) =>
   Effect.map(StuffService, ({ value }) => ({
     ...body,
     penisLength: body.penisLength + value,
   }));
 
-const handleStanda = ({ body }: Server.BodyInput<Standa>) =>
+const handleStanda = ({ body }: Http.Body<Standa>) =>
   Effect.succeed({ ...body, standa: "je borec" });
 
-const handleTest = ({ query: { name } }: Server.QueryInput<Lesnek>) =>
+const handleTest = ({ query: { name } }: Http.Query<Lesnek>) =>
   Effect.succeed({ name });
 
-const handleLesnek = ({ query }: Server.QueryInput<Lesnek>) =>
+const handleLesnek = ({ query }: Http.Query<Lesnek>) =>
   pipe(
     Effect.succeed(`hello ${query.name}`),
     Effect.tap(() => Effect.logDebug("hello world")),
@@ -58,32 +56,41 @@ const handleLesnek = ({ query }: Server.QueryInput<Lesnek>) =>
 // Api
 
 const api = pipe(
-  Api.make(),
-  Api.get("milan", "/milan", { response: S.string }),
-  Api.get("lesnek", "/lesnek", { response: S.string, query: lesnekSchema }),
-  Api.get("test", "/test", { response: standaSchema, query: lesnekSchema }),
-  Api.post("standa", "/standa", { response: standaSchema, body: standaSchema }),
-  Api.post("milan-2", "/milan-2", { response: milanSchema, body: milanSchema }),
+  Http.api(),
+  Http.get("getMilan", "/milan", { response: S.string }),
+  Http.get("getLesnek", "/lesnek", { response: S.string, query: lesnekSchema }),
+  Http.get("test", "/test", { response: standaSchema, query: lesnekSchema }),
+  Http.post("standa", "/standa", {
+    response: standaSchema,
+    body: standaSchema,
+  }),
+  Http.post("handleMilan", "/petr", {
+    response: milanSchema,
+    body: milanSchema,
+  }),
 );
 
 // Server
 
 const server = pipe(
   api,
-  Server.make("My awesome pets API", "1.0.0"),
-  Server.handle("milan", () => Effect.succeed("test")),
-  Server.handle("lesnek", handleLesnek),
-  Server.handle("test", handleTest),
-  Server.handle("standa", handleStanda),
-  Server.handle("milan-2", handleMilan),
-  Server.provideLayer(dummyStuff),
+  Http.server("My awesome pets API", "1.0.0"),
+  Http.handle("getMilan", () => Effect.succeed("test")),
+  Http.handle("test", handleTest),
+  Http.handle("handleMilan", handleMilan),
+  Http.provideLayer(dummyStuff),
+  Http.handle("standa", handleStanda),
+  Http.handle("getLesnek", handleLesnek),
 );
+
+const client = pipe(api, Http.client(new URL("http://localhost:4000")));
 
 pipe(
   server,
-  Express.listen(4000),
+  Http.listen(4000),
   Effect.flatMap(({ address, port }) =>
     Effect.logInfo(`Listening on ${address}:${port}`),
   ),
+  Effect.flatMap(() => pipe(client.getLesnek({ query: { name: "test" } }))),
   Effect.runPromise,
 );

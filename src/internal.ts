@@ -1,16 +1,19 @@
 import * as S from "@effect/schema/Schema";
 
-import { ComputeEndpoint, InputSchemas } from "./api-types";
+import { Endpoint } from "./api";
 
-export const fillDefaultSchemas = <I extends InputSchemas>({
-  response,
-  query,
-  params,
-  body,
-}: I): ComputeEndpoint<string, I>["schemas"] => ({
-  response,
-  query: query ?? (S.unknown as ComputeEndpoint<string, I>["schemas"]["query"]),
-  params:
-    params ?? (S.unknown as ComputeEndpoint<string, I>["schemas"]["params"]),
-  body: body ?? (S.unknown as ComputeEndpoint<string, I>["schemas"]["body"]),
-});
+type NonIgnoredFields<K extends keyof A, A> = K extends any
+  ? A[K] extends S.Schema<any>
+    ? K
+    : never
+  : never;
+
+export type RemoveIgnoredSchemas<E> = Pick<E, NonIgnoredFields<keyof E, E>>;
+
+type SchemaStructTo<A> = {
+  [K in keyof A]: A[K] extends S.Schema<infer X> ? X : never;
+};
+
+export type EndpointSchemasToInput<E extends Endpoint["schemas"]> = S.Spread<
+  SchemaStructTo<RemoveIgnoredSchemas<Omit<E, "response">>>
+>;
