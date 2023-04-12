@@ -71,6 +71,11 @@ pipe(
 );
 ```
 
+Also, let's check the auto-generated OpenAPI UI running on
+[localhost:3000/docs](http://localhost:3000/docs/). How awesome is that!
+
+![open api ui](assets/example-openapi-ui.png)
+
 ## TODO
 
 - generate dummy / example http
