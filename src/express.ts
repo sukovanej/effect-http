@@ -97,7 +97,6 @@ const toEndpoint = <E extends Endpoint>({
       Effect.catchAll((error) =>
         handleApiFailure(method, path, error, 500, res),
       ),
-      Effect.logAnnotate("side", "server"),
       layer === undefined ? identity : Effect.provideLayer(layer),
       Effect.runPromise as any,
     );
