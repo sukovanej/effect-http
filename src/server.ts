@@ -32,7 +32,7 @@ export type Handler<E extends Endpoint = Endpoint, R = any> = {
 };
 
 export const server =
-  (title: string, version: string) =>
+  (title: string, version: string = "1.0.0") =>
   <A extends Endpoint[]>(api: Api<A>): Server<A, []> => ({
     _unimplementedEndpoints: api,
 
@@ -103,10 +103,7 @@ export const provideLayer =
     ...api,
     handlers: api.handlers.map((handler) => ({
       ...handler,
-      layer:
-        handler.layer === undefined
-          ? layer
-          : Layer.provide(handler.layer, layer),
+      fn: (i: any) => Effect.provideLayer(handler.fn(i), layer),
     })) as ProvideLayer<Hs, R0, R>,
   });
 
@@ -128,9 +125,10 @@ export const provideService =
     ...api,
     handlers: api.handlers.map((handler) => ({
       ...handler,
-      layer:
-        handler.layer === undefined
-          ? Layer.succeed(tag, service)
-          : Layer.provide(handler.layer, Layer.succeed(tag, service)),
+      fn: (i: any) => Effect.provideService(handler.fn(i), tag, service),
     })) as ProvideService<Hs, T>,
   });
+
+export const exhaustive = <S extends Server<[], Handler<any, never>[]>>(
+  server: S,
+) => server;
