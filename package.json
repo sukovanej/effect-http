@@ -1,6 +1,6 @@
 {
   "name": "effect-http",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "High-level declarative HTTP API for effect-ts",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
