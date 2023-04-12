@@ -10,7 +10,8 @@
     "watch": "tsc -w -p tsconfig.json",
     "format": "prettier -w src tests examples",
     "lint": "prettier src tests examples --check",
-    "test": "vitest run"
+    "test": "vitest run",
+    "version": "changeset version"
   },
   "keywords": [],
   "author": "Milan Suk <Milansuk@email.cz>",
