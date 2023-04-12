@@ -9,6 +9,7 @@
     "build": "rm -rf dist && tsc -p tsconfig.build.json",
     "watch": "tsc -w -p tsconfig.json",
     "format": "prettier -w src tests examples",
+    "lint": "prettier src tests examples --check",
     "test": "vitest run"
   },
   "keywords": [],
