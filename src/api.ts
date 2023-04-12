@@ -2,6 +2,8 @@ import * as OpenApi from "schema-openapi";
 
 import * as S from "@effect/schema/Schema";
 
+import { EndpointSchemasToInput } from "./internal";
+
 const fillDefaultSchemas = <I extends InputSchemas>({
   response,
   query,

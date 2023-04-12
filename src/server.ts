@@ -140,3 +140,23 @@ export const exhaustive = <S extends Server<[], Handler<any, never>[]>>(
 export const setLogger =
   <I, O>(logger: Logger.Logger<I, O>) =>
   <S extends Server>(server: S) => ({ ...server, logger });
+
+/** Type-helper providing type of a handler input given the type of the
+ * Api `A` and operation id `Id`.
+ *
+ * @example
+ * const api = pipe(
+ *   Http.api(),
+ *   Http.get("getMilan", "/milan", { response: S.string, query: S.string })
+ * )
+ *
+ * type GetMilanInput = Http.Input<typeof api, "getMilan">
+ * // -> { query: string }
+ *
+ * @param A Api type of the API
+ * @param Id operation id
+ */
+export type Input<
+  A extends Api,
+  Id extends A[number]["id"],
+> = EndpointSchemasToInput<Extract<A[number], { id: Id }>["schemas"]>;

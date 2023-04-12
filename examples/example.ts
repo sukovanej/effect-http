@@ -3,7 +3,6 @@ import * as Log from "effect-log";
 import * as Context from "@effect/data/Context";
 import { pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
-import * as Logger from "@effect/io/Logger";
 import * as S from "@effect/schema/Schema";
 
 import * as Http from "../src";
@@ -11,22 +10,10 @@ import * as Http from "../src";
 // Schemas
 
 const milanSchema = S.struct({ penisLength: S.number, name: S.string });
-
-type Milan = S.To<typeof milanSchema>;
-
 const lesnekSchema = S.struct({ name: S.string });
-
-type Lesnek = S.To<typeof lesnekSchema>;
-
 const standaSchema = S.record(S.string, S.union(S.string, S.number));
 
-type Standa = S.To<typeof standaSchema>;
-
-interface Stuff {
-  value: number;
-}
-
-const StuffService = Context.Tag<Stuff>();
+const StuffService = Context.Tag<{ value: number }>();
 
 const dummyStuff = pipe(
   Effect.succeed({ value: 42 }),
@@ -35,19 +22,19 @@ const dummyStuff = pipe(
 
 // Handlers
 
-const handleMilan = ({ body }: Http.Body<Milan>) =>
+const handleMilan = ({ body }: Http.Input<typeof api, "handleMilan">) =>
   Effect.map(StuffService, ({ value }) => ({
     ...body,
     penisLength: body.penisLength + value,
   }));
 
-const handleStanda = ({ body }: Http.Body<Standa>) =>
+const handleStanda = ({ body }: Http.Input<typeof api, "standa">) =>
   Effect.succeed({ ...body, standa: "je borec" });
 
-const handleTest = ({ query: { name } }: Http.Query<Lesnek>) =>
+const handleTest = ({ query: { name } }: Http.Input<typeof api, "test">) =>
   Effect.succeed({ name });
 
-const handleLesnek = ({ query }: Http.Query<Lesnek>) =>
+const handleLesnek = ({ query }: Http.Input<typeof api, "getLesnek">) =>
   pipe(
     Effect.succeed(`hello ${query.name}`),
     Effect.tap(() => Effect.logDebug("hello world")),
@@ -98,6 +85,6 @@ pipe(
     Effect.logInfo(`Listening on ${address}:${port}`),
   ),
   Effect.flatMap(() => pipe(client.callStanda({ body: { zdar: "zdar" } }))),
-  Effect.provideLayer(Logger.replace(Logger.defaultLogger, prettyLogger)),
+  Effect.provideLayer(Log.usePrettyLogger),
   Effect.runPromise,
 );
