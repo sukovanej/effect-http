@@ -75,7 +75,8 @@ Also, let's check the auto-generated OpenAPI UI running on
 
 ## TODO
 
-- generate dummy / example http
-- generate dummy / example client
-- testing http
-- make sure single operationId can't be used multiple times
+- [ ] generate dummy / example http
+- [ ] generate dummy / example client
+- [ ] testing http (generate always failing / always succeeding client)
+- [ ] make sure single operationId can't be used multiple times
+- [ ] OpenAPI groups
