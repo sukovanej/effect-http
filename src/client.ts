@@ -1,5 +1,3 @@
-import http from "http";
-import https from "https";
 import { request } from "undici";
 
 import * as Context from "@effect/data/Context";
@@ -41,8 +39,18 @@ export type UnexpectedClientError = {
   error: unknown;
 };
 
+export type ClientValidationError = {
+  _tag: "ClientValidationError";
+  error: unknown;
+};
+
 const unexpectedClientError = (error: unknown): UnexpectedClientError => ({
   _tag: "UnexpectedClientError",
+  error,
+});
+
+const clientValidationError = (error: unknown): ClientValidationError => ({
+  _tag: "ClientValidationError",
   error,
 });
 
@@ -68,7 +76,7 @@ type Client<Es extends Endpoint[]> = S.Spread<{
   ) => Effect.Effect<
     never,
     ClientError,
-    SelectEndpointById<Es, Id>["schemas"]["response"]
+    S.To<SelectEndpointById<Es, Id>["schemas"]["response"]>
   >;
 }>;
 
@@ -89,7 +97,12 @@ const nodeHttpClientProvider: HttpClientProvider = (
     Effect.bindTo("response"),
     Effect.bind("json", ({ response }) =>
       Effect.promise(async () => {
-        if (response.headers["Content-Type"] === "application/json") {
+        const contentType = response.headers["content-type"];
+        const isJson =
+          typeof contentType === "string" &&
+          contentType.startsWith("application/json");
+
+        if (isJson) {
           return await response.body.json();
         } else {
           return await response.body.text();
@@ -106,18 +119,9 @@ const nodeHttpClientProvider: HttpClientProvider = (
 const constructUrl = (
   baseUrl: URL,
   path: string,
-  query: unknown,
-  params: unknown,
 ): Effect.Effect<never, InvalidUrlError, URL> => {
   try {
     const url = new URL(path, baseUrl);
-
-    if (query !== IgnoredSchemaId) {
-      for (const [k, v] of new URLSearchParams(query as any).entries()) {
-        url.searchParams.set(k, v);
-      }
-    }
-
     return Effect.succeed(url);
   } catch (error) {
     return Effect.fail({ _tag: "InvalidUrlError" as const, error });
@@ -182,9 +186,7 @@ export const client =
                 Effect.mapError(invalidBodyError),
               ),
             ),
-            Effect.bind("url", ({ query, params }) =>
-              constructUrl(baseUrl, path, query, params),
-            ),
+            Effect.bind("url", () => constructUrl(baseUrl, path)),
             Effect.tap(({ url }) => Effect.logTrace(`${method} ${url}`)),
             Effect.flatMap(({ url, body, query }) =>
               Effect.flatMap(HttpClientProviderService, (provider) =>
@@ -198,6 +200,7 @@ export const client =
             Effect.flatMap(checkStatusCode),
             Effect.map(({ content }) => content),
             Effect.flatMap(parseResponse),
+            Effect.mapError(clientValidationError),
             Effect.provideService(
               HttpClientProviderService,
               nodeHttpClientProvider,

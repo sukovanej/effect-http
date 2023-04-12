@@ -9,10 +9,7 @@ import { prettyLogger } from "./_logger";
 
 // Schemas
 
-const milanSchema = S.struct({
-  penisLength: S.number,
-  name: S.string,
-});
+const milanSchema = S.struct({ penisLength: S.number, name: S.string });
 
 type Milan = S.To<typeof milanSchema>;
 

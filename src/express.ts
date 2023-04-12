@@ -71,7 +71,7 @@ const toEndpoint = <E extends Endpoint>({
       Effect.flatMap((response) =>
         pipe(
           Effect.try(() => {
-            res.status(200).send(response);
+            res.status(200).json(response);
           }),
           Effect.mapError(serverError),
         ),
@@ -158,7 +158,7 @@ export const toExpress = <Hs extends Handler<any, never>[]>(
 };
 
 export const listen =
-  (port: number) =>
+  (port?: number) =>
   <S extends Server<[], Handler<Endpoint, never>[]>>(self: S) => {
     if (self._unimplementedEndpoints.length !== 0) {
       new Error(`All endpoint must be implemented`);
