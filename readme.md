@@ -3,8 +3,8 @@
 High-level declarative HTTP API for effect-ts.
 
 - In-code API specification using `Http.api`.
-- Automatic type-safe client derivation using `Http.client`!
-- Server-side type-safe implementation with automatic OpenAPI derivation.
+- Type-safe client derivation using `Http.client`!
+- Type-safe server-side implementation with automatic OpenAPI derivation.
 - (TBD) Example server derivation.
 
 **Under development**
