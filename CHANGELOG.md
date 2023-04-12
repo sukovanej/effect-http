@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.0.5
+
+### Patch Changes
+
+- 4b7c67a: Fix handling of JSON responses
+
 ## 0.0.4
 
 ### Patch Changes
