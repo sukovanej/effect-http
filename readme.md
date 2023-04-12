@@ -49,16 +49,13 @@ const server = pipe(
 );
 ```
 
-Use the API using auto-generated client code.
+Now, we can generate an object providing the HTTP client interface using `Http.client`.
 
 ```typescript
 const client = pipe(api, Http.client(new URL("http://localhost:3000")));
-
-pipe(
-);
 ```
 
-And spawn the server on port 3000 and call it using our `client`.
+And spawn the server on port 3000 and call it using the `client`.
 
 ```typescript
 pipe(
