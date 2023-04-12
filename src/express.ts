@@ -134,11 +134,9 @@ const createSpec = <Hs extends Handler[]>(
         operationSpec.push(OpenApi.jsonRequest(schemas.body));
       }
 
-      // TODO: add operation id
-
       return OpenApi.path(
         path,
-        OpenApi.operation(method, ...operationSpec),
+        OpenApi.operation(method, OpenApi.operationId(id), ...operationSpec),
       )(spec);
     },
     self.openApi,
