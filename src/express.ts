@@ -5,6 +5,7 @@ import swaggerUi from "swagger-ui-express";
 
 import { flow, identity, pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
+import * as Logger from "@effect/io/Logger";
 import * as S from "@effect/schema/Schema";
 
 import { Endpoint, IgnoredSchemaId } from "./api";
@@ -41,11 +42,10 @@ const handleApiFailure = (
     Effect.ignoreLogged,
   );
 
-const toEndpoint = <E extends Endpoint>({
-  fn,
-  endpoint: { schemas, path, method },
-  layer,
-}: Handler<E, never>) => {
+const toEndpoint = <E extends Endpoint>(
+  { fn, endpoint: { schemas, path, method }, layer }: Handler<E, never>,
+  logger: Logger.Logger<any, any>,
+) => {
   const parseQuery = S.parseEffect(getSchema(schemas.query));
   const parseParams = S.parseEffect(getSchema(schemas.params));
   const parseBody = S.parseEffect(getSchema(schemas.body));
@@ -92,6 +92,7 @@ const toEndpoint = <E extends Endpoint>({
       Effect.catchAll((error) =>
         handleApiFailure(method, path, error, 500, res),
       ),
+      Effect.provideLayer(Logger.replace(Logger.defaultLogger, logger)),
       layer === undefined ? identity : Effect.provideLayer(layer),
       Effect.runPromise as any,
     );
@@ -99,10 +100,14 @@ const toEndpoint = <E extends Endpoint>({
 
 const handlerToRoute = <E extends Endpoint>(
   handler: Handler<E, never>,
+  logger: Logger.Logger<any, any>,
 ): express.Router =>
   express
     .Router()
-    [handler.endpoint.method](handler.endpoint.path, toEndpoint(handler));
+    [handler.endpoint.method](
+      handler.endpoint.path,
+      toEndpoint(handler, logger),
+    );
 
 const createSpec = <Hs extends Handler[]>(
   self: Server<[], Hs>,
@@ -149,7 +154,7 @@ export const toExpress = <Hs extends Handler<any, never>[]>(
   app.use(express.json());
 
   for (const handler of self.handlers) {
-    app.use(handlerToRoute(handler));
+    app.use(handlerToRoute(handler, self.logger));
   }
 
   app.use("/docs", swaggerUi.serve, swaggerUi.setup(createSpec(self)));

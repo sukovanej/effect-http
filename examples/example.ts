@@ -1,3 +1,5 @@
+import * as Log from "effect-log";
+
 import * as Context from "@effect/data/Context";
 import { pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
@@ -5,7 +7,6 @@ import * as Logger from "@effect/io/Logger";
 import * as S from "@effect/schema/Schema";
 
 import * as Http from "../src";
-import { prettyLogger } from "./_logger";
 
 // Schemas
 
@@ -85,7 +86,7 @@ const server = pipe(
   Http.handle("standa", handleStanda),
   Http.handle("getLesnek", handleLesnek),
   Http.handle("callStanda", () => Effect.succeed("zdar")),
-  Http.provideLayer(Logger.replace(Logger.defaultLogger, prettyLogger)),
+  Http.setLogger(Log.pretty),
 );
 
 const client = pipe(api, Http.client(new URL("http://localhost:4000")));

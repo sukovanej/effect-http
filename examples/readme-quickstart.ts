@@ -21,6 +21,7 @@ const server = pipe(
   api,
   Http.server("Users API"),
   Http.handle("getUser", ({ query }) => Effect.succeed({ name: "milan" })),
+  Http.setLogger(Log.pretty),
   Http.exhaustive,
 );
 

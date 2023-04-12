@@ -3,6 +3,7 @@ import * as OpenApi from "schema-openapi";
 import * as Context from "@effect/data/Context";
 import * as Effect from "@effect/io/Effect";
 import * as Layer from "@effect/io/Layer";
+import * as Logger from "@effect/io/Logger";
 import * as S from "@effect/schema/Schema";
 
 import { Api, Endpoint } from "./api";
@@ -17,6 +18,8 @@ export type Server<
 
   openApi: OpenApi.OpenAPISpec<OpenApi.OpenAPISchemaType>;
   handlers: Handlers;
+
+  logger: Logger.Logger<any, any>;
 };
 
 export type Body<Body> = S.Spread<{ body: Body }>;
@@ -38,6 +41,7 @@ export const server =
 
     openApi: OpenApi.openAPI(title, version),
     handlers: [],
+    logger: Logger.defaultLogger,
   });
 
 type DropEndpoint<Es extends Endpoint[], Id extends string> = Es extends [
@@ -132,3 +136,7 @@ export const provideService =
 export const exhaustive = <S extends Server<[], Handler<any, never>[]>>(
   server: S,
 ) => server;
+
+export const setLogger =
+  <I, O>(logger: Logger.Logger<I, O>) =>
+  <S extends Server>(server: S) => ({ ...server, logger });
