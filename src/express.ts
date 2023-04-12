@@ -3,7 +3,7 @@ import { AddressInfo } from "net";
 import * as OpenApi from "schema-openapi";
 import swaggerUi from "swagger-ui-express";
 
-import { flow, pipe } from "@effect/data/Function";
+import { flow, identity, pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
 import * as S from "@effect/schema/Schema";
 
@@ -14,8 +14,8 @@ import {
   invalidParamsError,
   invalidQueryError,
   invalidResponseError,
-  unexpectedServerError,
 } from "./errors";
+import { serverError } from "./errors";
 import { Handler, Server } from "./server";
 
 const handleApiFailure = (
@@ -43,6 +43,7 @@ const handleApiFailure = (
 const toEndpoint = <E extends Endpoint>({
   fn,
   endpoint: { schemas, path, method },
+  layer,
 }: Handler<E, never>) => {
   const parseQuery = S.parseEffect(
     schemas.query === IgnoredSchemaId ? S.unknown : schemas.query,
@@ -67,6 +68,7 @@ const toEndpoint = <E extends Endpoint>({
       Effect.bind("body", () =>
         pipe(parseBody(req.body), Effect.mapError(invalidBodyError)),
       ),
+      Effect.tap(() => Effect.logTrace(`${method} ${path}`)),
       Effect.flatMap((i: any) => fn(i)),
       Effect.flatMap(
         flow(encodeResponse, Effect.mapError(invalidResponseError)),
@@ -76,7 +78,7 @@ const toEndpoint = <E extends Endpoint>({
           Effect.try(() => {
             res.status(200).send(response);
           }),
-          Effect.mapError(unexpectedServerError),
+          Effect.mapError(serverError),
         ),
       ),
       Effect.catchTags({
@@ -88,13 +90,16 @@ const toEndpoint = <E extends Endpoint>({
           handleApiFailure(method, path, error, 400, res),
         InvalidResponseError: (error) =>
           handleApiFailure(method, path, error, 500, res),
-        UnexpectedServerError: (error) =>
-          handleApiFailure(method, path, error, 500, res),
         NotFoundError: (error) =>
           handleApiFailure(method, path, error, 404, res),
         ServerError: (error) => handleApiFailure(method, path, error, 500, res),
       }),
-      Effect.runPromise,
+      Effect.catchAll((error) =>
+        handleApiFailure(method, path, error, 500, res),
+      ),
+      Effect.logAnnotate("side", "server"),
+      layer === undefined ? identity : Effect.provideLayer(layer),
+      Effect.runPromise as any,
     );
 };
 

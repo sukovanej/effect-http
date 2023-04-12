@@ -1,9 +1,11 @@
 import * as Context from "@effect/data/Context";
 import { pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
+import * as Logger from "@effect/io/Logger";
 import * as S from "@effect/schema/Schema";
 
 import * as Http from "../src";
+import { prettyLogger } from "./_logger";
 
 // Schemas
 
@@ -68,6 +70,10 @@ const api = pipe(
     response: milanSchema,
     body: milanSchema,
   }),
+  Http.put("callStanda", "/api/zdar", {
+    response: S.string,
+    body: S.struct({ zdar: S.literal("zdar") }),
+  }),
 );
 
 // Server
@@ -81,6 +87,8 @@ const server = pipe(
   Http.provideLayer(dummyStuff),
   Http.handle("standa", handleStanda),
   Http.handle("getLesnek", handleLesnek),
+  Http.handle("callStanda", () => Effect.succeed("zdar")),
+  Http.provideLayer(Logger.replace(Logger.defaultLogger, prettyLogger)),
 );
 
 const client = pipe(api, Http.client(new URL("http://localhost:4000")));
@@ -91,6 +99,7 @@ pipe(
   Effect.flatMap(({ address, port }) =>
     Effect.logInfo(`Listening on ${address}:${port}`),
   ),
-  Effect.flatMap(() => pipe(client.getLesnek({ query: { name: "test" } }))),
+  Effect.flatMap(() => pipe(client.callStanda({ body: { zdar: "zdar" } }))),
+  Effect.provideLayer(Logger.replace(Logger.defaultLogger, prettyLogger)),
   Effect.runPromise,
 );

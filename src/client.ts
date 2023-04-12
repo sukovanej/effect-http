@@ -1,5 +1,6 @@
 import http from "http";
 import https from "https";
+import { request } from "undici";
 
 import * as Context from "@effect/data/Context";
 import { pipe } from "@effect/data/Function";
@@ -7,7 +8,12 @@ import * as Effect from "@effect/io/Effect";
 import * as S from "@effect/schema/Schema";
 
 import { Api, Endpoint, IgnoredSchemaId } from "./api";
-import { ApiError, invalidBodyError } from "./errors";
+import {
+  ApiError,
+  invalidBodyError,
+  invalidParamsError,
+  invalidQueryError,
+} from "./errors";
 import { EndpointSchemasToInput, SelectEndpointById } from "./internal";
 
 export type HttpClientProviderOptions = {
@@ -68,58 +74,28 @@ const nodeHttpClientProvider: HttpClientProvider = (
   { body, headers, query },
 ) =>
   pipe(
-    Effect.tryPromise(
-      () =>
-        new Promise<Response>((resolve, reject) => {
-          const options = { headers, method };
-
-          const client =
-            url.protocol === "http:"
-              ? http
-              : url.protocol === "https:"
-              ? https
-              : undefined;
-
-          if (client === undefined) {
-            reject({
-              _tag: "InvalidUrlError" as const,
-              error: new Error(`Unexpected protocol ${url.protocol}`),
-            });
-            return;
-          }
-
-          const req = http.get(url, { ...options }, (res) => {
-            let data: Uint8Array[] = [];
-
-            res.on("data", (chunk) => {
-              data.push(chunk);
-            });
-
-            res.on("end", () => {
-              let content = Buffer.concat(data).toString();
-
-              if (res.headers["content-type"] === "application/json") {
-                content = JSON.parse(content);
-              } else {
-                content = content;
-              }
-
-              if (res.statusCode === undefined) {
-                reject(unexpectedClientError(new Error("Missing status code")));
-                return;
-              }
-
-              resolve({ statusCode: res.statusCode, content });
-            });
-
-            res.on("error", reject);
-          });
-
-          if (body) {
-            req.write(JSON.stringify(body));
-          }
-        }),
+    Effect.tryPromise(() =>
+      request(url, {
+        method: method.toUpperCase() as any,
+        headers: { ...headers, "Content-Type": "application/json" },
+        query,
+        body: JSON.stringify(body),
+      }),
     ),
+    Effect.bindTo("response"),
+    Effect.bind("json", ({ response }) =>
+      Effect.promise(async () => {
+        if (response.headers["Content-Type"] === "application/json") {
+          return await response.body.json();
+        } else {
+          return await response.body.text();
+        }
+      }),
+    ),
+    Effect.map(({ response, json }) => ({
+      content: json,
+      statusCode: response.statusCode,
+    })),
     Effect.mapError(unexpectedClientError),
   );
 
@@ -171,33 +147,53 @@ export const client =
         { id, method, path, schemas: { query, params, body, response } },
       ) => {
         const parseResponse = S.parseEffect(response);
+        const encodeQuery = S.encodeEffect(
+          query === IgnoredSchemaId ? S.unknown : query,
+        );
+        const encodeParams = S.encodeEffect(
+          params === IgnoredSchemaId ? S.unknown : params,
+        );
+        const encodeBody = S.encodeEffect(
+          body === IgnoredSchemaId ? S.unknown : body,
+        );
 
         const fn = (args: any) => {
-          let requestBody: unknown = undefined;
-
-          if (body !== IgnoredSchemaId) {
-            requestBody = args["body"];
-          }
-
           return pipe(
-            constructUrl(
-              baseUrl,
-              path,
-              args["query"] === IgnoredSchemaId ? {} : args["query"],
-              args["params"] === IgnoredSchemaId ? {} : args["params"],
-            ),
-            Effect.tap((url) =>
+            Effect.Do(),
+            Effect.bind("query", () =>
               pipe(
-                Effect.logInfo(`${method} ${url}`),
-                Effect.logAnnotate("clientOperationId", id),
+                args["query"] === IgnoredSchemaId
+                  ? Effect.succeed(undefined)
+                  : encodeQuery(args["query"]),
+                Effect.mapError(invalidQueryError),
               ),
             ),
-            Effect.flatMap((url) =>
+            Effect.bind("params", () =>
+              pipe(
+                args["params"] === IgnoredSchemaId
+                  ? Effect.succeed(undefined)
+                  : encodeParams(args["params"]),
+                Effect.mapError(invalidParamsError),
+              ),
+            ),
+            Effect.bind("body", () =>
+              pipe(
+                args["body"] === IgnoredSchemaId
+                  ? Effect.succeed(undefined)
+                  : encodeBody(args["body"]),
+                Effect.mapError(invalidBodyError),
+              ),
+            ),
+            Effect.bind("url", ({ query, params }) =>
+              constructUrl(baseUrl, path, query, params),
+            ),
+            Effect.tap(({ url }) => Effect.logTrace(`${method} ${url}`)),
+            Effect.flatMap(({ url, body, query }) =>
               Effect.flatMap(HttpClientProviderService, (provider) =>
                 provider(method, url, {
-                  body: requestBody,
+                  body,
                   headers: {},
-                  query: args["query"],
+                  query: query as any,
                 }),
               ),
             ),
@@ -208,6 +204,8 @@ export const client =
               HttpClientProviderService,
               nodeHttpClientProvider,
             ),
+            Effect.logAnnotate("clientOperationId", id),
+            Effect.logAnnotate("side", "client"),
           );
         };
         return { ...(client as any), [id]: fn };

@@ -28,6 +28,7 @@ export type Handler<E extends Endpoint = Endpoint, R = any> = {
   ) => Effect.Effect<R, ApiError, S.To<E["schemas"]["response"]>>;
 
   endpoint: E;
+  layer?: Layer.Layer<any, ApiError, any>;
 };
 
 export const server =
@@ -102,7 +103,10 @@ export const provideLayer =
     ...api,
     handlers: api.handlers.map((handler) => ({
       ...handler,
-      fn: (input: any) => Effect.provideLayer(handler.fn(input), layer),
+      layer:
+        handler.layer === undefined
+          ? layer
+          : Layer.provide(handler.layer, layer),
     })) as ProvideLayer<Hs, R0, R>,
   });
 
@@ -124,7 +128,9 @@ export const provideService =
     ...api,
     handlers: api.handlers.map((handler) => ({
       ...handler,
-      fn: (input: any) =>
-        Effect.provideService(handler.fn(input), tag, service),
+      layer:
+        handler.layer === undefined
+          ? Layer.succeed(tag, service)
+          : Layer.provide(handler.layer, Layer.succeed(tag, service)),
     })) as ProvideService<Hs, T>,
   });

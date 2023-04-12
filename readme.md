@@ -8,3 +8,4 @@ High-level declarative HTTP API for effect-ts based on express.
 - generate dummy / example http
 - generate dummy / example client
 - testing http
+- make sure single operationId can't be used multiple times

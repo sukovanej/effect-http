@@ -6,9 +6,10 @@
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc",
+    "build": "rm -rf dist && tsc -p tsconfig.build.json",
     "watch": "tsc -w -p tsconfig.json",
-    "format": "prettier -w src tests examples"
+    "format": "prettier -w src tests examples",
+    "test": "vitest run"
   },
   "keywords": [],
   "author": "Milan Suk <Milansuk@email.cz>",
@@ -29,7 +30,8 @@
   "dependencies": {
     "express": "^4.18.2",
     "schema-openapi": "^0.0.16",
-    "swagger-ui-express": "^4.6.2"
+    "swagger-ui-express": "^4.6.2",
+    "undici": "^5.21.2"
   },
   "peerDependencies": {
     "@effect/data": "^0.12.2",

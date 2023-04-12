@@ -7,10 +7,6 @@ export type InvalidResponseError = {
   error: unknown;
 };
 export type ServerError = { _tag: "ServerError"; error: unknown };
-export type UnexpectedServerError = {
-  _tag: "UnexpectedServerError";
-  error: unknown;
-};
 
 export type ApiError =
   | NotFoundError
@@ -18,8 +14,7 @@ export type ApiError =
   | InvalidParamsError
   | InvalidBodyError
   | InvalidResponseError
-  | ServerError
-  | UnexpectedServerError;
+  | ServerError;
 
 export const notFoundError = (error: unknown): NotFoundError =>
   ({ _tag: "NotFoundError", error } as const);
@@ -44,12 +39,5 @@ export const invalidBodyError = (error: unknown): InvalidBodyError => ({
 
 export const invalidResponseError = (error: unknown): InvalidResponseError => ({
   _tag: "InvalidResponseError",
-  error,
-});
-
-export const unexpectedServerError = (
-  error: unknown,
-): UnexpectedServerError => ({
-  _tag: "UnexpectedServerError",
   error,
 });
