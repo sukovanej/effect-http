@@ -17,3 +17,8 @@ type SchemaStructTo<A> = {
 export type EndpointSchemasToInput<E extends Endpoint["schemas"]> = S.Spread<
   SchemaStructTo<RemoveIgnoredSchemas<Omit<E, "response">>>
 >;
+
+export type SelectEndpointById<Es extends Endpoint[], Id> = Extract<
+  Es[number],
+  { id: Id }
+>;

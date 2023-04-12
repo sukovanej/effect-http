@@ -7,7 +7,7 @@ import * as S from "@effect/schema/Schema";
 
 import { Api, Endpoint } from "./api";
 import { ApiError } from "./errors";
-import { EndpointSchemasToInput } from "./internal";
+import { EndpointSchemasToInput, SelectEndpointById } from "./internal";
 
 export type Server<
   UnimplementedEndpoints extends Endpoint[] = Endpoint[],
@@ -55,10 +55,7 @@ export const handle =
     R,
   >(
     id: Id,
-    fn: Handler<
-      Extract<S["_unimplementedEndpoints"][number], { id: Id }>,
-      R
-    >["fn"],
+    fn: Handler<SelectEndpointById<S["_unimplementedEndpoints"], Id>, R>["fn"],
   ) =>
   (
     api: S,
@@ -66,7 +63,7 @@ export const handle =
     DropEndpoint<S["_unimplementedEndpoints"], Id>,
     [
       ...S["handlers"],
-      Handler<Extract<S["_unimplementedEndpoints"][number], { id: Id }>, R>,
+      Handler<SelectEndpointById<S["_unimplementedEndpoints"], Id>, R>,
     ]
   > => ({
     ...api,
@@ -83,7 +80,7 @@ export const handle =
       },
     ] as [
       ...S["handlers"],
-      Handler<Extract<S["_unimplementedEndpoints"][number], { id: Id }>, R>,
+      Handler<SelectEndpointById<S["_unimplementedEndpoints"], Id>, R>,
     ],
   });
 
