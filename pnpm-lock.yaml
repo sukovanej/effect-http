@@ -5,8 +5,8 @@ dependencies:
     specifier: ^4.18.2
     version: 4.18.2
   schema-openapi:
-    specifier: ^0.0.16
-    version: 0.0.16(@effect/data@0.12.2)(@effect/schema@0.12.1)
+    specifier: ^0.0.17
+    version: 0.0.17(@effect/data@0.12.2)(@effect/schema@0.12.1)
   swagger-ui-express:
     specifier: ^4.6.2
     version: 4.6.2(express@4.18.2)
@@ -2477,8 +2477,8 @@ packages:
   /safer-buffer@2.1.2:
     resolution: {integrity: sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==}
 
-  /schema-openapi@0.0.16(@effect/data@0.12.2)(@effect/schema@0.12.1):
-    resolution: {integrity: sha512-9zINSYDzqXFwbWw6s4kpENFMdHts/eIftqjWW6uHstal11MHwB/jZN9ctC9RUpp1OOCQcUpkXzEenjPgq5PtVA==}
+  /schema-openapi@0.0.17(@effect/data@0.12.2)(@effect/schema@0.12.1):
+    resolution: {integrity: sha512-il+1CniiljhVoCY2f9KBKDIerQXKaGRBh/yMWpzU3WEOJSpU4AhAF/Zg5OYL7Qhp1c9uARHhcscnyRB7uXLJ/g==}
     peerDependencies:
       '@effect/data': ^0.12.2
       '@effect/schema': ^0.12.1

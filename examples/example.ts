@@ -43,7 +43,7 @@ const handleLesnek = ({ query }: Http.Input<typeof api, "getLesnek">) =>
 // Api
 
 const api = pipe(
-  Http.api(),
+  Http.api({ title: "My awesome pets API", version: "1.0.0" }),
   Http.get("getMilan", "/milan", { response: S.string }),
   Http.get("getLesnek", "/lesnek", { response: S.string, query: lesnekSchema }),
   Http.get("test", "/test", { response: standaSchema, query: lesnekSchema }),
@@ -65,7 +65,7 @@ const api = pipe(
 
 const server = pipe(
   api,
-  Http.server("My awesome pets API", "1.0.0"),
+  Http.server,
   Http.handle("getMilan", () => Effect.succeed("test")),
   Http.handle("test", handleTest),
   Http.handle("handleMilan", handleMilan),

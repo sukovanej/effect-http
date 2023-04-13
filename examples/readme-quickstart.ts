@@ -10,7 +10,7 @@ const responseSchema = S.struct({ name: S.string });
 const querySchema = S.struct({ id: S.NumberFromString });
 
 const api = pipe(
-  Http.api(),
+  Http.api({ title: "Users API" }),
   Http.get("getUser", "/user", {
     response: responseSchema,
     query: querySchema,
@@ -19,7 +19,7 @@ const api = pipe(
 
 const server = pipe(
   api,
-  Http.server("Users API"),
+  Http.server,
   Http.handle("getUser", ({ query }) => Effect.succeed({ name: "milan" })),
   Http.setLogger(Log.pretty),
   Http.exhaustive,

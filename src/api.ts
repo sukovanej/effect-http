@@ -2,8 +2,6 @@ import * as OpenApi from "schema-openapi";
 
 import * as S from "@effect/schema/Schema";
 
-import { EndpointSchemasToInput } from "./internal";
-
 const fillDefaultSchemas = <I extends InputSchemas>({
   response,
   query,
@@ -41,9 +39,17 @@ export interface Endpoint<
     body: Body;
     response: S.Schema<Response>;
   };
+  groupName: string;
 }
 
-export type Api<E extends Endpoint[] = Endpoint[]> = E;
+export type Api<E extends Endpoint[] = Endpoint[]> = {
+  endpoints: E;
+  options: {
+    groupName: string;
+    title: string;
+    version: string;
+  };
+};
 
 export type InputSchemas<
   QueryS = any,
@@ -70,7 +76,21 @@ export type ComputeEndpoint<
   >
 >;
 
-export const api = (): Api<[]> => [];
+type NonRequired<T> = { [K in keyof T]?: T[K] };
+
+const DEFAULT_OPTIONS: Api["options"] = {
+  title: "Api",
+  version: "1.0.0",
+  groupName: "default",
+};
+
+export const api = (options?: NonRequired<Api["options"]>): Api<[]> => ({
+  options: {
+    ...DEFAULT_OPTIONS,
+    ...options,
+  },
+  endpoints: [],
+});
 
 export const endpoint =
   (method: OpenApi.OpenAPISpecMethodName) =>
@@ -79,16 +99,21 @@ export const endpoint =
     path: string,
     schemas: I,
   ) =>
-  <A extends Endpoint[]>(self: Api<A>): Api<[...A, ComputeEndpoint<Id, I>]> =>
-    [
-      ...self,
+  <A extends Endpoint[]>(
+    self: Api<A>,
+  ): Api<[...A, ComputeEndpoint<Id, I>]> => ({
+    ...self,
+    endpoints: [
+      ...self.endpoints,
       {
         schemas: fillDefaultSchemas(schemas),
         id,
         path,
         method,
+        groupName: self.options.groupName,
       } as ComputeEndpoint<Id, I>,
-    ];
+    ],
+  });
 
 export const get = endpoint("get");
 export const post = endpoint("post");
@@ -99,3 +124,8 @@ export const trace = endpoint("trace");
 export const _delete = endpoint("delete");
 export { _delete as delete };
 export const options = endpoint("options");
+
+export const group =
+  (groupName: string) =>
+  <A extends Api>(api: Api): A =>
+    ({ ...api, options: { ...api.options, groupName } } as A);

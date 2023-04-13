@@ -149,7 +149,7 @@ const checkStatusCode = (response: Response) => {
 export const client =
   (baseUrl: URL) =>
   <Es extends Endpoint[]>(api: Api<Es>): Client<Es> =>
-    api.reduce(
+    api.endpoints.reduce(
       (
         client,
         { id, method, path, schemas: { query, params, body, response } },

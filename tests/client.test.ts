@@ -18,7 +18,7 @@ test("quickstart example e2e", async () => {
 
   const server = pipe(
     api,
-    Http.server("Users API"),
+    Http.server,
     Http.handle("getUser", ({ query }) => Effect.succeed({ name: "milan" })),
     Http.exhaustive,
   );

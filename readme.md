@@ -34,7 +34,7 @@ const responseSchema = S.struct({ name: S.string });
 const querySchema = S.struct({ id: S.number });
 
 const api = pipe(
-  Http.api(),
+  Http.api({ title: "Users API" }),
   Http.get("getUser", "/user", {
     response: responseSchema,
     query: querySchema,
@@ -47,7 +47,7 @@ Create the server implementation.
 ```typescript
 const server = pipe(
   api,
-  Http.server("Users API"),
+  Http.server,
   Http.handle("getUser", ({ query }) => Effect.succeed({ name: "milan" })),
   Http.exhaustive,
 );
@@ -76,6 +76,93 @@ Also, let's check the auto-generated OpenAPI UI running on
 [localhost:3000/docs](http://localhost:3000/docs/). How awesome is that!
 
 ![open api ui](assets/example-openapi-ui.png)
+
+### Example server
+
+`effect-http` has an ability to generate an example server
+implementation based on the `Api` specification. This can be
+helpful in the following and probably many more cases.
+
+- You're in a process of designing an API and you want to have an
+  OpenApi and UI you have a discuss over.
+- You develop a fullstack application with frontend first approach
+  you want to test the integration with a backend you haven't
+  implemeted yet.
+- You integrate a 3rd party HTTP API and you want to have an ability to
+  perform integration tests without the need to connect to a real
+  running HTTP service.
+
+Use `Http.exampleServer` combinator to generate a `Server` from `Api`.
+
+```typescript
+import * as Http from "effect-http";
+
+import { pipe } from "@effect/data/Function";
+import * as Effect from "@effect/io/Effect";
+import * as S from "@effect/schema/Schema";
+
+const responseSchema = S.struct({ name: S.string });
+
+const api = pipe(
+  Http.api(),
+  Http.get("test", "/test", { response: responseSchema }),
+);
+
+pipe(
+  api,
+  Http.exampleServer,
+  Http.listen(3000),
+  Effect.flatMap(({ port }) => Effect.log(`Listening on ${port}`)),
+  Effect.runPromise,
+);
+```
+
+Go to [localhost:3000/docs](http://localhost:3000/docs) and try calling
+endpoints. The exposed HTTP service conforms the specified `Api` specification
+and will return only valid example responses.
+
+### Grouping endpoints
+
+It is possible to group endpoints using the `Http.group` combinator.
+Right now, the only purpose of this information is to be able to
+generate tags for the OpenApi specification.
+
+```typescript
+import * as Http from "effect-http";
+
+import { pipe } from "@effect/data/Function";
+import * as Effect from "@effect/io/Effect";
+import * as S from "@effect/schema/Schema";
+
+const responseSchema = S.struct({ name: S.string });
+
+const api = pipe(
+  Http.api({ groupName: "Test" }),
+  Http.get("test", "/test", { response: responseSchema }),
+  Http.group("Users"),
+  Http.get("getUser", "/user", { response: responseSchema }),
+  Http.post("storeUser", "/user", { response: responseSchema }),
+  Http.put("updateUser", "/user", { response: responseSchema }),
+  Http.delete("deleteUser", "/user", { response: responseSchema }),
+  Http.group("Categories"),
+  Http.get("getCategory", "/category", { response: responseSchema }),
+  Http.post("storeCategory", "/category", { response: responseSchema }),
+  Http.put("updateCategory", "/category", { response: responseSchema }),
+  Http.delete("deleteCategory", "/category", { response: responseSchema }),
+);
+
+pipe(
+  api,
+  Http.exampleServer,
+  Http.listen(3000),
+  Effect.flatMap(({ port }) => Effect.log(`Listening on ${port}`)),
+  Effect.runPromise,
+);
+```
+
+The OpenApi UI groups endpoints using the specified groups.
+
+![example-generated-open-api-ui](assets/exmple-server-open-api.png)
 
 ## Cookbook
 

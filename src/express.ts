@@ -8,7 +8,7 @@ import * as Effect from "@effect/io/Effect";
 import * as Logger from "@effect/io/Logger";
 import * as S from "@effect/schema/Schema";
 
-import { Endpoint, IgnoredSchemaId } from "./api";
+import { Endpoint } from "./api";
 import {
   ApiError,
   invalidBodyError,
@@ -18,6 +18,7 @@ import {
 } from "./errors";
 import { serverError } from "./errors";
 import { getSchema } from "./internal";
+import { openApi } from "./openapi";
 import { Handler, Server } from "./server";
 
 const handleApiFailure = (
@@ -30,17 +31,33 @@ const handleApiFailure = (
   pipe(
     Effect.logWarning(`${method} ${path} failed`),
     Effect.logAnnotate("errorTag", error._tag),
-    Effect.logAnnotate("error", JSON.stringify(error.error, undefined)),
+    Effect.logAnnotate("error", errorToLog(error.error)),
     Effect.flatMap(() =>
       Effect.try(() =>
         res.status(statusCode).send({
           error: error._tag,
-          details: JSON.stringify(error.error, undefined),
+          details: errorToDetails(error.error),
         }),
       ),
     ),
     Effect.ignoreLogged,
   );
+
+const errorToDetails = (error: unknown): unknown => {
+  if (["string", "number", "boolean", "object"].includes(typeof error)) {
+    return error;
+  }
+
+  return JSON.stringify(error, undefined);
+};
+
+const errorToLog = (error: unknown): string => {
+  if (["string", "number", "boolean"].includes(typeof error)) {
+    return `${error}`;
+  }
+
+  return JSON.stringify(error, undefined);
+};
 
 const toEndpoint = <E extends Endpoint>(
   { fn, endpoint: { schemas, path, method }, layer }: Handler<E, never>,
@@ -109,55 +126,17 @@ const handlerToRoute = <E extends Endpoint>(
       toEndpoint(handler, logger),
     );
 
-const createSpec = <Hs extends Handler[]>(
-  self: Server<[], Hs>,
-): OpenApi.OpenAPISpec<OpenApi.OpenAPISchemaType> => {
-  return self.handlers.reduce(
-    (spec, { endpoint: { path, method, schemas, id } }) => {
-      const operationSpec = [];
-
-      if (schemas.response !== S.unknown) {
-        operationSpec.push(
-          OpenApi.jsonResponse(200, schemas.response, "Response"),
-        );
-      }
-
-      if (schemas.params !== IgnoredSchemaId) {
-        operationSpec.push(
-          OpenApi.parameter("Path parameter", "path", schemas.params),
-        );
-      }
-
-      if (schemas.query !== IgnoredSchemaId) {
-        operationSpec.push(
-          OpenApi.parameter("Query parameter", "query", schemas.query),
-        );
-      }
-
-      if (schemas.body !== IgnoredSchemaId) {
-        operationSpec.push(OpenApi.jsonRequest(schemas.body));
-      }
-
-      return OpenApi.path(
-        path,
-        OpenApi.operation(method, OpenApi.operationId(id), ...operationSpec),
-      )(spec);
-    },
-    self.openApi,
-  );
-};
-
 export const toExpress = <Hs extends Handler<any, never>[]>(
-  self: Server<[], Hs>,
+  server: Server<[], Hs>,
 ): express.Express => {
   const app = express();
   app.use(express.json());
 
-  for (const handler of self.handlers) {
-    app.use(handlerToRoute(handler, self.logger));
+  for (const handler of server.handlers) {
+    app.use(handlerToRoute(handler, server.logger));
   }
 
-  app.use("/docs", swaggerUi.serve, swaggerUi.setup(createSpec(self)));
+  app.use("/docs", swaggerUi.serve, swaggerUi.setup(openApi(server.api)));
 
   return app;
 };
