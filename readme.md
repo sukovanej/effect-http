@@ -134,9 +134,14 @@ and will return only valid example responses.
 
 ### Grouping endpoints
 
-It is possible to group endpoints using the `Http.group` combinator.
-Right now, the only purpose of this information is to be able to
-generate tags for the OpenApi specification.
+To create a new group of endpoints, use `Http.apiGroup("group name")`. This combinator
+initializes new `ApiGroup` object. You can pipe it with combinators like `Http.get`,
+`Http.post`, etc, as if were defining the `Api`. Api groups can be combined into an
+`Api` using a `Http.addGroup` combinator which merges endpoints from the group
+into the api in the type-safe manner while preserving group names for each endpoint.
+
+This enables separability of concers for big APIs and provides information for
+generation of tags for the OpenApi specification.
 
 ```typescript
 import * as Http from "effect-http";
@@ -147,19 +152,32 @@ import * as S from "@effect/schema/Schema";
 
 const responseSchema = S.struct({ name: S.string });
 
-const api = pipe(
-  Http.api({ groupName: "Test" }),
+const testApi = pipe(
+  Http.apiGroup("test"),
   Http.get("test", "/test", { response: responseSchema }),
-  Http.group("Users"),
+);
+
+const userApi = pipe(
+  Http.apiGroup("Users"),
   Http.get("getUser", "/user", { response: responseSchema }),
   Http.post("storeUser", "/user", { response: responseSchema }),
   Http.put("updateUser", "/user", { response: responseSchema }),
   Http.delete("deleteUser", "/user", { response: responseSchema }),
-  Http.group("Categories"),
+);
+
+const categoriesApi = pipe(
+  Http.apiGroup("Categories"),
   Http.get("getCategory", "/category", { response: responseSchema }),
   Http.post("storeCategory", "/category", { response: responseSchema }),
   Http.put("updateCategory", "/category", { response: responseSchema }),
   Http.delete("deleteCategory", "/category", { response: responseSchema }),
+);
+
+const api = pipe(
+  Http.api(),
+  Http.addGroup(testApi),
+  Http.addGroup(userApi),
+  Http.addGroup(categoriesApi),
 );
 
 pipe(

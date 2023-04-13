@@ -1,5 +1,3 @@
-import * as OpenApi from "schema-openapi";
-
 import * as Context from "@effect/data/Context";
 import * as Effect from "@effect/io/Effect";
 import * as Layer from "@effect/io/Layer";
