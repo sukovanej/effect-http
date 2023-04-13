@@ -1,5 +1,14 @@
 # effect-http
 
+## 0.0.6
+
+### Patch Changes
+
+- 76c5300: improve grouping api
+- 0f58e68: Input type helper
+- 5b682f5: add `Http.setLogger`
+- 39b1c3e: Introduce `exampleServer`, move title and version to `Api`
+
 ## 0.0.5
 
 ### Patch Changes
