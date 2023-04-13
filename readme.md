@@ -35,7 +35,7 @@ pnpm add @effect/data @effect/io @effect/schema
 Bootstrap a simple API specification.
 
 ```typescript
-import * as Http from "effect-schema";
+import { pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
 import * as S from "@effect/schema/Schema";
 
@@ -126,6 +126,8 @@ pipe(
 );
 ```
 
+*(This is a complete standalone code example)*
+
 Go to [localhost:3000/docs](http://localhost:3000/docs) and try calling
 endpoints. The exposed HTTP service conforms the specified `Api` specification
 and will return only valid example responses.
@@ -186,6 +188,8 @@ pipe(
 );
 ```
 
+*(This is a complete standalone code example)*
+
 The OpenApi UI groups endpoints using the specified groups.
 
 ![example-generated-open-api-ui](assets/exmple-server-open-api.png)
@@ -227,3 +231,5 @@ const server = pipe(
   Http.exhaustive,
 );
 ```
+
+*(This is a complete standalone code example)*

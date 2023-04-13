@@ -6,7 +6,7 @@ import * as S from "@effect/schema/Schema";
 
 import * as Http from "../src";
 
-const responseSchema = S.struct({ name: S.string });
+const responseSchema = S.struct({ name: S.string, id: S.number });
 const querySchema = S.struct({ id: S.NumberFromString });
 
 const api = pipe(
@@ -20,7 +20,9 @@ const api = pipe(
 const server = pipe(
   api,
   Http.server,
-  Http.handle("getUser", ({ query }) => Effect.succeed({ name: "milan" })),
+  Http.handle("getUser", ({ query }) =>
+    Effect.succeed({ name: "milan", id: query.id }),
+  ),
   Http.exhaustive,
 );
 
