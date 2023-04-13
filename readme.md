@@ -1,34 +1,45 @@
 # effect-http
 
-High-level declarative HTTP API for effect-ts.
+High-level declarative HTTP API for [effect-ts](https://github.com/Effect-TS).
 
-- In-code API specification using `Http.api`.
-- Type-safe client derivation using `Http.client`!
-- Type-safe server-side implementation with automatic OpenAPI derivation.
-- (TBD) Example server derivation.
+## Features
+
+- **Client derivation**. Write the api specification once, get the type-safe client with runtime validation for free.
+- **OpenApi derivation**. OpenApi schema with exposed OpenApi UI out of box.
+- **Batteries included server implementation**. Automatic runtime validation of input and response objects.
+- **Example server derivation**. Expose HTTP server conforming the API specification.
+- (TBD) **Mock client derivation**. Test safely against a specified API.
 
 **Under development**
 
-- [Quickstart](#Quickstart)
-- [Cookbook](#Cookbook)
-  - [Handler input type derivation](#Handler-input-type-derivation)
+- [Quickstart](#quickstart)
+- [Example server](#example-server)
+- [Grouping endpoints](#grouping-endpoints)
+- [Cookbook](#cookbook)
+  - [Handler input type derivation](#handler-input-type-derivation)
 
 ## Quickstart
 
 Install using
 
 ```bash
-pnpm add effect-http @effect/data @effect/io @effect/schema
+pnpm add effect-http
 ```
 
-Bootstrap a simple application API.
+`@effect/data`, `@effect/io` and `@effect/schema` are peer-dependencies, install them using
+
+```bash
+pnpm add @effect/data @effect/io @effect/schema
+```
+
+Bootstrap a simple API specification.
 
 ```typescript
 import * as Http from "effect-schema";
 import * as Effect from "@effect/io/Effect";
 import * as S from "@effect/schema/Schema";
 
-import * as Http from "../src";
+import * as Http from "effect-http"
 
 const responseSchema = S.struct({ name: S.string });
 const querySchema = S.struct({ id: S.number });
@@ -72,7 +83,7 @@ pipe(
 );
 ```
 
-Also, let's check the auto-generated OpenAPI UI running on
+Also, check the auto-generated OpenAPI UI running on
 [localhost:3000/docs](http://localhost:3000/docs/). How awesome is that!
 
 ![open api ui](assets/example-openapi-ui.png)
@@ -180,7 +191,7 @@ import { pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
 import * as S from "@effect/schema/Schema";
 
-import * as Http from "../src";
+import * as Http from "effect-http";
 
 const api = pipe(
   Http.api(),
@@ -201,11 +212,3 @@ const server = pipe(
   Http.exhaustive,
 );
 ```
-
-## TODO
-
-- [ ] generate dummy / example http
-- [ ] generate dummy / example client
-- [ ] testing http (generate always failing / always succeeding client)
-- [ ] make sure single operationId can't be used multiple times
-- [ ] OpenAPI groups
