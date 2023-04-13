@@ -1,4 +1,4 @@
-import * as OpenApiExamples from "schema-openapi/dist/example-compiler";
+import * as OpenApi from "schema-openapi";
 
 import { pipe } from "@effect/data/Function";
 import * as RA from "@effect/data/ReadonlyArray";
@@ -20,18 +20,11 @@ export const exampleServer = (api: Api): Server<[], any> => {
   ) as Server<[], any>;
 };
 
-const createExampleHandler = (endpoint: Endpoint) => {
-  const examples = OpenApiExamples.examples(endpoint.schemas.response);
-
-  return () => {
-    const randomIndex = Math.round(Math.random() * (examples.length - 1));
-
-    if (randomIndex < 0) {
-      return Effect.fail(
-        serverError("Sorry, I don't have any example response"),
-      );
-    }
-
-    return Effect.succeed(examples[randomIndex]);
-  };
-};
+const createExampleHandler = (endpoint: Endpoint) => () =>
+  pipe(
+    OpenApi.randomExample(endpoint.schemas.response),
+    Effect.fromOption,
+    Effect.mapError(() =>
+      serverError("Sorry, I don't have any example response"),
+    ),
+  );
