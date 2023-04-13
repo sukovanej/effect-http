@@ -206,7 +206,6 @@ export const client =
               nodeHttpClientProvider,
             ),
             Effect.logAnnotate("clientOperationId", id),
-            Effect.logAnnotate("side", "client"),
           );
         };
         return { ...(client as any), [id]: fn };
