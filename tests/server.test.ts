@@ -23,7 +23,7 @@ test("multiple provideLayer calls", async () => {
 
   const server = pipe(
     api,
-    Http.server("Test server"),
+    Http.server,
     Http.handle("doStuff", () => Effect.map(Service1, (value) => value + 2)),
     Http.provideLayer(layer2),
     Http.provideLayer(layer1),

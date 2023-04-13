@@ -16,8 +16,8 @@ export type Server<
 > = {
   _unimplementedEndpoints: UnimplementedEndpoints;
 
-  openApi: OpenApi.OpenAPISpec<OpenApi.OpenAPISchemaType>;
   handlers: Handlers;
+  api: Api;
 
   logger: Logger.Logger<any, any>;
 };
@@ -34,15 +34,13 @@ export type Handler<E extends Endpoint = Endpoint, R = any> = {
   layer?: Layer.Layer<any, ApiError, any>;
 };
 
-export const server =
-  (title: string, version: string = "1.0.0") =>
-  <A extends Endpoint[]>(api: Api<A>): Server<A, []> => ({
-    _unimplementedEndpoints: api,
+export const server = <A extends Endpoint[]>(api: Api<A>): Server<A, []> => ({
+  _unimplementedEndpoints: api.endpoints,
+  api,
 
-    openApi: OpenApi.openAPI(title, version),
-    handlers: [],
-    logger: Logger.defaultLogger,
-  });
+  handlers: [],
+  logger: Logger.defaultLogger,
+});
 
 type DropEndpoint<Es extends Endpoint[], Id extends string> = Es extends [
   infer First,
@@ -158,5 +156,7 @@ export const setLogger =
  */
 export type Input<
   A extends Api,
-  Id extends A[number]["id"],
-> = EndpointSchemasToInput<Extract<A[number], { id: Id }>["schemas"]>;
+  Id extends A["endpoints"][number]["id"],
+> = EndpointSchemasToInput<
+  Extract<A["endpoints"][number], { id: Id }>["schemas"]
+>;

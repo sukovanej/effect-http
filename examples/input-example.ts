@@ -5,7 +5,7 @@ import * as S from "@effect/schema/Schema";
 import * as Http from "../src";
 
 const api = pipe(
-  Http.api(),
+  Http.api({ title: "My api" }),
   Http.get("stuff", "/stuff", {
     response: S.string,
     query: S.struct({ value: S.string }),
@@ -17,7 +17,7 @@ const handleStuff = ({ query }: Http.Input<typeof api, "stuff">) =>
 
 const server = pipe(
   api,
-  Http.server("My api"),
+  Http.server,
   Http.handle("stuff", handleStuff),
   Http.exhaustive,
 );
