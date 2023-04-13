@@ -73,17 +73,14 @@ const server = pipe(
   Http.handle("standa", handleStanda),
   Http.handle("getLesnek", handleLesnek),
   Http.handle("callStanda", () => Effect.succeed("zdar")),
-  Http.setLogger(Log.pretty),
 );
 
 const client = pipe(api, Http.client(new URL("http://localhost:4000")));
 
 pipe(
   server,
+  Http.setLogger(Log.pretty),
   Http.listen(4000),
-  Effect.flatMap(({ address, port }) =>
-    Effect.logInfo(`Listening on ${address}:${port}`),
-  ),
   Effect.flatMap(() => pipe(client.callStanda({ body: { zdar: "zdar" } }))),
   Effect.provideLayer(Log.usePrettyLogger),
   Effect.runPromise,

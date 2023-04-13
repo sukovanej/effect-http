@@ -143,21 +143,27 @@ export const toExpress = <Hs extends Handler<any, never>[]>(
 
 export const listen =
   (port?: number) =>
-  <S extends Server<[], Handler<Endpoint, never>[]>>(self: S) => {
-    if (self._unimplementedEndpoints.length !== 0) {
+  <S extends Server<[], Handler<Endpoint, never>[]>>(server: S) => {
+    if (server._unimplementedEndpoints.length !== 0) {
       new Error(`All endpoint must be implemented`);
     }
 
-    const server = toExpress(self);
+    const app = toExpress(server);
 
-    return Effect.tryPromise(
-      () =>
-        new Promise<AddressInfo>((resolve, reject) => {
-          const listeningServer = server.listen(port);
-          listeningServer.on("listening", () =>
-            resolve(listeningServer.address() as AddressInfo),
-          );
-          listeningServer.on("error", reject);
-        }),
+    return pipe(
+      Effect.tryPromise(
+        () =>
+          new Promise<AddressInfo>((resolve, reject) => {
+            const listeningServer = app.listen(port);
+            listeningServer.on("listening", () =>
+              resolve(listeningServer.address() as AddressInfo),
+            );
+            listeningServer.on("error", reject);
+          }),
+      ),
+      Effect.tap(({ address, port }) =>
+        Effect.logInfo(`Server listening on ${address}:${port}`),
+      ),
+      Effect.provideLayer(Logger.replace(Logger.defaultLogger, server.logger)),
     );
   };

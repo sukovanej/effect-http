@@ -76,7 +76,6 @@ And spawn the server on port 3000 and call it using the `client`.
 pipe(
   server,
   Http.listen(3000),
-  Effect.flatMap((port) => Effect.logInfo(`Listening on ${port}`)),
   Effect.flatMap(() => client.getUser({ query: { id: 12 } })),
   Effect.flatMap((user) => Effect.logInfo(`Got ${user.name}, nice!`)),
   Effect.runPromise,
@@ -123,7 +122,6 @@ pipe(
   api,
   Http.exampleServer,
   Http.listen(3000),
-  Effect.flatMap(({ port }) => Effect.log(`Listening on ${port}`)),
   Effect.runPromise,
 );
 ```
@@ -184,7 +182,6 @@ pipe(
   api,
   Http.exampleServer,
   Http.listen(3000),
-  Effect.flatMap(({ port }) => Effect.log(`Listening on ${port}`)),
   Effect.runPromise,
 );
 ```

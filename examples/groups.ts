@@ -1,3 +1,5 @@
+import * as Log from "effect-log";
+
 import { pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
 import * as S from "@effect/schema/Schema";
@@ -37,7 +39,7 @@ const api = pipe(
 pipe(
   api,
   Http.exampleServer,
+  Http.setLogger(Log.pretty),
   Http.listen(3000),
-  Effect.flatMap(({ port }) => Effect.log(`Listening on ${port}`)),
   Effect.runPromise,
 );
