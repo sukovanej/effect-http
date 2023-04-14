@@ -23,7 +23,6 @@ export const exampleServer = (api: Api): Server<[], any> => {
 const createExampleHandler = (endpoint: Endpoint) => () =>
   pipe(
     OpenApi.randomExample(endpoint.schemas.response),
-    Effect.fromOption,
     Effect.mapError(() =>
       serverError("Sorry, I don't have any example response"),
     ),
