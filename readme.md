@@ -136,7 +136,7 @@ and will return only valid example responses.
 
 When constructing a `Server` implementation, the type system ensures all
 the services are provided before we trigger `Http.listen`. On the type level,
-one can check the handler doesn't have any remaining services that need to be infected
+one can check the handler doesn't have any remaining services that need to be injected
 if the first type parameter `R` in `Effect<R, ..., ...>` is `never`.
 
 In case, you have handlers with unresolved dependencies, you can use
