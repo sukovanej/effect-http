@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.0.8
+
+### Patch Changes
+
+- af57359: error handling, human-readable error details
+
 ## 0.0.7
 
 ### Patch Changes
