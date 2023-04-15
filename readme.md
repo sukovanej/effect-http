@@ -184,18 +184,19 @@ is attempting to trigger an operatin conflicting with the current state of the s
 For these cases, `effect-http` provides error types and corresponding creational
 functions we can use in the error rail of the handler effect.
 
-##### Validation 400 errors
+##### 4xx
 
-- `Http.invalidQueryError`
-- `Http.invalidParamsError`
-- `Http.invalidBodyError`
-- `Http.invalidResponseError`
+- 400 `Http.invalidQueryError`
+- 400 `Http.invalidParamsError`
+- 400 `Http.invalidBodyError`
+- 401 `Http.unauthorizedError`
+- 404 `Http.notFoundError`
+- 409 `Http.conflictError`
 
-##### Other errors
+##### 5xx
 
-- `Http.notFoundError`
-- `Http.conflictError`
-- `Http.serverError`
+- 500 `Http.invalidResponseError`
+- 500 `Http.serverError`
 
 Using these errors, `Server` runtime can generate human-readable detailsor
 in HTTP responses and logs. Also, it can correctly decide what status code

@@ -42,6 +42,8 @@ export interface Endpoint<
   groupName: string;
 }
 
+export type AnyApi = Api<Endpoint[]>;
+
 export type Api<E extends Endpoint[] = Endpoint[]> = {
   endpoints: E;
   options: {

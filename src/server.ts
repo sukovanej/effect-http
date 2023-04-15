@@ -6,7 +6,7 @@ import * as Layer from "@effect/io/Layer";
 import * as Logger from "@effect/io/Logger";
 import * as S from "@effect/schema/Schema";
 
-import { Api, Endpoint } from "./api";
+import { AnyApi, Api, Endpoint } from "./api";
 import { ApiError } from "./errors";
 import { EndpointSchemasToInput, SelectEndpointById } from "./internal";
 import {
@@ -32,6 +32,8 @@ export type Server<
 export type Body<Body> = S.Spread<{ body: Body }>;
 export type Query<Query> = S.Spread<{ query: Query }>;
 
+export type AnyHandler = Handler<Endpoint, any>;
+
 export type Handler<E extends Endpoint = Endpoint, R = any> = {
   fn: (
     input: EndpointSchemasToInput<E["schemas"]>,
@@ -40,14 +42,20 @@ export type Handler<E extends Endpoint = Endpoint, R = any> = {
   endpoint: E;
 };
 
-export const server = <A extends Endpoint[]>(api: Api<A>): Server<A, []> => ({
-  _unimplementedEndpoints: api.endpoints,
-  api,
+export type ApiToServer<A extends AnyApi> = A extends Api<infer A>
+  ? Server<A, []>
+  : never;
 
-  handlers: [],
-  logger: Log.pretty,
-  validationErrorFormatter: defaultValidationErrorFormatterServer,
-});
+/** Create new unimplemeted `Server` from `Api`. */
+export const server = <A extends AnyApi>(api: A): ApiToServer<A> =>
+  ({
+    _unimplementedEndpoints: api.endpoints,
+    api,
+
+    handlers: [],
+    logger: Log.pretty,
+    validationErrorFormatter: defaultValidationErrorFormatterServer,
+  } as unknown as ApiToServer<A>);
 
 type DropEndpoint<Es extends Endpoint[], Id extends string> = Es extends [
   infer First,
@@ -58,12 +66,11 @@ type DropEndpoint<Es extends Endpoint[], Id extends string> = Es extends [
     : [First, ...(Rest extends Endpoint[] ? DropEndpoint<Rest, Id> : never)]
   : [];
 
+type ServerUnimplementedIds<S extends AnyServer> =
+  S["_unimplementedEndpoints"][number]["id"];
+
 export const handle =
-  <
-    S extends Server<Endpoint[], Handler[]>,
-    const Id extends S["_unimplementedEndpoints"][number]["id"],
-    R,
-  >(
+  <S extends AnyServer, Id extends ServerUnimplementedIds<S>, R>(
     id: Id,
     fn: Handler<SelectEndpointById<S["_unimplementedEndpoints"], Id>, R>["fn"],
   ) =>

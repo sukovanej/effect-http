@@ -11,6 +11,7 @@ import * as S from "@effect/schema/Schema";
 import { Endpoint } from "./api";
 import {
   ApiError,
+  internalServerError,
   invalidBodyError,
   invalidParamsError,
   invalidQueryError,
@@ -21,7 +22,6 @@ import {
   isInvalidQueryError,
   isInvalidResponseError,
 } from "./errors";
-import { serverError } from "./errors";
 import { getSchema } from "./internal";
 import { openApi } from "./openapi";
 import { Handler, Server } from "./server";
@@ -127,7 +127,7 @@ const toEndpoint = <E extends Endpoint>(
           Effect.try(() => {
             res.status(200).json(response);
           }),
-          Effect.mapError(serverError),
+          Effect.mapError(internalServerError),
         ),
       ),
       Effect.catchTags({
@@ -143,7 +143,8 @@ const toEndpoint = <E extends Endpoint>(
           handleApiFailure(method, path, error, 409, res),
         InvalidResponseError: (error) =>
           handleApiFailure(method, path, error, 500, res),
-        ServerError: (error) => handleApiFailure(method, path, error, 500, res),
+        InternalServerError: (error) =>
+          handleApiFailure(method, path, error, 500, res),
       }),
       Effect.catchAll((error) =>
         handleApiFailure(method, path, error, 500, res),

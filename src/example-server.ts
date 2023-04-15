@@ -5,7 +5,7 @@ import * as RA from "@effect/data/ReadonlyArray";
 import * as Effect from "@effect/io/Effect";
 
 import { Api, Endpoint } from "./api";
-import { serverError } from "./errors";
+import { internalServerError } from "./errors";
 import { Server, handle, server } from "./server";
 
 /** Generate an example Server implementation. */
@@ -24,6 +24,6 @@ const createExampleHandler = (endpoint: Endpoint) => () =>
   pipe(
     OpenApi.randomExample(endpoint.schemas.response),
     Effect.mapError(() =>
-      serverError("Sorry, I don't have any example response"),
+      internalServerError("Sorry, I don't have any example response"),
     ),
   );
