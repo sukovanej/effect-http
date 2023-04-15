@@ -3,7 +3,7 @@ import { AddressInfo } from "net";
 import * as OpenApi from "schema-openapi";
 import swaggerUi from "swagger-ui-express";
 
-import { flow, identity, pipe } from "@effect/data/Function";
+import { flow, pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
 import * as Logger from "@effect/io/Logger";
 import * as S from "@effect/schema/Schema";
@@ -15,11 +15,21 @@ import {
   invalidParamsError,
   invalidQueryError,
   invalidResponseError,
+  isConflictError,
+  isInvalidBodyError,
+  isInvalidParamsError,
+  isInvalidQueryError,
+  isInvalidResponseError,
 } from "./errors";
 import { serverError } from "./errors";
 import { getSchema } from "./internal";
 import { openApi } from "./openapi";
 import { Handler, Server } from "./server";
+import {
+  ValidationErrorFormatter,
+  ValidationErrorFormatterService,
+  isParseError,
+} from "./validation-error-formatter";
 
 const handleApiFailure = (
   method: OpenApi.OpenAPISpecMethodName,
@@ -28,30 +38,56 @@ const handleApiFailure = (
   statusCode: number,
   res: express.Response,
 ) =>
-  pipe(
-    Effect.logWarning(`${method} ${path} failed`),
-    Effect.logAnnotate("errorTag", error._tag),
-    Effect.logAnnotate("error", errorToLog(error.error)),
-    Effect.flatMap(() =>
-      Effect.try(() =>
-        res.status(statusCode).send({
-          error: error._tag,
-          details: errorToDetails(error.error),
-        }),
+  Effect.flatMap(ValidationErrorFormatterService, (formatter) =>
+    pipe(
+      Effect.logWarning(`${method.toUpperCase()} ${path} failed`),
+      Effect.flatMap(() =>
+        pipe(
+          Effect.try(() =>
+            res.status(statusCode).send({
+              error: error._tag,
+              details: formatError(error, formatter),
+            }),
+          ),
+          Effect.catchAll((error) =>
+            pipe(
+              Effect.logFatal("Error occured when sending failure response"),
+              Effect.logAnnotate("error", formatError(error, formatter)),
+            ),
+          ),
+        ),
       ),
+      Effect.logAnnotate("errorTag", error._tag),
+      Effect.logAnnotate("error", formatError(error, formatter)),
     ),
-    Effect.ignoreLogged,
   );
 
-const errorToDetails = (error: unknown): unknown => {
-  if (["string", "number", "boolean", "object"].includes(typeof error)) {
-    return error;
+const formatError = (error: unknown, formatter: ValidationErrorFormatter) => {
+  const isValidationError =
+    isInvalidQueryError(error) ||
+    isInvalidBodyError(error) ||
+    isInvalidResponseError(error) ||
+    isInvalidParamsError(error) ||
+    isConflictError(error);
+
+  if (isValidationError) {
+    const innerError = error.error;
+
+    if (isParseError(innerError)) {
+      return formatter(innerError);
+    } else if (typeof innerError === "string") {
+      return innerError;
+    }
   }
 
-  return JSON.stringify(error, undefined);
+  return JSON.stringify(error);
 };
 
 const errorToLog = (error: unknown): string => {
+  if (error instanceof Error) {
+    return error.stack || error.message;
+  }
+
   if (["string", "number", "boolean"].includes(typeof error)) {
     return `${error}`;
   }
@@ -60,8 +96,9 @@ const errorToLog = (error: unknown): string => {
 };
 
 const toEndpoint = <E extends Endpoint>(
-  { fn, endpoint: { schemas, path, method }, layer }: Handler<E, never>,
+  { fn, endpoint: { schemas, path, method } }: Handler<E, never>,
   logger: Logger.Logger<any, any>,
+  errorFormatter: ValidationErrorFormatter,
 ) => {
   const parseQuery = S.parseEffect(getSchema(schemas.query));
   const parseParams = S.parseEffect(getSchema(schemas.params));
@@ -80,7 +117,7 @@ const toEndpoint = <E extends Endpoint>(
       Effect.bind("body", () =>
         pipe(parseBody(req.body), Effect.mapError(invalidBodyError)),
       ),
-      Effect.tap(() => Effect.logTrace(`${method} ${path}`)),
+      Effect.tap(() => Effect.logTrace(`${method.toUpperCase()} ${path}`)),
       Effect.flatMap((i: any) => fn(i)),
       Effect.flatMap(
         flow(encodeResponse, Effect.mapError(invalidResponseError)),
@@ -100,17 +137,25 @@ const toEndpoint = <E extends Endpoint>(
           handleApiFailure(method, path, error, 400, res),
         InvalidParamsError: (error) =>
           handleApiFailure(method, path, error, 400, res),
-        InvalidResponseError: (error) =>
-          handleApiFailure(method, path, error, 500, res),
         NotFoundError: (error) =>
           handleApiFailure(method, path, error, 404, res),
+        ConflictError: (error) =>
+          handleApiFailure(method, path, error, 409, res),
+        InvalidResponseError: (error) =>
+          handleApiFailure(method, path, error, 500, res),
         ServerError: (error) => handleApiFailure(method, path, error, 500, res),
       }),
       Effect.catchAll((error) =>
         handleApiFailure(method, path, error, 500, res),
       ),
+      Effect.catchAllDefect((error) =>
+        pipe(
+          Effect.logFatal("Defect occured when sending failure response"),
+          Effect.logAnnotate("error", errorToLog(error)),
+        ),
+      ),
+      Effect.provideService(ValidationErrorFormatterService, errorFormatter),
       Effect.provideLayer(Logger.replace(Logger.defaultLogger, logger)),
-      layer === undefined ? identity : Effect.provideLayer(layer),
       Effect.runPromise as any,
     );
 };
@@ -118,12 +163,13 @@ const toEndpoint = <E extends Endpoint>(
 const handlerToRoute = <E extends Endpoint>(
   handler: Handler<E, never>,
   logger: Logger.Logger<any, any>,
+  errorFormattter: ValidationErrorFormatter,
 ): express.Router =>
   express
     .Router()
     [handler.endpoint.method](
       handler.endpoint.path,
-      toEndpoint(handler, logger),
+      toEndpoint(handler, logger, errorFormattter),
     );
 
 export const toExpress = <Hs extends Handler<any, never>[]>(
@@ -133,7 +179,9 @@ export const toExpress = <Hs extends Handler<any, never>[]>(
   app.use(express.json());
 
   for (const handler of server.handlers) {
-    app.use(handlerToRoute(handler, server.logger));
+    app.use(
+      handlerToRoute(handler, server.logger, server.validationErrorFormatter),
+    );
   }
 
   app.use("/docs", swaggerUi.serve, swaggerUi.setup(openApi(server.api)));
