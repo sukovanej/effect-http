@@ -12,6 +12,7 @@
     "format": "prettier -w src tests examples",
     "lint": "prettier src tests examples --check",
     "test": "vitest run",
+    "test:watch": "vitest",
     "version": "changeset version"
   },
   "keywords": [],
