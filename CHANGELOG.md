@@ -1,5 +1,12 @@
 # effect-http
 
+## 0.0.7
+
+### Patch Changes
+
+- 9107ac0: fix build
+- 06056f1: listening log on startup
+
 ## 0.0.6
 
 ### Patch Changes
