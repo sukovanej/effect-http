@@ -1,3 +1,5 @@
+import * as Log from "effect-log";
+
 import * as Context from "@effect/data/Context";
 import * as Effect from "@effect/io/Effect";
 import * as Layer from "@effect/io/Layer";
@@ -11,6 +13,8 @@ import {
   ValidationErrorFormatter,
   defaultValidationErrorFormatterServer,
 } from "./validation-error-formatter";
+
+export type AnyServer = Server<Endpoint[], Handler[]>;
 
 export type Server<
   UnimplementedEndpoints extends Endpoint[] = Endpoint[],
@@ -41,7 +45,7 @@ export const server = <A extends Endpoint[]>(api: Api<A>): Server<A, []> => ({
   api,
 
   handlers: [],
-  logger: Logger.defaultLogger,
+  logger: Log.pretty,
   validationErrorFormatter: defaultValidationErrorFormatterServer,
 });
 
@@ -138,9 +142,36 @@ export const exhaustive = <S extends Server<[], Handler<any, never>[]>>(
   server: S,
 ) => server;
 
+/** Set the server logger which will apply for both out-of-box logs and
+ * handler logs.
+ *
+ * You can either provide an instance of `Logger.Logger<I, O>` or
+ * use `"default"`, `"pretty"` or `"json"` shorthands.
+ *
+ * @example
+ * const server = pipe(
+ *   api,
+ *   Http.server,
+ *   Http.setLogger("json")
+ * );
+ *
+ * @param logger Logger.Logger<I, O> | "default" | "pretty" | "json"
+ */
 export const setLogger =
-  <I, O>(logger: Logger.Logger<I, O>) =>
-  <S extends Server>(server: S) => ({ ...server, logger });
+  <I, O>(logger: Logger.Logger<I, O> | "default" | "pretty" | "json") =>
+  <S extends AnyServer>(server: S): S => {
+    return {
+      ...server,
+      logger:
+        logger === "pretty"
+          ? Log.pretty
+          : logger === "json"
+          ? Log.json()
+          : logger === "default"
+          ? Logger.defaultLogger
+          : logger,
+    };
+  };
 
 /** Type-helper providing type of a handler input given the type of the
  * Api `A` and operation id `Id`.

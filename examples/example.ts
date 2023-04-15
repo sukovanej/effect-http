@@ -1,5 +1,3 @@
-import * as Log from "effect-log";
-
 import * as Context from "@effect/data/Context";
 import { pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
@@ -79,9 +77,7 @@ const client = pipe(api, Http.client(new URL("http://localhost:4000")));
 
 pipe(
   server,
-  Http.setLogger(Log.pretty),
   Http.listen(4000),
   Effect.flatMap(() => pipe(client.callStanda({ body: { zdar: "zdar" } }))),
-  Effect.provideLayer(Log.usePrettyLogger),
   Effect.runPromise,
 );

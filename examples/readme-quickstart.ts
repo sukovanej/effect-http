@@ -1,5 +1,3 @@
-import * as Log from "effect-log";
-
 import { pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
 import * as S from "@effect/schema/Schema";
@@ -30,10 +28,8 @@ const client = pipe(api, Http.client(new URL("http://localhost:3000")));
 
 pipe(
   server,
-  Http.setLogger(Log.pretty),
   Http.listen(3000),
   Effect.flatMap(() => client.getUser({ query: { id: 12 } })),
   Effect.flatMap((user) => Effect.logInfo(`Got ${user.name}, nice!`)),
-  Effect.provideLayer(Log.usePrettyLogger),
   Effect.runPromise,
 );

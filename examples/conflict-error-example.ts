@@ -1,5 +1,3 @@
-import * as Log from "effect-log";
-
 import * as Context from "@effect/data/Context";
 import { pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
@@ -49,7 +47,6 @@ const server = pipe(
   Http.server,
   Http.handle("storeUser", handleStoreUser),
   Http.provideService(UserRepositoryService, mockUserRepository),
-  Http.setLogger(Log.pretty),
   Http.exhaustive,
 );
 

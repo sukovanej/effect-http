@@ -15,6 +15,7 @@ High-level declarative HTTP API for [effect-ts](https://github.com/Effect-TS).
 - [Quickstart](#quickstart)
 - [Example server](#example-server)
 - [Layers and services](#layers-and-services)
+- [Logging](#logging)
 - [Error handling](#error-handling)
   - [Reporting errors in handlers](#reporting-errors-in-handlers)
   - [Example API with conflict API error](#example-api-with-conflict-api-error)
@@ -145,6 +146,25 @@ all handlers defined in the `Server` pipeline so far.
 If you decide to construct services using layers, there is the `Http.provideLayer`
 combinator.
 
+### Logging
+
+Use `Http.setLogger` to set a logger for handler effects. The function accepts
+either an instance of `Logger.Logger<I, O>` or it is possible to use following
+built-in shorthands:
+
+- `"json"` - `effect-log` json logger
+- `"pretty"` - `effect-log` pretty logger
+- `"default"` - `@effect/io` default logger
+
+```typescript
+import * as Http from "effect-http";
+
+import { pipe } from "@effect/data/Function";
+
+const api = pipe(Http.api());
+const server = pipe(api, Http.server, Http.setLogger("json"));
+```
+
 ### Error handling
 
 Validation of query parameters, path parameters, body and even responses is
@@ -225,8 +245,6 @@ const mockUserRepository = {
 And finally, we have the actual `Server` implementation.
 
 ```typescript
-import * as Log from "effect-log";
-
 import { pipe } from "@effect/data/Function";
 
 const handleStoreUser = ({ body }: Http.Input<typeof api, "storeUser">) =>
@@ -251,7 +269,6 @@ const server = pipe(
   Http.server,
   Http.handle("storeUser", handleStoreUser),
   Http.provideService(UserRepositoryService, mockUserRepository),
-  Http.setLogger(Log.pretty),
   Http.exhaustive,
 );
 
