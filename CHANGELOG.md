@@ -1,5 +1,12 @@
 # effect-http
 
+## 0.0.9
+
+### Patch Changes
+
+- 80cb3e8: fix client params
+- 5337609: improve logger settings
+
 ## 0.0.8
 
 ### Patch Changes
