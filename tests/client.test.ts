@@ -78,3 +78,61 @@ test.each(methods)("Dummy call - %s", async (method) => {
 
   expect(user).toEqual({ name: "milan" });
 });
+
+test("All input types", async () => {
+  const responseSchema = S.struct({
+    value: S.string,
+    anotherValue: S.number,
+    operation: S.string,
+    helloWorld: S.string,
+  });
+  const querySchema = S.struct({
+    value: S.string,
+    anotherValue: S.NumberFromString,
+  });
+  const paramsSchema = S.struct({ operation: S.string });
+  const bodySchema = S.struct({ helloWorld: S.string });
+
+  const api = pipe(
+    Http.api(),
+    Http.post("doStuff", "/stuff/:operation", {
+      response: responseSchema,
+      body: bodySchema,
+      query: querySchema,
+      params: paramsSchema,
+    }),
+  );
+
+  const server = pipe(
+    api,
+    Http.server,
+    Http.handle("doStuff", ({ body, query, params }) =>
+      Effect.succeed({ ...body, ...query, ...params }),
+    ),
+    Http.exhaustive,
+  );
+
+  const client = (port: number) =>
+    pipe(api, Http.client(new URL(`http://localhost:${port}`)));
+
+  const user = await pipe(
+    server,
+    Http.setLogger("none"),
+    Http.listen(),
+    Effect.flatMap(({ port }) =>
+      client(port).doStuff({
+        params: { operation: "operation" },
+        query: { value: "value", anotherValue: 1 },
+        body: { helloWorld: "helloWorld" },
+      }),
+    ),
+    Effect.runPromise,
+  );
+
+  expect(user).toEqual({
+    operation: "operation",
+    value: "value",
+    anotherValue: 1,
+    helloWorld: "helloWorld",
+  });
+});

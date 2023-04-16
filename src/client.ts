@@ -1,7 +1,7 @@
 import { request } from "undici";
 
 import * as Context from "@effect/data/Context";
-import { pipe } from "@effect/data/Function";
+import { flow, pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
 import * as S from "@effect/schema/Schema";
 
@@ -33,14 +33,13 @@ export type InvalidUrlError = {
   _tag: "InvalidUrlError";
   error: unknown;
 };
+const invalidUrlError = (error: unknown): InvalidUrlError => ({
+  _tag: "InvalidUrlError",
+  error,
+});
 
 export type UnexpectedClientError = {
   _tag: "UnexpectedClientError";
-  error: unknown;
-};
-
-export type ClientValidationError = {
-  _tag: "ClientValidationError";
   error: unknown;
 };
 
@@ -48,6 +47,11 @@ const unexpectedClientError = (error: unknown): UnexpectedClientError => ({
   _tag: "UnexpectedClientError",
   error,
 });
+
+export type ClientValidationError = {
+  _tag: "ClientValidationError";
+  error: unknown;
+};
 
 const clientValidationError = (error: unknown): ClientValidationError => ({
   _tag: "ClientValidationError",
@@ -86,14 +90,15 @@ const nodeHttpClientProvider: HttpClientProvider = (
   { body, headers, query },
 ) =>
   pipe(
-    Effect.tryPromise(() =>
-      request(url, {
+    Effect.tryPromise(() => {
+      const options = {
         method: method.toUpperCase() as any,
         headers: { ...headers, "Content-Type": "application/json" },
         query,
         body: JSON.stringify(body),
-      }),
-    ),
+      };
+      return request(url, options);
+    }),
     Effect.bindTo("response"),
     Effect.bind("json", ({ response }) =>
       Effect.tryPromise(async () => {
@@ -118,13 +123,19 @@ const nodeHttpClientProvider: HttpClientProvider = (
 
 const constructUrl = (
   baseUrl: URL,
+  params: Record<string, string>,
   path: string,
 ): Effect.Effect<never, InvalidUrlError, URL> => {
+  const finalPath = Object.entries(params ?? {}).reduce(
+    (path, [key, value]) => path.replace(`:${key}`, value),
+    path,
+  );
+
   try {
-    const url = new URL(path, baseUrl);
+    const url = new URL(finalPath, baseUrl);
     return Effect.succeed(url);
   } catch (error) {
-    return Effect.fail({ _tag: "InvalidUrlError" as const, error });
+    return Effect.fail(invalidUrlError(JSON.stringify(error)));
   }
 };
 
@@ -186,7 +197,9 @@ export const client =
                 Effect.mapError(invalidBodyError),
               ),
             ),
-            Effect.bind("url", () => constructUrl(baseUrl, path)),
+            Effect.bind("url", ({ params }) =>
+              constructUrl(baseUrl, params as any, path),
+            ),
             Effect.tap(({ url }) => Effect.logTrace(`${method} ${url}`)),
             Effect.flatMap(({ url, body, query }) =>
               Effect.flatMap(HttpClientProviderService, (provider) =>
@@ -199,8 +212,9 @@ export const client =
             ),
             Effect.flatMap(checkStatusCode),
             Effect.map(({ content }) => content),
-            Effect.flatMap(parseResponse),
-            Effect.mapError(clientValidationError),
+            Effect.flatMap(
+              flow(parseResponse, Effect.mapError(clientValidationError)),
+            ),
             Effect.provideService(
               HttpClientProviderService,
               nodeHttpClientProvider,
