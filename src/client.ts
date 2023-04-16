@@ -96,7 +96,7 @@ const nodeHttpClientProvider: HttpClientProvider = (
     ),
     Effect.bindTo("response"),
     Effect.bind("json", ({ response }) =>
-      Effect.promise(async () => {
+      Effect.tryPromise(async () => {
         const contentType = response.headers["content-type"];
         const isJson =
           typeof contentType === "string" &&

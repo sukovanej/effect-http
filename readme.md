@@ -155,6 +155,7 @@ built-in shorthands:
 - `"json"` - `effect-log` json logger
 - `"pretty"` - `effect-log` pretty logger
 - `"default"` - `@effect/io` default logger
+- `"none"` - `@effect/io` none logger - to disable logs
 
 ```typescript
 import * as Http from "effect-http";

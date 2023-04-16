@@ -133,6 +133,10 @@ type ProvideService<
     ]
   : [];
 
+/** Provide service for all handlers defined so far.
+ *
+ * Effectively calls `Effect.provideService` on all handler functions.
+ **/
 export const provideService =
   <T extends Context.Tag<any, any>>(tag: T, service: Context.Tag.Service<T>) =>
   <Es extends Endpoint[], Hs extends Handler[]>(
@@ -153,7 +157,7 @@ export const exhaustive = <S extends Server<[], Handler<any, never>[]>>(
  * handler logs.
  *
  * You can either provide an instance of `Logger.Logger<I, O>` or
- * use `"default"`, `"pretty"` or `"json"` shorthands.
+ * use `"default"`, `"pretty"`, `"json"` or `"none"` shorthands.
  *
  * @example
  * const server = pipe(
@@ -162,10 +166,12 @@ export const exhaustive = <S extends Server<[], Handler<any, never>[]>>(
  *   Http.setLogger("json")
  * );
  *
- * @param logger Logger.Logger<I, O> | "default" | "pretty" | "json"
+ * @param logger Logger.Logger<I, O> | "default" | "pretty" | "json" | "none"
  */
 export const setLogger =
-  <I, O>(logger: Logger.Logger<I, O> | "default" | "pretty" | "json") =>
+  <I, O>(
+    logger: Logger.Logger<I, O> | "default" | "pretty" | "json" | "none",
+  ) =>
   <S extends AnyServer>(server: S): S => {
     return {
       ...server,
@@ -176,6 +182,8 @@ export const setLogger =
           ? Log.json()
           : logger === "default"
           ? Logger.defaultLogger
+          : logger === "none"
+          ? Logger.none()
           : logger,
     };
   };
