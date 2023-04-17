@@ -200,15 +200,26 @@ export const listen =
     const app = toExpress(server);
 
     return pipe(
-      Effect.tryPromise(
-        () =>
-          new Promise<AddressInfo>((resolve, reject) => {
-            const listeningServer = app.listen(port);
-            listeningServer.on("listening", () =>
-              resolve(listeningServer.address() as AddressInfo),
-            );
-            listeningServer.on("error", reject);
-          }),
+      Effect.try(() => app.listen(port)),
+      Effect.flatMap((listeningServer) =>
+        Effect.async<never, Error, AddressInfo>((cb) => {
+          listeningServer.on("listening", () => {
+            const address = listeningServer.address();
+
+            if (address === null) {
+              cb(Effect.fail(new Error("Could not obtain an address")));
+            } else if (typeof address === "string") {
+              cb(
+                Effect.fail(
+                  new Error(`Unexpected obtained address: ${address}`),
+                ),
+              );
+            } else {
+              cb(Effect.succeed(address));
+            }
+          });
+          listeningServer.on("error", (error) => cb(Effect.fail(error)));
+        }),
       ),
       Effect.tap(({ address, port }) =>
         Effect.logInfo(`Server listening on ${address}:${port}`),
