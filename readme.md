@@ -31,10 +31,10 @@ Install using
 pnpm add effect-http
 ```
 
-`@effect/data`, `@effect/io` and `@effect/schema` are peer-dependencies, install them using
+`@effect/data` and `@effect/io` are peer-dependencies, install them using
 
 ```bash
-pnpm add @effect/data @effect/io @effect/schema
+pnpm add @effect/data @effect/io
 ```
 
 Bootstrap a simple API specification.
