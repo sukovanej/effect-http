@@ -8,12 +8,15 @@ const api = pipe(
   Http.api({ title: "My api" }),
   Http.get("stuff", "/stuff", {
     response: S.string,
-    query: S.struct({ value: S.string }),
+    query: { value: S.string },
   }),
 );
 
 const handleStuff = ({ query }: Http.Input<typeof api, "stuff">) =>
-  Effect.succeed("test");
+  pipe(
+    Effect.succeed("test"),
+    Effect.tap(() => Effect.log(`Received ${query.value}`)),
+  );
 
 const server = pipe(
   api,
@@ -21,3 +24,5 @@ const server = pipe(
   Http.handle("stuff", handleStuff),
   Http.exhaustive,
 );
+
+pipe(server, Http.listen(3000), Effect.runPromise);

@@ -6,13 +6,12 @@ import * as Http from "../src";
 
 test("quickstart example e2e", async () => {
   const responseSchema = S.struct({ name: S.string });
-  const querySchema = S.struct({ id: S.NumberFromString });
 
   const api = pipe(
     Http.api(),
     Http.get("getUser", "/user", {
       response: responseSchema,
-      query: querySchema,
+      query: { id: S.NumberFromString },
     }),
   );
 
@@ -86,11 +85,11 @@ test("All input types", async () => {
     operation: S.string,
     helloWorld: S.string,
   });
-  const querySchema = S.struct({
+  const querySchema = {
     value: S.string,
     anotherValue: S.NumberFromString,
-  });
-  const paramsSchema = S.struct({ operation: S.string });
+  };
+  const paramsSchema = { operation: S.string };
   const bodySchema = S.struct({ helloWorld: S.string });
 
   const api = pipe(

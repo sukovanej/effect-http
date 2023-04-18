@@ -14,6 +14,8 @@ High-level declarative HTTP API for [effect-ts](https://github.com/Effect-TS).
 
 - [Quickstart](#quickstart)
 - [Example server](#example-server)
+- [Inputs](#inputs)
+  - [Example][#example]
 - [Layers and services](#layers-and-services)
 - [Logging](#logging)
 - [Error handling](#error-handling)
@@ -47,13 +49,13 @@ import * as Effect from "@effect/io/Effect";
 import * as S from "@effect/schema/Schema";
 
 const responseSchema = S.struct({ name: S.string });
-const querySchema = S.struct({ id: S.number });
+const query = { id: S.number };
 
 const api = pipe(
   Http.api({ title: "Users API" }),
   Http.get("getUser", "/user", {
     response: responseSchema,
-    query: querySchema,
+    query: query,
   }),
 );
 ```
@@ -131,6 +133,32 @@ _(This is a complete standalone code example)_
 Go to [localhost:3000/docs](http://localhost:3000/docs) and try calling
 endpoints. The exposed HTTP service conforms the specified `Api` specification
 and will return only valid example responses.
+
+### Inputs
+
+Each endpoint can declare its inputs. Inputs can be passed as
+
+- `body` - request body
+- `query` - query parameters
+- `params` - path parameters
+
+Inputs are specified as part of the schemas structure. 
+
+#### Example
+
+```typescript
+import * as Http from "../src";
+
+const api = pipe(
+  Http.api({ title: "My api" }),
+  Http.get("stuff", "/stuff/:param", {
+    response: S.struct({ value: S.number }),
+    body: S.struct({ bodyField: S.array(S.string) }),
+    query: { query: S.string },
+    params: { param: S.string },
+  }),
+);
+```
 
 ### Layers and services
 

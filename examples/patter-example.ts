@@ -8,16 +8,16 @@ const api = pipe(
   Http.api({ title: "My awesome pets API", version: "1.0.0" }),
   Http.get("test", "/test", {
     response: Schema.string,
-    query: Schema.struct({
+    query: {
       value: pipe(Schema.string, Schema.pattern(/[A-Z]/)),
-    }),
+    },
   }),
 );
 
 const server = pipe(
   api,
   Http.server,
-  Http.handle("test", () => Effect.succeed("test")),
+  Http.handle("test", ({ query }) => Effect.succeed("test")),
 );
 
 pipe(server, Http.listen(4000), Effect.runPromise);

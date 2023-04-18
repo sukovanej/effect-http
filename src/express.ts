@@ -8,7 +8,7 @@ import * as Effect from "@effect/io/Effect";
 import * as Logger from "@effect/io/Logger";
 import * as S from "@effect/schema/Schema";
 
-import { Endpoint } from "./api";
+import { Endpoint, IgnoredSchemaId } from "./api";
 import {
   ApiError,
   internalServerError,
@@ -100,8 +100,16 @@ const toEndpoint = <E extends Endpoint>(
   logger: Logger.Logger<any, any>,
   errorFormatter: ValidationErrorFormatter,
 ) => {
-  const parseQuery = S.parseEffect(getSchema(schemas.query));
-  const parseParams = S.parseEffect(getSchema(schemas.params));
+  const parseQuery = S.parseEffect(
+    schemas.query === IgnoredSchemaId
+      ? S.unknown
+      : (S.struct(schemas.query) as any),
+  );
+  const parseParams = S.parseEffect(
+    schemas.params === IgnoredSchemaId
+      ? S.unknown
+      : (S.struct(schemas.params) as any),
+  );
   const parseBody = S.parseEffect(getSchema(schemas.body));
   const encodeResponse = S.parseEffect(schemas.response);
 

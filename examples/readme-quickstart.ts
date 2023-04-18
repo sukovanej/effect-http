@@ -5,7 +5,7 @@ import * as S from "@effect/schema/Schema";
 import * as Http from "../src";
 
 const responseSchema = S.struct({ name: S.string, id: S.number });
-const querySchema = S.struct({ id: S.NumberFromString });
+const querySchema = { id: S.NumberFromString };
 
 const api = pipe(
   Http.api({ title: "Users API" }),

@@ -20,15 +20,15 @@ export const openApi = <A extends Api>(api: A): OpenApiSpecification => {
       }
 
       if (schemas.params !== IgnoredSchemaId) {
-        operationSpec.push(
-          OpenApi.parameter("Path parameter", "path", schemas.params),
-        );
+        for (const [name, schema] of Object.entries(schemas.params)) {
+          operationSpec.push(OpenApi.parameter(name, "path", schema as any));
+        }
       }
 
       if (schemas.query !== IgnoredSchemaId) {
-        operationSpec.push(
-          OpenApi.parameter("Query parameter", "query", schemas.query),
-        );
+        for (const [name, schema] of Object.entries(schemas.query)) {
+          operationSpec.push(OpenApi.parameter(name, "query", schema as any));
+        }
       }
 
       if (schemas.body !== IgnoredSchemaId) {

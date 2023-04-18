@@ -3,7 +3,7 @@ import * as S from "@effect/schema/Schema";
 import { Endpoint, IgnoredSchemaId } from "./api";
 
 type NonIgnoredFields<K extends keyof A, A> = K extends any
-  ? A[K] extends S.Schema<any, any>
+  ? A[K] extends S.Schema<any, any> | Record<string, S.Schema<any, any>>
     ? K
     : never
   : never;
@@ -11,7 +11,13 @@ type NonIgnoredFields<K extends keyof A, A> = K extends any
 export type RemoveIgnoredSchemas<E> = Pick<E, NonIgnoredFields<keyof E, E>>;
 
 type SchemaStructTo<A> = {
-  [K in keyof A]: A[K] extends S.Schema<any, infer X> ? X : never;
+  [K in keyof A]: K extends "query" | "params"
+    ? A[K] extends Record<string, S.Schema<any>>
+      ? { [KQ in keyof A[K]]: S.To<A[K][KQ]> }
+      : never
+    : A[K] extends S.Schema<any, infer X>
+    ? X
+    : never;
 };
 
 export type EndpointSchemasToInput<E extends Endpoint["schemas"]> = S.Spread<

@@ -8,7 +8,7 @@ import * as Http from "../src";
 // Schemas
 
 const milanSchema = S.struct({ penisLength: S.number, name: S.string });
-const lesnekSchema = S.struct({ name: S.string });
+const lesnekSchema = { name: S.string };
 const standaSchema = S.record(S.string, S.union(S.string, S.number));
 
 const StuffService = Context.Tag<{ value: number }>();

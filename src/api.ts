@@ -75,8 +75,12 @@ export type ComputeEndpoint<
 > = S.Spread<
   Endpoint<
     Id,
-    I["query"] extends S.Schema<any> ? I["query"] : IgnoredSchemaId,
-    I["params"] extends S.Schema<any> ? I["params"] : IgnoredSchemaId,
+    I["query"] extends Record<string, S.Schema<any>>
+      ? I["query"]
+      : IgnoredSchemaId,
+    I["params"] extends Record<string, S.Schema<any>>
+      ? I["params"]
+      : IgnoredSchemaId,
     I["body"] extends S.Schema<any> ? I["body"] : IgnoredSchemaId,
     S.To<I["response"]>
   >

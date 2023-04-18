@@ -39,9 +39,9 @@ test("validation error", async () => {
   const api = pipe(
     Http.api(),
     Http.get("hello", "/hello", {
-      query: Schema.struct({
+      query: {
         country: pipe(Schema.string, Schema.pattern(/^[A-Z]{2}$/)),
-      }),
+      },
       response: Schema.string,
     }),
   );
@@ -56,7 +56,7 @@ test("validation error", async () => {
         client.hello({ query: { country: "abc" } }),
       ),
     ),
-    Effect.map((error) => {
+    Effect.map(() => {
       assert.fail("Expected failure");
     }),
     Effect.catchAll((error) => {

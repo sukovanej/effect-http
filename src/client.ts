@@ -166,8 +166,12 @@ export const client =
         { id, method, path, schemas: { query, params, body, response } },
       ) => {
         const parseResponse = S.parseEffect(response);
-        const encodeQuery = S.encodeEffect(getSchema(query));
-        const encodeParams = S.encodeEffect(getSchema(params));
+        const encodeQuery = S.encodeEffect(
+          query === IgnoredSchemaId ? S.unknown : (S.struct(query) as any),
+        );
+        const encodeParams = S.encodeEffect(
+          params === IgnoredSchemaId ? S.unknown : (S.struct(params) as any),
+        );
         const encodeBody = S.encodeEffect(getSchema(body));
 
         const fn = (args: any) => {
