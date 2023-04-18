@@ -1,5 +1,12 @@
 # effect-http
 
+## 0.0.12
+
+### Patch Changes
+
+- ecceadb: improve error response and logging
+- 21b0484: update @effect/schema
+
 ## 0.0.11
 
 ### Patch Changes
