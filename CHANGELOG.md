@@ -1,5 +1,12 @@
 # effect-http
 
+## 0.0.11
+
+### Patch Changes
+
+- 768a058: pattern error reporting
+- aca1545: fix query and path parameters to enable correct OpenAPI derivation
+
 ## 0.0.10
 
 ### Patch Changes
