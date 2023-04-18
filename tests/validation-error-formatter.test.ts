@@ -80,3 +80,24 @@ describe("struct", () => {
     );
   });
 });
+
+test("pattern", () => {
+  const errors = pipe(
+    Schema.struct({
+      name: Schema.string,
+      users: Schema.array(
+        Schema.struct({
+          value: pipe(Schema.string, Schema.pattern(/^[a-zA-Z]{2}$/)),
+        }),
+      ),
+    }),
+    evaluate({
+      name: "name",
+      users: [{ value: "abc" }],
+    }),
+  );
+
+  expect(errors).toEqual(
+    'users.[0].value must be a string matching the pattern ^[a-zA-Z]{2}$, got "abc"',
+  );
+});

@@ -106,6 +106,12 @@ const formatParseErrors = (errors: ParseErrors): readonly ValidationError[] => {
 };
 
 const formatAST = (ast: AST.AST) => {
+  const description = AST.getAnnotation(AST.DescriptionAnnotationId)(ast);
+
+  if (Option.isSome(description)) {
+    return description.value as string;
+  }
+
   if (ast._tag === "StringKeyword") {
     return "<string>";
   } else if (ast._tag === "NumberKeyword") {
