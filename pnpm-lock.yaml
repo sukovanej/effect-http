@@ -2,14 +2,14 @@ lockfileVersion: '6.0'
 
 dependencies:
   '@effect/schema':
-    specifier: ^0.13.1
-    version: 0.13.1
+    specifier: ^0.14.0
+    version: 0.14.0
   express:
     specifier: ^4.18.2
     version: 4.18.2
   schema-openapi:
-    specifier: ^0.0.19
-    version: 0.0.19(@effect/data@0.12.2)(@effect/io@0.22.1)(@effect/schema@0.13.1)
+    specifier: ^0.0.20
+    version: 0.0.20(@effect/data@0.12.2)(@effect/io@0.22.5)(@effect/schema@0.14.0)
   swagger-ui-express:
     specifier: ^4.6.2
     version: 4.6.2(express@4.18.2)
@@ -25,8 +25,8 @@ devDependencies:
     specifier: ^0.12.2
     version: 0.12.2
   '@effect/io':
-    specifier: ^0.22.1
-    version: 0.22.1
+    specifier: ^0.22.5
+    version: 0.22.5
   '@trivago/prettier-plugin-sort-imports':
     specifier: ^4.1.1
     version: 4.1.1(prettier@2.8.7)
@@ -37,8 +37,8 @@ devDependencies:
     specifier: ^4.1.3
     version: 4.1.3
   effect-log:
-    specifier: ^0.0.3
-    version: 0.0.3(@effect/data@0.12.2)(@effect/io@0.22.1)
+    specifier: ^0.0.4
+    version: 0.0.4(@effect/data@0.12.2)(@effect/io@0.22.5)
   prettier:
     specifier: ^2.8.7
     version: 2.8.7
@@ -362,24 +362,17 @@ packages:
   /@effect/data@0.12.2:
     resolution: {integrity: sha512-bmWRTcsSRG1FlBswT+D8SxW6r3c4B3pKJrjYfitCD03tXHnup5gLHaWqbFgIjiyYITS+UsJRRjVrNxvyGG4ZNQ==}
 
-  /@effect/io@0.21.1:
-    resolution: {integrity: sha512-2y362S35gIP1YhkXPjCU/osnumcPEjk+WMik+vLbQsQf+YFdlgzwDMJZAsmLUZWj+D//dHByvL9n8VuDarvIDA==}
-    dependencies:
-      '@effect/data': 0.12.2
-    dev: false
-
-  /@effect/io@0.22.1:
-    resolution: {integrity: sha512-56LUngnx5mVchQ8cjXkGTMtgxwKdd/HUlDh613bKKX/oESWoGHvbXD/caK06Td3+cVCD+HMa5ma+z35+Qrhlrw==}
+  /@effect/io@0.22.5:
+    resolution: {integrity: sha512-mJmIpkFyFauzqsyM5DSVZY3LNwRbHwgmJGIuOPzTCEQvJRI89/bTSVf444ZtwR3OLrHSxt3u0U/vofyQYTDzwA==}
     dependencies:
       '@effect/data': 0.12.2
 
-  /@effect/schema@0.13.1:
-    resolution: {integrity: sha512-bs9uCVkC70GUMgAenOUJGhQcrADgcp4OE8oF+td9cNxIQ5aAFVEI5lrxeb9UKRRtODkUj0vDHqB5Zf/0p5Fv8Q==}
+  /@effect/schema@0.14.0:
+    resolution: {integrity: sha512-vFnxOcFC1NvHzdTSIvR3D5nw6h8pV8t1oibDjk7V2xa8ddARnQXXbRPcV2YOPt4iKV39ASWjYWNOmpLFv3/v8Q==}
     dependencies:
       '@effect/data': 0.12.2
-      '@effect/io': 0.21.1
+      '@effect/io': 0.22.5
       fast-check: 3.8.0
-    dev: false
 
   /@esbuild-kit/cjs-loader@2.4.2:
     resolution: {integrity: sha512-BDXFbYOJzT/NBEtp71cvsrGPwGAMGRB/349rwKuoxNSiKjPraNNnlK6MIIabViCjqZugu6j+xeMDlEkWdHHJSg==}
@@ -1071,7 +1064,7 @@ packages:
       js-string-escape: 1.0.1
       lodash: 4.17.21
       md5-hex: 3.0.1
-      semver: 7.4.0
+      semver: 7.5.0
       well-known-symbols: 2.0.0
     dev: true
 
@@ -1216,14 +1209,14 @@ packages:
     resolution: {integrity: sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==}
     dev: false
 
-  /effect-log@0.0.3(@effect/data@0.12.2)(@effect/io@0.22.1):
-    resolution: {integrity: sha512-QLH7PLC1Z41RUVGZ7C7Pm/qwg2kzxxyvTmXohziMcv/YwXlxEJadUpg26YWozRiMGUwUINg/A/aYYvFNRKYhDQ==}
+  /effect-log@0.0.4(@effect/data@0.12.2)(@effect/io@0.22.5):
+    resolution: {integrity: sha512-SGlOyOKnDcWAocBgf51JbkR4nw7AVMGqScUp4eb2ChGRun5QsePsBzb0ZCVT8buZowBitVe7sGx+0VmAAmDgFw==}
     peerDependencies:
       '@effect/data': ^0.12.2
-      '@effect/io': ^0.20.0
+      '@effect/io': ^0.22.5
     dependencies:
       '@effect/data': 0.12.2
-      '@effect/io': 0.22.1
+      '@effect/io': 0.22.5
     dev: true
 
   /emoji-regex@8.0.0:
@@ -2457,8 +2450,8 @@ packages:
     engines: {iojs: '>=1.0.0', node: '>=0.10.0'}
     dev: true
 
-  /rollup@3.20.4:
-    resolution: {integrity: sha512-n7J4tuctZXUErM9Uc916httwqmTc63zzCr2+TLCiSCpfO/Xuk3g/marGN1IlRJZi+QF3XMYx75PxXRfZDVgaRw==}
+  /rollup@3.20.6:
+    resolution: {integrity: sha512-2yEB3nQXp/tBQDN0hJScJQheXdvU2wFhh6ld7K/aiZ1vYcak6N/BKjY1QrU6BvO2JWYS8bEs14FRaxXosxy2zw==}
     engines: {node: '>=14.18.0', npm: '>=8.0.0'}
     hasBin: true
     optionalDependencies:
@@ -2486,16 +2479,16 @@ packages:
   /safer-buffer@2.1.2:
     resolution: {integrity: sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==}
 
-  /schema-openapi@0.0.19(@effect/data@0.12.2)(@effect/io@0.22.1)(@effect/schema@0.13.1):
-    resolution: {integrity: sha512-fEWmtIDDlO86cz4XVHiy6Aj3aYtay7RPSWYClfuXwL4V0pKyfqNLRxJrtgD2NUVxPJSdj5bEMpScNLLDUlg1WA==}
+  /schema-openapi@0.0.20(@effect/data@0.12.2)(@effect/io@0.22.5)(@effect/schema@0.14.0):
+    resolution: {integrity: sha512-yI2AD7iW3lYPuzgA9ThSPdp89vRxbSeN5j2hSYa0ETJTD1irsaR+L+AUGptDVuWEbnY4wkGAKv5IwQW0raWQzw==}
     peerDependencies:
       '@effect/data': ^0.12.2
-      '@effect/io': ^0.20.0
-      '@effect/schema': ^0.12.1
+      '@effect/io': ^0.22.5
+      '@effect/schema': ^0.14.0
     dependencies:
       '@effect/data': 0.12.2
-      '@effect/io': 0.22.1
-      '@effect/schema': 0.13.1
+      '@effect/io': 0.22.5
+      '@effect/schema': 0.14.0
     dev: false
 
   /semver@5.7.1:
@@ -2503,8 +2496,8 @@ packages:
     hasBin: true
     dev: true
 
-  /semver@7.4.0:
-    resolution: {integrity: sha512-RgOxM8Mw+7Zus0+zcLEUn8+JfoLpj/huFTItQy2hsM4khuC1HYRDp0cU482Ewn/Fcy6bCjufD8vAj7voC66KQw==}
+  /semver@7.5.0:
+    resolution: {integrity: sha512-+XC0AD/R7Q2mPSRuy2Id0+CGTZ98+8f+KvwirxOKIEyid+XSx6HbC63p+O4IndTHuX5Z+JxQ0TghCkO5Cg/2HA==}
     engines: {node: '>=10'}
     hasBin: true
     dependencies:
@@ -2945,7 +2938,7 @@ packages:
       mlly: 1.2.0
       pathe: 1.1.0
       picocolors: 1.0.0
-      vite: 4.2.1(@types/node@18.15.11)
+      vite: 4.2.2(@types/node@18.15.11)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -2956,8 +2949,8 @@ packages:
       - terser
     dev: true
 
-  /vite@4.2.1(@types/node@18.15.11):
-    resolution: {integrity: sha512-7MKhqdy0ISo4wnvwtqZkjke6XN4taqQ2TBaTccLIpOKv7Vp2h4Y+NpmWCnGDeSvvn45KxvWgGyb0MkHvY1vgbg==}
+  /vite@4.2.2(@types/node@18.15.11):
+    resolution: {integrity: sha512-PcNtT5HeDxb3QaSqFYkEum8f5sCVe0R3WK20qxgIvNBZPXU/Obxs/+ubBMeE7nLWeCo2LDzv+8hRYSlcaSehig==}
     engines: {node: ^14.18.0 || >=16.0.0}
     hasBin: true
     peerDependencies:
@@ -2985,7 +2978,7 @@ packages:
       esbuild: 0.17.17
       postcss: 8.4.22
       resolve: 1.22.2
-      rollup: 3.20.4
+      rollup: 3.20.6
     optionalDependencies:
       fsevents: 2.3.2
     dev: true
@@ -3044,7 +3037,7 @@ packages:
       strip-literal: 1.0.1
       tinybench: 2.4.0
       tinypool: 0.4.0
-      vite: 4.2.1(@types/node@18.15.11)
+      vite: 4.2.2(@types/node@18.15.11)
       vite-node: 0.30.1(@types/node@18.15.11)
       why-is-node-running: 2.2.2
     transitivePeerDependencies:
