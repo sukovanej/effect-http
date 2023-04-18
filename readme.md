@@ -15,7 +15,7 @@ High-level declarative HTTP API for [effect-ts](https://github.com/Effect-TS).
 - [Quickstart](#quickstart)
 - [Example server](#example-server)
 - [Inputs](#inputs)
-  - [Example][#example]
+  - [Example](#example)
 - [Layers and services](#layers-and-services)
 - [Logging](#logging)
 - [Error handling](#error-handling)
