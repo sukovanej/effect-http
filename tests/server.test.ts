@@ -50,6 +50,7 @@ test("validation error", async () => {
 
   await pipe(
     server,
+    Http.setLogger("none"),
     Http.listen(),
     Effect.flatMap(({ port }) =>
       pipe(api, Http.client(new URL(`http://localhost:${port}`)), (client) =>
@@ -61,6 +62,47 @@ test("validation error", async () => {
     }),
     Effect.catchAll((error) => {
       expect(error).toMatchObject({ _tag: "InvalidQueryError" });
+      return Effect.unit();
+    }),
+    Effect.runPromise,
+  );
+});
+
+test("human-readable error response", async () => {
+  const api = pipe(
+    Http.api(),
+    Http.get("hello", "/hello", { response: Schema.string }),
+  );
+
+  const server = pipe(
+    api,
+    Http.server,
+    Http.handle("hello", () =>
+      Effect.fail(Http.notFoundError("Didnt find it")),
+    ),
+  );
+
+  await pipe(
+    server,
+    Http.setLogger("none"),
+    Http.listen(),
+    Effect.flatMap(({ port }) =>
+      pipe(api, Http.client(new URL(`http://localhost:${port}`)), (client) =>
+        client.hello({}),
+      ),
+    ),
+    Effect.map(() => {
+      assert.fail("Expected failure");
+    }),
+    Effect.catchAll((error) => {
+      expect(error).toEqual({
+        _tag: "HttpClientError",
+        statusCode: 404,
+        error: {
+          error: "NotFoundError",
+          details: "Didnt find it",
+        },
+      });
       return Effect.unit();
     }),
     Effect.runPromise,

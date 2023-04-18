@@ -80,6 +80,14 @@ const formatError = (error: unknown, formatter: ValidationErrorFormatter) => {
     }
   }
 
+  if (typeof error === "object" && error !== null && "error" in error) {
+    if (typeof error.error === "string") {
+      return error.error;
+    }
+
+    return JSON.stringify(error.error);
+  }
+
   return JSON.stringify(error);
 };
 

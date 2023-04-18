@@ -58,9 +58,25 @@ const clientValidationError = (error: unknown): ClientValidationError => ({
   error,
 });
 
+export type HttpClientError = {
+  _tag: "HttpClientError";
+  statusCode: number;
+  error: unknown;
+};
+
+const httpClientError = (
+  error: unknown,
+  statusCode: number,
+): HttpClientError => ({
+  _tag: "HttpClientError",
+  statusCode,
+  error,
+});
+
 export type ClientError =
   | ApiError
   | ApiConnectionError
+  | HttpClientError
   | InvalidUrlError
   | UnexpectedClientError;
 
@@ -146,8 +162,8 @@ const checkStatusCode = (response: Response) => {
     return Effect.succeed(response);
   }
 
-  if (code === 400) {
-    return Effect.fail<ApiError>(invalidBodyError(response.statusCode));
+  if (code >= 400 && code < 500) {
+    return Effect.fail(httpClientError(response.content, response.statusCode));
   }
 
   return Effect.fail<ClientError>(

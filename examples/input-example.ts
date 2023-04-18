@@ -14,7 +14,7 @@ const api = pipe(
 
 const handleStuff = ({ query }: Http.Input<typeof api, "stuff">) =>
   pipe(
-    Effect.succeed("test"),
+    Effect.fail(Http.notFoundError("I didnt find it")),
     Effect.tap(() => Effect.log(`Received ${query.value}`)),
   );
 
