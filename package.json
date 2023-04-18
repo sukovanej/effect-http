@@ -33,7 +33,7 @@
     "vitest": "^0.30.1"
   },
   "dependencies": {
-    "@effect/schema": "^0.14.0",
+    "@effect/schema": "^0.14.1",
     "express": "^4.18.2",
     "schema-openapi": "^0.0.20",
     "swagger-ui-express": "^4.6.2",

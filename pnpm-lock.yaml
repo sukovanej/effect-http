@@ -2,14 +2,14 @@ lockfileVersion: '6.0'
 
 dependencies:
   '@effect/schema':
-    specifier: ^0.14.0
-    version: 0.14.0
+    specifier: ^0.14.1
+    version: 0.14.1
   express:
     specifier: ^4.18.2
     version: 4.18.2
   schema-openapi:
     specifier: ^0.0.20
-    version: 0.0.20(@effect/data@0.12.2)(@effect/io@0.22.5)(@effect/schema@0.14.0)
+    version: 0.0.20(@effect/data@0.12.2)(@effect/io@0.22.5)(@effect/schema@0.14.1)
   swagger-ui-express:
     specifier: ^4.6.2
     version: 4.6.2(express@4.18.2)
@@ -367,8 +367,8 @@ packages:
     dependencies:
       '@effect/data': 0.12.2
 
-  /@effect/schema@0.14.0:
-    resolution: {integrity: sha512-vFnxOcFC1NvHzdTSIvR3D5nw6h8pV8t1oibDjk7V2xa8ddARnQXXbRPcV2YOPt4iKV39ASWjYWNOmpLFv3/v8Q==}
+  /@effect/schema@0.14.1:
+    resolution: {integrity: sha512-J6hbvZ7AmPBjGcvOjfI6OVKSACwbkX6G1tGq7KfQoVuwu4cERCLp/UzwI/LcwR9swNK+CvkNvAwq+XVW7Lh9KA==}
     dependencies:
       '@effect/data': 0.12.2
       '@effect/io': 0.22.5
@@ -2479,7 +2479,7 @@ packages:
   /safer-buffer@2.1.2:
     resolution: {integrity: sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==}
 
-  /schema-openapi@0.0.20(@effect/data@0.12.2)(@effect/io@0.22.5)(@effect/schema@0.14.0):
+  /schema-openapi@0.0.20(@effect/data@0.12.2)(@effect/io@0.22.5)(@effect/schema@0.14.1):
     resolution: {integrity: sha512-yI2AD7iW3lYPuzgA9ThSPdp89vRxbSeN5j2hSYa0ETJTD1irsaR+L+AUGptDVuWEbnY4wkGAKv5IwQW0raWQzw==}
     peerDependencies:
       '@effect/data': ^0.12.2
@@ -2488,7 +2488,7 @@ packages:
     dependencies:
       '@effect/data': 0.12.2
       '@effect/io': 0.22.5
-      '@effect/schema': 0.14.0
+      '@effect/schema': 0.14.1
     dev: false
 
   /semver@5.7.1:
