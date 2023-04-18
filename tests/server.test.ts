@@ -2,7 +2,7 @@ import * as Context from "@effect/data/Context";
 import { pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
 import * as Layer from "@effect/io/Layer";
-import * as S from "@effect/schema/Schema";
+import * as Schema from "@effect/schema/Schema";
 
 import * as Http from "../src";
 
@@ -18,7 +18,7 @@ const layer2 = pipe(
 test("multiple provideLayer calls", async () => {
   const api = pipe(
     Http.api(),
-    Http.get("doStuff", "/stuff", { response: S.number }),
+    Http.get("doStuff", "/stuff", { response: Schema.number }),
   );
 
   const server = pipe(
@@ -33,4 +33,36 @@ test("multiple provideLayer calls", async () => {
   const result = await Effect.runPromise(server.handlers[0].fn({}));
 
   expect(result).toEqual(13);
+});
+
+test("validation error", async () => {
+  const api = pipe(
+    Http.api(),
+    Http.get("hello", "/hello", {
+      query: Schema.struct({
+        country: pipe(Schema.string, Schema.pattern(/^[A-Z]{2}$/)),
+      }),
+      response: Schema.string,
+    }),
+  );
+
+  const server = Http.exampleServer(api);
+
+  await pipe(
+    server,
+    Http.listen(),
+    Effect.flatMap(({ port }) =>
+      pipe(api, Http.client(new URL(`http://localhost:${port}`)), (client) =>
+        client.hello({ query: { country: "abc" } }),
+      ),
+    ),
+    Effect.map((error) => {
+      assert.fail("Expected failure");
+    }),
+    Effect.catchAll((error) => {
+      expect(error).toMatchObject({ _tag: "InvalidQueryError" });
+      return Effect.unit();
+    }),
+    Effect.runPromise,
+  );
 });
