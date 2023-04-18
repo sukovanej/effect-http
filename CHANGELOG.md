@@ -1,5 +1,12 @@
 # effect-http
 
+## 0.0.10
+
+### Patch Changes
+
+- f89fa9a: update dependencies
+- 0c8dee2: update deps
+
 ## 0.0.9
 
 ### Patch Changes
