@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.0.13
+
+### Patch Changes
+
+- 0c3232f: update dependencies
+
 ## 0.0.12
 
 ### Patch Changes
