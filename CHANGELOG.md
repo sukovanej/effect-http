@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.0.14
+
+### Patch Changes
+
+- 11e3874: add support for request headers
+
 ## 0.0.13
 
 ### Patch Changes
