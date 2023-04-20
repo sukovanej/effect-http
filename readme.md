@@ -16,6 +16,7 @@ High-level declarative HTTP API for [effect-ts](https://github.com/Effect-TS).
 - [Example server](#example-server)
 - [Inputs](#inputs)
   - [Example](#example)
+- [Headers](#headers)
 - [Layers and services](#layers-and-services)
 - [Logging](#logging)
 - [Error handling](#error-handling)
@@ -32,6 +33,7 @@ Install using
 ```bash
 pnpm add effect-http
 ```
+
 Bootstrap a simple API specification.
 
 ```typescript
@@ -41,8 +43,8 @@ import { pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
 import * as S from "@effect/schema/Schema";
 
-const responseSchema = S.struct({ name: S.string });
-const query = { id: S.number };
+const responseSchema = Schema.struct({ name: Schema.string });
+const query = { id: Schema.number };
 
 const api = pipe(
   Http.api({ title: "Users API" }),
@@ -109,9 +111,9 @@ import * as Http from "effect-http";
 
 import { pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
-import * as S from "@effect/schema/Schema";
+import * as Schema from "@effect/schema/Schema";
 
-const responseSchema = S.struct({ name: S.string });
+const responseSchema = Schema.struct({ name: Schema.string });
 
 const api = pipe(
   Http.api(),
@@ -134,24 +136,79 @@ Each endpoint can declare its inputs. Inputs can be passed as
 - `body` - request body
 - `query` - query parameters
 - `params` - path parameters
+- `headers` - request headers
 
-Inputs are specified as part of the schemas structure. 
+Inputs are specified as part of the schemas structure.
 
 #### Example
 
 ```typescript
-import * as Http from "../src";
+import * as Http from "effect-http";
+
+import * as Schema from "@effect/schema/Schema";
 
 const api = pipe(
   Http.api({ title: "My api" }),
   Http.get("stuff", "/stuff/:param", {
-    response: S.struct({ value: S.number }),
-    body: S.struct({ bodyField: S.array(S.string) }),
-    query: { query: S.string },
-    params: { param: S.string },
+    response: Schema.struct({ value: Schema.number }),
+    body: Schema.struct({ bodyField: Schema.array(Schema.string) }),
+    query: { query: Schema.string },
+    params: { param: Schema.string },
   }),
 );
 ```
+
+### Headers
+
+Request headers are part of input schemas along with the request body or query parameters.
+Their schema is specified similarly to query parameters and path parameters, i.e. using
+an object mapping header name onto a schema. The example below shows an API with
+a single endpoint `/hello` which expects a header `X-Client-Id` to be present.
+
+```typescript
+import * as Http from "effect-http";
+
+import * as Schema from "@effect/schema/Schema";
+
+const api = pipe(
+  Http.api(),
+  Http.get("hello", "/hello", {
+    response: Schema.string,
+    headers: { "X-Client-Id": Schema.string },
+  }),
+);
+```
+
+Server implementation deals with the validation the usual way. For example, if we try
+to call the endpoint without the header we will get the following error response.
+
+```json
+{ "error": "InvalidHeadersError", "details": "x-client-id is missing" }
+```
+
+And as usual, the information about headers will be reflected in the generated
+OpenApi UI.
+
+![example-headers-openapi-ui](assets/example-headers-openapi-ui.png)
+
+**Important note**. You might have noticed the `details` field of the error response
+describes the missing header using lower-case. This is not an error but rather a
+consequence of the fact that HTTP headers are case-insensitive and internally `effect-http`
+converts all header names to lower-case to simplify integration with the underlying
+http library - [express](https://github.com/expressjs/express).
+
+Don't worry, this is also encoded into the type information and if you were to
+implement the handler, both autocompletion and type-checking would hint the
+lower-cased form of the header name.
+
+```typescript
+const handleHello = ({
+  headers: { "x-client-id": clientId },
+}: Http.Input<typeof api, "hello">) => Effect.succeed("all good");
+```
+
+Take a look at [examples/headers.ts](examples/headers.ts) to see a complete example
+API implementation with in-memory rate-limiting and client identification using headers.
 
 ### Layers and services
 
@@ -211,9 +268,11 @@ functions we can use in the error rail of the handler effect.
 - 400 `Http.invalidQueryError`
 - 400 `Http.invalidParamsError`
 - 400 `Http.invalidBodyError`
+- 400 `Http.invalidHeadersError`
 - 401 `Http.unauthorizedError`
 - 404 `Http.notFoundError`
 - 409 `Http.conflictError`
+- 429 `Http.tooManyRequestsError`
 
 ##### 5xx
 
@@ -237,8 +296,8 @@ import * as S from "@effect/schema/Schema";
 const api = pipe(
   Http.api({ title: "Users API" }),
   Http.post("storeUser", "/users", {
-    response: S.string,
-    body: S.struct({ name: S.string }),
+    response: Schema.string,
+    body: Schema.struct({ name: Schema.string }),
   }),
 );
 ```
@@ -349,7 +408,7 @@ import { pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
 import * as S from "@effect/schema/Schema";
 
-const responseSchema = S.struct({ name: S.string });
+const responseSchema = Schema.struct({ name: Schema.string });
 
 const testApi = pipe(
   Http.apiGroup("test"),
@@ -386,7 +445,7 @@ _(This is a complete standalone code example)_
 
 The OpenApi UI groups endpoints using the specified groups.
 
-![example-generated-open-api-ui](assets/exmple-server-open-api.png)
+![example-generated-open-api-ui](assets/example-server-openapi-ui.png)
 
 ## Cookbook
 
@@ -409,8 +468,8 @@ import * as S from "@effect/schema/Schema";
 const api = pipe(
   Http.api(),
   Http.get("stuff", "/stuff", {
-    response: S.string,
-    query: S.struct({ value: S.string }),
+    response: Schema.string,
+    query: Schema.struct({ value: Schema.string }),
   }),
 );
 
