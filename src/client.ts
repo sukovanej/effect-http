@@ -88,7 +88,9 @@ export type HttpClientProvider = (
   options: HttpClientProviderOptions,
 ) => Effect.Effect<never, ClientError, Response>;
 
-export const HttpClientProviderService = Context.Tag<HttpClientProvider>();
+export const HttpClientProviderService = Context.Tag<HttpClientProvider>(
+  "effect-http/context/HttpClientProviderService",
+);
 
 type Client<Es extends Endpoint[]> = S.Spread<{
   [Id in Es[number]["id"]]: (
