@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+
 import * as Context from "@effect/data/Context";
 import { pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
@@ -102,6 +104,44 @@ test("human-readable error response", async () => {
           error: "NotFoundError",
           details: "Didnt find it",
         },
+      });
+      return Effect.unit();
+    }),
+    Effect.runPromise,
+  );
+});
+
+test("headers", async () => {
+  const api = pipe(
+    Http.api(),
+    Http.get("hello", "/hello", {
+      response: Schema.struct({ clientIdHash: Schema.string }),
+      headers: { "X-Client-Id": Schema.string },
+    }),
+  );
+
+  const server = pipe(
+    api,
+    Http.server,
+    Http.handle("hello", ({ headers: { "x-client-id": apiKey } }) =>
+      Effect.succeed({
+        clientIdHash: createHash("sha256").update(apiKey).digest("base64"),
+      }),
+    ),
+  );
+
+  await pipe(
+    server,
+    Http.setLogger("none"),
+    Http.listen(),
+    Effect.flatMap(({ port }) =>
+      pipe(api, Http.client(new URL(`http://localhost:${port}`)), (client) =>
+        client.hello({ headers: { "x-client-id": "abc" } }),
+      ),
+    ),
+    Effect.map((result) => {
+      expect(result).toEqual({
+        clientIdHash: "ungWv48Bz+pBQUDeXa4iI7ADYaOWF3qctBD/YfIAFa0=",
       });
       return Effect.unit();
     }),

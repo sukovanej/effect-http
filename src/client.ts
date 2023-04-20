@@ -3,12 +3,14 @@ import { request } from "undici";
 import * as Context from "@effect/data/Context";
 import { flow, pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
-import * as S from "@effect/schema/Schema";
+import { ParseError } from "@effect/schema/ParseResult";
+import * as Schema from "@effect/schema/Schema";
 
 import { Api, Endpoint, IgnoredSchemaId } from "./api";
 import {
   ApiError,
   invalidBodyError,
+  invalidHeadersError,
   invalidParamsError,
   invalidQueryError,
 } from "./errors";
@@ -92,13 +94,13 @@ export const HttpClientProviderService = Context.Tag<HttpClientProvider>(
   "effect-http/context/HttpClientProviderService",
 );
 
-type Client<Es extends Endpoint[]> = S.Spread<{
+type Client<Es extends Endpoint[]> = Schema.Spread<{
   [Id in Es[number]["id"]]: (
     input: EndpointSchemasToInput<SelectEndpointById<Es, Id>["schemas"]>,
   ) => Effect.Effect<
     never,
     ClientError,
-    S.To<SelectEndpointById<Es, Id>["schemas"]["response"]>
+    Schema.To<SelectEndpointById<Es, Id>["schemas"]["response"]>
   >;
 }>;
 
@@ -175,59 +177,71 @@ const checkStatusCode = (response: Response) => {
   );
 };
 
+const parse = <A, E>(
+  a: A,
+  encode: (i: unknown) => Effect.Effect<never, ParseError, any>,
+  onError: (error: unknown) => E,
+) =>
+  pipe(
+    a === IgnoredSchemaId ? Effect.succeed(undefined) : encode(a),
+    Effect.mapError(onError),
+  );
+
 export const client =
   (baseUrl: URL) =>
   <Es extends Endpoint[]>(api: Api<Es>): Client<Es> =>
     api.endpoints.reduce(
       (
         client,
-        { id, method, path, schemas: { query, params, body, response } },
+        {
+          id,
+          method,
+          path,
+          schemas: { query, params, body, headers, response },
+        },
       ) => {
-        const parseResponse = S.parseEffect(response);
-        const encodeQuery = S.encodeEffect(
-          query === IgnoredSchemaId ? S.unknown : (S.struct(query) as any),
+        const parseResponse = Schema.parseEffect(response);
+        const encodeQuery = Schema.encodeEffect(
+          query === IgnoredSchemaId
+            ? Schema.unknown
+            : (Schema.struct(query) as any),
         );
-        const encodeParams = S.encodeEffect(
-          params === IgnoredSchemaId ? S.unknown : (S.struct(params) as any),
+        const encodeParams = Schema.encodeEffect(
+          params === IgnoredSchemaId
+            ? Schema.unknown
+            : (Schema.struct(params) as any),
         );
-        const encodeBody = S.encodeEffect(getSchema(body));
+        const encodeBody = Schema.encodeEffect(getSchema(body));
+        const encodeHeaders = Schema.encodeEffect(
+          headers === IgnoredSchemaId
+            ? Schema.unknown
+            : (Schema.struct(headers) as any),
+        );
 
         const fn = (args: any) => {
           return pipe(
             Effect.Do(),
             Effect.bind("query", () =>
-              pipe(
-                args["query"] === IgnoredSchemaId
-                  ? Effect.succeed(undefined)
-                  : encodeQuery(args["query"]),
-                Effect.mapError(invalidQueryError),
-              ),
+              parse(args["query"], encodeQuery, invalidQueryError),
             ),
             Effect.bind("params", () =>
-              pipe(
-                args["params"] === IgnoredSchemaId
-                  ? Effect.succeed(undefined)
-                  : encodeParams(args["params"]),
-                Effect.mapError(invalidParamsError),
-              ),
+              parse(args["params"], encodeParams, invalidParamsError),
             ),
             Effect.bind("body", () =>
-              pipe(
-                args["body"] === IgnoredSchemaId
-                  ? Effect.succeed(undefined)
-                  : encodeBody(args["body"]),
-                Effect.mapError(invalidBodyError),
-              ),
+              parse(args["body"], encodeBody, invalidBodyError),
+            ),
+            Effect.bind("headers", () =>
+              parse(args["headers"], encodeHeaders, invalidHeadersError),
             ),
             Effect.bind("url", ({ params }) =>
               constructUrl(baseUrl, params as any, path),
             ),
             Effect.tap(({ url }) => Effect.logTrace(`${method} ${url}`)),
-            Effect.flatMap(({ url, body, query }) =>
+            Effect.flatMap(({ url, body, query, headers }) =>
               Effect.flatMap(HttpClientProviderService, (provider) =>
                 provider(method, url, {
                   body,
-                  headers: {},
+                  headers,
                   query: query as any,
                 }),
               ),
