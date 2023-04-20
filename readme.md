@@ -32,13 +32,6 @@ Install using
 ```bash
 pnpm add effect-http
 ```
-
-`@effect/data` and `@effect/io` are peer-dependencies, install them using
-
-```bash
-pnpm add @effect/data @effect/io
-```
-
 Bootstrap a simple API specification.
 
 ```typescript
