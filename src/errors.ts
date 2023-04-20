@@ -44,6 +44,22 @@ export const invalidBodyError =
 export const isInvalidBodyError =
   checkByTag<InvalidBodyError>("InvalidBodyError");
 
+/** 400 Bad Request - request headers validation failed */
+export type InvalidHeadersError = {
+  _tag: "InvalidHeadersError";
+  error: unknown;
+};
+
+/** 400 Bad Request - request headers validation failed */
+export const invalidHeadersError = createError<InvalidHeadersError>(
+  "InvalidHeadersError",
+);
+
+/** `InvalidBodyError` refinement */
+export const isInvalidHeadersError = checkByTag<InvalidHeadersError>(
+  "InvalidHeadersError",
+);
+
 /** 401 Unauthorized - request body validation failed */
 export type UnauthorizedError = { _tag: "UnauthorizedError"; error: unknown };
 
@@ -75,6 +91,22 @@ export const conflictError = createError<ConflictError>("ConflictError");
 
 /** `ConflictError` refinement */
 export const isConflictError = checkByTag<ConflictError>("ConflictError");
+
+/** 429 TooManyRequests - request conflicts with the current state of the server */
+export type TooManyRequestsError = {
+  _tag: "TooManyRequestsError";
+  error: unknown;
+};
+
+/** 429 TooManyRequests - request conflicts with the current state of the server */
+export const tooManyRequestsError = createError<TooManyRequestsError>(
+  "TooManyRequestsError",
+);
+
+/** `TooManyRequestsError` refinement */
+export const isTooManyRequestsError = checkByTag<TooManyRequestsError>(
+  "TooManyRequestsError",
+);
 
 /** 500 Internal Server Error - response validation failed */
 export type InvalidResponseError = {
@@ -112,8 +144,10 @@ export type ApiError =
   | InvalidQueryError
   | InvalidParamsError
   | InvalidBodyError
+  | InvalidHeadersError
   | UnauthorizedError
   | NotFoundError
   | ConflictError
+  | TooManyRequestsError
   | InvalidResponseError
   | InternalServerError;

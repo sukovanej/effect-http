@@ -2,42 +2,43 @@ import * as OpenApi from "schema-openapi";
 
 import * as S from "@effect/schema/Schema";
 
+import { normalizeSchemaStruct } from "./internal";
+
 const fillDefaultSchemas = <I extends InputSchemas>({
   response,
   query,
   params,
   body,
-}: I): ComputeEndpoint<string, I>["schemas"] => ({
-  response,
-  query: (query ?? IgnoredSchemaId) as ComputeEndpoint<
-    string,
-    I
-  >["schemas"]["query"],
-  params:
-    params ??
-    (IgnoredSchemaId as ComputeEndpoint<string, I>["schemas"]["params"]),
-  body:
-    body ?? (IgnoredSchemaId as ComputeEndpoint<string, I>["schemas"]["body"]),
-});
+  headers,
+}: I): ComputeEndpoint<string, I>["schemas"] =>
+  ({
+    response,
+    query: query ?? IgnoredSchemaId,
+    params: params ?? IgnoredSchemaId,
+    body: body ?? IgnoredSchemaId,
+    headers: (headers && normalizeSchemaStruct(headers)) ?? IgnoredSchemaId,
+  } as ComputeEndpoint<string, I>["schemas"]);
 
 export const IgnoredSchemaId = Symbol("effect-http/ignore-schema-id");
 export type IgnoredSchemaId = typeof IgnoredSchemaId;
 
 export interface Endpoint<
   Id extends string = string,
+  Response = any,
   Query = any,
   Params = any,
   Body = any,
-  Response = any,
+  Headers = any,
 > {
   id: Id;
   path: string;
   method: OpenApi.OpenAPISpecMethodName;
   schemas: {
+    response: S.Schema<Response>;
     query: Query;
     params: Params;
     body: Body;
-    response: S.Schema<Response>;
+    headers: Headers;
   };
   groupName: string;
 }
@@ -57,16 +58,20 @@ export type ApiGroup<E extends Endpoint[] = Endpoint[]> = {
   groupName: string;
 };
 
+type RecordOptionalSchema = Record<string, S.Schema<any>> | undefined;
+
 export type InputSchemas<
-  QueryS = any,
-  ParamsS = any,
-  BodyS = any,
   Response = any,
+  Query = any,
+  Params = any,
+  Body = any,
+  Headers = RecordOptionalSchema,
 > = {
   response: S.Schema<Response>;
-  query?: QueryS;
-  params?: ParamsS;
-  body?: BodyS;
+  query?: Query;
+  params?: Params;
+  body?: Body;
+  headers?: Headers;
 };
 
 export type ComputeEndpoint<
@@ -75,6 +80,7 @@ export type ComputeEndpoint<
 > = S.Spread<
   Endpoint<
     Id,
+    S.To<I["response"]>,
     I["query"] extends Record<string, S.Schema<any>>
       ? I["query"]
       : IgnoredSchemaId,
@@ -82,7 +88,13 @@ export type ComputeEndpoint<
       ? I["params"]
       : IgnoredSchemaId,
     I["body"] extends S.Schema<any> ? I["body"] : IgnoredSchemaId,
-    S.To<I["response"]>
+    I["headers"] extends Record<string, S.Schema<any>>
+      ? {
+          [K in keyof I["headers"] as K extends string
+            ? Lowercase<K>
+            : never]: I["headers"][K];
+        }
+      : IgnoredSchemaId
   >
 >;
 

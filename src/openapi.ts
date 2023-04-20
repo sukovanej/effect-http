@@ -35,6 +35,12 @@ export const openApi = <A extends Api>(api: A): OpenApiSpecification => {
         operationSpec.push(OpenApi.jsonRequest(schemas.body));
       }
 
+      if (schemas.headers !== IgnoredSchemaId) {
+        for (const [name, schema] of Object.entries(schemas.headers)) {
+          operationSpec.push(OpenApi.parameter(name, "header", schema as any));
+        }
+      }
+
       return OpenApi.path(
         path,
         OpenApi.operation(

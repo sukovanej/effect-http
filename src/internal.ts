@@ -1,9 +1,11 @@
-import * as S from "@effect/schema/Schema";
+import * as Schema from "@effect/schema/Schema";
 
 import { Endpoint, IgnoredSchemaId } from "./api";
 
 type NonIgnoredFields<K extends keyof A, A> = K extends any
-  ? A[K] extends S.Schema<any, any> | Record<string, S.Schema<any, any>>
+  ? A[K] extends
+      | Schema.Schema<any, any>
+      | Record<string, Schema.Schema<any, any>>
     ? K
     : never
   : never;
@@ -11,18 +13,17 @@ type NonIgnoredFields<K extends keyof A, A> = K extends any
 export type RemoveIgnoredSchemas<E> = Pick<E, NonIgnoredFields<keyof E, E>>;
 
 type SchemaStructTo<A> = {
-  [K in keyof A]: K extends "query" | "params"
-    ? A[K] extends Record<string, S.Schema<any>>
-      ? { [KQ in keyof A[K]]: S.To<A[K][KQ]> }
+  [K in keyof A]: K extends "query" | "params" | "headers"
+    ? A[K] extends Record<string, Schema.Schema<any>>
+      ? { [KQ in keyof A[K]]: Schema.To<A[K][KQ]> }
       : never
-    : A[K] extends S.Schema<any, infer X>
+    : A[K] extends Schema.Schema<any, infer X>
     ? X
     : never;
 };
 
-export type EndpointSchemasToInput<E extends Endpoint["schemas"]> = S.Spread<
-  SchemaStructTo<RemoveIgnoredSchemas<Omit<E, "response">>>
->;
+export type EndpointSchemasToInput<E extends Endpoint["schemas"]> =
+  Schema.Spread<SchemaStructTo<RemoveIgnoredSchemas<Omit<E, "response">>>>;
 
 export type SelectEndpointById<Es extends Endpoint[], Id> = Extract<
   Es[number],
@@ -30,6 +31,15 @@ export type SelectEndpointById<Es extends Endpoint[], Id> = Extract<
 >;
 
 export const getSchema = <A>(
-  input: S.Schema<A> | IgnoredSchemaId,
-): S.Schema<A> =>
-  input == IgnoredSchemaId ? (S.unknown as S.Schema<A>) : input;
+  input: Schema.Schema<A> | IgnoredSchemaId,
+): Schema.Schema<A> =>
+  input == IgnoredSchemaId ? (Schema.unknown as Schema.Schema<A>) : input;
+
+/** Headers are case-insensitive, internally we deal with them as lowercase
+ *  because that's how express deal with them.
+ */
+export const normalizeSchemaStruct = (s: Record<string, Schema.Schema<any>>) =>
+  Object.entries(s).reduce(
+    (acc, [key, value]) => ({ ...acc, [key.toLowerCase()]: value }),
+    {},
+  );

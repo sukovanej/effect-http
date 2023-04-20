@@ -13,11 +13,13 @@ import {
   ApiError,
   internalServerError,
   invalidBodyError,
+  invalidHeadersError,
   invalidParamsError,
   invalidQueryError,
   invalidResponseError,
   isConflictError,
   isInvalidBodyError,
+  isInvalidHeadersError,
   isInvalidParamsError,
   isInvalidQueryError,
   isInvalidResponseError,
@@ -68,6 +70,7 @@ const formatError = (error: unknown, formatter: ValidationErrorFormatter) => {
     isInvalidBodyError(error) ||
     isInvalidResponseError(error) ||
     isInvalidParamsError(error) ||
+    isInvalidHeadersError(error) ||
     isConflictError(error);
 
   if (isValidationError) {
@@ -118,6 +121,11 @@ const toEndpoint = <E extends Endpoint>(
       ? S.unknown
       : (S.struct(schemas.params) as any),
   );
+  const parseHeaders = S.parseEffect(
+    schemas.headers === IgnoredSchemaId
+      ? S.unknown
+      : (S.struct(schemas.headers) as any),
+  );
   const parseBody = S.parseEffect(getSchema(schemas.body));
   const encodeResponse = S.parseEffect(schemas.response);
 
@@ -132,6 +140,9 @@ const toEndpoint = <E extends Endpoint>(
       ),
       Effect.bind("body", () =>
         pipe(parseBody(req.body), Effect.mapError(invalidBodyError)),
+      ),
+      Effect.bind("headers", () =>
+        pipe(parseHeaders(req.headers), Effect.mapError(invalidHeadersError)),
       ),
       Effect.tap(() => Effect.logTrace(`${method.toUpperCase()} ${path}`)),
       Effect.flatMap((i: any) => fn(i)),
@@ -152,6 +163,8 @@ const toEndpoint = <E extends Endpoint>(
         InvalidQueryError: (error) =>
           handleApiFailure(method, path, error, 400, res),
         InvalidParamsError: (error) =>
+          handleApiFailure(method, path, error, 400, res),
+        InvalidHeadersError: (error) =>
           handleApiFailure(method, path, error, 400, res),
         NotFoundError: (error) =>
           handleApiFailure(method, path, error, 404, res),
