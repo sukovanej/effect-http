@@ -1,6 +1,7 @@
 import * as Schema from "@effect/schema/Schema";
 
-import { Endpoint, IgnoredSchemaId } from "./api";
+import type { Endpoint } from "../Api";
+import { IgnoredSchemaId } from "./api";
 
 type NonIgnoredFields<K extends keyof A, A> = K extends any
   ? A[K] extends
@@ -30,16 +31,14 @@ export type SelectEndpointById<Es extends Endpoint[], Id> = Extract<
   { id: Id }
 >;
 
+/** @internal */
 export const getSchema = <A>(
   input: Schema.Schema<A> | IgnoredSchemaId,
 ): Schema.Schema<A> =>
   input == IgnoredSchemaId ? (Schema.unknown as Schema.Schema<A>) : input;
 
-/** Headers are case-insensitive, internally we deal with them as lowercase
- *  because that's how express deal with them.
- */
-export const normalizeSchemaStruct = (s: Record<string, Schema.Schema<any>>) =>
-  Object.entries(s).reduce(
-    (acc, [key, value]) => ({ ...acc, [key.toLowerCase()]: value }),
-    {},
-  );
+/** @internal */
+export const getStructSchema = (
+  input: Record<string, Schema.Schema<any>> | IgnoredSchemaId,
+): Schema.Schema<any> =>
+  input == IgnoredSchemaId ? Schema.unknown : Schema.struct(input);

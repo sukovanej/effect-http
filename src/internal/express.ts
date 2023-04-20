@@ -1,16 +1,19 @@
 import express from "express";
-import { AddressInfo } from "net";
+import type { AddressInfo } from "net";
 import * as OpenApi from "schema-openapi";
 import swaggerUi from "swagger-ui-express";
 
 import { flow, pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
 import * as Logger from "@effect/io/Logger";
-import * as S from "@effect/schema/Schema";
+import * as Schema from "@effect/schema/Schema";
 
-import { Endpoint, IgnoredSchemaId } from "./api";
+import type { Endpoint } from "../Api";
+import { openApi } from "../OpenApi";
 import {
   ApiError,
+  Handler,
+  Server,
   internalServerError,
   invalidBodyError,
   invalidHeadersError,
@@ -23,16 +26,59 @@ import {
   isInvalidParamsError,
   isInvalidQueryError,
   isInvalidResponseError,
-} from "./errors";
-import { getSchema } from "./internal";
-import { openApi } from "./openapi";
-import { Handler, Server } from "./server";
+} from "../Server";
 import {
   ValidationErrorFormatter,
   ValidationErrorFormatterService,
   isParseError,
-} from "./validation-error-formatter";
+} from "../validation-error-formatter";
+import { getSchema, getStructSchema } from "./utils";
 
+/** @internal */
+const formatError = (error: unknown, formatter: ValidationErrorFormatter) => {
+  const isValidationError =
+    isInvalidQueryError(error) ||
+    isInvalidBodyError(error) ||
+    isInvalidResponseError(error) ||
+    isInvalidParamsError(error) ||
+    isInvalidHeadersError(error) ||
+    isConflictError(error);
+
+  if (isValidationError) {
+    const innerError = error.error;
+
+    if (isParseError(innerError)) {
+      return formatter(innerError);
+    } else if (typeof innerError === "string") {
+      return innerError;
+    }
+  }
+
+  if (typeof error === "object" && error !== null && "error" in error) {
+    if (typeof error.error === "string") {
+      return error.error;
+    }
+
+    return JSON.stringify(error.error);
+  }
+
+  return JSON.stringify(error);
+};
+
+/** @internal */
+const errorToLog = (error: unknown): string => {
+  if (error instanceof Error) {
+    return error.stack || error.message;
+  }
+
+  if (["string", "number", "boolean"].includes(typeof error)) {
+    return `${error}`;
+  }
+
+  return JSON.stringify(error, undefined);
+};
+
+/** @internal */
 const handleApiFailure = (
   method: OpenApi.OpenAPISpecMethodName,
   path: string,
@@ -64,86 +110,29 @@ const handleApiFailure = (
     ),
   );
 
-const formatError = (error: unknown, formatter: ValidationErrorFormatter) => {
-  const isValidationError =
-    isInvalidQueryError(error) ||
-    isInvalidBodyError(error) ||
-    isInvalidResponseError(error) ||
-    isInvalidParamsError(error) ||
-    isInvalidHeadersError(error) ||
-    isConflictError(error);
-
-  if (isValidationError) {
-    const innerError = error.error;
-
-    if (isParseError(innerError)) {
-      return formatter(innerError);
-    } else if (typeof innerError === "string") {
-      return innerError;
-    }
-  }
-
-  if (typeof error === "object" && error !== null && "error" in error) {
-    if (typeof error.error === "string") {
-      return error.error;
-    }
-
-    return JSON.stringify(error.error);
-  }
-
-  return JSON.stringify(error);
-};
-
-const errorToLog = (error: unknown): string => {
-  if (error instanceof Error) {
-    return error.stack || error.message;
-  }
-
-  if (["string", "number", "boolean"].includes(typeof error)) {
-    return `${error}`;
-  }
-
-  return JSON.stringify(error, undefined);
-};
-
+/** @internal */
 const toEndpoint = <E extends Endpoint>(
   { fn, endpoint: { schemas, path, method } }: Handler<E, never>,
   logger: Logger.Logger<any, any>,
   errorFormatter: ValidationErrorFormatter,
 ) => {
-  const parseQuery = S.parseEffect(
-    schemas.query === IgnoredSchemaId
-      ? S.unknown
-      : (S.struct(schemas.query) as any),
-  );
-  const parseParams = S.parseEffect(
-    schemas.params === IgnoredSchemaId
-      ? S.unknown
-      : (S.struct(schemas.params) as any),
-  );
-  const parseHeaders = S.parseEffect(
-    schemas.headers === IgnoredSchemaId
-      ? S.unknown
-      : (S.struct(schemas.headers) as any),
-  );
-  const parseBody = S.parseEffect(getSchema(schemas.body));
-  const encodeResponse = S.parseEffect(schemas.response);
+  const parseQuery = Schema.parseEffect(getStructSchema(schemas.query));
+  const parseParams = Schema.parseEffect(getStructSchema(schemas.params));
+  const parseHeaders = Schema.parseEffect(getStructSchema(schemas.headers));
+  const parseBody = Schema.parseEffect(getSchema(schemas.body));
+  const encodeResponse = Schema.parseEffect(schemas.response);
 
   return (req: express.Request, res: express.Response) =>
     pipe(
-      Effect.Do(),
-      Effect.bind("query", () =>
-        pipe(parseQuery(req.query), Effect.mapError(invalidQueryError)),
-      ),
-      Effect.bind("params", () =>
-        pipe(parseParams(req.params), Effect.mapError(invalidParamsError)),
-      ),
-      Effect.bind("body", () =>
-        pipe(parseBody(req.body), Effect.mapError(invalidBodyError)),
-      ),
-      Effect.bind("headers", () =>
-        pipe(parseHeaders(req.headers), Effect.mapError(invalidHeadersError)),
-      ),
+      Effect.all({
+        query: Effect.mapError(parseQuery(req.query), invalidQueryError),
+        params: Effect.mapError(parseParams(req.params), invalidParamsError),
+        body: Effect.mapError(parseBody(req.body), invalidBodyError),
+        headers: Effect.mapError(
+          parseHeaders(req.headers),
+          invalidHeadersError,
+        ),
+      }),
       Effect.tap(() => Effect.logTrace(`${method.toUpperCase()} ${path}`)),
       Effect.flatMap((i: any) => fn(i)),
       Effect.flatMap(
@@ -190,7 +179,8 @@ const toEndpoint = <E extends Endpoint>(
     );
 };
 
-const handlerToRoute = <E extends Endpoint>(
+/** @internal */
+export const handlerToRoute = <E extends Endpoint>(
   handler: Handler<E, never>,
   logger: Logger.Logger<any, any>,
   errorFormattter: ValidationErrorFormatter,
@@ -202,6 +192,7 @@ const handlerToRoute = <E extends Endpoint>(
       toEndpoint(handler, logger, errorFormattter),
     );
 
+/** @internal */
 export const toExpress = <Hs extends Handler<any, never>[]>(
   server: Server<[], Hs>,
 ): express.Express => {
@@ -219,6 +210,7 @@ export const toExpress = <Hs extends Handler<any, never>[]>(
   return app;
 };
 
+/** @internal */
 export const listen =
   (port?: number) =>
   <S extends Server<[], Handler<Endpoint, never>[]>>(server: S) => {

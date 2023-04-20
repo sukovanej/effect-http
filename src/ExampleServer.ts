@@ -4,9 +4,8 @@ import { pipe } from "@effect/data/Function";
 import * as RA from "@effect/data/ReadonlyArray";
 import * as Effect from "@effect/io/Effect";
 
-import { Api, Endpoint } from "./api";
-import { internalServerError } from "./errors";
-import { Server, handle, server } from "./server";
+import { Api, Endpoint } from "./Api";
+import { Server, handle, internalServerError, server } from "./Server";
 
 /** Generate an example Server implementation. */
 export const exampleServer = (api: Api): Server<[], any> => {

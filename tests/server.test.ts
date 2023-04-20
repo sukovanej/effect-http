@@ -63,7 +63,10 @@ test("validation error", async () => {
       assert.fail("Expected failure");
     }),
     Effect.catchAll((error) => {
-      expect(error).toMatchObject({ _tag: "InvalidQueryError" });
+      expect(error).toMatchObject({
+        _tag: "ClientValidationError",
+        error: { _tag: "InvalidQueryError" },
+      });
       return Effect.unit();
     }),
     Effect.runPromise,
