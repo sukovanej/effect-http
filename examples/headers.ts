@@ -25,12 +25,11 @@ const clients = {
   hasAccess: (clientId) => Effect.succeed(clientId === "abc"),
   getRemainingUsage: (clientId) =>
     pipe(
-      Effect.Do(),
-      Effect.bind("usages", () => Effect.flatMap(UsagesService, Ref.get)),
-      Effect.bind("timestamp", () =>
+      Effect.all([
+        Effect.flatMap(UsagesService, Ref.get),
         Effect.clockWith((clock) => clock.currentTimeMillis()),
-      ),
-      Effect.map(({ usages, timestamp }) =>
+      ]),
+      Effect.map(([usages, timestamp]) =>
         pipe(
           usages,
           RA.filter(
@@ -65,9 +64,7 @@ const handleHello = ({
 }: Http.Input<typeof api, "hello">) =>
   pipe(
     Effect.filterOrFail(
-      Effect.flatMap(ClientsService, (clients) =>
-        pipe(clients.hasAccess(clientId)),
-      ),
+      Effect.flatMap(ClientsService, (clients) => clients.hasAccess(clientId)),
       (hasAccess) => hasAccess,
       () => Http.unauthorizedError("Wrong api key"),
     ),
