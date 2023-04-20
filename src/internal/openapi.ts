@@ -1,23 +1,17 @@
 import * as OpenApi from "schema-openapi";
 
-import * as S from "@effect/schema/Schema";
+import type { Api } from "../Api";
+import type { OpenApiSpecification } from "../OpenApi";
+import { IgnoredSchemaId } from "./api";
 
-import { Api, IgnoredSchemaId } from "./api";
-
-export type OpenApiSpecification =
-  OpenApi.OpenAPISpec<OpenApi.OpenAPISchemaType>;
-
-/** Generate OpenApi specification for the Api. */
 export const openApi = <A extends Api>(api: A): OpenApiSpecification => {
   return api.endpoints.reduce(
     (spec, { path, method, schemas, id, groupName }) => {
       const operationSpec = [];
 
-      if (schemas.response !== S.unknown) {
-        operationSpec.push(
-          OpenApi.jsonResponse(200, schemas.response, "Response"),
-        );
-      }
+      operationSpec.push(
+        OpenApi.jsonResponse(200, schemas.response, "Response"),
+      );
 
       if (schemas.params !== IgnoredSchemaId) {
         for (const [name, schema] of Object.entries(schemas.params)) {
