@@ -265,19 +265,25 @@ functions we can use in the error rail of the handler effect.
 
 ##### 4xx
 
-- 400 `Http.invalidQueryError`
-- 400 `Http.invalidParamsError`
-- 400 `Http.invalidBodyError`
-- 400 `Http.invalidHeadersError`
-- 401 `Http.unauthorizedError`
-- 404 `Http.notFoundError`
-- 409 `Http.conflictError`
-- 429 `Http.tooManyRequestsError`
+- 400 `Http.invalidQueryError` - _query parameters validation failed_
+- 400 `Http.invalidParamsError` - _path parameters validation failed_
+- 400 `Http.invalidBodyError` - _request body validation failed_
+- 400 `Http.invalidHeadersError` - _request headers validation failed_
+- 401 `Http.unauthorizedError` - _invalid authentication credentials_
+- 403 `Http.forbiddenError` - _authorization failure_
+- 404 `Http.notFoundError` - _cannot find the requested resource_
+- 409 `Http.conflictError` - _request conflicts with the current state of the server_
+- 415 `Http.unsupportedMediaTypeError` - _unsupported payload format_
+- 429 `Http.tooManyRequestsError` - _the user has sent too many requests in a given amount of time_
 
 ##### 5xx
 
-- 500 `Http.invalidResponseError`
-- 500 `Http.serverError`
+- 500 `Http.invalidResponseError` - _internal server error because of response validation failure_
+- 500 `Http.internalServerError` - _internal server error_
+- 501 `Http.notImplementedError` - _functionality to fulfill the request is not supported_
+- 502 `Http.badGatewayError` - _invalid response from the upstream server_
+- 503 `Http.serviceunavailableError` - _server is not ready to handle the request_
+- 504 `Http.gatewayTimeoutError` - _request timeout from the upstream server_
 
 Using these errors, `Server` runtime can generate human-readable detailsor
 in HTTP responses and logs. Also, it can correctly decide what status code

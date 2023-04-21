@@ -1,12 +1,10 @@
-import type { ApiError } from "../Server";
-
-export type InvalidUrlError = {
-  _tag: "InvalidUrlError";
+export type InvalidUrlClientError = {
+  _tag: "InvalidUrlClientError";
   error: unknown;
 };
 
-export const invalidUrlError = (error: unknown): InvalidUrlError => ({
-  _tag: "InvalidUrlError",
+export const invalidUrlError = (error: unknown): InvalidUrlClientError => ({
+  _tag: "InvalidUrlClientError",
   error,
 });
 
@@ -22,15 +20,15 @@ export const unexpectedClientError = (
   error,
 });
 
-export type ClientValidationError = {
-  _tag: "ClientValidationError";
+export type ValidationClientError = {
+  _tag: "ValidationClientError";
   error: unknown;
 };
 
-export const clientValidationError = (
+export const validationClientError = (
   error: unknown,
-): ClientValidationError => ({
-  _tag: "ClientValidationError",
+): ValidationClientError => ({
+  _tag: "ValidationClientError",
   error,
 });
 
@@ -50,7 +48,7 @@ export const httpClientError = (
 });
 
 export type ClientError =
-  | ApiError
+  | InvalidUrlClientError
   | HttpClientError
-  | InvalidUrlError
+  | ValidationClientError
   | UnexpectedClientError;

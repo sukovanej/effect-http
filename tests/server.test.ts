@@ -63,7 +63,7 @@ test("validation error", async () => {
     }),
     Effect.catchAll((error) => {
       expect(error).toMatchObject({
-        _tag: "ClientValidationError",
+        _tag: "ValidationClientError",
         error: { _tag: "InvalidQueryError" },
       });
       return Effect.unit();
@@ -150,3 +150,40 @@ test("headers", async () => {
     Effect.runPromise,
   );
 });
+
+test.each(Http.API_ERROR_TAGS as Http.ApiError["_tag"][])(
+  "status codes",
+  async (errorTag) => {
+    const api = pipe(
+      Http.api(),
+      Http.get("hello", "/hello", {
+        response: Schema.struct({ clientIdHash: Schema.string }),
+      }),
+    );
+
+    const server = pipe(
+      Http.server(api),
+      Http.handle("hello", () =>
+        Effect.fail({ _tag: errorTag, error: "failure" }),
+      ),
+    );
+
+    await pipe(
+      server,
+      Http.setLogger("none"),
+      Http.listen(),
+      Effect.flatMap(({ port }) =>
+        pipe(api, Http.client(new URL(`http://localhost:${port}`)), (client) =>
+          client.hello({}),
+        ),
+      ),
+      Effect.catchAll((error) => {
+        expect(error).toMatchObject({
+          statusCode: Http.API_STATUS_CODES[errorTag],
+        });
+        return Effect.unit();
+      }),
+      Effect.runPromise,
+    );
+  },
+);
