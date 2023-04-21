@@ -1,9 +1,9 @@
+import * as Http from "effect-http";
+
 import * as Context from "@effect/data/Context";
 import { pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
 import * as S from "@effect/schema/Schema";
-
-import * as Http from "../src";
 
 const api = pipe(
   Http.api({ title: "Users API" }),

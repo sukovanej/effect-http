@@ -1,8 +1,8 @@
+import * as Http from "effect-http";
+
 import { pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
 import * as S from "@effect/schema/Schema";
-
-import * as Http from "../src";
 
 const responseSchema = S.struct({ name: S.string, id: S.number });
 const querySchema = { id: S.NumberFromString };
