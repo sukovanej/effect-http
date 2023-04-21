@@ -10,6 +10,10 @@ High-level declarative HTTP API for [effect-ts](https://github.com/Effect-TS).
 - **Example server derivation**. Expose HTTP server conforming the API specification.
 - (TBD) **Mock client derivation**. Test safely against a specified API.
 
+<p align="center">
+    <img alt="open api ui" src="assets/derivation-diagram.svg" />
+</p>
+
 **Under development**
 
 - [Quickstart](#quickstart)
