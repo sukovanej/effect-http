@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.0.15
+
+### Patch Changes
+
+- e6ff1c5: update dependencies
+
 ## 0.0.14
 
 ### Patch Changes
