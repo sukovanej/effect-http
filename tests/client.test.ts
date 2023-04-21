@@ -1,8 +1,8 @@
+import * as Http from "effect-http";
+
 import { pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
 import * as S from "@effect/schema/Schema";
-
-import * as Http from "../src";
 
 test("quickstart example e2e", async () => {
   const responseSchema = S.struct({ name: S.string });

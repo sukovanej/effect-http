@@ -9,7 +9,15 @@
     "strict": true,
     "skipLibCheck": true,
     "types": ["vitest/globals"],
-    "stripInternal": true
+    "stripInternal": true,
+    "paths": {
+      "effect-http": [
+        "./src/index.ts"
+      ],
+      "effect-http/*": [
+        "./src/*"
+      ]
+    }
   },
   "include": [
     "src",

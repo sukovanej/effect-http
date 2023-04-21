@@ -1,3 +1,4 @@
+import * as Http from "effect-http";
 import { createHash } from "node:crypto";
 
 import * as Context from "@effect/data/Context";
@@ -5,8 +6,6 @@ import { pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
 import * as Layer from "@effect/io/Layer";
 import * as Schema from "@effect/schema/Schema";
-
-import * as Http from "../src";
 
 const Service1 = Context.Tag<number>();
 const Service2 = Context.Tag<string>();
