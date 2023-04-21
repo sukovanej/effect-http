@@ -11,6 +11,7 @@ import * as Schema from "@effect/schema/Schema";
 import type { Endpoint } from "../Api";
 import { openApi } from "../OpenApi";
 import {
+  API_STATUS_CODES,
   ApiError,
   Handler,
   Server,
@@ -107,6 +108,7 @@ const handleApiFailure = (
       ),
       Effect.logAnnotate("errorTag", error._tag),
       Effect.logAnnotate("error", formatError(error, formatter)),
+      Effect.asUnit,
     ),
   );
 
@@ -146,24 +148,15 @@ const toEndpoint = <E extends Endpoint>(
           Effect.mapError(internalServerError),
         ),
       ),
-      Effect.catchTags({
-        InvalidBodyError: (error) =>
-          handleApiFailure(method, path, error, 400, res),
-        InvalidQueryError: (error) =>
-          handleApiFailure(method, path, error, 400, res),
-        InvalidParamsError: (error) =>
-          handleApiFailure(method, path, error, 400, res),
-        InvalidHeadersError: (error) =>
-          handleApiFailure(method, path, error, 400, res),
-        NotFoundError: (error) =>
-          handleApiFailure(method, path, error, 404, res),
-        ConflictError: (error) =>
-          handleApiFailure(method, path, error, 409, res),
-        InvalidResponseError: (error) =>
-          handleApiFailure(method, path, error, 500, res),
-        InternalServerError: (error) =>
-          handleApiFailure(method, path, error, 500, res),
-      }),
+      Effect.catchAll((error) =>
+        handleApiFailure(
+          method,
+          path,
+          error,
+          API_STATUS_CODES[error._tag],
+          res,
+        ),
+      ),
       Effect.catchAll((error) =>
         handleApiFailure(method, path, error, 500, res),
       ),

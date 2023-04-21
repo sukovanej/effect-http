@@ -2,18 +2,17 @@ import { request } from "undici";
 
 import { flow, pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
-import { ParseError } from "@effect/schema/ParseResult";
+import type { ParseError } from "@effect/schema/ParseResult";
 import * as Schema from "@effect/schema/Schema";
 
 import type { Api, Endpoint } from "../Api";
 import {
   Client,
-  ClientError,
-  InvalidUrlError,
-  clientValidationError,
+  InvalidUrlClientError,
   httpClientError,
   invalidUrlError,
   unexpectedClientError,
+  validationClientError,
 } from "../Client";
 import {
   invalidBodyError,
@@ -68,19 +67,17 @@ const constructUrl = (
   baseUrl: URL,
   params: Record<string, string>,
   path: string,
-): Effect.Effect<never, InvalidUrlError, URL> => {
-  const finalPath = Object.entries(params ?? {}).reduce(
-    (path, [key, value]) => path.replace(`:${key}`, value),
-    path,
+): Effect.Effect<never, InvalidUrlClientError, URL> =>
+  pipe(
+    Object.entries(params ?? {}).reduce(
+      (path, [key, value]) => path.replace(`:${key}`, value),
+      path,
+    ),
+    Effect.succeed,
+    Effect.flatMap((finalPath) =>
+      Effect.tryCatch(() => new URL(finalPath, baseUrl), invalidUrlError),
+    ),
   );
-
-  try {
-    const url = new URL(finalPath, baseUrl);
-    return Effect.succeed(url);
-  } catch (error) {
-    return Effect.fail(invalidUrlError(JSON.stringify(error)));
-  }
-};
 
 type Response = { statusCode: number; content: unknown };
 
@@ -91,15 +88,7 @@ const checkStatusCode = (response: Response) => {
     return Effect.succeed(response);
   }
 
-  if (code >= 400 && code < 500) {
-    return Effect.fail(httpClientError(response.content, response.statusCode));
-  }
-
-  return Effect.fail<ClientError>(
-    unexpectedClientError(
-      new Error(`Failed with unexpected status code ${code}`),
-    ),
-  );
+  return Effect.fail(httpClientError(response.content, response.statusCode));
 };
 
 const parse = <A, E>(
@@ -137,17 +126,17 @@ export const client =
               query: parse(
                 args["query"],
                 encodeQuery,
-                flow(invalidQueryError, clientValidationError),
+                flow(invalidQueryError, validationClientError),
               ),
               params: parse(
                 args["params"],
                 encodeParams,
-                flow(invalidParamsError, clientValidationError),
+                flow(invalidParamsError, validationClientError),
               ),
               body: parse(
                 args["body"],
                 encodeBody,
-                flow(invalidBodyError, clientValidationError),
+                flow(invalidBodyError, validationClientError),
               ),
               headers: parse(
                 args["headers"],
@@ -166,7 +155,7 @@ export const client =
             Effect.flatMap(({ content }) =>
               pipe(
                 parseResponse(content),
-                Effect.mapError(clientValidationError),
+                Effect.mapError(validationClientError),
               ),
             ),
             Effect.logAnnotate("clientOperationId", id),
