@@ -574,7 +574,7 @@ const api = pipe(
   Http.api(),
   Http.get("stuff", "/stuff", {
     response: Schema.string,
-    query: Schema.struct({ value: Schema.string }),
+    query: { value: Schema.string },
   }),
 );
 
