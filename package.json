@@ -4,7 +4,6 @@
   "description": "High-level declarative HTTP API for effect-ts",
   "homepage": "https://github.com/sukovanej/effect-http",
   "main": "dist/index.js",
-  "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "rm -rf dist && tsc -p tsconfig.build.json",
