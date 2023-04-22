@@ -1,5 +1,14 @@
 # effect-http
 
+## 0.0.16
+
+### Patch Changes
+
+- 624aa2b: Update effect-log and remove "module" field from package.json
+- 6de1bf7: split internal and public modules
+- fbb4b9a: OpenAPI configuration options for `Http.express`
+- bb16a9a: extend errors
+
 ## 0.0.15
 
 ### Patch Changes
