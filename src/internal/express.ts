@@ -1,3 +1,4 @@
+import { ExpressOptions } from "effect-http/Express";
 import express from "express";
 import type { AddressInfo } from "net";
 import * as OpenApi from "schema-openapi";
@@ -34,6 +35,12 @@ import {
   isParseError,
 } from "../validation-error-formatter";
 import { getSchema, getStructSchema } from "./utils";
+
+/** @internal */
+export const DEFAULT_OPTIONS = {
+  openapiEnabled: true,
+  openapiPath: "/docs",
+} satisfies ExpressOptions;
 
 /** @internal */
 const formatError = (error: unknown, formatter: ValidationErrorFormatter) => {
@@ -186,32 +193,42 @@ export const handlerToRoute = <E extends Endpoint>(
     );
 
 /** @internal */
-export const toExpress = <Hs extends Handler<any, never>[]>(
-  server: Server<[], Hs>,
-): express.Express => {
-  const app = express();
-  app.use(express.json());
+export const toExpress =
+  (options?: Partial<ExpressOptions>) =>
+  <Hs extends Handler<any, never>[]>(
+    server: Server<[], Hs>,
+  ): express.Express => {
+    const app = express();
+    app.use(express.json());
 
-  for (const handler of server.handlers) {
-    app.use(
-      handlerToRoute(handler, server.logger, server.validationErrorFormatter),
-    );
-  }
+    const finalOptions = { ...DEFAULT_OPTIONS, ...options };
 
-  app.use("/docs", swaggerUi.serve, swaggerUi.setup(openApi(server.api)));
+    for (const handler of server.handlers) {
+      app.use(
+        handlerToRoute(handler, server.logger, server.validationErrorFormatter),
+      );
+    }
 
-  return app;
-};
+    if (finalOptions.openapiEnabled) {
+      app.use(
+        finalOptions.openapiPath,
+        swaggerUi.serve,
+        swaggerUi.setup(openApi(server.api)),
+      );
+    }
+
+    return app;
+  };
 
 /** @internal */
 export const listen =
-  (port?: number) =>
+  (port?: number, options?: Partial<ExpressOptions>) =>
   <S extends Server<[], Handler<Endpoint, never>[]>>(server: S) => {
     if (server._unimplementedEndpoints.length !== 0) {
       new Error(`All endpoint must be implemented`);
     }
 
-    const app = toExpress(server);
+    const app = toExpress(options)(server);
 
     return pipe(
       Effect.try(() => app.listen(port)),
