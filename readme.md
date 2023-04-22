@@ -23,6 +23,7 @@ High-level declarative HTTP API for [effect-ts](https://github.com/Effect-TS).
   - [Reporting errors in handlers](#reporting-errors-in-handlers)
   - [Example API with conflict API error](#example-api-with-conflict-api-error)
 - [Grouping endpoints](#grouping-endpoints)
+- [Incremental adoption into existing express app](#incremental-adoption-into-existing-express-app)
 - [Cookbook](#cookbook)
   - [Handler input type derivation](#handler-input-type-derivation)
 
@@ -454,6 +455,102 @@ The OpenAPI UI will group endpoints according to the `api` and show
 corresponding titles for each group.
 
 ![example-generated-open-api-ui](assets/example-server-openapi-ui.png)
+
+## Incremental adoption into existing express app
+
+In `effect-http`, calling `Http.listen` under the hood performs the conversion of a
+`Server` onto an `Express` app and then it immediately triggers `listen()` on the
+generated app. This is very convenient because in the userland, you deal with the
+app creation using `Effect` and don't need to care about details of the underlying
+Express web framework.
+
+This hiding might get in a way if you decide to adopt `effect-http` into an
+existing application. Because of that, the Express app derivation is exposed
+as a public API of the `effect-http`. The exposed function is `Http.express`
+and it takes a configuration options and `Server` object (it's curried) as
+inputs and returns the generated `Express` app.
+
+As the [Express documentation](https://expressjs.com/en/guide/using-middleware.html)
+describes, _an Express application is essentially a series of middleware function calls_.
+This is perfect because if we decide to integrate an effect api into an express app,
+we can do so by simply plugging the generated app as an application-level middleware
+into the express app already in place.
+
+Let's see it in action. Suppose we have the following existing express application.
+
+```typescript
+import express from "express";
+
+const legacyApp = express();
+
+legacyApp.get("/legacy-endpoint", (_, res) => {
+  res.json({ hello: "world" });
+});
+
+app.listen(3000, () => console.log("Listening on 3000"));
+```
+
+Now, we'll create an `effect-http` api and server.
+
+```typescript
+import * as Http from "effect-http";
+
+import { pipe } from "@effect/data/Function";
+import * as Effect from "@effect/io/Effect";
+import * as Schema from "@effect/schema/Schema";
+
+const api = pipe(
+  Http.api(),
+  Http.get("newEndpoint", "/new-endpoint", {
+    response: Schema.struct({ hello: Schema.string }),
+  }),
+);
+
+const server = pipe(
+  Http.server(api),
+  Http.handle("newEndpoint", () => Effect.succeed({ hello: "new world" })),
+  Http.exhaustive,
+);
+```
+
+In order to _merge_ these two applications, we use the aforementioned
+`Http.express` function to convert the `server` into an Express app and
+plug the `legacyApp` in as an application-level middleware.
+
+```typescript
+const app = pipe(server, Http.express());
+app.use(legacyApp);
+app.listen(3000, () => console.log("Listening on 3000"));
+```
+
+Also, it is possible to do it the other way around.
+
+```typescript
+const app = pipe(server, Http.express());
+legacyApp.use(app);
+legacyApp.listen(3000, () => console.log("Listening on 3000"));
+```
+
+There are some caveats we should be aware of. Middlewares and express in general
+are imperative. Middlewares that execute first can end the request-response
+cycle. Also, the `Server` doesn't have any information about the legacy express
+application and the validation, logging and OpenAPI applies only for its
+routes. That's why this approach should be generally considered a transition
+state. It's in place mainly to allow an incremental rewrite.
+
+If you already manage an OpenAPI in the express app, you can use the
+options of `Http.express` to either disable the generated OpenAPI completely
+or expose it through a different endpoint.
+
+```typescript
+// Disable the generated OpenAPI
+const app = pipe(server, Http.express({ openapiEnabled: false }));
+
+// Or, expose the new OpenAPI within a different route
+const app = pipe(server, Http.express({ openapiPath: '/docs-new' }));
+```
+
+[See the full example](examples/incremental-adoption-express.ts)
 
 ## Cookbook
 
