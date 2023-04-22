@@ -5,16 +5,16 @@ High-level declarative HTTP API for [effect-ts](https://github.com/Effect-TS).
 ## Features
 
 - **Client derivation**. Write the api specification once, get the type-safe client with runtime validation for free.
-- **OpenApi derivation**. OpenApi schema with exposed OpenApi UI out of box.
-- **Batteries included server implementation**. Automatic runtime validation of input and response objects.
-- **Example server derivation**. Expose HTTP server conforming the API specification.
+- **OpenAPI derivation**. `/docs` endpoint with OpenAPI UI out of box.
+- **Batteries included server implementation**. Automatic runtime request and response validation.
+- **Example server derivation**. Automatic derivation of example server implementation.
 - (TBD) **Mock client derivation**. Test safely against a specified API.
 
 **Under development**
 
 - [Quickstart](#quickstart)
 - [Example server](#example-server)
-- [Inputs](#inputs)
+- [Request validation](#request-validation)
   - [Example](#example)
 - [Headers](#headers)
 - [Layers and services](#layers-and-services)
@@ -95,8 +95,9 @@ Also, check the auto-generated OpenAPI UI running on
 implementation based on the `Api` specification. This can be
 helpful in the following and probably many more cases.
 
-- You're in a process of designing an API and you want to have an
-  OpenApi and UI you have a discuss over.
+- You're in a process of designing an API and you want to have _something_
+  to share with other people and have a discussion over before the actual
+  implementation starts.
 - You develop a fullstack application with frontend first approach
   you want to test the integration with a backend you haven't
   implemeted yet.
@@ -126,19 +127,19 @@ pipe(api, Http.exampleServer, Http.listen(3000), Effect.runPromise);
 _(This is a complete standalone code example)_
 
 Go to [localhost:3000/docs](http://localhost:3000/docs) and try calling
-endpoints. The exposed HTTP service conforms the specified `Api` specification
-and will return only valid example responses.
+endpoints. The exposed HTTP service conforms the `api` and will return
+only valid example responses.
 
-### Inputs
+### Request validation
 
-Each endpoint can declare its inputs. Inputs can be passed as
+Each endpoint can declare expectations on the request format. Specifically,
 
 - `body` - request body
 - `query` - query parameters
 - `params` - path parameters
 - `headers` - request headers
 
-Inputs are specified as part of the schemas structure.
+They are specified in the input schemas object (3rd argument of `Http.get`, `Http.post`, ...).
 
 #### Example
 
@@ -162,7 +163,7 @@ const api = pipe(
 
 Request headers are part of input schemas along with the request body or query parameters.
 Their schema is specified similarly to query parameters and path parameters, i.e. using
-an object mapping header name onto a schema. The example below shows an API with
+a mapping from header names onto their schemas. The example below shows an API with
 a single endpoint `/hello` which expects a header `X-Client-Id` to be present.
 
 ```typescript
@@ -187,7 +188,7 @@ to call the endpoint without the header we will get the following error response
 ```
 
 And as usual, the information about headers will be reflected in the generated
-OpenApi UI.
+OpenAPI UI.
 
 ![example-headers-openapi-ui](assets/example-headers-openapi-ui.png)
 
@@ -285,14 +286,14 @@ functions we can use in the error rail of the handler effect.
 - 503 `Http.serviceunavailableError` - _server is not ready to handle the request_
 - 504 `Http.gatewayTimeoutError` - _request timeout from the upstream server_
 
-Using these errors, `Server` runtime can generate human-readable detailsor
+Using these errors, `Server` runtime can generate human-readable details
 in HTTP responses and logs. Also, it can correctly decide what status code
-should be return to the client.
+should be returned to the client.
 
 #### Example API with conflict API error
 
 Let's see it in action and implement the mentioned user management API. The
-API will look as follows
+API will look as follows.
 
 ```typescript
 import * as Http from "effect-http";
@@ -405,7 +406,7 @@ initializes new `ApiGroup` object. You can pipe it with combinators like `Http.g
 into the api in the type-safe manner while preserving group names for each endpoint.
 
 This enables separability of concers for big APIs and provides information for
-generation of tags for the OpenApi specification.
+generation of tags for the OpenAPI specification.
 
 ```typescript
 import * as Http from "effect-http";
@@ -449,7 +450,8 @@ pipe(api, Http.exampleServer, Http.listen(3000), Effect.runPromise);
 
 _(This is a complete standalone code example)_
 
-The OpenApi UI groups endpoints using the specified groups.
+The OpenAPI UI will group endpoints according to the `api` and show
+corresponding titles for each group.
 
 ![example-generated-open-api-ui](assets/example-server-openapi-ui.png)
 
