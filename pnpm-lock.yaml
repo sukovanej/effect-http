@@ -40,8 +40,8 @@ devDependencies:
     specifier: ^4.1.3
     version: 4.1.3
   effect-log:
-    specifier: ^0.0.7
-    version: 0.0.7
+    specifier: ^0.0.8
+    version: 0.0.8
   prettier:
     specifier: ^2.8.7
     version: 2.8.7
@@ -364,13 +364,11 @@ packages:
 
   /@effect/data@0.12.2:
     resolution: {integrity: sha512-bmWRTcsSRG1FlBswT+D8SxW6r3c4B3pKJrjYfitCD03tXHnup5gLHaWqbFgIjiyYITS+UsJRRjVrNxvyGG4ZNQ==}
-    dev: false
 
   /@effect/io@0.25.0:
     resolution: {integrity: sha512-vDwE2d+5JA5/X1gD47Tubf51mE6UQ4ge5Uw40XQnvB/1GD/OEloD/ipHeDIszluwjqr3n1DDsf41JziP1gt+9Q==}
     dependencies:
       '@effect/data': 0.12.2
-    dev: false
 
   /@effect/schema@0.16.0:
     resolution: {integrity: sha512-KYf77SQRD6Z2KJ30XMc47KHbPGTYCQwjXNuGlELl/WjzJYJuvKSQBMTRUUuhrjSi+ROTm5sUwwfskLfXeO0GVA==}
@@ -1215,8 +1213,11 @@ packages:
     resolution: {integrity: sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==}
     dev: false
 
-  /effect-log@0.0.7:
-    resolution: {integrity: sha512-urtIZ4+6fr6VAUAmiXve8YEJxAgNsbtg/ZLgBV/dQDPBmuKtCS4pqt1GopB5RssJy9mTRbBSMAWGTYhz8H4tgg==}
+  /effect-log@0.0.8:
+    resolution: {integrity: sha512-FGAGf0rbtNdC5e0FFiiTZXJwiwEvGG5PZXZ0u67Cc23JTvilQffu6p6Pd9PjVxMHU4o8YAkszfKXtyzldrziVg==}
+    dependencies:
+      '@effect/data': 0.12.2
+      '@effect/io': 0.25.0
     dev: true
 
   /emoji-regex@8.0.0:
