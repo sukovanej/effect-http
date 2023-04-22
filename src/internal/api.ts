@@ -14,7 +14,7 @@ export type ComputeEndpoint<
 > = Schema.Spread<
   Endpoint<
     Id,
-    Schema.To<I["response"]>,
+    I["response"] extends Schema.Schema<any, any> ? I["response"] : never,
     I["query"] extends Record<string, Schema.Schema<any>>
       ? I["query"]
       : IgnoredSchemaId,

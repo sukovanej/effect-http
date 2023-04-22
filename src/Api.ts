@@ -16,7 +16,7 @@ export interface Endpoint<
   path: string;
   method: OpenApi.OpenAPISpecMethodName;
   schemas: {
-    response: Schema.Schema<Response>;
+    response: Response;
     query: Query;
     params: Params;
     body: Body;
@@ -43,13 +43,13 @@ export type ApiGroup<E extends Endpoint[] = Endpoint[]> = {
 type RecordOptionalSchema = Record<string, Schema.Schema<any>> | undefined;
 
 export type InputSchemas<
-  Response = any,
+  Response = Schema.Schema<any>,
   Query = RecordOptionalSchema,
   Params = RecordOptionalSchema,
   Body = Schema.Schema<any> | undefined,
   Headers = RecordOptionalSchema,
 > = {
-  response: Schema.Schema<Response>;
+  response: Response;
   query?: Query;
   params?: Params;
   body?: Body;
