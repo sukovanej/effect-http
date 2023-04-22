@@ -5,7 +5,7 @@ import type { AddressInfo } from "net";
 import * as OpenApi from "schema-openapi";
 import swaggerUi from "swagger-ui-express";
 
-import { flow, pipe } from "@effect/data/Function";
+import { pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
 import * as Layer from "@effect/io/Layer";
 import * as Logger from "@effect/io/Logger";
@@ -33,6 +33,7 @@ import {
   isInvalidQueryError,
   isInvalidResponseError,
 } from "../Server";
+import { isResponse } from "../Server/Response";
 import {
   ValidationErrorFormatter,
   ValidationErrorFormatterService,
@@ -141,14 +142,33 @@ const toEndpoint = (
         ),
       }),
       Effect.tap(() => Effect.logTrace(`${method.toUpperCase()} ${path}`)),
-      Effect.flatMap((i: any) => fn(i) as Effect.Effect<never, ApiError, void>),
-      Effect.flatMap(
-        flow(encodeResponse, Effect.mapError(invalidResponseError)),
-      ),
-      Effect.flatMap((response) =>
+      Effect.flatMap((i: any) => fn(i)),
+      Effect.flatMap((response) => {
+        let body = response;
+        let statusCode = 200;
+        let headers: Record<string, string> = {};
+
+        if (isResponse(response)) {
+          body = response.body;
+          statusCode = response.statusCode ?? statusCode;
+          headers = response.headers ?? headers;
+        }
+
+        const encodedBody = encodeResponse(body);
+
+        return pipe(
+          encodedBody,
+          Effect.map((body) => ({ body, statusCode, headers })),
+          Effect.mapError(invalidResponseError),
+        );
+      }),
+      Effect.flatMap(({ body, statusCode, headers }) =>
         pipe(
           Effect.try(() => {
-            res.status(200).json(response);
+            Object.entries(headers).forEach(([key, value]) => {
+              res.setHeader(key, value);
+            });
+            res.status(statusCode).json(body);
           }),
           Effect.mapError(internalServerError),
         ),

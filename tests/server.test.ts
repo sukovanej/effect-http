@@ -129,6 +129,7 @@ test("headers", async () => {
         clientIdHash: createHash("sha256").update(apiKey).digest("base64"),
       }),
     ),
+    Http.exhaustive,
   );
 
   await pipe(
@@ -191,4 +192,39 @@ test("Attempt to add a non-existing operation should fail as a safe guard", () =
       Http.handle("nonExistingOperation" as any, () => "" as any),
     ),
   ).toThrowError();
+});
+
+test("Response object", async () => {
+  const api = pipe(
+    Http.api(),
+    Http.get("hello", "/hello", {
+      response: Schema.struct({ value: Schema.string }),
+    }),
+  );
+
+  const server = pipe(
+    api,
+    Http.server,
+    Http.handle("hello", () =>
+      Effect.succeed(
+        pipe(Http.toResponse({ value: "test" }), Http.setStatusCode(201)),
+      ),
+    ),
+    Http.exhaustive,
+  );
+
+  await pipe(
+    testServer(server, api),
+    Effect.flatMap((client) =>
+      client.hello({ headers: { "x-client-id": "abc" } }),
+    ),
+    Effect.map((result) => {
+      expect(result).toEqual({
+        value: "test",
+      });
+      return Effect.unit();
+    }),
+    Effect.scoped,
+    Effect.runPromise,
+  );
 });
