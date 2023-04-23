@@ -3,6 +3,8 @@ import express from "express";
 
 import { pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
+import * as Logger from "@effect/io/Logger";
+import * as LogLevel from "@effect/io/Logger/Level";
 import * as Schema from "@effect/schema/Schema";
 
 const legacyApp = express();
@@ -24,11 +26,14 @@ const server = pipe(
   Http.exhaustive,
 );
 
-//const app = pipe(server, Http.express());
-//app.use(legacyApp);
-//app.listen(3000, () => console.log("Listening on 3000"));
-
-const app = pipe(server, Http.express({ openapiPath: "/docs-new" }));
-
-legacyApp.use(app);
-legacyApp.listen(3000, () => console.log("Listening on 3000"));
+pipe(
+  server,
+  Http.express({ openapiPath: "/docs-new" }),
+  Effect.map((app) => {
+    app.use(legacyApp);
+    return app;
+  }),
+  Effect.flatMap(Http.listenExpress()),
+  Effect.provideSomeLayer(Logger.minimumLogLevel(LogLevel.All)),
+  Effect.runPromise,
+);

@@ -20,4 +20,4 @@ const server = pipe(
   Http.handle("test", ({ query }) => Effect.succeed("test")),
 );
 
-pipe(server, Http.listen(4000), Effect.runPromise);
+pipe(server, Http.listen({ port: 4000 }), Effect.runPromise);

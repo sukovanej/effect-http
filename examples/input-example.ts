@@ -2,16 +2,17 @@ import * as Http from "effect-http";
 
 import { pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
-import * as S from "@effect/schema/Schema";
+import * as Schema from "@effect/schema/Schema";
 
 const api = pipe(
   Http.api({ title: "My api" }),
   Http.get("stuff", "/stuff", {
-    response: S.string,
-    query: { value: S.string },
+    response: Schema.string,
+    query: { value: Schema.string },
   }),
 );
 
+// Notice query has type { readonly value: string; }
 const handleStuff = ({ query }: Http.Input<typeof api, "stuff">) =>
   pipe(
     Effect.fail(Http.notFoundError("I didnt find it")),
@@ -25,4 +26,4 @@ const server = pipe(
   Http.exhaustive,
 );
 
-pipe(server, Http.listen(3000), Effect.runPromise);
+pipe(server, Http.listen({ port: 3000 }), Effect.runPromise);

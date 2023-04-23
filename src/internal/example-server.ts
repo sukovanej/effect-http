@@ -8,15 +8,15 @@ import type { Api, Endpoint } from "../Api";
 import { Server, handle, internalServerError, server } from "../Server";
 
 /** @internal */
-export const exampleServer = (api: Api): Server<[], any> => {
+export const exampleServer = (api: Api): Server<never, []> => {
   const _server = server(api);
 
   return pipe(
     _server._unimplementedEndpoints,
     RA.reduce(_server, (server, endpoint) =>
-      pipe(server, handle(endpoint.id, createExampleHandler(endpoint)) as any),
+      pipe(server, handle(endpoint.id, createExampleHandler(endpoint))),
     ),
-  ) as Server<[], any>;
+  ) as Server<never, []>;
 };
 
 /** @internal */

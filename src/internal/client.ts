@@ -1,11 +1,11 @@
-import { request } from "undici";
+import * as undici from "undici";
 
 import { flow, pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
 import type { ParseError } from "@effect/schema/ParseResult";
 import * as Schema from "@effect/schema/Schema";
 
-import type { Api, Endpoint } from "../Api";
+import type { AnyApi } from "../Api";
 import {
   Client,
   InvalidUrlClientError,
@@ -26,21 +26,36 @@ import { getStructSchema } from "./utils";
 
 const makeHttpCall = (
   method: string,
-  url: URL,
+  baseUrl: URL,
+  path: string,
   body: any,
   headers: any,
   query: any,
 ) =>
   pipe(
-    Effect.tryPromise(() => {
-      const options = {
-        method: method.toUpperCase() as any,
-        headers: { ...headers, "Content-Type": "application/json" },
-        query,
-        body: JSON.stringify(body),
-      };
-      return request(url, options);
-    }),
+    Effect.acquireRelease(
+      Effect.try(() => {
+        const client = new undici.Client(baseUrl);
+        return client;
+      }),
+      (client) =>
+        pipe(
+          Effect.tryPromise(() => client.close()),
+          Effect.orDie,
+        ),
+    ),
+    Effect.flatMap((client) =>
+      Effect.tryPromise(() => {
+        const options = {
+          method: method.toUpperCase() as any,
+          headers: { ...headers, "Content-Type": "application/json" },
+          path,
+          query,
+          body: JSON.stringify(body),
+        };
+        return client.request(options);
+      }),
+    ),
     Effect.bindTo("response"),
     Effect.bind("json", ({ response }) =>
       Effect.tryPromise(async () => {
@@ -61,22 +76,6 @@ const makeHttpCall = (
       statusCode: response.statusCode,
     })),
     Effect.mapError(unexpectedClientError),
-  );
-
-const constructUrl = (
-  baseUrl: URL,
-  params: Record<string, string>,
-  path: string,
-): Effect.Effect<never, InvalidUrlClientError, URL> =>
-  pipe(
-    Object.entries(params ?? {}).reduce(
-      (path, [key, value]) => path.replace(`:${key}`, value),
-      path,
-    ),
-    Effect.succeed,
-    Effect.flatMap((finalPath) =>
-      Effect.tryCatch(() => new URL(finalPath, baseUrl), invalidUrlError),
-    ),
   );
 
 type Response = { statusCode: number; content: unknown };
@@ -101,9 +100,15 @@ const parse = <A, E>(
     Effect.mapError(onError),
   );
 
+const constructPath = (params: Record<string, string>, path: string) =>
+  Object.entries(params ?? {}).reduce(
+    (path, [key, value]) => path.replace(`:${key}`, value),
+    path,
+  );
+
 export const client =
   (baseUrl: URL) =>
-  <Es extends Endpoint[]>(api: Api<Es>): Client<Es> =>
+  <A extends AnyApi>(api: A): Client<A> =>
     api.endpoints.reduce(
       (
         client,
@@ -144,12 +149,10 @@ export const client =
                 invalidHeadersError,
               ),
             }),
-            Effect.bind("url", ({ params }) =>
-              constructUrl(baseUrl, params as any, path),
-            ),
-            Effect.tap(({ url }) => Effect.logTrace(`${method} ${url}`)),
-            Effect.flatMap(({ url, body, query, headers }) =>
-              makeHttpCall(method, url, body, headers, query),
+            Effect.let("path", ({ params }) => constructPath(params, path)),
+            Effect.tap(() => Effect.logTrace(`${method} ${path}`)),
+            Effect.flatMap(({ path, body, query, headers }) =>
+              makeHttpCall(method, baseUrl, path, body, headers, query),
             ),
             Effect.flatMap(checkStatusCode),
             Effect.flatMap(({ content }) =>
@@ -161,7 +164,7 @@ export const client =
             Effect.logAnnotate("clientOperationId", id),
           );
         };
-        return { ...(client as any), [id]: fn };
+        return { ...client, [id]: fn };
       },
-      {} as Client<Es>,
+      {} as Client<A>,
     );

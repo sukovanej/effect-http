@@ -3,13 +3,19 @@ import * as Http from "effect-http";
 import * as Context from "@effect/data/Context";
 import { pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
-import * as S from "@effect/schema/Schema";
+import * as Schema from "@effect/schema/Schema";
 
 // Schemas
 
-const milanSchema = S.struct({ penisLength: S.number, name: S.string });
-const lesnekSchema = { name: S.string };
-const standaSchema = S.record(S.string, S.union(S.string, S.number));
+const milanSchema = Schema.struct({
+  penisLength: Schema.number,
+  name: Schema.string,
+});
+const lesnekSchema = { name: Schema.string };
+const standaSchema = Schema.record(
+  Schema.string,
+  Schema.union(Schema.string, Schema.number),
+);
 
 const StuffService = Context.Tag<{ value: number }>();
 
@@ -42,8 +48,11 @@ const handleLesnek = ({ query }: Http.Input<typeof api, "getLesnek">) =>
 
 const api = pipe(
   Http.api({ title: "My awesome pets API", version: "1.0.0" }),
-  Http.get("getMilan", "/milan", { response: S.string }),
-  Http.get("getLesnek", "/lesnek", { response: S.string, query: lesnekSchema }),
+  Http.get("getMilan", "/milan", { response: Schema.string }),
+  Http.get("getLesnek", "/lesnek", {
+    response: Schema.string,
+    query: lesnekSchema,
+  }),
   Http.get("test", "/test", { response: standaSchema, query: lesnekSchema }),
   Http.post("standa", "/standa", {
     response: standaSchema,
@@ -54,8 +63,8 @@ const api = pipe(
     body: milanSchema,
   }),
   Http.put("callStanda", "/api/zdar", {
-    response: S.string,
-    body: S.struct({ zdar: S.literal("zdar") }),
+    response: Schema.string,
+    body: Schema.struct({ zdar: Schema.literal("zdar") }),
   }),
 );
 
@@ -67,7 +76,6 @@ const server = pipe(
   Http.handle("getMilan", () => Effect.succeed("test")),
   Http.handle("test", handleTest),
   Http.handle("handleMilan", handleMilan),
-  Http.provideLayer(dummyStuff),
   Http.handle("standa", handleStanda),
   Http.handle("getLesnek", handleLesnek),
   Http.handle("callStanda", () => Effect.succeed("zdar")),
@@ -77,7 +85,8 @@ const client = pipe(api, Http.client(new URL("http://localhost:4000")));
 
 pipe(
   server,
-  Http.listen(4000),
+  Http.listen({ port: 4000 }),
   Effect.flatMap(() => pipe(client.callStanda({ body: { zdar: "zdar" } }))),
+  Effect.provideLayer(dummyStuff),
   Effect.runPromise,
 );

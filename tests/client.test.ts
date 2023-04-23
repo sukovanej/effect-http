@@ -2,38 +2,37 @@ import * as Http from "effect-http";
 
 import { pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
-import * as S from "@effect/schema/Schema";
+import * as Schema from "@effect/schema/Schema";
+
+import { testServer } from "./utils";
 
 test("quickstart example e2e", async () => {
-  const responseSchema = S.struct({ name: S.string });
-
   const api = pipe(
     Http.api(),
     Http.get("getUser", "/user", {
-      response: responseSchema,
-      query: { id: S.NumberFromString },
+      response: Schema.struct({ name: Schema.string }),
+      query: { id: Schema.NumberFromString },
     }),
   );
 
   const server = pipe(
     api,
     Http.server,
-    Http.handle("getUser", ({ query }) => Effect.succeed({ name: "milan" })),
+    Http.handle("getUser", ({ query }) =>
+      Effect.succeed({ name: `milan:${query.id}` }),
+    ),
     Http.exhaustive,
   );
 
-  const client = (port: number) =>
-    pipe(api, Http.client(new URL(`http://localhost:${port}`)));
-
-  const user = await pipe(
-    server,
-    Http.setLogger("none"),
-    Http.listen(),
-    Effect.flatMap(({ port }) => client(port).getUser({ query: { id: 12 } })),
+  await pipe(
+    testServer(server, api),
+    Effect.flatMap((client) => client.getUser({ query: { id: 12 } })),
+    Effect.map((response) => {
+      expect(response).toEqual({ name: "milan:12" });
+    }),
+    Effect.scoped,
     Effect.runPromise,
   );
-
-  expect(user).toEqual({ name: "milan" });
 });
 
 const methods = [
@@ -48,7 +47,7 @@ const methods = [
 ] as const;
 
 test.each(methods)("Dummy call - %s", async (method) => {
-  const responseSchema = S.struct({ name: S.string });
+  const responseSchema = Schema.struct({ name: Schema.string });
 
   const api = pipe(
     Http.api(),
@@ -64,33 +63,30 @@ test.each(methods)("Dummy call - %s", async (method) => {
     Http.exhaustive,
   );
 
-  const client = (port: number) =>
-    pipe(api, Http.client(new URL(`http://localhost:${port}`)));
-
-  const user = await pipe(
-    server,
-    Http.setLogger("none"),
-    Http.listen(),
-    Effect.flatMap(({ port }) => client(port).doStuff({})),
+  await pipe(
+    testServer(server, api),
+    Effect.flatMap((client) => client.doStuff({})),
+    Effect.map((response) => {
+      expect(response).toEqual({ name: "milan" });
+    }),
+    Effect.scoped,
     Effect.runPromise,
   );
-
-  expect(user).toEqual({ name: "milan" });
 });
 
 test("All input types", async () => {
-  const responseSchema = S.struct({
-    value: S.string,
-    anotherValue: S.number,
-    operation: S.string,
-    helloWorld: S.string,
+  const responseSchema = Schema.struct({
+    value: Schema.string,
+    anotherValue: Schema.number,
+    operation: Schema.string,
+    helloWorld: Schema.string,
   });
   const querySchema = {
-    value: S.string,
-    anotherValue: S.NumberFromString,
+    value: Schema.string,
+    anotherValue: Schema.NumberFromString,
   };
-  const paramsSchema = { operation: S.string };
-  const bodySchema = S.struct({ helloWorld: S.string });
+  const paramsSchema = { operation: Schema.string };
+  const bodySchema = Schema.struct({ helloWorld: Schema.string });
 
   const api = pipe(
     Http.api(),
@@ -111,27 +107,24 @@ test("All input types", async () => {
     Http.exhaustive,
   );
 
-  const client = (port: number) =>
-    pipe(api, Http.client(new URL(`http://localhost:${port}`)));
-
-  const user = await pipe(
-    server,
-    Http.setLogger("none"),
-    Http.listen(),
-    Effect.flatMap(({ port }) =>
-      client(port).doStuff({
+  await pipe(
+    testServer(server, api),
+    Effect.flatMap((client) =>
+      client.doStuff({
         params: { operation: "operation" },
         query: { value: "value", anotherValue: 1 },
         body: { helloWorld: "helloWorld" },
       }),
     ),
+    Effect.map((response) => {
+      expect(response).toEqual({
+        operation: "operation",
+        value: "value",
+        anotherValue: 1,
+        helloWorld: "helloWorld",
+      });
+    }),
+    Effect.scoped,
     Effect.runPromise,
   );
-
-  expect(user).toEqual({
-    operation: "operation",
-    value: "value",
-    anotherValue: 1,
-    helloWorld: "helloWorld",
-  });
 });

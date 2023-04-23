@@ -3,13 +3,14 @@ import * as Http from "effect-http";
 import * as Context from "@effect/data/Context";
 import { pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
-import * as S from "@effect/schema/Schema";
+import * as Layer from "@effect/io/Layer";
+import * as Schema from "@effect/schema/Schema";
 
 const api = pipe(
   Http.api({ title: "Users API" }),
   Http.post("storeUser", "/users", {
-    response: S.string,
-    body: S.struct({ name: S.string }),
+    response: Schema.string,
+    body: Schema.struct({ name: Schema.string }),
   }),
 );
 
@@ -42,12 +43,18 @@ const handleStoreUser = ({ body }: Http.Input<typeof api, "storeUser">) =>
     Effect.map(() => `User "${body.name}" stored.`),
   );
 
+const layer = Layer.succeed(UserRepositoryService, mockUserRepository);
+
 const server = pipe(
   api,
   Http.server,
   Http.handle("storeUser", handleStoreUser),
-  Http.provideService(UserRepositoryService, mockUserRepository),
   Http.exhaustive,
 );
 
-Effect.runPromise(pipe(server, Http.listen(3000)));
+pipe(
+  server,
+  Http.listen({ port: 3000 }),
+  Effect.provideLayer(layer),
+  Effect.runPromise,
+);

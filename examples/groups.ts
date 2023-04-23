@@ -2,9 +2,9 @@ import * as Http from "effect-http";
 
 import { pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
-import * as S from "@effect/schema/Schema";
+import * as Schema from "@effect/schema/Schema";
 
-const responseSchema = S.struct({ name: S.string });
+const responseSchema = Schema.struct({ name: Schema.string });
 
 const testApi = pipe(
   Http.apiGroup("test"),
@@ -34,4 +34,4 @@ const api = pipe(
   Http.addGroup(categoriesApi),
 );
 
-pipe(api, Http.exampleServer, Http.listen(3000), Effect.runPromise);
+pipe(api, Http.exampleServer, Http.listen({ port: 3000 }), Effect.runPromise);
