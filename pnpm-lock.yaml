@@ -43,8 +43,8 @@ devDependencies:
     specifier: ^0.30.1
     version: 0.30.1(vitest@0.30.1)
   effect-log:
-    specifier: ^0.0.8
-    version: 0.0.8
+    specifier: ^0.1.0
+    version: 0.1.0
   prettier:
     specifier: ^2.8.7
     version: 2.8.7
@@ -1311,8 +1311,8 @@ packages:
     resolution: {integrity: sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==}
     dev: false
 
-  /effect-log@0.0.8:
-    resolution: {integrity: sha512-FGAGf0rbtNdC5e0FFiiTZXJwiwEvGG5PZXZ0u67Cc23JTvilQffu6p6Pd9PjVxMHU4o8YAkszfKXtyzldrziVg==}
+  /effect-log@0.1.0:
+    resolution: {integrity: sha512-/aAzvGF3V6YV/gpINIqpRHwt81N0Kyf/nXl0KP1dImrdvbp1pR5CpgDbEtP2XBLpkPaF8xOIXqmuYFsQwwuBSg==}
     dependencies:
       '@effect/data': 0.12.2
       '@effect/io': 0.25.0
