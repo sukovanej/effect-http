@@ -175,7 +175,7 @@ const toEndpoint = <E extends Endpoint>(
       ),
       Effect.provideService(ValidationErrorFormatterService, errorFormatter),
       Effect.provideLayer(Logger.replace(Logger.defaultLogger, logger)),
-      Effect.runPromise as any,
+      Effect.runPromise,
     );
 };
 
