@@ -332,7 +332,9 @@ export const listenExpress =
           });
         }),
       ),
-      Effect.flatMap((reason) => Effect.logDebug(`Server stopped (${reason})`)),
+      Effect.flatMap((reason) =>
+        Effect.logDebug(`Stopping server (${reason})`),
+      ),
       Effect.scoped,
       Effect.provideSomeLayer(
         Logger.replace(
