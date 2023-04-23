@@ -1,15 +1,19 @@
-import { ExpressOptions } from "effect-http/Express";
+import * as Log from "effect-log";
 import express from "express";
+import http from "http";
 import type { AddressInfo } from "net";
 import * as OpenApi from "schema-openapi";
 import swaggerUi from "swagger-ui-express";
 
 import { flow, pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
+import * as Layer from "@effect/io/Layer";
 import * as Logger from "@effect/io/Logger";
+import * as Runtime from "@effect/io/Runtime";
+import * as Scope from "@effect/io/Scope";
 import * as Schema from "@effect/schema/Schema";
 
-import type { Endpoint } from "../Api";
+import type { ExpressOptions, ListenOptions } from "../Express";
 import { openApi } from "../OpenApi";
 import {
   API_STATUS_CODES,
@@ -32,15 +36,10 @@ import {
 import {
   ValidationErrorFormatter,
   ValidationErrorFormatterService,
+  defaultValidationErrorFormatterServer,
   isParseError,
 } from "../validation-error-formatter";
 import { getSchema, getStructSchema } from "./utils";
-
-/** @internal */
-export const DEFAULT_OPTIONS = {
-  openapiEnabled: true,
-  openapiPath: "/docs",
-} satisfies ExpressOptions;
 
 /** @internal */
 const formatError = (error: unknown, formatter: ValidationErrorFormatter) => {
@@ -120,10 +119,9 @@ const handleApiFailure = (
   );
 
 /** @internal */
-const toEndpoint = <E extends Endpoint>(
-  { fn, endpoint: { schemas, path, method } }: Handler<E, never>,
-  logger: Logger.Logger<any, any>,
-  errorFormatter: ValidationErrorFormatter,
+const toEndpoint = (
+  { fn, endpoint: { schemas, path, method } }: Handler,
+  runtime: Runtime.Runtime<any>,
 ) => {
   const parseQuery = Schema.parseEffect(getStructSchema(schemas.query));
   const parseParams = Schema.parseEffect(getStructSchema(schemas.params));
@@ -143,7 +141,7 @@ const toEndpoint = <E extends Endpoint>(
         ),
       }),
       Effect.tap(() => Effect.logTrace(`${method.toUpperCase()} ${path}`)),
-      Effect.flatMap((i: any) => fn(i)),
+      Effect.flatMap((i: any) => fn(i) as Effect.Effect<never, ApiError, void>),
       Effect.flatMap(
         flow(encodeResponse, Effect.mapError(invalidResponseError)),
       ),
@@ -173,69 +171,111 @@ const toEndpoint = <E extends Endpoint>(
           Effect.logAnnotate("error", errorToLog(error)),
         ),
       ),
-      Effect.provideService(ValidationErrorFormatterService, errorFormatter),
-      Effect.provideLayer(Logger.replace(Logger.defaultLogger, logger)),
-      Effect.runPromise,
+      Runtime.runPromise(runtime),
     );
 };
 
 /** @internal */
-export const handlerToRoute = <E extends Endpoint>(
-  handler: Handler<E, never>,
-  logger: Logger.Logger<any, any>,
-  errorFormattter: ValidationErrorFormatter,
-): express.Router =>
-  express
-    .Router()
-    [handler.endpoint.method](
-      handler.endpoint.path,
-      toEndpoint(handler, logger, errorFormattter),
-    );
-
-/** @internal */
 export const toExpress =
   (options?: Partial<ExpressOptions>) =>
-  <Hs extends Handler<any, never>[]>(
-    server: Server<[], Hs>,
-  ): express.Express => {
-    const app = express();
-    app.use(express.json());
-
+  <R>(server: Server<R, []>): Effect.Effect<R, unknown, express.Express> => {
     const finalOptions = { ...DEFAULT_OPTIONS, ...options };
 
-    for (const handler of server.handlers) {
-      app.use(
-        handlerToRoute(handler, server.logger, server.validationErrorFormatter),
-      );
-    }
+    return pipe(
+      Effect.gen(function* ($) {
+        const runtime = yield* $(Effect.runtime<R>());
 
-    if (finalOptions.openapiEnabled) {
-      app.use(
-        finalOptions.openapiPath,
-        swaggerUi.serve,
-        swaggerUi.setup(openApi(server.api)),
-      );
-    }
+        const app = express();
+        app.use(express.json());
 
-    return app;
+        for (const handler of server.handlers) {
+          const router = express
+            .Router()
+            [handler.endpoint.method](
+              handler.endpoint.path,
+              toEndpoint(handler, runtime),
+            );
+          app.use(router);
+        }
+
+        if (finalOptions.openapiEnabled) {
+          app.use(
+            finalOptions.openapiPath,
+            swaggerUi.serve,
+            swaggerUi.setup(openApi(server.api)),
+          );
+        }
+
+        return app;
+      }),
+      Effect.provideSomeLayer(
+        Layer.succeed(
+          ValidationErrorFormatterService,
+          finalOptions.validationErrorFormatter,
+        ),
+      ),
+      Effect.provideSomeLayer(
+        Logger.replace(
+          Logger.defaultLogger,
+          getLoggerFromOptions(finalOptions.logger),
+        ),
+      ),
+    );
   };
 
 /** @internal */
+export const DEFAULT_OPTIONS = {
+  openapiEnabled: true,
+  openapiPath: "/docs",
+  validationErrorFormatter: defaultValidationErrorFormatterServer,
+  logger: "pretty",
+} satisfies ExpressOptions;
+
+/** @internal */
+const DEFAULT_LOGGERS = {
+  default: Logger.defaultLogger,
+  pretty: Log.pretty,
+  json: Log.json(),
+  none: Logger.none(),
+};
+
+/** @internal */
+const getLoggerFromOptions = (logger: ExpressOptions["logger"]) => {
+  if (typeof logger === "string") {
+    return DEFAULT_LOGGERS[logger];
+  }
+
+  return logger;
+};
+
+/** @internal */
 export const listen =
-  (port?: number, options?: Partial<ExpressOptions>) =>
-  <S extends Server<[], Handler<Endpoint, never>[]>>(server: S) => {
+  (options?: Partial<ListenOptions>) =>
+  <R>(server: Server<R, []>): Effect.Effect<R, unknown, void> => {
     if (server._unimplementedEndpoints.length !== 0) {
       new Error(`All endpoint must be implemented`);
     }
 
-    const app = toExpress(options)(server);
+    return pipe(
+      server,
+      toExpress(options),
+      Effect.flatMap((express) => pipe(express, listenExpress(options))),
+    );
+  };
+
+/** @internal */
+export const listenExpress =
+  (options?: Partial<ListenOptions>) =>
+  (express: express.Express): Effect.Effect<never, unknown, void> => {
+    const finalOptions = { ...DEFAULT_OPTIONS, ...options };
 
     return pipe(
-      Effect.try(() => app.listen(port)),
-      Effect.flatMap((listeningServer) =>
-        Effect.async<never, Error, AddressInfo>((cb) => {
-          listeningServer.on("listening", () => {
-            const address = listeningServer.address();
+      Effect.acquireRelease(
+        Effect.async<never, Error, http.Server>((cb) => {
+          const server = express.listen(finalOptions.port);
+
+          server.on("listening", () => {
+            const address = server.address();
 
             if (address === null) {
               cb(Effect.fail(new Error("Could not obtain an address")));
@@ -246,15 +286,59 @@ export const listen =
                 ),
               );
             } else {
-              cb(Effect.succeed(address));
+              cb(Effect.succeed(server));
             }
           });
-          listeningServer.on("error", (error) => cb(Effect.fail(error)));
+          server.on("error", (error) => cb(Effect.fail(error)));
+        }),
+        (server) =>
+          Effect.async<never, never, void>((cb) => {
+            server.close((error) => {
+              if (error === undefined) {
+                cb(Effect.unit());
+              } else {
+                cb(Effect.logWarning("Server already closed"));
+              }
+            });
+          }),
+      ),
+      Effect.tap((server) => {
+        const address = server.address() as AddressInfo;
+        return Effect.logInfo(
+          `Server listening on ${address.address}:${address.port}`,
+        );
+      }),
+      Effect.tap((server) => {
+        if (options?.onStart) {
+          return options?.onStart(server);
+        }
+
+        return Effect.unit();
+      }),
+      Effect.bindTo("app"),
+      Effect.bind("scope", () => Scope.make()),
+      Effect.flatMap(({ app }) =>
+        Effect.async<never, never, string>((cb) => {
+          const processSignals = ["SIGINT", "SIGTERM", "exit"];
+
+          for (const signal of processSignals) {
+            process.on(signal, () => {
+              cb(Effect.succeed(signal));
+            });
+          }
+
+          app.on("close", () => {
+            cb(Effect.succeed("closed"));
+          });
         }),
       ),
-      Effect.tap(({ address, port }) =>
-        Effect.logInfo(`Server listening on ${address}:${port}`),
+      Effect.flatMap((reason) => Effect.logDebug(`Server stopped (${reason})`)),
+      Effect.scoped,
+      Effect.provideSomeLayer(
+        Logger.replace(
+          Logger.defaultLogger,
+          getLoggerFromOptions(finalOptions.logger),
+        ),
       ),
-      Effect.provideLayer(Logger.replace(Logger.defaultLogger, server.logger)),
     );
   };

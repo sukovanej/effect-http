@@ -4,6 +4,7 @@ import * as Context from "@effect/data/Context";
 import { pipe } from "@effect/data/Function";
 import * as RA from "@effect/data/ReadonlyArray";
 import * as Effect from "@effect/io/Effect";
+import * as Layer from "@effect/io/Layer";
 import * as Ref from "@effect/io/Ref";
 import * as Schema from "@effect/schema/Schema";
 
@@ -98,9 +99,13 @@ const server = pipe(
   api,
   Http.server,
   Http.handle("hello", handleHello),
-  Http.provideService(ClientsService, clients),
-  Http.provideService(UsagesService, Ref.unsafeMake([])),
   Http.exhaustive,
 );
 
-pipe(server, Http.listen(3000), Effect.runPromise);
+pipe(
+  server,
+  Http.listen({ port: 3000 }),
+  Effect.provideService(ClientsService, clients),
+  Effect.provideServiceEffect(UsagesService, Ref.make([])),
+  Effect.runPromise,
+);

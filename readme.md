@@ -17,7 +17,6 @@ High-level declarative HTTP API for [effect-ts](https://github.com/Effect-TS).
 - [Request validation](#request-validation)
   - [Example](#example)
 - [Headers](#headers)
-- [Layers and services](#layers-and-services)
 - [Logging](#logging)
 - [Error handling](#error-handling)
   - [Reporting errors in handlers](#reporting-errors-in-handlers)
@@ -42,7 +41,7 @@ import * as Http from "effect-http";
 
 import { pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
-import * as S from "@effect/schema/Schema";
+import * as Schema from "@effect/schema/Schema";
 
 const responseSchema = Schema.struct({ name: Schema.string });
 const query = { id: Schema.number };
@@ -76,11 +75,15 @@ const client = pipe(api, Http.client(new URL("http://localhost:3000")));
 And spawn the server on port 3000 and call it using the `client`.
 
 ```typescript
+const callServer = () =>
+  pipe(
+    client.getUser({ query: { id: 12 } }),
+    Effect.flatMap((user) => Effect.logInfo(`Got ${user.name}, nice!`)),
+  );
+
 pipe(
   server,
-  Http.listen(3000),
-  Effect.flatMap(() => client.getUser({ query: { id: 12 } })),
-  Effect.flatMap((user) => Effect.logInfo(`Got ${user.name}, nice!`)),
+  Http.listen({ port: 3000, onStart: callServer }),
   Effect.runPromise,
 );
 ```
@@ -122,7 +125,7 @@ const api = pipe(
   Http.get("test", "/test", { response: responseSchema }),
 );
 
-pipe(api, Http.exampleServer, Http.listen(3000), Effect.runPromise);
+pipe(api, Http.exampleServer, Http.listen({ port: 3000 }), Effect.runPromise);
 ```
 
 _(This is a complete standalone code example)_
@@ -147,9 +150,10 @@ They are specified in the input schemas object (3rd argument of `Http.get`, `Htt
 ```typescript
 import * as Http from "effect-http";
 
+import { pipe } from "@effect/data/Function";
 import * as Schema from "@effect/schema/Schema";
 
-const api = pipe(
+export const api = pipe(
   Http.api({ title: "My api" }),
   Http.get("stuff", "/stuff/:param", {
     response: Schema.struct({ value: Schema.number }),
@@ -159,6 +163,8 @@ const api = pipe(
   }),
 );
 ```
+
+_(This is a complete standalone code example)_
 
 ### Headers
 
@@ -180,6 +186,8 @@ const api = pipe(
   }),
 );
 ```
+
+_(This is a complete standalone code example)_
 
 Server implementation deals with the validation the usual way. For example, if we try
 to call the endpoint without the header we will get the following error response.
@@ -212,25 +220,13 @@ const handleHello = ({
 Take a look at [examples/headers.ts](examples/headers.ts) to see a complete example
 API implementation with in-memory rate-limiting and client identification using headers.
 
-### Layers and services
-
-When constructing a `Server` implementation, the type system ensures all
-the services are provided before we trigger `Http.listen`. On the type level,
-one can check the handler doesn't have any remaining services that need to be injected
-if the first type parameter `R` in `Effect<R, ..., ...>` is `never`.
-
-In case, you have handlers with unresolved dependencies, you can use
-`Http.provideService` combinator that will inject services into
-all handlers defined in the `Server` pipeline so far.
-
-If you decide to construct services using layers, there is the `Http.provideLayer`
-combinator.
-
 ### Logging
 
-Use `Http.setLogger` to set a logger for handler effects. The function accepts
-either an instance of `Logger.Logger<I, O>` or it is possible to use following
-built-in shorthands:
+While you can deal with logging directly using Effect (see
+[Effect logging](https://effect-ts.github.io/io/modules/Effect.ts.html#logging)
+and [Logger module](https://effect-ts.github.io/io/modules/Logger.ts.html)),
+there are shorthands for setting up logger through options of `Http.express`
+and `Http.listen` functions. The `logger` field's allowed values are
 
 - `"json"` - `effect-log` json logger
 - `"pretty"` - `effect-log` pretty logger
@@ -241,10 +237,15 @@ built-in shorthands:
 import * as Http from "effect-http";
 
 import { pipe } from "@effect/data/Function";
+import * as Effect from "@effect/io/Effect";
 
 const api = pipe(Http.api());
-const server = pipe(api, Http.server, Http.setLogger("json"));
+const server = pipe(api, Http.server, Http.listen({ logger: "json" }));
+
+Effect.runPromise(server);
 ```
+
+_(This is a complete standalone code example)_
 
 ### Error handling
 
@@ -299,7 +300,7 @@ API will look as follows.
 ```typescript
 import * as Http from "effect-http";
 
-import * as S from "@effect/schema/Schema";
+import * as Schema from "@effect/schema/Schema";
 
 const api = pipe(
   Http.api({ title: "Users API" }),
@@ -372,10 +373,9 @@ _Server_
 ```bash
 $ pnpm tsx examples/conflict-error-example.ts
 
-18:36:40 (Fiber #0) INFO    Server listening on :::3000
-18:36:44 (Fiber #1) TRACE   POST /users
-18:36:44 (Fiber #1) WARN    POST /users failed
-{ errorTag: ConflictError, error: User "patrik" already exists. }
+16:53:55 (Fiber #0) INFO  Server listening on :::3000
+16:54:14 (Fiber #8) WARN  POST /users failed
+ᐉ { "errorTag": "ConflictError", "error": "User "milan" already exists." }
 ```
 
 _Client_ (using [httpie cli](https://httpie.io/cli))
@@ -414,7 +414,7 @@ import * as Http from "effect-http";
 
 import { pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
-import * as S from "@effect/schema/Schema";
+import * as Schema from "@effect/schema/Schema";
 
 const responseSchema = Schema.struct({ name: Schema.string });
 
@@ -446,7 +446,7 @@ const api = pipe(
   Http.addGroup(categoriesApi),
 );
 
-pipe(api, Http.exampleServer, Http.listen(3000), Effect.runPromise);
+pipe(api, Http.exampleServer, Http.listen({ port: 3000 }), Effect.runPromise);
 ```
 
 _(This is a complete standalone code example)_
@@ -514,21 +514,24 @@ const server = pipe(
 ```
 
 In order to _merge_ these two applications, we use the aforementioned
-`Http.express` function to convert the `server` into an Express app and
-plug the `legacyApp` in as an application-level middleware.
+`Http.express` function to convert the `server` into an Express app.
+We'll receive the `Express` app in the success rail of the `Effect`
+so we can map over it and attach the legacy app there. To start
+the application, use `Http.listenExpress()` which has the same
+signature as `Http.listen` but instead of `Http.Server` it takes
+an `Express` instance.
 
 ```typescript
-const app = pipe(server, Http.express());
-app.use(legacyApp);
-app.listen(3000, () => console.log("Listening on 3000"));
-```
-
-Also, it is possible to do it the other way around.
-
-```typescript
-const app = pipe(server, Http.express());
-legacyApp.use(app);
-legacyApp.listen(3000, () => console.log("Listening on 3000"));
+pipe(
+  server,
+  Http.express({ openapiPath: "/docs-new" }),
+  Effect.map((app) => {
+    app.use(legacyApp);
+    return app;
+  }),
+  Effect.flatMap(Http.listenExpress()),
+  Effect.runPromise,
+);
 ```
 
 There are some caveats we should be aware of. Middlewares and express in general
@@ -544,10 +547,10 @@ or expose it through a different endpoint.
 
 ```typescript
 // Disable the generated OpenAPI
-const app = pipe(server, Http.express({ openapiEnabled: false }));
+Http.express({ openapiEnabled: false });
 
 // Or, expose the new OpenAPI within a different route
-const app = pipe(server, Http.express({ openapiPath: '/docs-new' }));
+Http.express({ openapiPath: "/docs-new" });
 ```
 
 [See the full example](examples/incremental-adoption-express.ts)
@@ -568,26 +571,31 @@ import * as Http from "effect-http";
 
 import { pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
-import * as S from "@effect/schema/Schema";
+import * as Schema from "@effect/schema/Schema";
 
 const api = pipe(
-  Http.api(),
+  Http.api({ title: "My api" }),
   Http.get("stuff", "/stuff", {
     response: Schema.string,
     query: { value: Schema.string },
   }),
 );
 
-// NOTICE: the input type gets correctly derived
+// Notice query has type { readonly value: string; }
 const handleStuff = ({ query }: Http.Input<typeof api, "stuff">) =>
-  Effect.succeed("test");
+  pipe(
+    Effect.fail(Http.notFoundError("I didnt find it")),
+    Effect.tap(() => Effect.log(`Received ${query.value}`)),
+  );
 
 const server = pipe(
   api,
-  Http.server("My api"),
+  Http.server,
   Http.handle("stuff", handleStuff),
   Http.exhaustive,
 );
+
+pipe(server, Http.listen({ port: 3000 }), Effect.runPromise);
 ```
 
 _(This is a complete standalone code example)_

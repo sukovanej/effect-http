@@ -1,7 +1,4 @@
-import type * as Context from "@effect/data/Context";
 import type * as Effect from "@effect/io/Effect";
-import type * as Layer from "@effect/io/Layer";
-import type * as Logger from "@effect/io/Logger";
 import type * as Schema from "@effect/schema/Schema";
 
 import type { AnyApi, Api, Endpoint } from "../Api";
@@ -10,28 +7,35 @@ import type {
   EndpointSchemasToInput,
   SelectEndpointById,
 } from "../internal/utils";
-import type { ValidationErrorFormatter } from "../validation-error-formatter";
 import type { ApiError } from "./Errors";
 
-export type AnyServer = Server<Endpoint[], Handler[]>;
+export const ServerId = Symbol("effect-http/Server/Server");
+export type ServerId = typeof ServerId;
+
+export type AnyServer = Server<any, Endpoint[]>;
 
 export type Server<
+  R,
   UnimplementedEndpoints extends Endpoint[] = Endpoint[],
-  Handlers extends Handler[] = Handler[],
 > = {
+  readonly [ServerId]: {
+    readonly _R: (_: never) => R;
+  };
+
   _unimplementedEndpoints: UnimplementedEndpoints;
 
-  handlers: Handlers;
+  handlers: Handler[];
   api: Api;
-
-  logger: Logger.Logger<any, any>;
-  validationErrorFormatter: ValidationErrorFormatter;
 };
 
-export type Handler<E extends Endpoint = Endpoint, R = any> = {
+type HandlerFn<E extends Endpoint, R> = (
+  input: EndpointSchemasToInput<E["schemas"]>,
+) => Effect.Effect<R, ApiError, Schema.To<E["schemas"]["response"]>>;
+
+export type Handler<E extends Endpoint = Endpoint> = {
   fn: (
     input: EndpointSchemasToInput<E["schemas"]>,
-  ) => Effect.Effect<R, ApiError, Schema.To<E["schemas"]["response"]>>;
+  ) => Effect.Effect<any, ApiError, Schema.To<E["schemas"]["response"]>>;
 
   endpoint: E;
 };
@@ -46,59 +50,14 @@ export const handle: <
   R,
 >(
   id: Id,
-  fn: Handler<SelectEndpointById<S["_unimplementedEndpoints"], Id>, R>["fn"],
-) => (
-  api: S,
-) => internal.AddServerHandle<
-  S,
-  Id,
-  Handler<SelectEndpointById<S["_unimplementedEndpoints"], Id>, R>
-> = internal.handle;
-
-/** Provide layer for all handlers defined so far. */
-export const provideLayer: <R0, R>(
-  layer: Layer.Layer<R0, ApiError, R>,
-) => <Es extends Endpoint[], Hs extends Handler[]>(
-  api: Server<Es, Hs>,
-) => Server<Es, internal.ProvideLayer<Hs, R0, R>> = internal.provideLayer;
-
-/** Provide service for all handlers defined so far.
- *
- * Effectively calls `Effect.provideService` on all handler functions.
- **/
-export const provideService: <T extends Context.Tag<any, any>>(
-  tag: T,
-  service: Context.Tag.Service<T>,
-) => <Es extends Endpoint[], Hs extends Handler[]>(
-  api: Server<Es, Hs>,
-) => Server<Es, internal.ProvideService<Hs, T>> = internal.provideService;
+  fn: HandlerFn<SelectEndpointById<S["_unimplementedEndpoints"], Id>, R>,
+) => (api: S) => internal.AddServerHandle<S, Id, R> = internal.handle;
 
 /** Make sure that
  *  - all the endpoints are implemented
  *  - all handlers contexts are resolved
  */
-export const exhaustive = <S extends Server<[], Handler<any, never>[]>>(
-  server: S,
-) => server;
-
-/** Set the server logger which will apply for both out-of-box logs and
- * handler logs.
- *
- * You can either provide an instance of `Logger.Logger<I, O>` or
- * use `"default"`, `"pretty"`, `"json"` or `"none"` shorthands.
- *
- * @example
- * const server = pipe(
- *   api,
- *   Http.server,
- *   Http.setLogger("json")
- * );
- *
- * @param logger Logger.Logger<I, O> | "default" | "pretty" | "json" | "none"
- */
-export const setLogger: <I, O>(
-  logger: Logger.Logger<I, O> | "default" | "pretty" | "json" | "none",
-) => <S extends AnyServer>(server: S) => S = internal.setLogger;
+export const exhaustive = <R>(server: Server<R, []>): Server<R, []> => server;
 
 /** Type-helper providing type of a handler input given the type of the
  * Api `A` and operation id `Id`.
@@ -106,7 +65,7 @@ export const setLogger: <I, O>(
  * @example
  * const api = pipe(
  *   Http.api(),
- *   Http.get("getMilan", "/milan", { response: S.string, query: S.string })
+ *   Http.get("getMilan", "/milan", { response: Schema.string, query: Schema.string })
  * )
  *
  * type GetMilanInput = Http.Input<typeof api, "getMilan">

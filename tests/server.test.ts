@@ -7,6 +7,8 @@ import * as Effect from "@effect/io/Effect";
 import * as Layer from "@effect/io/Layer";
 import * as Schema from "@effect/schema/Schema";
 
+import { testServer } from "./utils";
+
 const Service1 = Context.Tag<number>();
 const Service2 = Context.Tag<string>();
 
@@ -22,18 +24,25 @@ test("multiple provideLayer calls", async () => {
     Http.get("doStuff", "/stuff", { response: Schema.number }),
   );
 
+  const layer = Layer.provide(layer1, layer2);
+
   const server = pipe(
     api,
     Http.server,
     Http.handle("doStuff", () => Effect.map(Service1, (value) => value + 2)),
-    Http.provideLayer(layer2),
-    Http.provideLayer(layer1),
     Http.exhaustive,
   );
 
-  const result = await Effect.runPromise(server.handlers[0].fn({}));
-
-  expect(result).toEqual(13);
+  await pipe(
+    testServer(server, api),
+    Effect.provideSomeLayer(layer),
+    Effect.flatMap((client) => client.doStuff({})),
+    Effect.map((response) => {
+      expect(response).toEqual(13);
+    }),
+    Effect.scoped,
+    Effect.runPromise,
+  );
 });
 
 test("validation error", async () => {
@@ -50,14 +59,8 @@ test("validation error", async () => {
   const server = Http.exampleServer(api);
 
   await pipe(
-    server,
-    Http.setLogger("none"),
-    Http.listen(),
-    Effect.flatMap(({ port }) =>
-      pipe(api, Http.client(new URL(`http://localhost:${port}`)), (client) =>
-        client.hello({ query: { country: "abc" } }),
-      ),
-    ),
+    testServer(server, api),
+    Effect.flatMap((client) => client.hello({ query: { country: "abc" } })),
     Effect.map(() => {
       assert.fail("Expected failure");
     }),
@@ -68,6 +71,7 @@ test("validation error", async () => {
       });
       return Effect.unit();
     }),
+    Effect.scoped,
     Effect.runPromise,
   );
 });
@@ -87,14 +91,8 @@ test("human-readable error response", async () => {
   );
 
   await pipe(
-    server,
-    Http.setLogger("none"),
-    Http.listen(),
-    Effect.flatMap(({ port }) =>
-      pipe(api, Http.client(new URL(`http://localhost:${port}`)), (client) =>
-        client.hello({}),
-      ),
-    ),
+    testServer(server, api),
+    Effect.flatMap((client) => client.hello({})),
     Effect.map(() => {
       assert.fail("Expected failure");
     }),
@@ -109,6 +107,7 @@ test("human-readable error response", async () => {
       });
       return Effect.unit();
     }),
+    Effect.scoped,
     Effect.runPromise,
   );
 });
@@ -133,13 +132,9 @@ test("headers", async () => {
   );
 
   await pipe(
-    server,
-    Http.setLogger("none"),
-    Http.listen(),
-    Effect.flatMap(({ port }) =>
-      pipe(api, Http.client(new URL(`http://localhost:${port}`)), (client) =>
-        client.hello({ headers: { "x-client-id": "abc" } }),
-      ),
+    testServer(server, api),
+    Effect.flatMap((client) =>
+      client.hello({ headers: { "x-client-id": "abc" } }),
     ),
     Effect.map((result) => {
       expect(result).toEqual({
@@ -147,6 +142,7 @@ test("headers", async () => {
       });
       return Effect.unit();
     }),
+    Effect.scoped,
     Effect.runPromise,
   );
 });
@@ -169,20 +165,15 @@ test.each(Http.API_ERROR_TAGS as Http.ApiError["_tag"][])(
     );
 
     await pipe(
-      server,
-      Http.setLogger("none"),
-      Http.listen(),
-      Effect.flatMap(({ port }) =>
-        pipe(api, Http.client(new URL(`http://localhost:${port}`)), (client) =>
-          client.hello({}),
-        ),
-      ),
+      testServer(server, api),
+      Effect.flatMap((client) => client.hello({})),
       Effect.catchAll((error) => {
         expect(error).toMatchObject({
           statusCode: Http.API_STATUS_CODES[errorTag],
         });
         return Effect.unit();
       }),
+      Effect.scoped,
       Effect.runPromise,
     );
   },
