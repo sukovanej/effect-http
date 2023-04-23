@@ -3,7 +3,6 @@ import * as Http from "effect-http";
 import * as Context from "@effect/data/Context";
 import { pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
-import * as Layer from "@effect/io/Layer";
 import * as Schema from "@effect/schema/Schema";
 
 const api = pipe(
@@ -43,8 +42,6 @@ const handleStoreUser = ({ body }: Http.Input<typeof api, "storeUser">) =>
     Effect.map(() => `User "${body.name}" stored.`),
   );
 
-const layer = Layer.succeed(UserRepositoryService, mockUserRepository);
-
 const server = pipe(
   api,
   Http.server,
@@ -55,6 +52,6 @@ const server = pipe(
 pipe(
   server,
   Http.listen({ port: 3000 }),
-  Effect.provideLayer(layer),
+  Effect.provideService(UserRepositoryService, mockUserRepository),
   Effect.runPromise,
 );

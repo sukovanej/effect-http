@@ -300,6 +300,9 @@ API will look as follows.
 ```typescript
 import * as Http from "effect-http";
 
+import * as Context from "@effect/data/Context";
+import { pipe } from "@effect/data/Function";
+import * as Effect from "@effect/io/Effect";
 import * as Schema from "@effect/schema/Schema";
 
 const api = pipe(
@@ -312,14 +315,11 @@ const api = pipe(
 ```
 
 Now, let's implement a `UserRepository` interface abstracting the interaction with
-our user storage. I'm also providing a mock implementation
-which will always return the user already exists. We will plug the mock user repository
-into our server so we can see the failure behavior.
+our user storage. I'm also providing a mock implementation which will always return
+the user already exists. We will plug the mock user repository into our server
+so we can see the failure behavior.
 
 ```typescript
-import * as Context from "@effect/data/Context";
-import * as Effect from "@effect/io/Effect";
-
 interface UserRepository {
   existsByName: (name: string) => Effect.Effect<never, never, boolean>;
   store: (user: string) => Effect.Effect<never, never, void>;
@@ -336,8 +336,6 @@ const mockUserRepository = {
 And finally, we have the actual `Server` implementation.
 
 ```typescript
-import { pipe } from "@effect/data/Function";
-
 const handleStoreUser = ({ body }: Http.Input<typeof api, "storeUser">) =>
   pipe(
     Effect.flatMap(UserRepositoryService, (userRepository) =>
@@ -359,11 +357,20 @@ const server = pipe(
   api,
   Http.server,
   Http.handle("storeUser", handleStoreUser),
-  Http.provideService(UserRepositoryService, mockUserRepository),
   Http.exhaustive,
 );
+```
 
-Effect.runPromise(pipe(server, Http.listen(3000)));
+To run the server, we will start the server using `Http.listen` and provide
+the `mockUserRepository` service.
+
+```typescript
+pipe(
+  server,
+  Http.listen({ port: 3000 }),
+  Effect.provideService(UserRepositoryService, mockUserRepository),
+  Effect.runPromise,
+);
 ```
 
 Try to run the server and call the `POST /user`.
