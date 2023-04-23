@@ -26,7 +26,7 @@
     "@types/node": "^18.15.13",
     "@types/swagger-ui-express": "^4.1.3",
     "@vitest/coverage-c8": "^0.30.1",
-    "effect-log": "^0.0.8",
+    "effect-log": "^0.1.0",
     "prettier": "^2.8.7",
     "tsx": "^3.12.6",
     "typescript": "^5.0.4",
