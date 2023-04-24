@@ -88,9 +88,7 @@ export const apiGroup = (groupName: string): ApiGroup<[]> => ({
 });
 
 /** Merge the Api `Group` with an `Api` */
-export const addGroup =
-  <E2 extends Endpoint[]>(apiGroup: ApiGroup<E2>) =>
-  <E1 extends Endpoint[]>(api: Api<E1>): Api<[...E1, ...E2]> => ({
-    ...api,
-    endpoints: [...api.endpoints, ...apiGroup.endpoints],
-  });
+export const addGroup: <E2 extends Endpoint[]>(
+  apiGroup: ApiGroup<E2>,
+) => <E1 extends Endpoint[]>(api: Api<E1>) => Api<[...E1, ...E2]> =
+  internal.addGroup;

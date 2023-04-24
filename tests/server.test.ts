@@ -178,3 +178,17 @@ test.each(Http.API_ERROR_TAGS as Http.ApiError["_tag"][])(
     );
   },
 );
+
+test("Attempt to add a non-existing operation should fail as a safe guard", () => {
+  const api = pipe(
+    Http.api(),
+    Http.put("myOperation", "/my-operation", { response: Schema.string }),
+  );
+
+  expect(() =>
+    pipe(
+      Http.server(api),
+      Http.handle("nonExistingOperation" as any, () => "" as any),
+    ),
+  ).toThrowError();
+});
