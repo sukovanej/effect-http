@@ -52,19 +52,24 @@ export const handle =
     id: Id,
     fn: Handler<SelectEndpointById<S["_unimplementedEndpoints"], Id>>["fn"],
   ) =>
-  (api: S): AddServerHandle<S, Id, R> =>
-    ({
+  (api: S): AddServerHandle<S, Id, R> => {
+    const endpoint = api._unimplementedEndpoints.find(
+      ({ id: _id }) => _id === id,
+    );
+
+    if (endpoint === undefined) {
+      throw new Error(`Operation id ${id} not found`);
+    }
+
+    const newUnimplementedEndpoints = api._unimplementedEndpoints.filter(
+      ({ id: _id }) => _id !== id,
+    );
+
+    const handler = { fn, endpoint };
+
+    return {
       ...api,
-      _unimplementedEndpoints: api._unimplementedEndpoints.filter(
-        ({ id: _id }) => _id !== id,
-      ),
-      handlers: [
-        ...api.handlers,
-        {
-          fn,
-          endpoint: api._unimplementedEndpoints.find(
-            ({ id: _id }) => _id === id,
-          )!,
-        },
-      ],
-    } as unknown as AddServerHandle<S, Id, R>);
+      _unimplementedEndpoints: newUnimplementedEndpoints,
+      handlers: [...api.handlers, handler],
+    } as unknown as AddServerHandle<S, Id, R>;
+  };

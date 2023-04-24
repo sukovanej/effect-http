@@ -1,5 +1,6 @@
 import type * as OpenApi from "schema-openapi";
 
+import * as HashSet from "@effect/data/HashSet";
 import type * as Schema from "@effect/schema/Schema";
 
 import type { Api, ApiGroup, Endpoint, InputSchemas } from "../Api";
@@ -75,17 +76,41 @@ export const endpoint =
     path: string,
     schemas: I,
   ) =>
-  <A extends Api | ApiGroup>(api: A): AddEndpoint<A, Id, I> =>
-    ({
+  <A extends Api | ApiGroup>(api: A): AddEndpoint<A, Id, I> => {
+    if (api.endpoints.find((endpoint) => endpoint.id === id) !== undefined) {
+      throw new Error(`Endpoint with operation id ${id} already exists`);
+    }
+
+    const newEndpoint = {
+      schemas: fillDefaultSchemas(schemas),
+      id,
+      path,
+      method,
+      groupName: "groupName" in api ? api.groupName : "default",
+    };
+
+    return {
       ...api,
-      endpoints: [
-        ...api.endpoints,
-        {
-          schemas: fillDefaultSchemas(schemas),
-          id,
-          path,
-          method,
-          groupName: "groupName" in api ? api.groupName : "default",
-        },
-      ],
-    } as unknown as AddEndpoint<A, Id, I>);
+      endpoints: [...api.endpoints, newEndpoint],
+    } as unknown as AddEndpoint<A, Id, I>;
+  };
+
+/** @internal */
+export const addGroup =
+  <E2 extends Endpoint[]>(apiGroup: ApiGroup<E2>) =>
+  <E1 extends Endpoint[]>(api: Api<E1>): Api<[...E1, ...E2]> => {
+    const existingIds = HashSet.make(...api.endpoints.map(({ id }) => id));
+    const newIds = HashSet.make(...apiGroup.endpoints.map(({ id }) => id));
+    const duplicates = HashSet.intersection(existingIds, newIds);
+
+    if (HashSet.size(duplicates) > 0) {
+      throw new Error(
+        `Api group introduces already existing operation ids: ${duplicates}`,
+      );
+    }
+
+    return {
+      ...api,
+      endpoints: [...api.endpoints, ...apiGroup.endpoints],
+    };
+  };
