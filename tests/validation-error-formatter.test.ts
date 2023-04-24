@@ -2,7 +2,7 @@ import * as Either from "@effect/data/Either";
 import { identity, pipe } from "@effect/data/Function";
 import * as Schema from "@effect/schema/Schema";
 
-import { defaultValidationErrorFormatterServer } from "../src/validation-error-formatter";
+import { defaultValidationErrorFormatterServer } from "../src/Server/ValidationErrorFormatter";
 
 const expectError = <E>(self: Either.Either<E, unknown>): E =>
   Either.match(self, identity, () => {

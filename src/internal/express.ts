@@ -38,7 +38,7 @@ import {
   ValidationErrorFormatterService,
   defaultValidationErrorFormatterServer,
   isParseError,
-} from "../validation-error-formatter";
+} from "../Server/ValidationErrorFormatter";
 import { getSchema, getStructSchema } from "./utils";
 
 /** @internal */

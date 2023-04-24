@@ -5,8 +5,8 @@ import type * as Effect from "@effect/io/Effect";
 import type * as Logger from "@effect/io/Logger";
 
 import type { Server } from "./Server";
+import type { ValidationErrorFormatter } from "./Server/ValidationErrorFormatter";
 import * as internal from "./internal/express";
-import type { ValidationErrorFormatter } from "./validation-error-formatter";
 
 export type ExpressOptions = {
   /** Controls whether to expose OpenAPI UI or not. */

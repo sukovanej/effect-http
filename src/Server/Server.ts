@@ -44,6 +44,7 @@ export type Handler<E extends Endpoint = Endpoint> = {
 export const server: <A extends AnyApi>(api: A) => internal.ApiToServer<A> =
   internal.server;
 
+/** Implement handler for the given operation id. */
 export const handle: <
   S extends AnyServer,
   Id extends internal.ServerUnimplementedIds<S>,
