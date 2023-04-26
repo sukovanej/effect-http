@@ -1,5 +1,12 @@
 # effect-http
 
+## 0.1.1
+
+### Patch Changes
+
+- 08af565: add effect-log dependency
+- 22552ea: Improve server stopping log message
+
 ## 0.1.0
 
 ### Minor Changes
