@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.3.0
+
+### Minor Changes
+
+- 922437a: Provide `ValidationErrorFormatter` through the context with default
+
 ## 0.2.1
 
 ### Patch Changes
