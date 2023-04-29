@@ -43,6 +43,8 @@ jobs:
       - run: pnpm install
       - run: pnpm build
       - run: pnpm test
+        env:
+          NODE_OPTIONS: --experimental-fetch
       - run: pnpm lint
       - name: Create Release Pull Request or Publish
         id: changesets
