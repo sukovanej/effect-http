@@ -1,6 +1,9 @@
 import * as Context from "@effect/data/Context";
+import { pipe } from "@effect/data/Function";
 import * as Option from "@effect/data/Option";
 import * as RA from "@effect/data/ReadonlyArray";
+import * as Effect from "@effect/io/Effect";
+import * as Layer from "@effect/io/Layer";
 import * as AST from "@effect/schema/AST";
 import { ParseError, ParseErrors } from "@effect/schema/ParseResult";
 
@@ -17,7 +20,7 @@ export const isParseError = (error: unknown): error is ParseError =>
   "_tag" in error &&
   error._tag === "ParseError";
 
-export const defaultValidationErrorFormatterServer = (
+export const defaultValidationErrorFormatterServer: ValidationErrorFormatter = (
   error: ParseError,
 ): string => {
   const errors = error.errors.flatMap(formatParseErrors);
@@ -122,3 +125,21 @@ const formatAST = (ast: AST.AST) => {
 
   return JSON.stringify(ast);
 };
+
+export const setValidationErrorFormatter = (
+  formatter: ValidationErrorFormatter,
+) => Layer.succeed(ValidationErrorFormatterService, formatter);
+
+export const formatValidationError = (
+  error: ParseError,
+): Effect.Effect<never, never, string> =>
+  pipe(
+    Effect.contextWith((context: Context.Context<never>) =>
+      pipe(
+        context,
+        Context.getOption(ValidationErrorFormatterService),
+        Option.getOrElse(() => defaultValidationErrorFormatterServer),
+      ),
+    ),
+    Effect.map((formatter) => formatter(error)),
+  );
