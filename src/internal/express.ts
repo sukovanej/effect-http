@@ -12,7 +12,7 @@ import * as Scope from "@effect/io/Scope";
 
 import type { ExpressOptions, ListenOptions } from "../Express";
 import { openApi } from "../OpenApi";
-import { Handler, Server, internalServerError } from "../Server";
+import { Handler, Server, internalServerError, notFoundError } from "../Server";
 
 /** @internal */
 const errorToLog = (error: unknown): string => {
@@ -80,6 +80,11 @@ export const toExpress =
             );
           app.use(router);
         }
+
+        // 404
+        app.use((req, res) =>
+          res.status(404).json(notFoundError(`No handler for ${req.path}`)),
+        );
 
         if (finalOptions.openapiEnabled) {
           app.use(
