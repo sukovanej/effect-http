@@ -1,5 +1,15 @@
 # effect-http
 
+## 0.4.0
+
+### Minor Changes
+
+- 06e68e4: Replace undici by Fetch API
+
+### Patch Changes
+
+- 3ee7377: Add default express handler with 404 response
+
 ## 0.3.0
 
 ### Minor Changes
