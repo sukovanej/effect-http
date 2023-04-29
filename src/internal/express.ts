@@ -2,7 +2,6 @@ import * as Log from "effect-log";
 import express from "express";
 import http from "http";
 import type { AddressInfo } from "net";
-import * as OpenApi from "schema-openapi";
 import swaggerUi from "swagger-ui-express";
 
 import { pipe } from "@effect/data/Function";
@@ -11,67 +10,14 @@ import * as Layer from "@effect/io/Layer";
 import * as Logger from "@effect/io/Logger";
 import * as Runtime from "@effect/io/Runtime";
 import * as Scope from "@effect/io/Scope";
-import * as Schema from "@effect/schema/Schema";
 
 import type { ExpressOptions, ListenOptions } from "../Express";
 import { openApi } from "../OpenApi";
+import { Handler, Server, internalServerError } from "../Server";
 import {
-  API_STATUS_CODES,
-  ApiError,
-  Handler,
-  Server,
-  internalServerError,
-  invalidBodyError,
-  invalidHeadersError,
-  invalidParamsError,
-  invalidQueryError,
-  invalidResponseError,
-  isConflictError,
-  isInvalidBodyError,
-  isInvalidHeadersError,
-  isInvalidParamsError,
-  isInvalidQueryError,
-  isInvalidResponseError,
-} from "../Server";
-import { isResponse } from "../Server/Response";
-import {
-  ValidationErrorFormatter,
   ValidationErrorFormatterService,
   defaultValidationErrorFormatterServer,
-  isParseError,
 } from "../Server/ValidationErrorFormatter";
-import { getSchema, getStructSchema } from "./utils";
-
-/** @internal */
-const formatError = (error: unknown, formatter: ValidationErrorFormatter) => {
-  const isValidationError =
-    isInvalidQueryError(error) ||
-    isInvalidBodyError(error) ||
-    isInvalidResponseError(error) ||
-    isInvalidParamsError(error) ||
-    isInvalidHeadersError(error) ||
-    isConflictError(error);
-
-  if (isValidationError) {
-    const innerError = error.error;
-
-    if (isParseError(innerError)) {
-      return formatter(innerError);
-    } else if (typeof innerError === "string") {
-      return innerError;
-    }
-  }
-
-  if (typeof error === "object" && error !== null && "error" in error) {
-    if (typeof error.error === "string") {
-      return error.error;
-    }
-
-    return JSON.stringify(error.error);
-  }
-
-  return JSON.stringify(error);
-};
 
 /** @internal */
 const errorToLog = (error: unknown): string => {
@@ -87,80 +33,14 @@ const errorToLog = (error: unknown): string => {
 };
 
 /** @internal */
-const handleApiFailure = (
-  method: OpenApi.OpenAPISpecMethodName,
-  path: string,
-  error: ApiError,
-  statusCode: number,
-  res: express.Response,
-) =>
-  Effect.flatMap(ValidationErrorFormatterService, (formatter) =>
-    pipe(
-      Effect.logWarning(`${method.toUpperCase()} ${path} failed`),
-      Effect.flatMap(() =>
-        pipe(
-          Effect.try(() =>
-            res.status(statusCode).send({
-              error: error._tag,
-              details: formatError(error, formatter),
-            }),
-          ),
-          Effect.catchAll((error) =>
-            pipe(
-              Effect.logFatal("Error occured when sending failure response"),
-              Effect.logAnnotate("error", formatError(error, formatter)),
-            ),
-          ),
-        ),
-      ),
-      Effect.logAnnotate("errorTag", error._tag),
-      Effect.logAnnotate("error", formatError(error, formatter)),
-      Effect.asUnit,
-    ),
-  );
-
-/** @internal */
-const toEndpoint = (
-  { fn, endpoint: { schemas, path, method } }: Handler,
-  runtime: Runtime.Runtime<any>,
-) => {
-  const parseQuery = Schema.parseEffect(getStructSchema(schemas.query));
-  const parseParams = Schema.parseEffect(getStructSchema(schemas.params));
-  const parseHeaders = Schema.parseEffect(getStructSchema(schemas.headers));
-  const parseBody = Schema.parseEffect(getSchema(schemas.body));
-  const encodeResponse = Schema.parseEffect(schemas.response);
-
+const toEndpoint = ({ fn }: Handler, runtime: Runtime.Runtime<any>) => {
   return (req: express.Request, res: express.Response) =>
     pipe(
-      Effect.all({
-        query: Effect.mapError(parseQuery(req.query), invalidQueryError),
-        params: Effect.mapError(parseParams(req.params), invalidParamsError),
-        body: Effect.mapError(parseBody(req.body), invalidBodyError),
-        headers: Effect.mapError(
-          parseHeaders(req.headers),
-          invalidHeadersError,
-        ),
-      }),
-      Effect.tap(() => Effect.logTrace(`${method.toUpperCase()} ${path}`)),
-      Effect.flatMap((i: any) => fn(i)),
-      Effect.flatMap((response) => {
-        let body = response;
-        let statusCode = 200;
-        let headers: Record<string, string> = {};
-
-        if (isResponse(response)) {
-          body = response.body;
-          statusCode = response.statusCode ?? statusCode;
-          headers = response.headers ?? headers;
-        }
-
-        const encodedBody = encodeResponse(body);
-
-        return pipe(
-          encodedBody,
-          Effect.map((body) => ({ body, statusCode, headers })),
-          Effect.mapError(invalidResponseError),
-        );
+      fn({
+        query: req.query,
+        params: req.params,
+        body: req.body,
+        headers: req.headers,
       }),
       Effect.flatMap(({ body, statusCode, headers }) =>
         pipe(
@@ -172,18 +52,6 @@ const toEndpoint = (
           }),
           Effect.mapError(internalServerError),
         ),
-      ),
-      Effect.catchAll((error) =>
-        handleApiFailure(
-          method,
-          path,
-          error,
-          API_STATUS_CODES[error._tag],
-          res,
-        ),
-      ),
-      Effect.catchAll((error) =>
-        handleApiFailure(method, path, error, 500, res),
       ),
       Effect.catchAllDefect((error) =>
         pipe(

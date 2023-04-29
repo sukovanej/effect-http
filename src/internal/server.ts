@@ -1,13 +1,40 @@
-import type { AnyApi } from "../Api";
-import type {
+import { pipe } from "@effect/data/Function";
+import * as Effect from "@effect/io/Effect";
+import * as Schema from "@effect/schema/Schema";
+
+import type { AnyApi, Endpoint } from "../Api";
+import {
   AddServerHandle,
   AnyServer,
   ApiToServer,
   Handler,
+  InputHandlerFn,
   ServerUnimplementedIds,
+  isResponse,
 } from "../Server";
 import { ServerId } from "../Server";
-import type { SelectEndpointById } from "./utils";
+import {
+  API_STATUS_CODES,
+  ApiError,
+  invalidBodyError,
+  invalidHeadersError,
+  invalidParamsError,
+  invalidQueryError,
+  invalidResponseError,
+  isConflictError,
+  isInvalidBodyError,
+  isInvalidHeadersError,
+  isInvalidParamsError,
+  isInvalidQueryError,
+  isInvalidResponseError,
+} from "../Server/Errors";
+import * as Response from "../Server/Response";
+import {
+  ValidationErrorFormatter,
+  ValidationErrorFormatterService,
+  isParseError,
+} from "../Server/ValidationErrorFormatter";
+import { SelectEndpointById, getSchema, getStructSchema } from "./utils";
 
 /** @internal */
 export const server = <A extends AnyApi>(api: A): ApiToServer<A> =>
@@ -22,10 +49,123 @@ export const server = <A extends AnyApi>(api: A): ApiToServer<A> =>
   } as unknown as ApiToServer<A>);
 
 /** @internal */
+const formatError = (error: unknown, formatter: ValidationErrorFormatter) => {
+  const isValidationError =
+    isInvalidQueryError(error) ||
+    isInvalidBodyError(error) ||
+    isInvalidResponseError(error) ||
+    isInvalidParamsError(error) ||
+    isInvalidHeadersError(error) ||
+    isConflictError(error);
+
+  if (isValidationError) {
+    const innerError = error.error;
+
+    if (isParseError(innerError)) {
+      return formatter(innerError);
+    } else if (typeof innerError === "string") {
+      return innerError;
+    }
+  }
+
+  if (typeof error === "object" && error !== null && "error" in error) {
+    if (typeof error.error === "string") {
+      return error.error;
+    }
+
+    return JSON.stringify(error.error);
+  }
+
+  return JSON.stringify(error);
+};
+
+/** @internal */
+const handleApiFailure = (
+  method: string,
+  path: string,
+  error: ApiError,
+  statusCode: number,
+) =>
+  Effect.flatMap(ValidationErrorFormatterService, (formatter) =>
+    pipe(
+      Effect.logWarning(`${method.toUpperCase()} ${path} failed`),
+      Effect.map(
+        () =>
+          Response.response({
+            body: {
+              error: error._tag,
+              details: formatError(error, formatter),
+            },
+            statusCode,
+            headers: {},
+          }) satisfies Response.Response<
+            unknown,
+            number,
+            Record<string, string>
+          >,
+      ),
+      Effect.logAnnotate("errorTag", error._tag),
+      Effect.logAnnotate("error", formatError(error, formatter)),
+    ),
+  );
+
+/** @internal */
+const enhanceHandler = (
+  fn: InputHandlerFn<Endpoint, any>,
+  endpoint: Endpoint,
+): Handler => {
+  const { schemas, method, path } = endpoint;
+
+  const parseQuery = Schema.parseEffect(getStructSchema(schemas.query));
+  const parseParams = Schema.parseEffect(getStructSchema(schemas.params));
+  const parseHeaders = Schema.parseEffect(getStructSchema(schemas.headers));
+  const parseBody = Schema.parseEffect(getSchema(schemas.body));
+  const encodeResponse = Schema.parseEffect(schemas.response);
+
+  const enhancedFn: Handler["fn"] = ({ query, params, body, headers }) =>
+    pipe(
+      Effect.all({
+        query: Effect.mapError(parseQuery(query), invalidQueryError),
+        params: Effect.mapError(parseParams(params), invalidParamsError),
+        body: Effect.mapError(parseBody(body), invalidBodyError),
+        headers: Effect.mapError(parseHeaders(headers), invalidHeadersError),
+      }),
+      Effect.tap(() => Effect.logTrace(`${method.toUpperCase()} ${path}`)),
+      Effect.flatMap(fn),
+      Effect.flatMap((response) => {
+        let body = response;
+        let statusCode = 200;
+        let headers: Record<string, string> = {};
+
+        if (isResponse(response)) {
+          body = response.body;
+          statusCode = response.statusCode ?? statusCode;
+          headers = response.headers ?? headers;
+        }
+
+        const encodedBody = encodeResponse(body);
+
+        return pipe(
+          encodedBody,
+          Effect.map((body) =>
+            Response.response({ body, statusCode, headers }),
+          ),
+          Effect.mapError(invalidResponseError),
+        );
+      }),
+      Effect.catchAll((error) =>
+        handleApiFailure(method, path, error, API_STATUS_CODES[error._tag]),
+      ),
+    );
+
+  return { endpoint, fn: enhancedFn };
+};
+
+/** @internal */
 export const handle =
   <S extends AnyServer, Id extends ServerUnimplementedIds<S>, R>(
     id: Id,
-    fn: Handler<SelectEndpointById<S["_unimplementedEndpoints"], Id>>["fn"],
+    fn: InputHandlerFn<SelectEndpointById<S["_unimplementedEndpoints"], Id>, R>,
   ) =>
   (api: S): AddServerHandle<S, Id, R> => {
     const endpoint = api._unimplementedEndpoints.find(
@@ -40,7 +180,7 @@ export const handle =
       ({ id: _id }) => _id !== id,
     );
 
-    const handler = { fn, endpoint };
+    const handler = enhanceHandler(fn, endpoint);
 
     return {
       ...api,
