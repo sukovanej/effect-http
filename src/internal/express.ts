@@ -152,29 +152,36 @@ export const listenExpress =
 
     return pipe(
       Effect.acquireRelease(
-        Effect.async<never, Error, http.Server>((cb) => {
-          const server = express.listen(finalOptions.port);
+        Effect.async<never, Error, [http.Server, (error: Error) => void]>(
+          (cb) => {
+            const server = express.listen(finalOptions.port);
 
-          server.on("listening", () => {
-            const address = server.address();
+            const errorListener = (error: Error) => cb(Effect.fail(error));
+            const listeningListener = () => {
+              const address = server.address();
 
-            if (address === null) {
-              cb(Effect.fail(new Error("Could not obtain an address")));
-            } else if (typeof address === "string") {
-              cb(
-                Effect.fail(
-                  new Error(`Unexpected obtained address: ${address}`),
-                ),
-              );
-            } else {
-              cb(Effect.succeed(server));
-            }
-          });
-          server.on("error", (error) => cb(Effect.fail(error)));
-        }),
-        (server) =>
+              if (address === null) {
+                cb(Effect.fail(new Error("Could not obtain an address")));
+              } else if (typeof address === "string") {
+                cb(
+                  Effect.fail(
+                    new Error(`Unexpected obtained address: ${address}`),
+                  ),
+                );
+              } else {
+                cb(Effect.succeed([server, errorListener]));
+              }
+            };
+
+            server.on("listening", listeningListener);
+            server.on("error", errorListener);
+          },
+        ),
+        ([server, errorListener]) =>
           Effect.async<never, never, void>((cb) => {
             server.close((error) => {
+              server.removeListener("error", errorListener);
+
               if (error === undefined) {
                 cb(Effect.unit());
               } else {
@@ -183,33 +190,37 @@ export const listenExpress =
             });
           }),
       ),
-      Effect.tap((server) => {
+      Effect.tap(([server]) => {
         const address = server.address() as AddressInfo;
         return Effect.logInfo(
           `Server listening on ${address.address}:${address.port}`,
         );
       }),
-      Effect.tap((server) => {
+      Effect.tap(([server]) => {
         if (options?.onStart) {
           return options?.onStart(server);
         }
 
         return Effect.unit();
       }),
-      Effect.bindTo("app"),
+      Effect.map(([app]) => ({ app })),
       Effect.bind("scope", () => Scope.make()),
       Effect.flatMap(({ app }) =>
         Effect.async<never, never, string>((cb) => {
           const processSignals = ["SIGINT", "SIGTERM", "exit"];
+          const listeners = processSignals.map(
+            (signal) => [signal, () => cb(Effect.succeed(signal))] as const,
+          );
 
-          for (const signal of processSignals) {
-            process.on(signal, () => {
-              cb(Effect.succeed(signal));
-            });
+          for (const [signal, listener] of listeners) {
+            process.on(signal, listener);
           }
 
           app.on("close", () => {
             cb(Effect.succeed("closed"));
+            listeners.forEach(([signal, listener]) =>
+              process.removeListener(signal, listener),
+            );
           });
         }),
       ),

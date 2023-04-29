@@ -1,5 +1,3 @@
-import * as undici from "undici";
-
 import { flow, pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
 import type { ParseError } from "@effect/schema/ParseResult";
@@ -8,9 +6,7 @@ import * as Schema from "@effect/schema/Schema";
 import type { AnyApi } from "../Api";
 import {
   Client,
-  InvalidUrlClientError,
   httpClientError,
-  invalidUrlError,
   unexpectedClientError,
   validationClientError,
 } from "../Client";
@@ -28,52 +24,46 @@ const makeHttpCall = (
   method: string,
   baseUrl: URL,
   path: string,
-  body: any,
-  headers: any,
-  query: any,
+  body: unknown,
+  headers: Record<string, string>,
+  query: Record<string, string>,
 ) =>
   pipe(
-    Effect.acquireRelease(
-      Effect.try(() => {
-        const client = new undici.Client(baseUrl);
-        return client;
-      }),
-      (client) =>
-        pipe(
-          Effect.tryPromise(() => client.close()),
-          Effect.orDie,
-        ),
-    ),
-    Effect.flatMap((client) =>
-      Effect.tryPromise(() => {
-        const options = {
-          method: method.toUpperCase() as any,
-          headers: { ...headers, "Content-Type": "application/json" },
-          path,
-          query,
-          body: JSON.stringify(body),
-        };
-        return client.request(options);
-      }),
-    ),
+    Effect.tryPromise(() => {
+      const url = new URL(baseUrl);
+      url.pathname = path;
+
+      Object.entries(query ?? {}).forEach(([name, value]) =>
+        url.searchParams.set(name, value),
+      );
+
+      const options: RequestInit = {
+        method: method.toUpperCase() as any,
+        headers: { ...headers, "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+        keepalive: false,
+      };
+
+      return fetch(url, options);
+    }),
     Effect.bindTo("response"),
     Effect.bind("json", ({ response }) =>
       Effect.tryPromise(async () => {
-        const contentType = response.headers["content-type"];
+        const contentType = response.headers.get("content-type");
         const isJson =
           typeof contentType === "string" &&
           contentType.startsWith("application/json");
 
         if (isJson) {
-          return await response.body.json();
+          return await response.json();
         } else {
-          return await response.body.text();
+          return await response.text();
         }
       }),
     ),
     Effect.map(({ response, json }) => ({
       content: json,
-      statusCode: response.statusCode,
+      statusCode: response.status,
     })),
     Effect.mapError(unexpectedClientError),
   );
