@@ -26,7 +26,7 @@ export type Server<
 
   _unimplementedEndpoints: UnimplementedEndpoints;
 
-  handlers: Handler[];
+  handlers: Handler<R>[];
   api: Api;
 };
 
@@ -41,11 +41,11 @@ export type HandlerInput<Q, P, H, B> = {
   body: B;
 };
 
-export type Handler = {
+export type Handler<R = any> = {
   fn: (
     input: HandlerInput<unknown, unknown, unknown, unknown>,
   ) => Effect.Effect<
-    any,
+    R,
     ApiError,
     Response<unknown, number, Record<string, string>>
   >;
