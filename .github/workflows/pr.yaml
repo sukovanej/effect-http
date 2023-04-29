@@ -15,6 +15,7 @@ jobs:
       matrix:
         node-version: 
           - '16.17.1'
+          - '18.14.0'
           - '19.8.1'
 
     steps:
