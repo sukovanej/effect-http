@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.2.1
+
+### Patch Changes
+
+- 4521c2f: Propagate Server dependency `R` type to handler.
+
 ## 0.2.0
 
 ### Minor Changes
