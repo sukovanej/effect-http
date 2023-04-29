@@ -1,5 +1,16 @@
 # effect-http
 
+## 0.2.0
+
+### Minor Changes
+
+- c669452: Response object to enable custom status code and response headers.
+
+### Patch Changes
+
+- 42aa9c6: prevent accidental introduction of duplicate operation ids
+- 340e70a: Move general endpoint handling logic to server.
+
 ## 0.1.1
 
 ### Patch Changes
