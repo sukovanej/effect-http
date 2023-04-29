@@ -292,6 +292,27 @@ Using these errors, `Server` runtime can generate human-readable details
 in HTTP responses and logs. Also, it can correctly decide what status code
 should be returned to the client.
 
+The formatting of `details` field of the error JSON object is abstracted using
+[Http.ValidationErrorFormatter](src/Server/ValidationErrorFormatter.ts). The
+`ValidationErrorFormatter` is a function taking a `Schema.ParseError` and returning
+its string representation. It can be overridden using layers. The following example
+will perform a direct JSON serialization of the `Schema.ParserError` to construct
+the error details.
+
+```typescript
+const myValidationErrorFormatter: Http.ValidationErrorFormatter = (error) =>
+  JSON.stringify(error);
+
+pipe(
+  server,
+  Http.listen({ port: 3000 }),
+  Effect.provideSomeLayer(
+    Http.setValidationErrorFormatter(myValidationErrorFormatter),
+  ),
+  Effect.runPromise,
+);
+```
+
 #### Example API with conflict API error
 
 Let's see it in action and implement the mentioned user management API. The

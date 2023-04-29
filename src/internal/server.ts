@@ -30,8 +30,7 @@ import {
 } from "../Server/Errors";
 import * as Response from "../Server/Response";
 import {
-  ValidationErrorFormatter,
-  ValidationErrorFormatterService,
+  formatValidationError,
   isParseError,
 } from "../Server/ValidationErrorFormatter";
 import { SelectEndpointById, getSchema, getStructSchema } from "./utils";
@@ -49,7 +48,7 @@ export const server = <A extends AnyApi>(api: A): ApiToServer<A> =>
   } as unknown as ApiToServer<A>);
 
 /** @internal */
-const formatError = (error: unknown, formatter: ValidationErrorFormatter) => {
+const formatError = (error: unknown) => {
   const isValidationError =
     isInvalidQueryError(error) ||
     isInvalidBodyError(error) ||
@@ -62,21 +61,21 @@ const formatError = (error: unknown, formatter: ValidationErrorFormatter) => {
     const innerError = error.error;
 
     if (isParseError(innerError)) {
-      return formatter(innerError);
+      return formatValidationError(innerError);
     } else if (typeof innerError === "string") {
-      return innerError;
+      return Effect.succeed(innerError);
     }
   }
 
   if (typeof error === "object" && error !== null && "error" in error) {
     if (typeof error.error === "string") {
-      return error.error;
+      return Effect.succeed(error.error);
     }
 
-    return JSON.stringify(error.error);
+    return Effect.succeed(JSON.stringify(error.error));
   }
 
-  return JSON.stringify(error);
+  return Effect.succeed(JSON.stringify(error));
 };
 
 /** @internal */
@@ -86,26 +85,25 @@ const handleApiFailure = (
   error: ApiError,
   statusCode: number,
 ) =>
-  Effect.flatMap(ValidationErrorFormatterService, (formatter) =>
-    pipe(
-      Effect.logWarning(`${method.toUpperCase()} ${path} failed`),
-      Effect.map(
-        () =>
-          Response.response({
-            body: {
-              error: error._tag,
-              details: formatError(error, formatter),
-            },
-            statusCode,
-            headers: {},
-          }) satisfies Response.Response<
-            unknown,
-            number,
-            Record<string, string>
-          >,
+  pipe(
+    formatError(error),
+    Effect.tap((details) =>
+      pipe(
+        Effect.logWarning(`${method.toUpperCase()} ${path} failed`),
+        Effect.logAnnotate("errorTag", error._tag),
+        Effect.logAnnotate("error", details),
       ),
-      Effect.logAnnotate("errorTag", error._tag),
-      Effect.logAnnotate("error", formatError(error, formatter)),
+    ),
+    Effect.map(
+      (details) =>
+        Response.response({
+          body: {
+            error: error._tag,
+            details,
+          },
+          statusCode,
+          headers: {},
+        }) satisfies Response.Response<unknown, number, Record<string, string>>,
     ),
   );
 

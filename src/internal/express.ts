@@ -6,7 +6,6 @@ import swaggerUi from "swagger-ui-express";
 
 import { pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
-import * as Layer from "@effect/io/Layer";
 import * as Logger from "@effect/io/Logger";
 import * as Runtime from "@effect/io/Runtime";
 import * as Scope from "@effect/io/Scope";
@@ -14,10 +13,6 @@ import * as Scope from "@effect/io/Scope";
 import type { ExpressOptions, ListenOptions } from "../Express";
 import { openApi } from "../OpenApi";
 import { Handler, Server, internalServerError } from "../Server";
-import {
-  ValidationErrorFormatterService,
-  defaultValidationErrorFormatterServer,
-} from "../Server/ValidationErrorFormatter";
 
 /** @internal */
 const errorToLog = (error: unknown): string => {
@@ -97,12 +92,6 @@ export const toExpress =
         return app;
       }),
       Effect.provideSomeLayer(
-        Layer.succeed(
-          ValidationErrorFormatterService,
-          finalOptions.validationErrorFormatter,
-        ),
-      ),
-      Effect.provideSomeLayer(
         Logger.replace(
           Logger.defaultLogger,
           getLoggerFromOptions(finalOptions.logger),
@@ -115,7 +104,6 @@ export const toExpress =
 export const DEFAULT_OPTIONS = {
   openapiEnabled: true,
   openapiPath: "/docs",
-  validationErrorFormatter: defaultValidationErrorFormatterServer,
   logger: "pretty",
 } satisfies ExpressOptions;
 
