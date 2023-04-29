@@ -29,7 +29,7 @@ const clients = {
       Effect.all([
         Effect.flatMap(UsagesService, Ref.get),
         Effect.clockWith((clock) => clock.currentTimeMillis()),
-      ]),
+      ] as const),
       Effect.map(([usages, timestamp]) =>
         pipe(
           usages,
@@ -48,7 +48,7 @@ const clients = {
       Effect.all([
         UsagesService,
         Effect.clockWith((clock) => clock.currentTimeMillis()),
-      ]),
+      ] as const),
       Effect.flatMap(([usages, timestamp]) =>
         Ref.update(usages, (usages) => [...usages, { clientId, timestamp }]),
       ),

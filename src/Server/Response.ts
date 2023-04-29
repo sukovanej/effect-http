@@ -11,12 +11,12 @@ export type Response<
   readonly [ResponseId]: ResponseId;
 
   body: Body;
-  headers?: Headers;
-  statusCode?: StatusCode;
+  headers: Headers;
+  statusCode: StatusCode;
 };
 
 export const response = <S extends Omit<Response, ResponseId>>(
-  response: S,
+  response: Partial<S> & { body: S["body"] },
 ): Response<
   S["body"],
   S["statusCode"] extends number ? S["statusCode"] : undefined,

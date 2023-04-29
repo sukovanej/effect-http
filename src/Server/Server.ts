@@ -30,16 +30,27 @@ export type Server<
   api: Api;
 };
 
-export type HandlerFn<E extends Endpoint, R> = (
+export type InputHandlerFn<E extends Endpoint, R> = (
   input: EndpointSchemasToInput<E["schemas"]>,
 ) => Effect.Effect<R, ApiError, HandlerResponse<E["schemas"]["response"]>>;
 
-export type Handler<E extends Endpoint = Endpoint> = {
-  fn: (
-    input: EndpointSchemasToInput<E["schemas"]>,
-  ) => Effect.Effect<any, ApiError, HandlerResponse<E["schemas"]["response"]>>;
+export type HandlerInput<Q, P, H, B> = {
+  query: Q;
+  params: P;
+  headers: H;
+  body: B;
+};
 
-  endpoint: E;
+export type Handler = {
+  fn: (
+    input: HandlerInput<unknown, unknown, unknown, unknown>,
+  ) => Effect.Effect<
+    any,
+    ApiError,
+    Response<unknown, number, Record<string, string>>
+  >;
+
+  endpoint: Endpoint;
 };
 
 export type ProvideService<
@@ -87,7 +98,7 @@ export const handle: <
   R,
 >(
   id: Id,
-  fn: HandlerFn<SelectEndpointById<S["_unimplementedEndpoints"], Id>, R>,
+  fn: InputHandlerFn<SelectEndpointById<S["_unimplementedEndpoints"], Id>, R>,
 ) => (api: S) => AddServerHandle<S, Id, R> = internal.handle;
 
 /** Make sure that all the endpoints are implemented */
