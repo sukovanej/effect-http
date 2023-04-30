@@ -13,9 +13,8 @@ const server = pipe(
   Http.server(api),
   Http.handle("hello", () =>
     Effect.succeed(
-      Http.response({
-        body: 12,
-        statusCode: 201,
+      new Response(JSON.stringify(12), {
+        status: 201,
         headers: { "X-Hello-World": "test" },
       }),
     ),

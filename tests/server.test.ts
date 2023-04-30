@@ -20,7 +20,7 @@ const layer2 = pipe(
   Effect.toLayer(Service1),
 );
 
-test("multiple provideLayer calls", async () => {
+test("layers", async () => {
   const api = pipe(
     Http.api(),
     Http.get("doStuff", "/stuff", { response: Schema.number }),
@@ -209,7 +209,10 @@ test("Response object", async () => {
     Http.server,
     Http.handle("hello", () =>
       Effect.succeed(
-        pipe(Http.toResponse({ value: "test" }), Http.setStatusCode(201)),
+        new Response(JSON.stringify({ value: "test" }), {
+          status: 201,
+          headers: new Headers({ "Content-Type": "application/json" }),
+        }),
       ),
     ),
     Http.exhaustive,
