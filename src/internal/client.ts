@@ -37,9 +37,12 @@ const makeHttpCall = (
         url.searchParams.set(name, value),
       );
 
+      const contentType =
+        body !== undefined ? { "Content-Type": "application/json" } : undefined;
+
       const options: RequestInit = {
         method: method.toUpperCase() as any,
-        headers: { ...headers, "Content-Type": "application/json" },
+        headers: { ...headers, ...contentType },
         body: JSON.stringify(body),
         keepalive: false,
       };
@@ -49,7 +52,7 @@ const makeHttpCall = (
     Effect.bindTo("response"),
     Effect.bind("json", ({ response }) =>
       Effect.tryPromise(async () => {
-        const contentType = response.headers.get("content-type");
+        const contentType = response.headers.get("Content-Type");
         const isJson =
           typeof contentType === "string" &&
           contentType.startsWith("application/json");

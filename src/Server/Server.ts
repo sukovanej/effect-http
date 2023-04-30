@@ -9,7 +9,6 @@ import type {
   SelectEndpointById,
 } from "../internal/utils";
 import type { ApiError } from "./Errors";
-import { Response } from "./Response";
 
 export const ServerId = Symbol("effect-http/Server/Server");
 export type ServerId = typeof ServerId;
@@ -42,13 +41,7 @@ export type HandlerInput<Q, P, H, B> = {
 };
 
 export type Handler<R = any> = {
-  fn: (
-    input: HandlerInput<unknown, unknown, unknown, unknown>,
-  ) => Effect.Effect<
-    R,
-    ApiError,
-    Response<unknown, number, Record<string, string>>
-  >;
+  fn: (request: Request) => Effect.Effect<R, never, Response>;
 
   endpoint: Endpoint;
 };
@@ -85,7 +78,7 @@ export type AddServerHandle<
   : never;
 
 export type HandlerResponse<S extends Schema.Schema<any, any>> =
-  S extends Schema.Schema<any, infer Body> ? Response<Body> | Body : never;
+  S extends Schema.Schema<any, infer Body> ? Response | Body : never;
 
 /** Create new unimplemeted `Server` from `Api`. */
 export const server: <A extends AnyApi>(api: A) => ApiToServer<A> =

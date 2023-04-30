@@ -1,7 +1,9 @@
 import * as Log from "effect-log";
+import { once } from "events";
 import express from "express";
 import http from "http";
 import type { AddressInfo } from "net";
+import { Readable } from "stream";
 import swaggerUi from "swagger-ui-express";
 
 import { pipe } from "@effect/data/Function";
@@ -29,21 +31,65 @@ const errorToLog = (error: unknown): string => {
 
 /** @internal */
 const toEndpoint = ({ fn }: Handler, runtime: Runtime.Runtime<any>) => {
-  return (req: express.Request, res: express.Response) =>
-    pipe(
-      fn({
-        query: req.query,
-        params: req.params,
-        body: req.body,
-        headers: req.headers,
-      }),
-      Effect.flatMap(({ body, statusCode, headers }) =>
+  return (req: express.Request, res: express.Response) => {
+    const url = new URL(req.url, `http://${req.headers.host}`);
+    Object.entries(req.query).forEach(([name, value]) =>
+      url.searchParams.set(name, value as string),
+    );
+    const body = ["GET", "HEAD"].includes(req.method)
+      ? undefined
+      : new ReadableStream({
+          start(controller) {
+            req.on("data", (chunk) => controller.enqueue(chunk));
+            req.on("end", () => controller.close());
+            req.on("error", (err) => controller.error(err));
+          },
+        });
+
+    let headers = req.headers as any;
+
+    if (headers[":method"]) {
+      headers = Object.fromEntries(
+        Object.entries(headers).filter(([key]) => !key.startsWith(":")),
+      );
+    }
+
+    const request = new Request(url, {
+      body,
+      headers,
+      method: req.method,
+      // @ts-ignore
+      duplex: "half",
+    });
+
+    return pipe(
+      fn(request),
+      Effect.flatMap((response) =>
         pipe(
-          Effect.try(() => {
-            Object.entries(headers).forEach(([key, value]) => {
+          Effect.tryPromise(async () => {
+            Array.from(response.headers.entries()).forEach(([key, value]) => {
               res.setHeader(key, value);
             });
-            res.status(statusCode).json(body);
+
+            const body: Readable | null =
+              response.body instanceof Readable
+                ? response.body
+                : response.body instanceof ReadableStream &&
+                  typeof Readable.fromWeb === "function"
+                ? Readable.fromWeb(response.body as any)
+                : response.body
+                ? Readable.from(response.body as any)
+                : null;
+
+            res.statusCode = response.status;
+
+            if (body) {
+              body.pipe(res, { end: true });
+              return Promise.race([once(res, "finish"), once(res, "error")]);
+            } else {
+              res.setHeader("content-length", "0");
+              res.end();
+            }
           }),
           Effect.mapError(internalServerError),
         ),
@@ -56,6 +102,7 @@ const toEndpoint = ({ fn }: Handler, runtime: Runtime.Runtime<any>) => {
       ),
       Runtime.runPromise(runtime),
     );
+  };
 };
 
 /** @internal */
@@ -69,7 +116,6 @@ export const toExpress =
         const runtime = yield* $(Effect.runtime<R>());
 
         const app = express();
-        app.use(express.json());
 
         for (const handler of server.handlers) {
           const router = express

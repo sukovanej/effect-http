@@ -10,12 +10,12 @@ import {
   Handler,
   InputHandlerFn,
   ServerUnimplementedIds,
-  isResponse,
 } from "../Server";
 import { ServerId } from "../Server";
 import {
   API_STATUS_CODES,
   ApiError,
+  internalServerError,
   invalidBodyError,
   invalidHeadersError,
   invalidParamsError,
@@ -28,7 +28,6 @@ import {
   isInvalidQueryError,
   isInvalidResponseError,
 } from "../Server/Errors";
-import * as Response from "../Server/Response";
 import {
   formatValidationError,
   isParseError,
@@ -83,7 +82,7 @@ const handleApiFailure = (
   method: string,
   path: string,
   error: ApiError,
-  statusCode: number,
+  status: number,
 ) =>
   pipe(
     formatError(error),
@@ -94,18 +93,30 @@ const handleApiFailure = (
         Effect.logAnnotate("error", details),
       ),
     ),
-    Effect.map(
-      (details) =>
-        Response.response({
-          body: {
-            error: error._tag,
-            details,
-          },
-          statusCode,
-          headers: {},
-        }) satisfies Response.Response<unknown, number, Record<string, string>>,
-    ),
+    Effect.map((details) => {
+      const body = JSON.stringify({ error: error._tag, details });
+      return new Response(body, {
+        status,
+        headers: new Headers({ "Content-Type": "application/json" }),
+      });
+    }),
   );
+
+const createParamsMatcher = (path: string) => {
+  // based on https://github.com/kwhitley/itty-router/blob/73148972bf2e205a4969e85672e1c0bfbf249c27/src/itty-router.js
+  const matcher = RegExp(
+    `^${path
+      .replace(/(\/?)\*/g, "($1.*)?")
+      .replace(/\/$/, "")
+      .replace(/:(\w+)(\?)?(\.)?/g, "$2(?<$1>[^/]+)$2$3")
+      .replace(/\.(?=[\w(])/, "\\.")
+      .replace(/\)\.\?\(([^[]+)\[\^/g, "?)\\.?($1(?<=\\.)[^\\.")}/*$`,
+  );
+  return (url: URL): Record<string, string> => {
+    const match = url.pathname.match(matcher as RegExp);
+    return (match && match.groups) || {};
+  };
+};
 
 /** @internal */
 const enhanceHandler = (
@@ -120,33 +131,73 @@ const enhanceHandler = (
   const parseBody = Schema.parseEffect(getSchema(schemas.body));
   const encodeResponse = Schema.parseEffect(schemas.response);
 
-  const enhancedFn: Handler["fn"] = ({ query, params, body, headers }) =>
-    pipe(
-      Effect.all({
-        query: Effect.mapError(parseQuery(query), invalidQueryError),
-        params: Effect.mapError(parseParams(params), invalidParamsError),
-        body: Effect.mapError(parseBody(body), invalidBodyError),
-        headers: Effect.mapError(parseHeaders(headers), invalidHeadersError),
-      }),
-      Effect.tap(() => Effect.logTrace(`${method.toUpperCase()} ${path}`)),
+  const getRequestParams = createParamsMatcher(path);
+
+  const enhancedFn: Handler["fn"] = (request) => {
+    const url = new URL(request.url);
+    const query = Array.from(url.searchParams.entries()).reduce(
+      (acc, [name, value]) => ({ ...acc, [name]: value }),
+      {},
+    );
+    const headers = Array.from(request.headers.entries()).reduce(
+      (acc, [name, value]) => ({ ...acc, [name]: value }),
+      {},
+    );
+
+    const contentLengthHeader = request.headers.get("content-length");
+    const contentTypeHeader = request.headers.get("content-type");
+    const contentLength =
+      contentLengthHeader === null ? 0 : parseInt(contentLengthHeader);
+
+    return pipe(
+      Effect.tryCatchPromise(
+        () => {
+          if (contentLength > 0) {
+            if (contentTypeHeader?.startsWith("application/json")) {
+              return request.json();
+            } else {
+              return request.text();
+            }
+          }
+          return Promise.resolve(undefined);
+        },
+        (err) =>
+          internalServerError(
+            `Cannot get request JSON, ${err}, ${request.body}`,
+          ),
+      ),
+      Effect.flatMap((body) =>
+        Effect.all({
+          query: Effect.mapError(parseQuery(query), invalidQueryError),
+          params: Effect.mapError(
+            parseParams(getRequestParams(url)),
+            invalidParamsError,
+          ),
+          body: Effect.mapError(parseBody(body), invalidBodyError),
+          headers: Effect.mapError(parseHeaders(headers), invalidHeadersError),
+        }),
+      ),
+      Effect.tap(() =>
+        Effect.logTrace(`${method.toUpperCase()} ${url.pathname}`),
+      ),
       Effect.flatMap(fn),
       Effect.flatMap((response) => {
-        let body = response;
-        let statusCode = 200;
-        let headers: Record<string, string> = {};
-
-        if (isResponse(response)) {
-          body = response.body;
-          statusCode = response.statusCode ?? statusCode;
-          headers = response.headers ?? headers;
-        }
-
-        const encodedBody = encodeResponse(body);
+        const status =
+          response instanceof Response ? response.status : undefined;
+        const headers =
+          response instanceof Response
+            ? response.headers
+            : new Headers({ "content-type": "application/json" });
 
         return pipe(
-          encodedBody,
-          Effect.map((body) =>
-            Response.response({ body, statusCode, headers }),
+          Effect.promise(() =>
+            response instanceof Response
+              ? response.json()
+              : Promise.resolve(response),
+          ),
+          Effect.flatMap((body) => encodeResponse(body)),
+          Effect.map(
+            (body) => new Response(JSON.stringify(body), { status, headers }),
           ),
           Effect.mapError(invalidResponseError),
         );
@@ -155,6 +206,7 @@ const enhanceHandler = (
         handleApiFailure(method, path, error, API_STATUS_CODES[error._tag]),
       ),
     );
+  };
 
   return { endpoint, fn: enhancedFn };
 };
