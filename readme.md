@@ -25,6 +25,7 @@ High-level declarative HTTP API for [effect-ts](https://github.com/Effect-TS).
 - [Incremental adoption into existing express app](#incremental-adoption-into-existing-express-app)
 - [Cookbook](#cookbook)
   - [Handler input type derivation](#handler-input-type-derivation)
+- [Compatibility](#compatibility)
 
 ## Quickstart
 
@@ -627,3 +628,11 @@ pipe(server, Http.listen({ port: 3000 }), Effect.runPromise);
 ```
 
 _(This is a complete standalone code example)_
+
+## Compatibility
+
+This library is tested against
+
+- nodejs 18.14.0
+- nodejs 19.8.1
+- nodejs 20.0.0
