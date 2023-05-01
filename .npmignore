@@ -10,3 +10,5 @@ examples
 node_modules
 CHANGELOG.md
 assets
+tests
+vitest.config.ts
