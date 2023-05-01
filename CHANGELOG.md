@@ -1,5 +1,13 @@
 # effect-http
 
+## 0.5.1
+
+### Patch Changes
+
+- 325ef5a: Update schema-openapi
+- aaf554e: Remove test related files from build
+- 6f7060e: Update dependencies
+
 ## 0.5.0
 
 ### Minor Changes
