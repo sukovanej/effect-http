@@ -127,11 +127,6 @@ export const toExpress =
           app.use(router);
         }
 
-        // 404
-        app.use((req, res) =>
-          res.status(404).json(notFoundError(`No handler for ${req.path}`)),
-        );
-
         if (finalOptions.openapiEnabled) {
           app.use(
             finalOptions.openapiPath,
@@ -139,6 +134,11 @@ export const toExpress =
             swaggerUi.setup(openApi(server.api)),
           );
         }
+
+        // 404
+        app.use((req, res) =>
+          res.status(404).json(notFoundError(`No handler for ${req.path}`)),
+        );
 
         return app;
       }),
