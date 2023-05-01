@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.5.0
+
+### Minor Changes
+
+- c3846a1: Use Fetch API `Request` / `Response` internally.
+
 ## 0.4.0
 
 ### Minor Changes
