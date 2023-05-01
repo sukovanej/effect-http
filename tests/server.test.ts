@@ -1,5 +1,7 @@
 import * as Http from "effect-http";
+import express from "express";
 import { createHash } from "node:crypto";
+import { AddressInfo } from "node:net";
 
 import * as Context from "@effect/data/Context";
 import { pipe } from "@effect/data/Function";
@@ -7,7 +9,7 @@ import * as Effect from "@effect/io/Effect";
 import * as Layer from "@effect/io/Layer";
 import * as Schema from "@effect/schema/Schema";
 
-import { testServer } from "./utils";
+import { testExpress, testServer } from "./utils";
 
 const Service1 = Context.Tag<number>();
 const Service2 = Context.Tag<string>();
@@ -218,12 +220,57 @@ test("Response object", async () => {
     Effect.flatMap((client) =>
       client.hello({ headers: { "x-client-id": "abc" } }),
     ),
-    Effect.map((result) => {
-      expect(result).toEqual({
-        value: "test",
-      });
-      return Effect.unit();
+    Effect.map((result) => expect(result).toEqual({ value: "test" })),
+    Effect.scoped,
+    Effect.runPromise,
+  );
+});
+
+test("Express interop example", () => {
+  const legacyApp = express();
+
+  legacyApp.get("/legacy-endpoint", (_, res) => {
+    res.json({ hello: "world" });
+  });
+
+  const api = pipe(
+    Http.api(),
+    Http.get("newEndpoint", "/new-endpoint", {
+      response: Schema.struct({ hello: Schema.string }),
     }),
+  );
+
+  const server = pipe(
+    Http.server(api),
+    Http.handle("newEndpoint", () => Effect.succeed({ hello: "new world" })),
+    Http.exhaustive,
+  );
+
+  pipe(
+    server,
+    Http.express({ logger: "none" }),
+    Effect.map((app) => {
+      app.use(legacyApp);
+      return app;
+    }),
+    Effect.flatMap(testExpress(api)),
+    Effect.tap(([client]) =>
+      pipe(
+        client.newEndpoint({}),
+        Effect.map((result) => expect(result).toEqual({ hello: "new world" })),
+      ),
+    ),
+    Effect.tap(([_, server]) =>
+      pipe(
+        Effect.tryPromise(() => {
+          const port = (server.address() as AddressInfo).port;
+          const url = new URL(`http://localhost:${port}`);
+          return fetch(url);
+        }),
+        Effect.flatMap((response) => Effect.promise(response.json)),
+        Effect.map((result) => expect(result).toEqual({ hello: "world" })),
+      ),
+    ),
     Effect.scoped,
     Effect.runPromise,
   );
