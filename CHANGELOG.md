@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.5.2
+
+### Patch Changes
+
+- 336001c: Fix `/docs` endpoint
+
 ## 0.5.1
 
 ### Patch Changes
