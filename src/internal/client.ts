@@ -99,65 +99,62 @@ const constructPath = (params: Record<string, string>, path: string) =>
     path,
   );
 
+export const createInputParser = ({
+  query,
+  params,
+  body,
+  headers,
+}: AnyApi["endpoints"][number]["schemas"]) => {
+  const encodeQuery = Schema.encodeEffect(getStructSchema(query));
+  const encodeParams = Schema.encodeEffect(getStructSchema(params));
+  const encodeBody = Schema.encodeEffect(getSchema(body));
+  const encodeHeaders = Schema.encodeEffect(getStructSchema(headers));
+
+  return (args: any) =>
+    Effect.all({
+      query: parse(
+        args["query"],
+        encodeQuery,
+        flow(invalidQueryError, validationClientError),
+      ),
+      params: parse(
+        args["params"],
+        encodeParams,
+        flow(invalidParamsError, validationClientError),
+      ),
+      body: parse(
+        args["body"],
+        encodeBody,
+        flow(invalidBodyError, validationClientError),
+      ),
+      headers: parse(args["headers"], encodeHeaders, invalidHeadersError),
+    });
+};
+
 export const client =
   (baseUrl: URL) =>
   <A extends AnyApi>(api: A): Client<A> =>
-    api.endpoints.reduce(
-      (
-        client,
-        {
-          id,
-          method,
-          path,
-          schemas: { query, params, body, headers, response },
-        },
-      ) => {
-        const parseResponse = Schema.parseEffect(response);
-        const encodeQuery = Schema.encodeEffect(getStructSchema(query));
-        const encodeParams = Schema.encodeEffect(getStructSchema(params));
-        const encodeBody = Schema.encodeEffect(getSchema(body));
-        const encodeHeaders = Schema.encodeEffect(getStructSchema(headers));
+    api.endpoints.reduce((client, { id, method, path, schemas }) => {
+      const parseResponse = Schema.parseEffect(schemas.response);
+      const parseInputs = createInputParser(schemas);
 
-        const fn = (args: any) => {
-          return pipe(
-            Effect.all({
-              query: parse(
-                args["query"],
-                encodeQuery,
-                flow(invalidQueryError, validationClientError),
-              ),
-              params: parse(
-                args["params"],
-                encodeParams,
-                flow(invalidParamsError, validationClientError),
-              ),
-              body: parse(
-                args["body"],
-                encodeBody,
-                flow(invalidBodyError, validationClientError),
-              ),
-              headers: parse(
-                args["headers"],
-                encodeHeaders,
-                invalidHeadersError,
-              ),
-            }),
-            Effect.let("path", ({ params }) => constructPath(params, path)),
-            Effect.tap(() => Effect.logTrace(`${method} ${path}`)),
-            Effect.flatMap(({ path, body, query, headers }) =>
-              makeHttpCall(method, baseUrl, path, body, headers, query),
+      const fn = (args: any) => {
+        return pipe(
+          parseInputs(args),
+          Effect.let("path", ({ params }) => constructPath(params, path)),
+          Effect.tap(() => Effect.logTrace(`${method} ${path}`)),
+          Effect.flatMap(({ path, body, query, headers }) =>
+            makeHttpCall(method, baseUrl, path, body, headers, query),
+          ),
+          Effect.flatMap(checkStatusCode),
+          Effect.flatMap(({ content }) =>
+            pipe(
+              parseResponse(content),
+              Effect.mapError(validationClientError),
             ),
-            Effect.flatMap(checkStatusCode),
-            Effect.flatMap(({ content }) =>
-              pipe(
-                parseResponse(content),
-                Effect.mapError(validationClientError),
-              ),
-            ),
-            Effect.logAnnotate("clientOperationId", id),
-          );
-        };
-        return { ...client, [id]: fn };
-      },
-      {} as Client<A>,
-    );
+          ),
+          Effect.logAnnotate("clientOperationId", id),
+        );
+      };
+      return { ...client, [id]: fn };
+    }, {} as Client<A>);
