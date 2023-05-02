@@ -2,18 +2,18 @@
 
 High-level declarative HTTP API for [effect-ts](https://github.com/Effect-TS).
 
-## Features
+- :star: **Client derivation**. Write the api specification once, get the type-safe client with runtime validation for free.
+- :rainbow: **OpenAPI derivation**. `/docs` endpoint with OpenAPI UI out of box.
+- :battery: **Batteries included server implementation**. Automatic runtime request and response validation.
+- :crystal_ball: **Example server derivation**. Automatic derivation of example server implementation.
+- :bug: **Mock client derivation**. Test safely against a specified API.
 
-- **Client derivation**. Write the api specification once, get the type-safe client with runtime validation for free.
-- **OpenAPI derivation**. `/docs` endpoint with OpenAPI UI out of box.
-- **Batteries included server implementation**. Automatic runtime request and response validation.
-- **Example server derivation**. Automatic derivation of example server implementation.
-- (TBD) **Mock client derivation**. Test safely against a specified API.
+**Under development.** Please note that currently any release might introduce
+breaking changes and the internals and the public API are still evolving and changing.
 
-**Under development**
+## Quickstart
 
 - [Quickstart](#quickstart)
-- [Example server](#example-server)
 - [Request validation](#request-validation)
   - [Example](#example)
 - [Headers](#headers)
@@ -25,9 +25,10 @@ High-level declarative HTTP API for [effect-ts](https://github.com/Effect-TS).
 - [Incremental adoption into existing express app](#incremental-adoption-into-existing-express-app)
 - [Cookbook](#cookbook)
   - [Handler input type derivation](#handler-input-type-derivation)
+- [API on the client side](#api-on-the-client-side)
+  - [Example server](#example-server)
+  - [Mock client](#mock-client)
 - [Compatibility](#compatibility)
-
-## Quickstart
 
 Install using
 
@@ -93,47 +94,6 @@ Also, check the auto-generated OpenAPI UI running on
 [localhost:3000/docs](http://localhost:3000/docs/). How awesome is that!
 
 ![open api ui](assets/example-openapi-ui.png)
-
-### Example server
-
-`effect-http` has an ability to generate an example server
-implementation based on the `Api` specification. This can be
-helpful in the following and probably many more cases.
-
-- You're in a process of designing an API and you want to have _something_
-  to share with other people and have a discussion over before the actual
-  implementation starts.
-- You develop a fullstack application with frontend first approach
-  you want to test the integration with a backend you haven't
-  implemeted yet.
-- You integrate a 3rd party HTTP API and you want to have an ability to
-  perform integration tests without the need to connect to a real
-  running HTTP service.
-
-Use `Http.exampleServer` combinator to generate a `Server` from `Api`.
-
-```typescript
-import * as Http from "effect-http";
-
-import { pipe } from "@effect/data/Function";
-import * as Effect from "@effect/io/Effect";
-import * as Schema from "@effect/schema/Schema";
-
-const responseSchema = Schema.struct({ name: Schema.string });
-
-const api = pipe(
-  Http.api(),
-  Http.get("test", "/test", { response: responseSchema }),
-);
-
-pipe(api, Http.exampleServer, Http.listen({ port: 3000 }), Effect.runPromise);
-```
-
-_(This is a complete standalone code example)_
-
-Go to [localhost:3000/docs](http://localhost:3000/docs) and try calling
-endpoints. The exposed HTTP service conforms the `api` and will return
-only valid example responses.
 
 ### Request validation
 
@@ -628,6 +588,98 @@ pipe(server, Http.listen({ port: 3000 }), Effect.runPromise);
 ```
 
 _(This is a complete standalone code example)_
+
+## API on the client side
+
+While `effect-http` is intended to be primarly used on the server-side, i.e.
+by developers providing the HTTP service, it is possible to use it also to
+model, use and test against someone else's API. Out of box, you can make
+us of the following combinators.
+
+- `Http.client` - client for the real integration with the API.
+- `Http.mockClient` - client for testing against the API interface.
+- `Http.exampleServer` - server implementation derivation with example responses.
+
+### Example server
+
+`effect-http` has the ability to generate an example server
+implementation based on the `Api` specification. This can be
+helpful in the following and probably many more cases.
+
+- You're in a process of designing an API and you want to have _something_
+  to share with other people and have a discussion over before the actual
+  implementation starts.
+- You develop a fullstack application with frontend first approach
+  you want to test the integration with a backend you haven't
+  implemeted yet.
+- You integrate a 3rd party HTTP API and you want to have an ability to
+  perform integration tests without the need to connect to a real
+  running HTTP service.
+
+Use `Http.exampleServer` combinator to generate a `Server` from `Api`.
+
+```typescript
+import * as Http from "effect-http";
+
+import { pipe } from "@effect/data/Function";
+import * as Effect from "@effect/io/Effect";
+import * as Schema from "@effect/schema/Schema";
+
+const responseSchema = Schema.struct({ name: Schema.string });
+
+const api = pipe(
+  Http.api(),
+  Http.get("test", "/test", { response: responseSchema }),
+);
+
+pipe(api, Http.exampleServer, Http.listen({ port: 3000 }), Effect.runPromise);
+```
+
+_(This is a complete standalone code example)_
+
+Go to [localhost:3000/docs](http://localhost:3000/docs) and try calling
+endpoints. The exposed HTTP service conforms the `api` and will return
+only valid example responses.
+
+### Mock client
+
+To performed quick tests against the API interface, `effect-http` has
+the ability to generate a mock client which will return example or
+specified responses. Suppose we are integrating a hypothetical API
+with `/get-value` endpoint returning a number. We can model such
+API as follows.
+
+```typescript
+import * as Http from "effect-http";
+
+import { pipe } from "@effect/data/Function";
+import * as Schema from "@effect/schema/Schema";
+
+const api = pipe(
+  Http.api(),
+  Http.get("getValue", "/get-value", { response: Schema.number }),
+);
+```
+
+In a real environment, we will probably use the derived client
+using `Http.client`. But for tests, we probably want a dummy
+client which will return values conforming the API. For such
+a use-case, we can derive a mock client.
+
+```typescript
+const client = pipe(api, Http.mockClient());
+```
+
+Calling `getValue` on the client will perform the same client-side
+validation as would be done by the real client. But it will return
+an example response instead of calling the API. It is also possible
+to enforce the value to be returned in a type-safe manner
+using the option argument. The following client will always
+return number `12` when calling the `getValue` operation.
+
+```typescript
+const client = pipe(api, Http.mockClient({ responses: { getValue: 12 } }));
+```
 
 ## Compatibility
 
