@@ -1,5 +1,15 @@
 # effect-http
 
+## 0.6.0
+
+### Minor Changes
+
+- b222abb: Introduce mock client derivation.
+
+### Patch Changes
+
+- aeacd10: Update dependencies
+
 ## 0.5.2
 
 ### Patch Changes
