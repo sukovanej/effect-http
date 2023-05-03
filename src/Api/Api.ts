@@ -2,10 +2,12 @@ import type * as OpenApi from "schema-openapi";
 
 import type * as Schema from "@effect/schema/Schema";
 
-import * as internal from "./internal/api";
+import * as internal from "../internal/api";
+import type { AuthenticationType } from "./Authentication";
 
 export interface Endpoint<
   Id extends string = string,
+  Authentication extends AuthenticationType = AuthenticationType,
   Response = any,
   Query = any,
   Params = any,
@@ -13,6 +15,7 @@ export interface Endpoint<
   Headers = any,
 > {
   id: Id;
+  authentication: Authentication;
   path: string;
   method: OpenApi.OpenAPISpecMethodName;
   schemas: {
@@ -27,7 +30,11 @@ export interface Endpoint<
 
 export type AnyApi = Api<Endpoint[]>;
 
+export const ApiId = Symbol("effect-http/api-id");
+export type ApiId = typeof ApiId;
+
 export type Api<E extends Endpoint[] = Endpoint[]> = {
+  readonly [ApiId]: ApiId;
   endpoints: E;
   options: {
     title: string;
@@ -64,6 +71,7 @@ const DEFAULT_OPTIONS: Api["options"] = {
 };
 
 export const api = (options?: NonRequired<Api["options"]>): Api<[]> => ({
+  [ApiId]: ApiId,
   options: {
     ...DEFAULT_OPTIONS,
     ...options,

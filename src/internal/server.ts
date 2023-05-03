@@ -3,6 +3,7 @@ import * as Effect from "@effect/io/Effect";
 import * as Schema from "@effect/schema/Schema";
 
 import type { AnyApi, Endpoint } from "../Api";
+import { BasicAuthProvider, enhanceHandlerByBasicAuth } from "../Auth";
 import type {
   AddServerHandle,
   AnyServer,
@@ -16,6 +17,7 @@ import { ServerId } from "../Server";
 import {
   API_STATUS_CODES,
   ApiError,
+  UnauthorizedError,
   internalServerError,
   invalidBodyError,
   invalidHeadersError,
@@ -124,7 +126,7 @@ const enhanceHandler = (
   fn: InputHandlerFn<Endpoint, any>,
   endpoint: Endpoint,
 ): Handler => {
-  const { schemas, method, path } = endpoint;
+  const { schemas, method, path, authentication } = endpoint;
 
   const parseQuery = Schema.parseEffect(getStructSchema(schemas.query));
   const parseParams = Schema.parseEffect(getStructSchema(schemas.params));
@@ -133,6 +135,13 @@ const enhanceHandler = (
   const encodeResponse = Schema.encodeEffect(schemas.response);
 
   const getRequestParams = createParamsMatcher(path);
+
+  const authEffect: (
+    headers: Headers,
+  ) => Effect.Effect<BasicAuthProvider, UnauthorizedError, void> =
+    authentication === "basic-auth"
+      ? enhanceHandlerByBasicAuth()
+      : () => Effect.unit();
 
   const enhancedFn: Handler["fn"] = (request) => {
     const url = new URL(request.url);
@@ -151,21 +160,24 @@ const enhanceHandler = (
       contentLengthHeader === null ? 0 : parseInt(contentLengthHeader);
 
     return pipe(
-      Effect.tryCatchPromise(
-        () => {
-          if (contentLength > 0) {
-            if (contentTypeHeader?.startsWith("application/json")) {
-              return request.json();
-            } else {
-              return request.text();
+      authEffect(request.headers),
+      Effect.flatMap(() =>
+        Effect.tryCatchPromise(
+          () => {
+            if (contentLength > 0) {
+              if (contentTypeHeader?.startsWith("application/json")) {
+                return request.json();
+              } else {
+                return request.text();
+              }
             }
-          }
-          return Promise.resolve(undefined);
-        },
-        (err) =>
-          internalServerError(
-            `Cannot get request JSON, ${err}, ${request.body}`,
-          ),
+            return Promise.resolve(undefined);
+          },
+          (err) =>
+            internalServerError(
+              `Cannot get request JSON, ${err}, ${request.body}`,
+            ),
+        ),
       ),
       Effect.flatMap((body) =>
         Effect.all({

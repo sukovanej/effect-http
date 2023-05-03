@@ -295,13 +295,134 @@ test("Response containing optional field", async () => {
         Effect.map((result) => expect(result).toEqual({ foo: Option.none() })),
       ),
     ),
-    Effect.tap((client) =>
-      pipe(
-        client.hello(),
-        Effect.map((result) => expect(result).toEqual({ foo: Option.none() })),
-      ),
-    ),
     Effect.scoped,
     Effect.runPromise,
+  );
+});
+
+describe("authentication", () => {
+  const api = pipe(
+    Http.api(),
+    Http.get("hello", "/hello", {
+      response: Schema.string,
+    }),
+    Http.basicAuth,
+  );
+
+  const server = pipe(
+    api,
+    Http.server,
+    Http.handle("hello", () => Effect.succeed("hello")),
+    Http.exhaustive,
+  );
+
+  const unauthorizedBasicAuthProvider = Http.setBasicAuthProvider(
+    ({ user, password }) => {
+      if (user !== "user" && password !== "password") {
+        return Effect.succeed(Http.unauthorized("Not happening, bruh"));
+      }
+      return Effect.succeed(Http.authorized());
+    },
+  );
+
+  test("authorized", async () => {
+    const credentials = Buffer.from("user:password").toString("base64");
+    await pipe(
+      testServer(server, api),
+      Effect.flatMap((client) =>
+        client.hello({
+          headers: { Authorization: `Basic ${credentials}` },
+        }),
+      ),
+      Effect.map((result) => {
+        expect(result).toEqual("hello");
+      }),
+      Effect.provideSomeLayer(unauthorizedBasicAuthProvider),
+      Effect.scoped,
+      Effect.runPromise,
+    );
+  });
+
+  const TEST_PARAMETRES = [
+    {
+      name: "incorrect authorization scheme",
+      header: `Basic another credentials`,
+      expectedErrorDetails:
+        'Incorrect auhorization scheme. Expected "Basic <credentials>"',
+    },
+    {
+      name: "incorrect authorization type",
+      header: `Bearer ${Buffer.from("incorrect:creds").toString("base64")}`,
+      expectedErrorDetails:
+        'Incorrect auhorization type. Expected "Basic", got "Bearer"',
+    },
+    {
+      name: "incorrect basic auth credentials format",
+      header: `Basic ${Buffer.from("incorrect:creds:anotherone").toString(
+        "base64",
+      )}`,
+      expectedErrorDetails:
+        'Incorrect basic auth credentials format. Expected base64 encoded "<user>:<pass>".',
+    },
+    {
+      name: "unauthorized",
+      header: `Basic ${Buffer.from("incorrect:creds").toString("base64")}`,
+      expectedErrorDetails: "Not happening, bruh",
+    },
+  ] as const;
+
+  test("not provided header", async () => {
+    await pipe(
+      testServer(server, api),
+      Effect.flatMap((client) => client.hello({})),
+      Effect.map(() => assert.fail("expected failure")),
+      Effect.catchAll((result) => {
+        expect(result).toEqual(
+          Http.httpClientError(
+            {
+              error: "UnauthorizedError",
+              details: "Expected header Authorization",
+            },
+            401,
+          ),
+        );
+
+        return Effect.unit();
+      }),
+      Effect.provideSomeLayer(unauthorizedBasicAuthProvider),
+      Effect.scoped,
+      Effect.runPromise,
+    );
+  });
+
+  test.each(TEST_PARAMETRES)(
+    "authorization error: $name",
+    async ({ header, expectedErrorDetails }) => {
+      await pipe(
+        testServer(server, api),
+        Effect.flatMap((client) =>
+          client.hello({
+            headers: { Authorization: header },
+          }),
+        ),
+        Effect.map(() => assert.fail("expected failure")),
+        Effect.catchAll((result) => {
+          expect(result).toEqual(
+            Http.httpClientError(
+              {
+                error: "UnauthorizedError",
+                details: expectedErrorDetails,
+              },
+              401,
+            ),
+          );
+
+          return Effect.unit();
+        }),
+        Effect.provideSomeLayer(unauthorizedBasicAuthProvider),
+        Effect.scoped,
+        Effect.runPromise,
+      );
+    },
   );
 });

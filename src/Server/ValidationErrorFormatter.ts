@@ -12,7 +12,9 @@ export interface ValidationErrorFormatter {
 }
 
 export const ValidationErrorFormatterService =
-  Context.Tag<ValidationErrorFormatter>();
+  Context.Tag<ValidationErrorFormatter>(
+    "effect-http/validation-error-formatter",
+  );
 
 export const isParseError = (error: unknown): error is ParseError =>
   typeof error === "object" &&

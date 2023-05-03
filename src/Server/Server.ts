@@ -3,6 +3,7 @@ import type * as Effect from "@effect/io/Effect";
 import type * as Schema from "@effect/schema/Schema";
 
 import type { AnyApi, Api, Endpoint } from "../Api";
+import type { BasicAuthProvider } from "../Auth";
 import * as internal from "../internal/server";
 import type { ApiError } from "./Errors";
 
@@ -77,8 +78,16 @@ export type ProvideService<
   ? Server<Exclude<R, Context.Tag.Identifier<T>>, E>
   : never;
 
+type EndpointToContext<E> = E extends Endpoint<any, "basic-auth">
+  ? BasicAuthProvider
+  : never;
+
+type EndpointsToContext<Es> = Es extends [infer E, ...infer ERest]
+  ? EndpointToContext<E> | EndpointsToContext<ERest>
+  : never;
+
 export type ApiToServer<A extends AnyApi> = A extends Api<infer Es>
-  ? Server<never, Es>
+  ? Server<EndpointsToContext<Es>, Es>
   : never;
 
 export type DropEndpoint<

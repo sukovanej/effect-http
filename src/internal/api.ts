@@ -3,7 +3,15 @@ import type * as OpenApi from "schema-openapi";
 import * as HashSet from "@effect/data/HashSet";
 import type * as Schema from "@effect/schema/Schema";
 
-import type { Api, ApiGroup, Endpoint, InputSchemas } from "../Api";
+import type {
+  AnyApi,
+  Api,
+  ApiGroup,
+  Endpoint,
+  InputSchemas,
+  SetApiAuth,
+  SetApiGroupAuth,
+} from "../Api";
 
 export const IgnoredSchemaId = Symbol("effect-http/ignore-schema-id");
 export type IgnoredSchemaId = typeof IgnoredSchemaId;
@@ -14,6 +22,7 @@ export type ComputeEndpoint<
 > = Schema.Spread<
   Endpoint<
     Id,
+    "none",
     I["response"] extends Schema.Schema<any, any> ? I["response"] : never,
     I["query"] extends Record<string, Schema.Schema<any>>
       ? I["query"]
@@ -118,3 +127,15 @@ export const addGroup =
       endpoints: [...api.endpoints, ...apiGroup.endpoints],
     };
   };
+
+export const basicAuth: {
+  <A extends AnyApi>(api: A): SetApiAuth<A, "basic-auth">;
+  <A extends ApiGroup>(apiGroup: A): SetApiGroupAuth<A, "basic-auth">;
+} = (api: AnyApi | ApiGroup) =>
+  ({
+    ...api,
+    endpoints: api.endpoints.map((endpoint) => ({
+      ...endpoint,
+      authentication: "basic-auth",
+    })),
+  } as any);
