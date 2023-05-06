@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.6.1
+
+### Patch Changes
+
+- 130fdd8: Update dependencies
+
 ## 0.6.0
 
 ### Minor Changes
