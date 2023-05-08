@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.6.2
+
+### Patch Changes
+
+- 81412cc: Use encode for response serialization.
+
 ## 0.6.1
 
 ### Patch Changes
