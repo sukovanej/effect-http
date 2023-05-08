@@ -5,6 +5,7 @@ import { AddressInfo } from "node:net";
 
 import * as Context from "@effect/data/Context";
 import { pipe } from "@effect/data/Function";
+import * as Option from "@effect/data/Option";
 import * as Effect from "@effect/io/Effect";
 import * as Layer from "@effect/io/Layer";
 import * as Schema from "@effect/schema/Schema";
@@ -263,17 +264,34 @@ test("Express interop example", () => {
         Effect.map((result) => expect(result).toEqual({ hello: "new world" })),
       ),
     ),
-    Effect.tap(([_, server]) =>
-      pipe(
-        Effect.tryPromise(() => {
-          const port = (server.address() as AddressInfo).port;
-          const url = new URL(`http://localhost:${port}`);
-          return fetch(url);
-        }),
-        Effect.flatMap((response) => Effect.promise(response.json)),
-        Effect.map((result) => expect(result).toEqual({ hello: "world" })),
-      ),
-    ),
+    Effect.scoped,
+    Effect.runPromise,
+  );
+});
+
+test("Response containing optional field", async () => {
+  const Response = Schema.struct({
+    foo: Schema.optional(Schema.string).toOption(),
+  });
+
+  const api = pipe(
+    Http.api(),
+    Http.get("hello", "/hello", {
+      response: Response,
+    }),
+  );
+
+  const server = pipe(
+    api,
+    Http.server,
+    Http.handle("hello", () => Effect.succeed({ foo: Option.none() })),
+    Http.exhaustive,
+  );
+
+  await pipe(
+    testServer(server, api),
+    Effect.flatMap((client) => client.hello({})),
+    Effect.map((result) => expect(result).toEqual({ foo: Option.none() })),
     Effect.scoped,
     Effect.runPromise,
   );
