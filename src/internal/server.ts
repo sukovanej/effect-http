@@ -129,7 +129,7 @@ const enhanceHandler = (
   const parseParams = Schema.parseEffect(getStructSchema(schemas.params));
   const parseHeaders = Schema.parseEffect(getStructSchema(schemas.headers));
   const parseBody = Schema.parseEffect(getSchema(schemas.body));
-  const encodeResponse = Schema.parseEffect(schemas.response);
+  const encodeResponse = Schema.encodeEffect(schemas.response);
 
   const getRequestParams = createParamsMatcher(path);
 
