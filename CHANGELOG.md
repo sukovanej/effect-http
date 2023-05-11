@@ -1,5 +1,13 @@
 # effect-http
 
+## 0.6.3
+
+### Patch Changes
+
+- 04d23cd: Update dependencies
+- 4fa28e3: Update dependencies. `schema-openapi` fixes usage of `Schema.optionFromNullable`.
+- cb52845: Throw an error when GET endpoint specifies body
+
 ## 0.6.2
 
 ### Patch Changes
