@@ -4,7 +4,6 @@ import * as Context from "@effect/data/Context";
 import { pipe } from "@effect/data/Function";
 import * as RA from "@effect/data/ReadonlyArray";
 import * as Effect from "@effect/io/Effect";
-import * as Layer from "@effect/io/Layer";
 import * as Ref from "@effect/io/Ref";
 import * as Schema from "@effect/schema/Schema";
 
@@ -87,10 +86,11 @@ const handleHello = ({
     Effect.as("hello there"),
   );
 
-const api = pipe(
+export const api = pipe(
   Http.api(),
-  Http.get("hello", "/hello", {
+  Http.post("hello", "/hello", {
     response: Schema.string,
+    body: Schema.struct({ value: Schema.number }),
     headers: { "X-Client-Id": Schema.string },
   }),
 );
