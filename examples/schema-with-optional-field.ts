@@ -20,7 +20,9 @@ const api = pipe(
 const server = pipe(
   api,
   Http.server,
-  Http.handle("hello", () => Effect.succeed({ foo: Option.none(), bar: Option.none() })),
+  Http.handle("hello", () =>
+    Effect.succeed({ foo: Option.none(), bar: Option.none() }),
+  ),
   Http.exhaustive,
 );
 
