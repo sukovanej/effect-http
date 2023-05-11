@@ -77,6 +77,10 @@ export const endpoint =
     schemas: I,
   ) =>
   <A extends Api | ApiGroup>(api: A): AddEndpoint<A, Id, I> => {
+    if (method === "get" && schemas.body !== undefined) {
+      throw new Error(`Invalid ${id} endpoint. GET request cant have a body.`);
+    }
+
     if (api.endpoints.find((endpoint) => endpoint.id === id) !== undefined) {
       throw new Error(`Endpoint with operation id ${id} already exists`);
     }
