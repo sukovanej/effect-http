@@ -17,8 +17,8 @@ dependencies:
     specifier: ^4.18.2
     version: 4.18.2
   schema-openapi:
-    specifier: ^0.0.27
-    version: 0.0.27
+    specifier: ^0.0.28
+    version: 0.0.28
   swagger-ui-express:
     specifier: ^4.6.3
     version: 4.6.3(express@4.18.2)
@@ -34,8 +34,8 @@ devDependencies:
     specifier: ^4.17.17
     version: 4.17.17
   '@types/node':
-    specifier: ^20.1.2
-    version: 20.1.2
+    specifier: ^20.1.3
+    version: 20.1.3
   '@types/swagger-ui-express':
     specifier: ^4.1.3
     version: 4.1.3
@@ -715,7 +715,7 @@ packages:
     resolution: {integrity: sha512-ALYone6pm6QmwZoAgeyNksccT9Q4AWZQ6PvfwR37GT6r6FWUPguq6sUmNGSMV2Wr761oQoBxwGGa6DR5o1DC9g==}
     dependencies:
       '@types/connect': 3.4.35
-      '@types/node': 20.1.2
+      '@types/node': 20.1.3
     dev: true
 
   /@types/chai-subset@1.3.3:
@@ -731,13 +731,13 @@ packages:
   /@types/connect@3.4.35:
     resolution: {integrity: sha512-cdeYyv4KWoEgpBISTxWvqYsVy444DOqehiF3fM3ne10AmJ62RSyNkUnxMJXHQWRQQX2eR94m5y1IZyDwBjV9FQ==}
     dependencies:
-      '@types/node': 20.1.2
+      '@types/node': 20.1.3
     dev: true
 
   /@types/express-serve-static-core@4.17.34:
     resolution: {integrity: sha512-fvr49XlCGoUj2Pp730AItckfjat4WNb0lb3kfrLWffd+RLeoGAMsq7UOy04PAPtoL01uKwcp6u8nhzpgpDYr3w==}
     dependencies:
-      '@types/node': 20.1.2
+      '@types/node': 20.1.3
       '@types/qs': 6.9.7
       '@types/range-parser': 1.2.4
       '@types/send': 0.17.1
@@ -778,8 +778,8 @@ packages:
     resolution: {integrity: sha512-J8xLz7q2OFulZ2cyGTLE1TbbZcjpno7FaN6zdJNrgAdrJ+DZzh/uFR6YrTb4C+nXakvud8Q4+rbhoIWlYQbUFQ==}
     dev: true
 
-  /@types/node@20.1.2:
-    resolution: {integrity: sha512-CTO/wa8x+rZU626cL2BlbCDzydgnFNgc19h4YvizpTO88MFQxab8wqisxaofQJ/9bLGugRdWIuX/TbIs6VVF6g==}
+  /@types/node@20.1.3:
+    resolution: {integrity: sha512-NP2yfZpgmf2eDRPmgGq+fjGjSwFgYbihA8/gK+ey23qT9RkxsgNTZvGOEpXgzIGqesTYkElELLgtKoMQTys5vA==}
     dev: true
 
   /@types/normalize-package-data@2.4.1:
@@ -802,14 +802,14 @@ packages:
     resolution: {integrity: sha512-Cwo8LE/0rnvX7kIIa3QHCkcuF21c05Ayb0ZfxPiv0W8VRiZiNW/WuRupHKpqqGVGf7SUA44QSOUKaEd9lIrd/Q==}
     dependencies:
       '@types/mime': 1.3.2
-      '@types/node': 20.1.2
+      '@types/node': 20.1.3
     dev: true
 
   /@types/serve-static@1.15.1:
     resolution: {integrity: sha512-NUo5XNiAdULrJENtJXZZ3fHtfMolzZwczzBbnAeBbqBwG+LaG6YaJtuwzwGSQZ2wsCrxjEhNNjAkKigy3n8teQ==}
     dependencies:
       '@types/mime': 3.0.1
-      '@types/node': 20.1.2
+      '@types/node': 20.1.3
     dev: true
 
   /@types/swagger-ui-express@4.1.3:
@@ -2697,8 +2697,8 @@ packages:
   /safer-buffer@2.1.2:
     resolution: {integrity: sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==}
 
-  /schema-openapi@0.0.27:
-    resolution: {integrity: sha512-MbfznI2GISTZ9mTKa9O1J4ssUE6baKgKWnHE/QnyqvV4MW6Wj9AMu1kKfMGDV3pkMaxOsjucxQVXNyIBSgNmuQ==}
+  /schema-openapi@0.0.28:
+    resolution: {integrity: sha512-kfW8xpD4S6vUok280jvAfte3jSSSGK26lhW64PRM0l6fz4wNMJ8CuJR52UqZ4glppjO5sD1TXpE88SZVY851yg==}
     dependencies:
       '@effect/data': 0.12.2
       '@effect/io': 0.25.9
@@ -3165,7 +3165,7 @@ packages:
     engines: {node: '>= 0.8'}
     dev: false
 
-  /vite-node@0.31.0(@types/node@20.1.2):
+  /vite-node@0.31.0(@types/node@20.1.3):
     resolution: {integrity: sha512-8x1x1LNuPvE2vIvkSB7c1mApX5oqlgsxzHQesYF7l5n1gKrEmrClIiZuOFbFDQcjLsmcWSwwmrWrcGWm9Fxc/g==}
     engines: {node: '>=v14.18.0'}
     hasBin: true
@@ -3175,7 +3175,7 @@ packages:
       mlly: 1.2.1
       pathe: 1.1.0
       picocolors: 1.0.0
-      vite: 4.3.5(@types/node@20.1.2)
+      vite: 4.3.5(@types/node@20.1.3)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -3186,7 +3186,7 @@ packages:
       - terser
     dev: true
 
-  /vite@4.3.5(@types/node@20.1.2):
+  /vite@4.3.5(@types/node@20.1.3):
     resolution: {integrity: sha512-0gEnL9wiRFxgz40o/i/eTBwm+NEbpUeTWhzKrZDSdKm6nplj+z4lKz8ANDgildxHm47Vg8EUia0aicKbawUVVA==}
     engines: {node: ^14.18.0 || >=16.0.0}
     hasBin: true
@@ -3211,7 +3211,7 @@ packages:
       terser:
         optional: true
     dependencies:
-      '@types/node': 20.1.2
+      '@types/node': 20.1.3
       esbuild: 0.17.18
       postcss: 8.4.23
       rollup: 3.21.6
@@ -3252,7 +3252,7 @@ packages:
     dependencies:
       '@types/chai': 4.3.5
       '@types/chai-subset': 1.3.3
-      '@types/node': 20.1.2
+      '@types/node': 20.1.3
       '@vitest/expect': 0.31.0
       '@vitest/runner': 0.31.0
       '@vitest/snapshot': 0.31.0
@@ -3272,8 +3272,8 @@ packages:
       strip-literal: 1.0.1
       tinybench: 2.5.0
       tinypool: 0.5.0
-      vite: 4.3.5(@types/node@20.1.2)
-      vite-node: 0.31.0(@types/node@20.1.2)
+      vite: 4.3.5(@types/node@20.1.3)
+      vite-node: 0.31.0(@types/node@20.1.3)
       why-is-node-running: 2.2.2
     transitivePeerDependencies:
       - less
