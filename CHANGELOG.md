@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.6.4
+
+### Patch Changes
+
+- 69fb81f: Update dependencies. Schema.optionFromNullable doesn't include `undefined`.
+
 ## 0.6.3
 
 ### Patch Changes
