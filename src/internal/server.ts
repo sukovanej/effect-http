@@ -3,12 +3,13 @@ import * as Effect from "@effect/io/Effect";
 import * as Schema from "@effect/schema/Schema";
 
 import type { AnyApi, Endpoint } from "../Api";
-import {
+import type {
   AddServerHandle,
   AnyServer,
   ApiToServer,
   Handler,
   InputHandlerFn,
+  SelectEndpointById,
   ServerUnimplementedIds,
 } from "../Server";
 import { ServerId } from "../Server";
@@ -32,7 +33,7 @@ import {
   formatValidationError,
   isParseError,
 } from "../Server/ValidationErrorFormatter";
-import { SelectEndpointById, getSchema, getStructSchema } from "./utils";
+import { getSchema, getStructSchema } from "./utils";
 
 /** @internal */
 export const server = <A extends AnyApi>(api: A): ApiToServer<A> =>

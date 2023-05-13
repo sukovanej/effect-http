@@ -1,7 +1,7 @@
 import * as Schema from "@effect/schema/Schema";
 
 import type { AnyApi } from "./Api";
-import type { Client } from "./Client";
+import type { Client, ClientOptions } from "./Client";
 import * as internal from "./internal/mock-client";
 
 export type MockClientOptions<A extends AnyApi> = {
@@ -13,6 +13,6 @@ export type MockClientOptions<A extends AnyApi> = {
 };
 
 /** Derive mock client implementation from the `Api` */
-export const mockClient: <A extends AnyApi>(
-  option?: Partial<MockClientOptions<A>>,
-) => (api: A) => Client<A> = internal.mockClient;
+export const mockClient: <A extends AnyApi, H extends Record<string, unknown>>(
+  option?: Partial<MockClientOptions<A> & ClientOptions<H>>,
+) => (api: A) => Client<A, H> = internal.mockClient;

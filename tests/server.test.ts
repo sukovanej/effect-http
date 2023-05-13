@@ -290,8 +290,18 @@ test("Response containing optional field", async () => {
 
   await pipe(
     testServer(server, api),
-    Effect.flatMap((client) => client.hello({})),
-    Effect.map((result) => expect(result).toEqual({ foo: Option.none() })),
+    Effect.tap((client) =>
+      pipe(
+        client.hello({}),
+        Effect.map((result) => expect(result).toEqual({ foo: Option.none() })),
+      ),
+    ),
+    Effect.tap((client) =>
+      pipe(
+        client.hello(),
+        Effect.map((result) => expect(result).toEqual({ foo: Option.none() })),
+      ),
+    ),
     Effect.scoped,
     Effect.runPromise,
   );

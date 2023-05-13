@@ -4,12 +4,12 @@ import type { ParseError } from "@effect/schema/ParseResult";
 import * as Schema from "@effect/schema/Schema";
 
 import type { AnyApi } from "../Api";
+import type { Client, ClientOptions } from "../Client/Client";
 import {
-  Client,
   httpClientError,
   unexpectedClientError,
   validationClientError,
-} from "../Client";
+} from "../Client/Errors";
 import {
   invalidBodyError,
   invalidHeadersError,
@@ -132,15 +132,25 @@ export const createInputParser = ({
 };
 
 export const client =
-  (baseUrl: URL) =>
-  <A extends AnyApi>(api: A): Client<A> =>
+  <A extends AnyApi, H extends Record<string, unknown>>(
+    baseUrl: URL,
+    options?: ClientOptions<H>,
+  ) =>
+  (api: A): Client<A, H> =>
     api.endpoints.reduce((client, { id, method, path, schemas }) => {
       const parseResponse = Schema.parseEffect(schemas.response);
       const parseInputs = createInputParser(schemas);
 
-      const fn = (args: any) => {
+      const finalOptions: ClientOptions<any> = { headers: {}, ...options };
+
+      const fn = (_args: any) => {
+        const args = _args || {};
+
         return pipe(
-          parseInputs(args),
+          parseInputs({
+            ...args,
+            headers: { ...finalOptions.headers, ...args.headers },
+          }),
           Effect.let("path", ({ params }) => constructPath(params, path)),
           Effect.tap(() => Effect.logTrace(`${method} ${path}`)),
           Effect.flatMap(({ path, body, query, headers }) =>
@@ -157,4 +167,4 @@ export const client =
         );
       };
       return { ...client, [id]: fn };
-    }, {} as Client<A>);
+    }, {} as Client<A, H>);

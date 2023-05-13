@@ -7,15 +7,14 @@ import { pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
 import * as Scope from "@effect/io/Scope";
 
-export const testServer = <R, Es extends Http.Endpoint[]>(
+export const testServerUrl = <R>(
   server: Http.Server<R, []>,
-  api: Http.Api<Es>,
-): Effect.Effect<R | Scope.Scope, unknown, Http.Client<Http.Api<Es>>> =>
+): Effect.Effect<R | Scope.Scope, unknown, URL> =>
   pipe(
     Effect.asyncEffect<
       never,
       never,
-      [Http.Client<Http.Api<Es>>, http.Server, Socket[]],
+      [URL, http.Server, Socket[]],
       R,
       unknown,
       void
@@ -28,10 +27,9 @@ export const testServer = <R, Es extends Http.Endpoint[]>(
             const url = new URL(
               `http://localhost:${(httpServer.address() as AddressInfo).port}`,
             );
-            const client = pipe(api, Http.client(url));
             const sockets: Socket[] = [];
             httpServer.on("connection", (s) => sockets.push(s));
-            cb(Effect.succeed([client, httpServer, sockets]));
+            cb(Effect.succeed([url, httpServer, sockets]));
             return Effect.unit();
           },
         }),
@@ -55,16 +53,29 @@ export const testServer = <R, Es extends Http.Endpoint[]>(
     Effect.map(([client]) => client),
   );
 
+export const testServer = <R, Es extends Http.Endpoint[]>(
+  server: Http.Server<R, []>,
+  api: Http.Api<Es>,
+): Effect.Effect<R | Scope.Scope, unknown, Http.Client<Http.Api<Es>, {}>> =>
+  pipe(
+    testServerUrl(server),
+    Effect.map((url) => pipe(api, Http.client(url))),
+  );
+
 export const testExpress =
   <Es extends Http.Endpoint[]>(api: Http.Api<Es>) =>
   (
     server: express.Express,
-  ): Effect.Effect<Scope.Scope, unknown, [Http.Client<Http.Api<Es>>, Server]> =>
+  ): Effect.Effect<
+    Scope.Scope,
+    unknown,
+    [Http.Client<Http.Api<Es>, {}>, Server]
+  > =>
     pipe(
       Effect.asyncEffect<
         never,
         never,
-        [Http.Client<Http.Api<Es>>, http.Server, Socket[]],
+        [Http.Client<Http.Api<Es>, {}>, http.Server, Socket[]],
         never,
         unknown,
         void
