@@ -93,7 +93,7 @@ pipe(
 Also, check the auto-generated OpenAPI UI running on
 [localhost:3000/docs](http://localhost:3000/docs/). How awesome is that!
 
-![open api ui](assets/example-openapi-ui.png)
+![open api ui](https://raw.githubusercontent.com/sukovanej/effect-http/master/assets/example-openapi-ui.png)
 
 ### Request validation
 
@@ -160,7 +160,7 @@ to call the endpoint without the header we will get the following error response
 And as usual, the information about headers will be reflected in the generated
 OpenAPI UI.
 
-![example-headers-openapi-ui](assets/example-headers-openapi-ui.png)
+![example-headers-openapi-ui](https://raw.githubusercontent.com/sukovanej/effect-http/master/assets/example-headers-openapi-ui.png)
 
 **Important note**. You might have noticed the `details` field of the error response
 describes the missing header using lower-case. This is not an error but rather a
@@ -443,7 +443,7 @@ _(This is a complete standalone code example)_
 The OpenAPI UI will group endpoints according to the `api` and show
 corresponding titles for each group.
 
-![example-generated-open-api-ui](assets/example-server-openapi-ui.png)
+![example-generated-open-api-ui](https://raw.githubusercontent.com/sukovanej/effect-http/master/assets/example-server-openapi-ui.png)
 
 ## Incremental adoption into existing express app
 
