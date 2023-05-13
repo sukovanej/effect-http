@@ -4,7 +4,7 @@ import { pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
 import * as Schema from "@effect/schema/Schema";
 
-import { testServer } from "./utils";
+import { testServer, testServerUrl } from "./utils";
 
 test("quickstart example e2e", async () => {
   const api = pipe(
@@ -124,6 +124,103 @@ test("All input types", async () => {
         helloWorld: "helloWorld",
       });
     }),
+    Effect.scoped,
+    Effect.runPromise,
+  );
+});
+
+test("common headers", async () => {
+  const api = pipe(
+    Http.api(),
+    Http.get("getUser", "/user", {
+      response: Schema.struct({ name: Schema.string }),
+      headers: { "X-MY-HEADER": Schema.NumberFromString },
+    }),
+    Http.post("doSomething", "/something", {
+      response: Schema.struct({ name: Schema.string }),
+      headers: {
+        "X-MY-HEADER": Schema.NumberFromString,
+        "ANOTHER-HEADER": Schema.string,
+      },
+    }),
+  );
+
+  const server = pipe(
+    api,
+    Http.server,
+    Http.handle("getUser", ({ headers: { "x-my-header": header } }) =>
+      Effect.succeed({ name: `patrik ${header}` }),
+    ),
+    Http.handle(
+      "doSomething",
+      ({ headers: { "x-my-header": header, "another-header": another } }) =>
+        Effect.succeed({ name: `matej ${header} ${another}` }),
+    ),
+    Http.exhaustive,
+  );
+
+  await pipe(
+    testServerUrl(server),
+    Effect.map((url) =>
+      pipe(
+        api,
+        Http.client(url, {
+          headers: { "x-my-header": 1, "another-header": "test" },
+        }),
+      ),
+    ),
+    Effect.tap((client) =>
+      pipe(
+        client.getUser({ headers: { "x-my-header": 2 } }),
+        Effect.map((response) => {
+          expect(response).toEqual({ name: "patrik 2" });
+        }),
+      ),
+    ),
+    Effect.tap((client) =>
+      pipe(
+        client.getUser({ headers: {} }),
+        Effect.map((response) => {
+          expect(response).toEqual({ name: "patrik 1" });
+        }),
+      ),
+    ),
+    Effect.tap((client) =>
+      pipe(
+        client.getUser(),
+        Effect.map((response) => {
+          expect(response).toEqual({ name: "patrik 1" });
+        }),
+      ),
+    ),
+    Effect.tap((client) =>
+      pipe(
+        client.doSomething({
+          headers: { "x-my-header": 2, "another-header": "another" },
+        }),
+        Effect.map((response) => {
+          expect(response).toEqual({ name: "matej 2 another" });
+        }),
+      ),
+    ),
+    Effect.tap((client) =>
+      pipe(
+        client.doSomething({
+          headers: { "another-header": "another" },
+        }),
+        Effect.map((response) => {
+          expect(response).toEqual({ name: "matej 1 another" });
+        }),
+      ),
+    ),
+    Effect.tap((client) =>
+      pipe(
+        client.doSomething(),
+        Effect.map((response) => {
+          expect(response).toEqual({ name: "matej 1 test" });
+        }),
+      ),
+    ),
     Effect.scoped,
     Effect.runPromise,
   );

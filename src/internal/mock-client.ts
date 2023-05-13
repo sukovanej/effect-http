@@ -5,12 +5,14 @@ import { pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
 
 import type { AnyApi } from "../Api";
-import type { Client } from "../Client";
+import type { Client, ClientOptions } from "../Client";
 import { createInputParser } from "./client";
 
 export const mockClient =
-  <A extends AnyApi>(option?: Partial<MockClientOptions<A>>) =>
-  (api: A): Client<A> =>
+  <A extends AnyApi, H extends Record<string, unknown>>(
+    option?: Partial<MockClientOptions<A> & ClientOptions<H>>,
+  ) =>
+  (api: A): Client<A, H> =>
     api.endpoints.reduce((client, { id, schemas }) => {
       const parseInputs = createInputParser(schemas);
 
@@ -30,4 +32,4 @@ export const mockClient =
       };
 
       return { ...client, [id]: fn };
-    }, {} as Client<A>);
+    }, {} as Client<A, H>);

@@ -28,6 +28,7 @@ breaking changes and the internals and the public API are still evolving and cha
 - [API on the client side](#api-on-the-client-side)
   - [Example server](#example-server)
   - [Mock client](#mock-client)
+    - [Common headers](#common-headers)
 - [Compatibility](#compatibility)
 
 Install using
@@ -680,6 +681,47 @@ return number `12` when calling the `getValue` operation.
 ```typescript
 const client = pipe(api, Http.mockClient({ responses: { getValue: 12 } }));
 ```
+
+#### Common headers
+
+On the client side, headers that have the same value for all request calls
+(for example `USER-AGENT`) can be configured during a client creation. Such
+headers can be completely omitted when an operation requiring these headers
+is called. Common headers can be overriden during operation call.
+
+Note that configuring common headers doesn't make them available
+for all requests. Common header will be applied only if the given
+endpoint declares it in its schema.
+
+```typescript
+import * as Http from "effect-http";
+
+import { pipe } from "@effect/data/Function";
+import * as Effect from "@effect/io/Effect";
+import * as Schema from "@effect/schema/Schema";
+
+const api = pipe(
+  Http.api(),
+  Http.get("test", "/test", {
+    response: Schema.struct({ name: Schema.string }),
+    headers: { AUTHORIZATION: Schema.string },
+  }),
+);
+
+const client = pipe(
+  api,
+  Http.client(new URL("http://my-url"), {
+    headers: {
+      authorization: "Basic aGVsbG8gcGF0cmlrLCBob3cgYXJlIHlvdSB0b2RheQ==",
+    },
+  }),
+);
+
+// "x-my-header" can be provided to override the default but it's not necessary
+pipe(client.test(), Effect.runPromise);
+```
+
+_(This is a complete standalone code example)_
 
 ## Compatibility
 
