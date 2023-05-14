@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.7.1
+
+### Patch Changes
+
+- fb2ce23: Fix build.
+
 ## 0.7.0
 
 ### Minor Changes
