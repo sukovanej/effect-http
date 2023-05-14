@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.7.2
+
+### Patch Changes
+
+- 114a41f: Update dependencies.
+
 ## 0.7.1
 
 ### Patch Changes
