@@ -1,5 +1,12 @@
 # effect-http
 
+## 0.7.0
+
+### Minor Changes
+
+- 77ee530: Client common headers. Inputs of client operation functions can be ommited if
+  there are no required inputs for the request.
+
 ## 0.6.4
 
 ### Patch Changes
