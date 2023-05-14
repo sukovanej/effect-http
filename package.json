@@ -1,6 +1,6 @@
 {
   "name": "effect-http",
-  "version": "0.7.1",
+  "version": "0.7.2",
   "description": "High-level declarative HTTP API for effect-ts",
   "homepage": "https://github.com/sukovanej/effect-http",
   "main": "dist/index.js",
