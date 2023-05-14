@@ -77,8 +77,8 @@ export type ProvideService<
   ? Server<Exclude<R, Context.Tag.Identifier<T>>, E>
   : never;
 
-export type ApiToServer<A extends AnyApi> = A extends Api<infer A>
-  ? Server<never, A>
+export type ApiToServer<A extends AnyApi> = A extends Api<infer Es>
+  ? Server<never, Es>
   : never;
 
 export type DropEndpoint<

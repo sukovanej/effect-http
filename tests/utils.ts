@@ -56,7 +56,11 @@ export const testServerUrl = <R>(
 export const testServer = <R, Es extends Http.Endpoint[]>(
   server: Http.Server<R, []>,
   api: Http.Api<Es>,
-): Effect.Effect<R | Scope.Scope, unknown, Http.Client<Http.Api<Es>, {}>> =>
+): Effect.Effect<
+  R | Scope.Scope,
+  unknown,
+  Http.Client<Http.Api<Es>, Record<string, never>>
+> =>
   pipe(
     testServerUrl(server),
     Effect.map((url) => pipe(api, Http.client(url))),
@@ -69,13 +73,17 @@ export const testExpress =
   ): Effect.Effect<
     Scope.Scope,
     unknown,
-    [Http.Client<Http.Api<Es>, {}>, Server]
+    [Http.Client<Http.Api<Es>, Record<string, never>>, Server]
   > =>
     pipe(
       Effect.asyncEffect<
         never,
         never,
-        [Http.Client<Http.Api<Es>, {}>, http.Server, Socket[]],
+        [
+          Http.Client<Http.Api<Es>, Record<string, never>>,
+          http.Server,
+          Socket[],
+        ],
         never,
         unknown,
         void

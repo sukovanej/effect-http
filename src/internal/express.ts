@@ -118,12 +118,10 @@ export const toExpress =
         const app = express();
 
         for (const handler of server.handlers) {
-          const router = express
-            .Router()
-            [handler.endpoint.method](
-              handler.endpoint.path,
-              toEndpoint(handler, runtime),
-            );
+          const method = handler.endpoint.method;
+          const path = handler.endpoint.path;
+          const endpoint = toEndpoint(handler, runtime);
+          const router = express.Router()[method](path, endpoint);
           app.use(router);
         }
 
@@ -198,31 +196,29 @@ export const listenExpress =
 
     return pipe(
       Effect.acquireRelease(
-        Effect.async<never, Error, [http.Server, (error: Error) => void]>(
-          (cb) => {
-            const server = express.listen(finalOptions.port);
+        Effect.async<never, Error, [http.Server, (_: Error) => void]>((cb) => {
+          const server = express.listen(finalOptions.port);
 
-            const errorListener = (error: Error) => cb(Effect.fail(error));
-            const listeningListener = () => {
-              const address = server.address();
+          const errorListener = (error: Error) => cb(Effect.fail(error));
+          const listeningListener = () => {
+            const address = server.address();
 
-              if (address === null) {
-                cb(Effect.fail(new Error("Could not obtain an address")));
-              } else if (typeof address === "string") {
-                cb(
-                  Effect.fail(
-                    new Error(`Unexpected obtained address: ${address}`),
-                  ),
-                );
-              } else {
-                cb(Effect.succeed([server, errorListener]));
-              }
-            };
+            if (address === null) {
+              cb(Effect.fail(new Error("Could not obtain an address")));
+            } else if (typeof address === "string") {
+              cb(
+                Effect.fail(
+                  new Error(`Unexpected obtained address: ${address}`),
+                ),
+              );
+            } else {
+              cb(Effect.succeed([server, errorListener]));
+            }
+          };
 
-            server.on("listening", listeningListener);
-            server.on("error", errorListener);
-          },
-        ),
+          server.on("listening", listeningListener);
+          server.on("error", errorListener);
+        }),
         ([server, errorListener]) =>
           Effect.async<never, never, void>((cb) => {
             server.close((error) => {
