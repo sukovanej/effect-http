@@ -8,7 +8,7 @@ import type { ClientError } from "./Errors";
 
 type MakeHeadersOptionIfAllPartial<I> = I extends { headers: any }
   ? Schema.Spread<
-      ({} extends I["headers"]
+      (Record<string, never> extends I["headers"]
         ? { headers?: I["headers"] }
         : Pick<I, "headers">) &
         Omit<I, "headers">
@@ -27,7 +27,10 @@ type DropCommonHeaders<I, H> = {
     : I[K];
 };
 
-type ClientFunction<Es extends Endpoint[], Id, I> = {} extends I
+type ClientFunction<Es extends Endpoint[], Id, I> = Record<
+  string,
+  never
+> extends I
   ? (
       input?: I,
     ) => Effect.Effect<

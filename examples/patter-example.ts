@@ -17,7 +17,7 @@ const api = pipe(
 const server = pipe(
   api,
   Http.server,
-  Http.handle("test", ({ query }) => Effect.succeed("test")),
+  Http.handle("test", ({ query }) => Effect.succeed(`test ${query.value}`)),
 );
 
 pipe(server, Http.listen({ port: 4000 }), Effect.runPromise);

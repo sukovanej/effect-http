@@ -1,7 +1,6 @@
 import * as Http from "effect-http";
 import express from "express";
 import { createHash } from "node:crypto";
-import { AddressInfo } from "node:net";
 
 import * as Context from "@effect/data/Context";
 import { pipe } from "@effect/data/Function";
