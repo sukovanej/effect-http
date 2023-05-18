@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.7.3
+
+### Patch Changes
+
+- cd5baf2: Update dependencies.
+
 ## 0.7.2
 
 ### Patch Changes
