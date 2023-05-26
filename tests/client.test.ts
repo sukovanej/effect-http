@@ -1,7 +1,12 @@
 import * as Http from "effect-http";
+import { vi } from "vitest";
 
+import * as Duration from "@effect/data/Duration";
 import { pipe } from "@effect/data/Function";
+import * as Cause from "@effect/io/Cause";
 import * as Effect from "@effect/io/Effect";
+import * as Exit from "@effect/io/Exit";
+import * as Fiber from "@effect/io/Fiber";
 import * as Schema from "@effect/schema/Schema";
 
 import { testServer, testServerUrl } from "./utils";
@@ -220,6 +225,43 @@ test("common headers", async () => {
           expect(response).toEqual({ name: "matej 1 test" });
         }),
       ),
+    ),
+    Effect.scoped,
+    Effect.runPromise,
+  );
+});
+
+test("supports interruption", async () => {
+  const api = pipe(
+    Http.api(),
+    Http.get("getUser", "/user", {
+      response: Schema.struct({ name: Schema.string }),
+    }),
+  );
+
+  const generateName = vi.fn(() => ({ name: `test` }));
+
+  const server = pipe(
+    api,
+    Http.server,
+    Http.handle("getUser", () =>
+      Effect.delay(Effect.sync(generateName), Duration.seconds(1)),
+    ),
+    Http.exhaustive,
+  );
+
+  await pipe(
+    testServerUrl(server),
+    Effect.map((url) => pipe(api, Http.client(url))),
+    Effect.flatMap((client) =>
+      Effect.gen(function* ($) {
+        const request = yield* $(Effect.fork(client.getUser()));
+        const result = yield $(Fiber.interrupt(request));
+
+        expect(Exit.isFailure(result)).toEqual(true);
+        expect(Cause.isInterruptedOnly(result.i0)).toEqual(true);
+        expect(generateName).not.toHaveBeenCalled();
+      }),
     ),
     Effect.scoped,
     Effect.runPromise,
