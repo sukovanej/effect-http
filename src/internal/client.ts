@@ -29,7 +29,7 @@ const makeHttpCall = (
   query: Record<string, string>,
 ) =>
   pipe(
-    Effect.tryPromise(() => {
+    Effect.tryPromiseInterrupt((signal) => {
       const url = new URL(baseUrl);
       url.pathname = path;
 
@@ -45,6 +45,7 @@ const makeHttpCall = (
         headers: { ...headers, ...contentType },
         body: JSON.stringify(body),
         keepalive: false,
+        signal,
       };
 
       return fetch(url, options);
