@@ -1,5 +1,15 @@
 # effect-http
 
+## 0.8.0
+
+### Minor Changes
+
+- 7812314: Allow client http calls to be interrupted.
+
+### Patch Changes
+
+- 3604908: Update dependencies.
+
 ## 0.7.3
 
 ### Patch Changes
