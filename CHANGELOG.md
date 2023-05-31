@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.9.0
+
+### Minor Changes
+
+- 4a60b11: Add esm support.
+
 ## 0.8.0
 
 ### Minor Changes
