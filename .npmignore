@@ -12,3 +12,4 @@ CHANGELOG.md
 assets
 tests
 vitest.config.ts
+tsup.config.ts
