@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.9.2
+
+### Patch Changes
+
+- e731be3: Update dependencies (effect-log and schema-openapi support esm).
+
 ## 0.9.1
 
 ### Patch Changes
