@@ -1,24 +1,24 @@
-import { flow, pipe } from "@effect/data/Function";
-import * as Effect from "@effect/io/Effect";
-import type { ParseError } from "@effect/schema/ParseResult";
-import * as Schema from "@effect/schema/Schema";
-
-import type { AnyApi } from "../Api";
-import type { Client, ClientOptions } from "../Client/Client";
+import type { AnyApi } from "effect-http/Api";
+import type { Client, ClientOptions } from "effect-http/Client/Client";
 import {
   httpClientError,
   unexpectedClientError,
   validationClientError,
-} from "../Client/Errors";
+} from "effect-http/Client/Errors";
 import {
   invalidBodyError,
   invalidHeadersError,
   invalidParamsError,
   invalidQueryError,
-} from "../Server/Errors";
-import { IgnoredSchemaId } from "./api";
-import { getSchema } from "./utils";
-import { getStructSchema } from "./utils";
+} from "effect-http/Server/Errors";
+import { IgnoredSchemaId } from "effect-http/internal/api";
+import { getSchema } from "effect-http/internal/utils";
+import { getStructSchema } from "effect-http/internal/utils";
+
+import { flow, pipe } from "@effect/data/Function";
+import * as Effect from "@effect/io/Effect";
+import type { ParseError } from "@effect/schema/ParseResult";
+import * as Schema from "@effect/schema/Schema";
 
 const makeHttpCall = (
   method: string,

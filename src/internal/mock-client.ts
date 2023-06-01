@@ -1,12 +1,11 @@
+import type { AnyApi } from "effect-http/Api";
+import type { Client, ClientOptions } from "effect-http/Client";
 import type { MockClientOptions } from "effect-http/MockClient";
+import { createInputParser } from "effect-http/internal/client";
 import * as OpenApi from "schema-openapi";
 
 import { pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
-
-import type { AnyApi } from "../Api";
-import type { Client, ClientOptions } from "../Client";
-import { createInputParser } from "./client";
 
 export const mockClient =
   <A extends AnyApi, H extends Record<string, unknown>>(

@@ -1,8 +1,4 @@
-import { pipe } from "@effect/data/Function";
-import * as Effect from "@effect/io/Effect";
-import * as Schema from "@effect/schema/Schema";
-
-import type { AnyApi, Endpoint } from "../Api";
+import type { AnyApi, Endpoint } from "effect-http/Api";
 import type {
   AddServerHandle,
   AnyServer,
@@ -11,8 +7,8 @@ import type {
   InputHandlerFn,
   SelectEndpointById,
   ServerUnimplementedIds,
-} from "../Server";
-import { ServerId } from "../Server";
+} from "effect-http/Server";
+import { ServerId } from "effect-http/Server";
 import {
   API_STATUS_CODES,
   ApiError,
@@ -28,12 +24,16 @@ import {
   isInvalidParamsError,
   isInvalidQueryError,
   isInvalidResponseError,
-} from "../Server/Errors";
+} from "effect-http/Server/Errors";
 import {
   formatValidationError,
   isParseError,
-} from "../Server/ValidationErrorFormatter";
-import { getSchema, getStructSchema } from "./utils";
+} from "effect-http/Server/ValidationErrorFormatter";
+import { getSchema, getStructSchema } from "effect-http/internal/utils";
+
+import { pipe } from "@effect/data/Function";
+import * as Effect from "@effect/io/Effect";
+import * as Schema from "@effect/schema/Schema";
 
 /** @internal */
 export const server = <A extends AnyApi>(api: A): ApiToServer<A> =>

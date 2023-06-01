@@ -1,9 +1,10 @@
+import * as internal from "effect-http/internal/client";
+
 import type * as Effect from "@effect/io/Effect";
 import type * as Schema from "@effect/schema/Schema";
 
 import type { AnyApi, Api, Endpoint } from "../Api";
 import type { EndpointSchemasToInput, SelectEndpointById } from "../Server";
-import * as internal from "../internal/client";
 import type { ClientError } from "./Errors";
 
 type MakeHeadersOptionIfAllPartial<I> = I extends { headers: any }

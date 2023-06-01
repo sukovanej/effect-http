@@ -1,7 +1,6 @@
+import type { Api } from "effect-http/Api";
+import * as internal from "effect-http/internal/openapi";
 import type * as OpenApi from "schema-openapi";
-
-import type { Api } from "./Api";
-import * as internal from "./internal/openapi";
 
 export type OpenApiSpecification =
   OpenApi.OpenAPISpec<OpenApi.OpenAPISchemaType>;

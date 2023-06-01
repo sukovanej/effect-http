@@ -1,3 +1,11 @@
+import type { ExpressOptions, ListenOptions } from "effect-http/Express";
+import { openApi } from "effect-http/OpenApi";
+import {
+  Handler,
+  Server,
+  internalServerError,
+  notFoundError,
+} from "effect-http/Server";
 import * as Log from "effect-log";
 import { once } from "events";
 import express from "express";
@@ -11,10 +19,6 @@ import * as Effect from "@effect/io/Effect";
 import * as Logger from "@effect/io/Logger";
 import * as Runtime from "@effect/io/Runtime";
 import * as Scope from "@effect/io/Scope";
-
-import type { ExpressOptions, ListenOptions } from "../Express";
-import { openApi } from "../OpenApi";
-import { Handler, Server, internalServerError, notFoundError } from "../Server";
 
 /** @internal */
 const errorToLog = (error: unknown): string => {

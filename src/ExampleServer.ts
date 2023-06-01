@@ -1,6 +1,6 @@
-import type { Api } from "./Api";
-import type { Server } from "./Server";
-import * as internal from "./internal/example-server";
+import type { Api } from "effect-http/Api";
+import type { Server } from "effect-http/Server";
+import * as internal from "effect-http/internal/example-server";
 
 /** Generate an example Server implementation. */
 export const exampleServer: (api: Api) => Server<never, []> =
