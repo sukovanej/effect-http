@@ -1,16 +1,12 @@
-import {
-  Server,
-  handle,
-  internalServerError,
-  server,
-} from "effect-http/Server";
+import type { Api, Endpoint } from "effect-http/Api";
+import { internalServerError } from "effect-http/Server/Errors";
+import { handle, server } from "effect-http/Server/Server";
+import type { Server } from "effect-http/Server/Server";
 import * as OpenApi from "schema-openapi";
 
 import { pipe } from "@effect/data/Function";
 import * as RA from "@effect/data/ReadonlyArray";
 import * as Effect from "@effect/io/Effect";
-
-import type { Api, Endpoint } from "../Api";
 
 /** @internal */
 export const exampleServer = (api: Api): Server<never, []> => {

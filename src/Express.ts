@@ -1,4 +1,4 @@
-import type { Server } from "effect-http/Server";
+import type { Server } from "effect-http/Server/Server";
 import * as internal from "effect-http/internal/express";
 import type { Express } from "express";
 import type http from "http";

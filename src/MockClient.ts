@@ -1,5 +1,5 @@
 import type { AnyApi } from "effect-http/Api";
-import type { Client, ClientOptions } from "effect-http/Client";
+import type { Client, ClientOptions } from "effect-http/Client/Client";
 import * as internal from "effect-http/internal/mock-client";
 
 import * as Schema from "@effect/schema/Schema";
