@@ -1,8 +1,7 @@
+import * as internal from "effect-http/internal/api";
 import type * as OpenApi from "schema-openapi";
 
 import type * as Schema from "@effect/schema/Schema";
-
-import * as internal from "./internal/api";
 
 export interface Endpoint<
   Id extends string = string,

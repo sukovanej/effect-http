@@ -1,11 +1,10 @@
+import type { Server } from "effect-http/Server";
+import * as internal from "effect-http/internal/express";
 import type { Express } from "express";
 import type http from "http";
 
 import type * as Effect from "@effect/io/Effect";
 import type * as Logger from "@effect/io/Logger";
-
-import type { Server } from "./Server";
-import * as internal from "./internal/express";
 
 export type ExpressOptions = {
   /** Controls whether to expose OpenAPI UI or not. */

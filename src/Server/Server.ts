@@ -1,10 +1,10 @@
+import type { AnyApi, Api, Endpoint } from "effect-http/Api";
+import type { ApiError } from "effect-http/Server/Errors";
+import * as internal from "effect-http/internal/server";
+
 import type * as Context from "@effect/data/Context";
 import type * as Effect from "@effect/io/Effect";
 import type * as Schema from "@effect/schema/Schema";
-
-import type { AnyApi, Api, Endpoint } from "../Api";
-import * as internal from "../internal/server";
-import type { ApiError } from "./Errors";
 
 export const ServerId = Symbol("effect-http/Server/Server");
 export type ServerId = typeof ServerId;

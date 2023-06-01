@@ -1,8 +1,8 @@
-import * as Schema from "@effect/schema/Schema";
+import type { AnyApi } from "effect-http/Api";
+import type { Client, ClientOptions } from "effect-http/Client";
+import * as internal from "effect-http/internal/mock-client";
 
-import type { AnyApi } from "./Api";
-import type { Client, ClientOptions } from "./Client";
-import * as internal from "./internal/mock-client";
+import * as Schema from "@effect/schema/Schema";
 
 export type MockClientOptions<A extends AnyApi> = {
   responses: {
