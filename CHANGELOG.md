@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.9.3
+
+### Patch Changes
+
+- 03df92d: Fix imports.
+
 ## 0.9.2
 
 ### Patch Changes
