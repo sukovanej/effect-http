@@ -1,5 +1,5 @@
 import type { AnyApi } from "effect-http/Api";
-import type { Client, ClientOptions } from "effect-http/Client";
+import type { Client, ClientOptions } from "effect-http/Client/Client";
 import type { MockClientOptions } from "effect-http/MockClient";
 import { createInputParser } from "effect-http/internal/client";
 import * as OpenApi from "schema-openapi";

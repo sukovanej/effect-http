@@ -1,11 +1,7 @@
 import type { ExpressOptions, ListenOptions } from "effect-http/Express";
 import { openApi } from "effect-http/OpenApi";
-import {
-  Handler,
-  Server,
-  internalServerError,
-  notFoundError,
-} from "effect-http/Server";
+import { internalServerError, notFoundError } from "effect-http/Server/Errors";
+import { Handler, Server } from "effect-http/Server/Server";
 import * as Log from "effect-log";
 import { once } from "events";
 import express from "express";
