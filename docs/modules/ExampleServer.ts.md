@@ -6,6 +6,13 @@ parent: Modules
 
 ## ExampleServer overview
 
+The `exampleServer` function generates a `Server` implementation based
+on an instance of `Api`. The listening server will perform all the
+request and response validations similarly to a real implementation.
+
+Responses returned from the server are generated randomly using the
+response `Schema`.
+
 Added in v1.0.0
 
 ---

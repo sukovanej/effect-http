@@ -6,6 +6,10 @@ parent: Modules
 
 ## Client overview
 
+This module exposes the `client` combinator which accepts an `Api` instance
+and it generates a client-side implementation. The generated implementation
+is type-safe and guarantees compatibility of the client and server side.
+
 Added in v1.0.0
 
 ---

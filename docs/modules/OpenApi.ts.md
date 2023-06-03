@@ -6,6 +6,8 @@ parent: Modules
 
 ## OpenApi overview
 
+Derivation of `OpenApi` specification from an instance of `Api`.
+
 Added in v1.0.0
 
 ---

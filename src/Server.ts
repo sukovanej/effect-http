@@ -1,4 +1,6 @@
 /**
+ * Combinators and constructors for server-side implemnetation.
+ *
  * @since 1.0.0
  */
 import type * as Context from "@effect/data/Context";

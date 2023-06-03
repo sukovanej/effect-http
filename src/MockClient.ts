@@ -1,4 +1,6 @@
 /**
+ * `Client` implementation derivation for testing purposes.
+ *
  * @since 1.0.0
  */
 import * as Schema from "@effect/schema/Schema";

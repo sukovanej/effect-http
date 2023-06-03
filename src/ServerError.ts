@@ -1,4 +1,6 @@
 /**
+ * Server errors.
+ *
  * @since 1.0.0
  */
 

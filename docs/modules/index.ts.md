@@ -6,6 +6,12 @@ parent: Modules
 
 ## index overview
 
+Reexport of all the submodules.
+
+```ts
+import * as Http from 'effect-http'
+```
+
 Added in v1.0.0
 
 ---

@@ -1,4 +1,9 @@
 /**
+ * Reexport of all the submodules.
+ *
+ * ```ts
+ * import * as Http from 'effect-http';
+ * ```
  * @since 1.0.0
  */
 export * from "effect-http/Api";

@@ -1,4 +1,11 @@
 /**
+ * The `exampleServer` function generates a `Server` implementation based
+ * on an instance of `Api`. The listening server will perform all the
+ * request and response validations similarly to a real implementation.
+ *
+ * Responses returned from the server are generated randomly using the
+ * response `Schema`.
+ *
  * @since 1.0.0
  */
 import type { Api } from "effect-http/Api";

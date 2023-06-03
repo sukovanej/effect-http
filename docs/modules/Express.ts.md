@@ -6,6 +6,10 @@ parent: Modules
 
 ## Express overview
 
+Functions in this module perform convertion of a `Server` instance onto
+an `Express` application. Use the `listen` to create an express app and
+start listening on the given port (3000 by default).
+
 Added in v1.0.0
 
 ---
