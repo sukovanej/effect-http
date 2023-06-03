@@ -1,4 +1,6 @@
 /**
+ * Models for errors being created on the client side.
+ *
  * @since 1.0.0
  */
 

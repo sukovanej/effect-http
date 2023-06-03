@@ -6,6 +6,8 @@ parent: Modules
 
 ## MockClient overview
 
+`Client` implementation derivation for testing purposes.
+
 Added in v1.0.0
 
 ---

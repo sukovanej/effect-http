@@ -6,6 +6,8 @@ parent: Modules
 
 ## ServerError overview
 
+Server errors.
+
 Added in v1.0.0
 
 ---

@@ -6,6 +6,8 @@ parent: Modules
 
 ## Server overview
 
+Combinators and constructors for server-side implemnetation.
+
 Added in v1.0.0
 
 ---

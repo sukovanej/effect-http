@@ -1,4 +1,7 @@
 /**
+ * This module gives the client code using the `effect-http` to modify
+ * how validation errors are formatted when returned the server.
+ *
  * @since 1.0.0
  */
 import * as Context from "@effect/data/Context";

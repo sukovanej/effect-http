@@ -6,6 +6,13 @@ parent: Modules
 
 ## Api overview
 
+`Api` represents the API specification. It doesn't hold information concerning the
+server or client side details. An instance of `Api` can be used to derive a client
+implementation (see `Client.ts`).
+
+The generated type of the `Api` is used during server implementation. The type safety
+guarantees the server-side implementation and the `Api` specification are compatible.
+
 Added in v1.0.0
 
 ---

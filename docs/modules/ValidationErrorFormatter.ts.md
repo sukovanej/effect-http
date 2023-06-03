@@ -6,6 +6,9 @@ parent: Modules
 
 ## ValidationErrorFormatter overview
 
+This module gives the client code using the `effect-http` to modify
+how validation errors are formatted when returned the server.
+
 Added in v1.0.0
 
 ---

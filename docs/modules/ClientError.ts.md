@@ -6,6 +6,8 @@ parent: Modules
 
 ## ClientError overview
 
+Models for errors being created on the client side.
+
 Added in v1.0.0
 
 ---

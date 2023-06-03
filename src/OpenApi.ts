@@ -1,4 +1,6 @@
 /**
+ * Derivation of `OpenApi` specification from an instance of `Api`.
+ *
  * @since 1.0.0
  */
 import type * as OpenApi from "schema-openapi";
