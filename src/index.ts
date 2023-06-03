@@ -1,3 +1,6 @@
+/**
+ * @since 1.0.0
+ */
 export * from "effect-http/Api";
 export * from "effect-http/Server/Server";
 export * from "effect-http/Server/Errors";

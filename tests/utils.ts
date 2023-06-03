@@ -1,4 +1,3 @@
-import * as Http from "effect-http";
 import express from "express";
 import http, { Server } from "http";
 import { AddressInfo, Socket } from "net";
@@ -6,6 +5,8 @@ import { AddressInfo, Socket } from "net";
 import { pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
 import * as Scope from "@effect/io/Scope";
+
+import * as Http from "effect-http";
 
 export const testServerUrl = <R>(
   server: Http.Server<R, []>,

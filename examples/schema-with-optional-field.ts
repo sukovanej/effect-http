@@ -1,9 +1,9 @@
-import * as Http from "effect-http";
-
 import { pipe } from "@effect/data/Function";
 import * as Option from "@effect/data/Option";
 import * as Effect from "@effect/io/Effect";
 import * as Schema from "@effect/schema/Schema";
+
+import * as Http from "effect-http";
 
 const Response = Schema.struct({
   foo: Schema.optional(Schema.string).toOption(),

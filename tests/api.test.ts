@@ -1,7 +1,7 @@
-import * as Http from "effect-http";
-
 import { pipe } from "@effect/data/Function";
 import * as Schema from "@effect/schema/Schema";
+
+import * as Http from "effect-http";
 
 import { simpleApi1 } from "./example-apis";
 

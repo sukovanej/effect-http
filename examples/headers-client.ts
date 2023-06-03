@@ -1,8 +1,8 @@
-import * as Http from "effect-http";
-
 import { pipe } from "@effect/data/Function";
 import * as RA from "@effect/data/ReadonlyArray";
 import * as Effect from "@effect/io/Effect";
+
+import * as Http from "effect-http";
 
 import { api } from "../examples/headers";
 

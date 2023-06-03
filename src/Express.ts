@@ -1,11 +1,19 @@
-import type { Server } from "effect-http/Server/Server";
-import * as internal from "effect-http/internal/express";
+/**
+ * @since 1.0.0
+ */
 import type { Express } from "express";
 import type http from "http";
 
 import type * as Effect from "@effect/io/Effect";
 import type * as Logger from "@effect/io/Logger";
 
+import type { Server } from "effect-http/Server/Server";
+import * as internal from "effect-http/internal/express";
+
+/**
+ * @category models
+ * @since 1.0.0
+ */
 export type ExpressOptions = {
   /** Controls whether to expose OpenAPI UI or not. */
   openapiEnabled: boolean;
@@ -23,12 +31,21 @@ export type ExpressOptions = {
   logger: Logger.Logger<any, any> | "none" | "default" | "pretty" | "json";
 };
 
-/** Create express app from the `Server` */
+/**
+ * Create express app from the `Server`
+ *
+ * @category combinators
+ * @since 1.0.0
+ */
 export const express: <R>(
   options?: Partial<ExpressOptions>,
 ) => (server: Server<R, []>) => Effect.Effect<R, unknown, Express> =
   internal.toExpress;
 
+/**
+ * @category models
+ * @since 1.0.0
+ */
 export type ListenOptions = {
   /** Port to listen on
    *
@@ -42,13 +59,23 @@ export type ListenOptions = {
   onStart?: (server: http.Server) => Effect.Effect<never, any, any>;
 } & ExpressOptions;
 
-/** Create an express app from the `Server` and start the server */
+/**
+ * Create an express app from the `Server` and start the server
+ *
+ * @category combinators
+ * @since 1.0.0
+ */
 export const listen: (
   options?: Partial<ExpressOptions & ListenOptions>,
 ) => <R>(server: Server<R, []>) => Effect.Effect<R, unknown, void> =
   internal.listen;
 
-/** Start the server from an express app */
+/**
+ * Start the server from an express app
+ *
+ * @category combinators
+ * @since 1.0.0
+ */
 export const listenExpress: (
   options?: Partial<ExpressOptions & ListenOptions>,
 ) => (express: Express) => Effect.Effect<never, unknown, void> =

@@ -1,4 +1,3 @@
-import * as Http from "effect-http";
 import { vi } from "vitest";
 
 import * as Duration from "@effect/data/Duration";
@@ -8,6 +7,8 @@ import * as Effect from "@effect/io/Effect";
 import * as Exit from "@effect/io/Exit";
 import * as Fiber from "@effect/io/Fiber";
 import * as Schema from "@effect/schema/Schema";
+
+import * as Http from "effect-http";
 
 import { testServer, testServerUrl } from "./utils";
 

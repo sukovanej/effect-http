@@ -1,3 +1,7 @@
+import { pipe } from "@effect/data/Function";
+import * as Effect from "@effect/io/Effect";
+import * as Schema from "@effect/schema/Schema";
+
 import type { AnyApi, Endpoint } from "effect-http/Api";
 import {
   API_STATUS_CODES,
@@ -30,10 +34,6 @@ import {
   isParseError,
 } from "effect-http/Server/ValidationErrorFormatter";
 import { getSchema, getStructSchema } from "effect-http/internal/utils";
-
-import { pipe } from "@effect/data/Function";
-import * as Effect from "@effect/io/Effect";
-import * as Schema from "@effect/schema/Schema";
 
 /** @internal */
 export const server = <A extends AnyApi>(api: A): ApiToServer<A> =>

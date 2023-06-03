@@ -1,4 +1,3 @@
-import * as Http from "effect-http";
 import * as Log from "effect-log";
 
 import * as Context from "@effect/data/Context";
@@ -11,6 +10,8 @@ import * as LogLevel from "@effect/io/Logger/Level";
 import * as Resource from "@effect/io/Resource";
 import * as Schedule from "@effect/io/Schedule";
 import * as Schema from "@effect/schema/Schema";
+
+import * as Http from "effect-http";
 
 import { FileNotFoundError, readFile } from "./_utils";
 

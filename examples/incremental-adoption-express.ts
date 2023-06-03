@@ -1,4 +1,3 @@
-import * as Http from "effect-http";
 import express from "express";
 
 import { pipe } from "@effect/data/Function";
@@ -6,6 +5,8 @@ import * as Effect from "@effect/io/Effect";
 import * as Logger from "@effect/io/Logger";
 import * as LogLevel from "@effect/io/Logger/Level";
 import * as Schema from "@effect/schema/Schema";
+
+import * as Http from "effect-http";
 
 const legacyApp = express();
 
