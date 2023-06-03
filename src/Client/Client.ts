@@ -1,3 +1,9 @@
+/**
+ * @since 1.0.0
+ */
+import type * as Effect from "@effect/io/Effect";
+import type * as Schema from "@effect/schema/Schema";
+
 import type { AnyApi, Api, Endpoint } from "effect-http/Api";
 import type { ClientError } from "effect-http/Client/Errors";
 import type {
@@ -6,9 +12,7 @@ import type {
 } from "effect-http/Server/Server";
 import * as internal from "effect-http/internal/client";
 
-import type * as Effect from "@effect/io/Effect";
-import type * as Schema from "@effect/schema/Schema";
-
+/** @ignore */
 type MakeHeadersOptionIfAllPartial<I> = I extends { headers: any }
   ? Schema.Spread<
       (Record<string, never> extends I["headers"]
@@ -18,6 +22,7 @@ type MakeHeadersOptionIfAllPartial<I> = I extends { headers: any }
     >
   : I;
 
+/** @ignore */
 type DropCommonHeaders<I, H> = {
   [K in keyof I]: K extends "headers"
     ? Schema.Spread<
@@ -30,6 +35,10 @@ type DropCommonHeaders<I, H> = {
     : I[K];
 };
 
+/**
+ * @category models
+ * @since 1.0.0
+ */
 type ClientFunction<Es extends Endpoint[], Id, I> = Record<
   string,
   never
@@ -49,6 +58,10 @@ type ClientFunction<Es extends Endpoint[], Id, I> = Record<
       Schema.To<SelectEndpointById<Es, Id>["schemas"]["response"]>
     >;
 
+/**
+ * @category models
+ * @since 1.0.0
+ */
 export type Client<A extends AnyApi, H> = A extends Api<infer Es>
   ? Schema.Spread<{
       [Id in Es[number]["id"]]: ClientFunction<
@@ -64,11 +77,20 @@ export type Client<A extends AnyApi, H> = A extends Api<infer Es>
     }>
   : never;
 
+/**
+ * @category models
+ * @since 1.0.0
+ */
 export type ClientOptions<H extends Record<string, unknown>> = {
   headers: H;
 };
 
-/** Derive client implementation from the `Api` */
+/**
+ * Derive client implementation from the `Api`
+ *
+ * @category constructors
+ * @since 1.0.0
+ */
 export const client: <A extends AnyApi, H extends Record<string, unknown>>(
   baseUrl: URL,
   options?: ClientOptions<H>,

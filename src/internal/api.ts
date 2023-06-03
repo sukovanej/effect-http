@@ -1,8 +1,9 @@
-import type { Api, ApiGroup, Endpoint, InputSchemas } from "effect-http/Api";
 import type * as OpenApi from "schema-openapi";
 
 import * as HashSet from "@effect/data/HashSet";
 import type * as Schema from "@effect/schema/Schema";
+
+import type { Api, ApiGroup, Endpoint, InputSchemas } from "effect-http/Api";
 
 export const IgnoredSchemaId = Symbol("effect-http/ignore-schema-id");
 export type IgnoredSchemaId = typeof IgnoredSchemaId;

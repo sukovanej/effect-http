@@ -1,6 +1,6 @@
-import { IgnoredSchemaId } from "effect-http/internal/api";
-
 import * as Schema from "@effect/schema/Schema";
+
+import { IgnoredSchemaId } from "effect-http/internal/api";
 
 /** @internal */
 export const getSchema = <A>(

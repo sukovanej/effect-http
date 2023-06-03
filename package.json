@@ -3,8 +3,6 @@
   "version": "0.9.3",
   "description": "High-level declarative HTTP API for effect-ts",
   "homepage": "https://github.com/sukovanej/effect-http",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
   "exports": {
     ".": {
       "require": "./dist/index.cjs",
@@ -18,18 +16,20 @@
       },
       "require": {
         "types": "./dist/*.d.ts",
-        "default": "./dist/*.cjs"
+        "default": "./*.cjs"
       }
     }
   },
   "type": "module",
   "scripts": {
     "build": "tsup",
+    "post-build": "mv dist/*.cjs . && mkdir -p internal && mv dist/internal/*.cjs ./internal/",
     "watch": "tsc -w -p tsconfig.json",
     "format": "prettier -w src tests examples",
     "format:check": "pnpm format --check",
     "eslint": "eslint .",
-    "lint": "pnpm format:check && pnpm eslint",
+    "lint": "pnpm format:check && pnpm eslint && tsc --noEmit",
+    "docs-ts": "docs-ts",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest",
@@ -47,6 +47,7 @@
     "@typescript-eslint/eslint-plugin": "^5.59.8",
     "@typescript-eslint/parser": "^5.59.8",
     "@vitest/coverage-c8": "^0.31.4",
+    "docs-ts": "^0.8.0",
     "eslint": "^8.41.0",
     "prettier": "^2.8.8",
     "tsup": "^6.7.0",

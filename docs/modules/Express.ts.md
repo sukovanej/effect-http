@@ -1,0 +1,129 @@
+---
+title: Express.ts
+nav_order: 6
+parent: Modules
+---
+
+## Express overview
+
+Added in v1.0.0
+
+---
+
+<h2 class="text-delta">Table of contents</h2>
+
+- [combinators](#combinators)
+  - [express](#express)
+  - [listen](#listen)
+  - [listenExpress](#listenexpress)
+- [models](#models)
+  - [ExpressOptions (type alias)](#expressoptions-type-alias)
+  - [ListenOptions (type alias)](#listenoptions-type-alias)
+
+---
+
+# combinators
+
+## express
+
+Create express app from the `Server`
+
+**Signature**
+
+```ts
+export declare const express: <R>(
+  options?: Partial<ExpressOptions> | undefined
+) => (server: any) => Effect.Effect<R, unknown, Express>
+```
+
+Added in v1.0.0
+
+## listen
+
+Create an express app from the `Server` and start the server
+
+**Signature**
+
+```ts
+export declare const listen: (
+  options?:
+    | Partial<
+        ExpressOptions & {
+          port: number | undefined
+          onStart?: ((server: any) => Effect.Effect<never, any, any>) | undefined
+        }
+      >
+    | undefined
+) => <R>(server: any) => Effect.Effect<R, unknown, void>
+```
+
+Added in v1.0.0
+
+## listenExpress
+
+Start the server from an express app
+
+**Signature**
+
+```ts
+export declare const listenExpress: (
+  options?:
+    | Partial<
+        ExpressOptions & {
+          port: number | undefined
+          onStart?: ((server: any) => Effect.Effect<never, any, any>) | undefined
+        }
+      >
+    | undefined
+) => (express: Express) => Effect.Effect<never, unknown, void>
+```
+
+Added in v1.0.0
+
+# models
+
+## ExpressOptions (type alias)
+
+**Signature**
+
+```ts
+export type ExpressOptions = {
+  /** Controls whether to expose OpenAPI UI or not. */
+  openapiEnabled: boolean
+
+  /** Which path should be the OpenAPI UI exposed on. */
+  openapiPath: string
+
+  /** Set logger.
+   *
+   *  The value can be either an instance of `Logger.Logger<I, O>` or
+   *  one of `"default"`, `"pretty"`, `"json"` or `"none"` shorthands.
+   *
+   *  @default "pretty"
+   */
+  logger: Logger.Logger<any, any> | 'none' | 'default' | 'pretty' | 'json'
+}
+```
+
+Added in v1.0.0
+
+## ListenOptions (type alias)
+
+**Signature**
+
+```ts
+export type ListenOptions = {
+  /** Port to listen on
+   *
+   *  By default, any available port will be used.
+   *
+   *  @default undefined
+   */
+  port: number | undefined
+
+  /** Run effect after server starts. */
+  onStart?: (server: http.Server) => Effect.Effect<never, any, any>
+} & ExpressOptions
+```
+
+Added in v1.0.0

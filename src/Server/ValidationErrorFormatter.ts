@@ -1,3 +1,6 @@
+/**
+ * @since 1.0.0
+ */
 import * as Context from "@effect/data/Context";
 import { pipe } from "@effect/data/Function";
 import * as Option from "@effect/data/Option";
@@ -7,19 +10,35 @@ import * as Layer from "@effect/io/Layer";
 import * as AST from "@effect/schema/AST";
 import { ParseError, ParseErrors } from "@effect/schema/ParseResult";
 
+/**
+ * @category models
+ * @since 1.0.0
+ */
 export interface ValidationErrorFormatter {
   (error: ParseError): string;
 }
 
+/**
+ * @category context tags
+ * @since 1.0.0
+ */
 export const ValidationErrorFormatterService =
   Context.Tag<ValidationErrorFormatter>();
 
+/**
+ * @category refinements
+ * @since 1.0.0
+ */
 export const isParseError = (error: unknown): error is ParseError =>
   typeof error === "object" &&
   error !== null &&
   "_tag" in error &&
   error._tag === "ParseError";
 
+/**
+ * @category combinators
+ * @since 1.0.0
+ */
 export const defaultValidationErrorFormatterServer: ValidationErrorFormatter = (
   error: ParseError,
 ): string => {
@@ -37,11 +56,13 @@ export const defaultValidationErrorFormatterServer: ValidationErrorFormatter = (
   return JSON.stringify(error);
 };
 
+/** @internal */
 const allEqualUpToExpected = (
   errors: readonly ValidationError[],
 ): errors is readonly ValidationErrorUnexpected[] =>
   RA.reduce(errors, true, () => true);
 
+/** @internal */
 const stringifyError = (error: ValidationError) => {
   if (error.message) {
     return error.message;
@@ -61,6 +82,7 @@ const stringifyError = (error: ValidationError) => {
   return `${position} must be ${expectedBefore}${expected}, got ${received}`;
 };
 
+/** @ignored */
 type ValidationError = {
   position: string[];
   message?: string;
@@ -69,11 +91,13 @@ type ValidationError = {
   | { _tag: "Unexpected"; expected: string[]; received: unknown }
 );
 
+/** @ignored */
 type ValidationErrorUnexpected = Extract<
   ValidationError,
   { _tag: "Unexpected" }
 >;
 
+/** @internal */
 const formatParseErrors = (errors: ParseErrors): readonly ValidationError[] => {
   if (errors._tag === "Key") {
     return errors.errors.flatMap((error) =>
@@ -108,6 +132,7 @@ const formatParseErrors = (errors: ParseErrors): readonly ValidationError[] => {
   throw new Error(`Unhandled error case ${JSON.stringify(errors)}`);
 };
 
+/** @internal */
 const formatAST = (ast: AST.AST) => {
   const description = AST.getAnnotation(AST.DescriptionAnnotationId)(ast);
 
@@ -126,10 +151,18 @@ const formatAST = (ast: AST.AST) => {
   return JSON.stringify(ast);
 };
 
+/**
+ * @category combinators
+ * @since 1.0.0
+ */
 export const setValidationErrorFormatter = (
   formatter: ValidationErrorFormatter,
 ) => Layer.succeed(ValidationErrorFormatterService, formatter);
 
+/**
+ * @category combinators
+ * @since 1.0.0
+ */
 export const formatValidationError = (
   error: ParseError,
 ): Effect.Effect<never, never, string> =>

@@ -1,8 +1,16 @@
-import * as internal from "effect-http/internal/api";
+/**
+ * @since 1.0.0
+ */
 import type * as OpenApi from "schema-openapi";
 
 import type * as Schema from "@effect/schema/Schema";
 
+import * as internal from "effect-http/internal/api";
+
+/**
+ * @category models
+ * @since 1.0.0
+ */
 export interface Endpoint<
   Id extends string = string,
   Response = any,
@@ -24,8 +32,16 @@ export interface Endpoint<
   groupName: string;
 }
 
+/**
+ * @category models
+ * @since 1.0.0
+ */
 export type AnyApi = Api<Endpoint[]>;
 
+/**
+ * @category models
+ * @since 1.0.0
+ */
 export type Api<E extends Endpoint[] = Endpoint[]> = {
   endpoints: E;
   options: {
@@ -34,13 +50,27 @@ export type Api<E extends Endpoint[] = Endpoint[]> = {
   };
 };
 
+/**
+ * @category models
+ * @since 1.0.0
+ */
 export type ApiGroup<E extends Endpoint[] = Endpoint[]> = {
   endpoints: E;
   groupName: string;
 };
 
-type RecordOptionalSchema = Record<string, Schema.Schema<any>> | undefined;
+/**
+ * @category models
+ * @since 1.0.0
+ */
+export type RecordOptionalSchema =
+  | Record<string, Schema.Schema<any>>
+  | undefined;
 
+/**
+ * @category models
+ * @since 1.0.0
+ */
 export type InputSchemas<
   Response = Schema.Schema<any>,
   Query = RecordOptionalSchema,
@@ -55,14 +85,17 @@ export type InputSchemas<
   headers?: Headers;
 };
 
-type NonRequired<T> = { [K in keyof T]?: T[K] };
-
+/** @internal */
 const DEFAULT_OPTIONS: Api["options"] = {
   title: "Api",
   version: "1.0.0",
 };
 
-export const api = (options?: NonRequired<Api["options"]>): Api<[]> => ({
+/**
+ * @category constructors
+ * @since 1.0.0
+ */
+export const api = (options?: Partial<Api["options"]>): Api<[]> => ({
   options: {
     ...DEFAULT_OPTIONS,
     ...options,
@@ -70,23 +103,75 @@ export const api = (options?: NonRequired<Api["options"]>): Api<[]> => ({
   endpoints: [],
 });
 
+/**
+ * @category methods
+ * @since 1.0.0
+ */
 export const get = internal.endpoint("get");
+
+/**
+ * @category methods
+ * @since 1.0.0
+ */
 export const post = internal.endpoint("post");
+
+/**
+ * @category methods
+ * @since 1.0.0
+ */
 export const put = internal.endpoint("put");
+
+/**
+ * @category methods
+ * @since 1.0.0
+ */
 export const head = internal.endpoint("head");
+
+/**
+ * @category methods
+ * @since 1.0.0
+ */
 export const patch = internal.endpoint("patch");
+
+/**
+ * @category methods
+ * @since 1.0.0
+ */
 export const trace = internal.endpoint("trace");
-export const _delete = internal.endpoint("delete");
-export { _delete as delete };
+
+const _delete = internal.endpoint("delete");
+
+export {
+  /**
+   * @category methods
+   * @since 1.0.0
+   */
+  _delete as delete,
+};
+
+/**
+ * @category methods
+ * @since 1.0.0
+ */
 export const options = internal.endpoint("options");
 
-/** Create new API group with a given name */
+/**
+ * Create new API group with a given name
+ *
+ * @category constructors
+ * @since 1.0.0
+ */
 export const apiGroup = (groupName: string): ApiGroup<[]> => ({
   endpoints: [],
   groupName,
 });
 
-/** Merge the Api `Group` with an `Api` */
+/**
+ * Merge the Api `Group` with an `Api`
+ *
+ * @category combinators
+ * @since 1.0.0
+ */
 export const addGroup: <E2 extends Endpoint[]>(
   apiGroup: ApiGroup<E2>,
 ) => <E1 extends Endpoint[]>(api: Api<E1>) => Api<[...E1, ...E2]> =

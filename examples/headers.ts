@@ -1,11 +1,11 @@
-import * as Http from "effect-http";
-
 import * as Context from "@effect/data/Context";
 import { pipe } from "@effect/data/Function";
 import * as RA from "@effect/data/ReadonlyArray";
 import * as Effect from "@effect/io/Effect";
 import * as Ref from "@effect/io/Ref";
 import * as Schema from "@effect/schema/Schema";
+
+import * as Http from "effect-http";
 
 interface Clients {
   hasAccess: (clientId: string) => Effect.Effect<never, never, boolean>;

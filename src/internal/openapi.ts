@@ -1,7 +1,8 @@
+import * as OpenApi from "schema-openapi";
+
 import type { Api } from "effect-http/Api";
 import type { OpenApiSpecification } from "effect-http/OpenApi";
 import { IgnoredSchemaId } from "effect-http/internal/api";
-import * as OpenApi from "schema-openapi";
 
 export const openApi = <A extends Api>(api: A): OpenApiSpecification => {
   return api.endpoints.reduce(
