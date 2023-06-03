@@ -14,8 +14,8 @@ import * as Scope from "@effect/io/Scope";
 
 import type { ExpressOptions, ListenOptions } from "effect-http/Express";
 import { openApi } from "effect-http/OpenApi";
-import { internalServerError, notFoundError } from "effect-http/Server/Errors";
-import { Handler, Server } from "effect-http/Server/Server";
+import { Handler, Server } from "effect-http/Server";
+import { internalServerError, notFoundError } from "effect-http/ServerError";
 
 /** @internal */
 const errorToLog = (error: unknown): string => {

@@ -1,10 +1,10 @@
 ---
-title: Server/Errors.ts
-nav_order: 11
+title: ServerError.ts
+nav_order: 10
 parent: Modules
 ---
 
-## Errors overview
+## ServerError overview
 
 Added in v1.0.0
 

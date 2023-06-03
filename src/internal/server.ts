@@ -3,6 +3,16 @@ import * as Effect from "@effect/io/Effect";
 import * as Schema from "@effect/schema/Schema";
 
 import type { AnyApi, Endpoint } from "effect-http/Api";
+import { ServerId } from "effect-http/Server";
+import type {
+  AddServerHandle,
+  AnyServer,
+  ApiToServer,
+  Handler,
+  InputHandlerFn,
+  SelectEndpointById,
+  ServerUnimplementedIds,
+} from "effect-http/Server";
 import {
   API_STATUS_CODES,
   ApiError,
@@ -18,21 +28,11 @@ import {
   isInvalidParamsError,
   isInvalidQueryError,
   isInvalidResponseError,
-} from "effect-http/Server/Errors";
-import { ServerId } from "effect-http/Server/Server";
-import type {
-  AddServerHandle,
-  AnyServer,
-  ApiToServer,
-  Handler,
-  InputHandlerFn,
-  SelectEndpointById,
-  ServerUnimplementedIds,
-} from "effect-http/Server/Server";
+} from "effect-http/ServerError";
 import {
   formatValidationError,
   isParseError,
-} from "effect-http/Server/ValidationErrorFormatter";
+} from "effect-http/ValidationErrorFormatter";
 import { getSchema, getStructSchema } from "effect-http/internal/utils";
 
 /** @internal */

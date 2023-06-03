@@ -2,7 +2,7 @@
  * @since 1.0.0
  */
 import type { Api } from "effect-http/Api";
-import type { Server } from "effect-http/Server/Server";
+import type { Server } from "effect-http/Server";
 import * as internal from "effect-http/internal/example-server";
 
 /**
