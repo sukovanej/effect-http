@@ -36,7 +36,7 @@ export const isParseError = (error: unknown): error is ParseError =>
   error._tag === "ParseError";
 
 /**
- * @category utils
+ * @category combinators
  * @since 1.0.0
  */
 export const defaultValidationErrorFormatterServer: ValidationErrorFormatter = (
@@ -56,11 +56,13 @@ export const defaultValidationErrorFormatterServer: ValidationErrorFormatter = (
   return JSON.stringify(error);
 };
 
+/** @internal */
 const allEqualUpToExpected = (
   errors: readonly ValidationError[],
 ): errors is readonly ValidationErrorUnexpected[] =>
   RA.reduce(errors, true, () => true);
 
+/** @internal */
 const stringifyError = (error: ValidationError) => {
   if (error.message) {
     return error.message;
@@ -80,6 +82,7 @@ const stringifyError = (error: ValidationError) => {
   return `${position} must be ${expectedBefore}${expected}, got ${received}`;
 };
 
+/** @ignored */
 type ValidationError = {
   position: string[];
   message?: string;
@@ -88,11 +91,13 @@ type ValidationError = {
   | { _tag: "Unexpected"; expected: string[]; received: unknown }
 );
 
+/** @ignored */
 type ValidationErrorUnexpected = Extract<
   ValidationError,
   { _tag: "Unexpected" }
 >;
 
+/** @internal */
 const formatParseErrors = (errors: ParseErrors): readonly ValidationError[] => {
   if (errors._tag === "Key") {
     return errors.errors.flatMap((error) =>
@@ -127,6 +132,7 @@ const formatParseErrors = (errors: ParseErrors): readonly ValidationError[] => {
   throw new Error(`Unhandled error case ${JSON.stringify(errors)}`);
 };
 
+/** @internal */
 const formatAST = (ast: AST.AST) => {
   const description = AST.getAnnotation(AST.DescriptionAnnotationId)(ast);
 
@@ -146,7 +152,7 @@ const formatAST = (ast: AST.AST) => {
 };
 
 /**
- * @category utils
+ * @category combinators
  * @since 1.0.0
  */
 export const setValidationErrorFormatter = (
@@ -154,7 +160,7 @@ export const setValidationErrorFormatter = (
 ) => Layer.succeed(ValidationErrorFormatterService, formatter);
 
 /**
- * @category utils
+ * @category combinators
  * @since 1.0.0
  */
 export const formatValidationError = (

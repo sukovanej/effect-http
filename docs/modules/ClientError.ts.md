@@ -1,10 +1,10 @@
 ---
-title: Client/Errors.ts
-nav_order: 4
+title: ClientError.ts
+nav_order: 3
 parent: Modules
 ---
 
-## Errors overview
+## ClientError overview
 
 Added in v1.0.0
 

@@ -7,7 +7,7 @@ import type http from "http";
 import type * as Effect from "@effect/io/Effect";
 import type * as Logger from "@effect/io/Logger";
 
-import type { Server } from "effect-http/Server/Server";
+import type { Server } from "effect-http/Server";
 import * as internal from "effect-http/internal/express";
 
 /**
