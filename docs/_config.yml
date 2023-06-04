@@ -3,7 +3,10 @@ remote_theme: pmarsceill/just-the-docs
 # Enable or disable the site search
 search_enabled: true
 
+plugins:
+  - jemoji
+
 # Aux links for the upper right navigation
 aux_links:
-  'effect-http on GitHub':
+  'GitHub':
     - 'https://github.com/sukovanej/effect-http'

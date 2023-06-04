@@ -8,11 +8,11 @@ has_toc: false
 
 High-level declarative HTTP API for [effect-ts](https://github.com/Effect-TS).
 
-- **Client derivation**. Write the api specification once, get the type-safe client with runtime validation for free.
-- **OpenAPI derivation**. `/docs` endpoint with OpenAPI UI out of box.
-- **Batteries included server implementation**. Automatic runtime request and response validation.
-- **Example server derivation**. Automatic derivation of example server implementation.
-- **Mock client derivation**. Test safely against a specified API.
+- :star: **Client derivation**. Write the api specification once, get the type-safe client with runtime validation for free.
+- :rainbow: **OpenAPI derivation**. `/docs` endpoint with OpenAPI UI out of box.
+- :battery: **Batteries included server implementation**. Automatic runtime request and response validation.
+- :crystal_ball: **Example server derivation**. Automatic derivation of example server implementation.
+- :bug: **Mock client derivation**. Test safely against a specified API.
 
 **Under development.** Please note that currently any release might introduce
 breaking changes and the internals and the public API are still evolving and changing.
