@@ -1,5 +1,12 @@
 # effect-http
 
+## 0.10.1
+
+### Patch Changes
+
+- a11af53: Remove docs from the package.
+- bf5b0bb: Update dependencies.
+
 ## 0.10.0
 
 ### Minor Changes
