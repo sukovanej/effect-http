@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.10.2
+
+### Patch Changes
+
+- 8d8010f: Fix common js imports.
+
 ## 0.10.1
 
 ### Patch Changes
