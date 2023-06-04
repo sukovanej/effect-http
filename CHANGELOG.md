@@ -1,5 +1,16 @@
 # effect-http
 
+## 0.10.0
+
+### Minor Changes
+
+- fdde411: Flatten package file structure.
+- 1627a6a: Generate API documentation.
+
+### Patch Changes
+
+- d7133fb: Update package.json homepage.
+
 ## 0.9.3
 
 ### Patch Changes
