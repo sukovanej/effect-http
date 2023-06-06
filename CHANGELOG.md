@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.10.3
+
+### Patch Changes
+
+- d679e96: Update dependencies.
+
 ## 0.10.2
 
 ### Patch Changes
