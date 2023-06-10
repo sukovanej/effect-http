@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@effect/data':
-    specifier: ^0.12.5
-    version: 0.12.5
+    specifier: ^0.12.6
+    version: 0.12.6
   '@effect/io':
     specifier: ^0.26.0
     version: 0.26.0
@@ -15,14 +15,14 @@ dependencies:
     specifier: ^0.20.1
     version: 0.20.1
   effect-log:
-    specifier: ^0.3.4
-    version: 0.3.4
+    specifier: ^0.3.5
+    version: 0.3.5
   express:
     specifier: ^4.18.2
     version: 4.18.2
   schema-openapi:
-    specifier: ^0.2.0
-    version: 0.2.0
+    specifier: ^0.2.1
+    version: 0.2.1
   swagger-ui-express:
     specifier: ^4.6.3
     version: 4.6.3(express@4.18.2)
@@ -401,20 +401,20 @@ packages:
       is-negated-glob: 1.0.0
     dev: true
 
-  /@effect/data@0.12.5:
-    resolution: {integrity: sha512-gmHSsG4earpIWufwCNT1R1pZ5BIe7z0bMmexnAFOT9csc8bwTSzk1e5QAd/65/vyczf/cMMrXgjpasdxlJ5POA==}
+  /@effect/data@0.12.6:
+    resolution: {integrity: sha512-XRhB7dnIpAOwAy7xKbjEvcG9E0+R7+yfwA6mcSpPja8zu6hYvIAbLtmiuKSRQ+QmjGRv4NzIJ6GwuHHpYHkoIg==}
     dev: false
 
   /@effect/io@0.26.0:
     resolution: {integrity: sha512-umwZ/sRoV7zb/8WwoiK7xWoypqvY6C1EXWEGORpViAFUTx3/bXc9i7JtdttTWVokXb3qogrxGX2SHopB20I4vQ==}
     dependencies:
-      '@effect/data': 0.12.5
+      '@effect/data': 0.12.6
     dev: false
 
   /@effect/schema@0.20.1:
     resolution: {integrity: sha512-wp3qYMIC/NyVbUhJ7W52JQcPN56AsagTYJsXVmYyK24QEtTuEGbVqCelihY8RwjJZLPEt230bqssFb2+Q/EsHQ==}
     dependencies:
-      '@effect/data': 0.12.5
+      '@effect/data': 0.12.6
       '@effect/io': 0.26.0
       fast-check: 3.10.0
     dev: false
@@ -1756,10 +1756,10 @@ packages:
     resolution: {integrity: sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==}
     dev: false
 
-  /effect-log@0.3.4:
-    resolution: {integrity: sha512-RAiUKs6Sg+lqcmduyNncH9AEs8FYsb7lfgdktpdj9y17QKJFgt6OLdvJQLVCtDrsF813mrVVBXmLI+TNhrvcig==}
+  /effect-log@0.3.5:
+    resolution: {integrity: sha512-BfdXdF3AVJgL9dVwGnB0j2bwLtk7AuJ58h6WLZ70ZPvHwYNceBJPobXoTXxWPOGTx5YrFYoV9zb+CL/nwOElDw==}
     dependencies:
-      '@effect/data': 0.12.5
+      '@effect/data': 0.12.6
       '@effect/io': 0.26.0
     dev: false
 
@@ -3811,10 +3811,10 @@ packages:
   /safer-buffer@2.1.2:
     resolution: {integrity: sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==}
 
-  /schema-openapi@0.2.0:
-    resolution: {integrity: sha512-goGc0Y0GBp+7aYewPF9GstdYsyAHjkIGXW18aiDNBFCfw6fElFSElYzUjGcJTGXh87LSk5tFiS9MHwTUN5o0CA==}
+  /schema-openapi@0.2.1:
+    resolution: {integrity: sha512-Xi3lsTKXK3D0I2ZMVgNPZ5jJ/pmkxOy9t2qE2ffz+lrzNAjppPjs9Z2qftdB14j4mcS/AzrNM3iFrwqWP3r6EQ==}
     dependencies:
-      '@effect/data': 0.12.5
+      '@effect/data': 0.12.6
       '@effect/io': 0.26.0
       '@effect/schema': 0.20.1
     dev: false
