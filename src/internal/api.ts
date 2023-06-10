@@ -3,7 +3,13 @@ import type * as OpenApi from "schema-openapi";
 import * as HashSet from "@effect/data/HashSet";
 import type * as Schema from "@effect/schema/Schema";
 
-import type { Api, ApiGroup, Endpoint, InputSchemas } from "effect-http/Api";
+import type {
+  Api,
+  ApiGroup,
+  Endpoint,
+  EndpointOptions,
+  InputSchemas,
+} from "effect-http/Api";
 
 export const IgnoredSchemaId = Symbol("effect-http/ignore-schema-id");
 export type IgnoredSchemaId = typeof IgnoredSchemaId;
@@ -75,6 +81,7 @@ export const endpoint =
     id: Id,
     path: string,
     schemas: I,
+    options?: EndpointOptions,
   ) =>
   <A extends Api | ApiGroup>(api: A): AddEndpoint<A, Id, I> => {
     if (method === "get" && schemas.body !== undefined) {
@@ -91,6 +98,7 @@ export const endpoint =
       path,
       method,
       groupName: "groupName" in api ? api.groupName : "default",
+      ...options,
     };
 
     return {

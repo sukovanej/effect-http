@@ -6,7 +6,7 @@ parent: Modules
 
 ## OpenApi overview
 
-Derivation of `OpenApi` specification from an instance of `Api`.
+Derivation of `OpenApi` schema from an instance of `Api`.
 
 Added in v1.0.0
 
@@ -30,7 +30,7 @@ Generate OpenApi specification for the Api.
 **Signature**
 
 ```ts
-export declare const openApi: <A extends any>(api: A) => OpenApiSpecification
+export declare const openApi: (api: any) => OpenApiSpecification
 ```
 
 Added in v1.0.0

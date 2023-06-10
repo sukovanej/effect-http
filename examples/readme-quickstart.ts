@@ -6,7 +6,7 @@ import * as Http from "effect-http";
 
 const responseSchema = Schema.struct({
   name: Schema.string,
-  id: Schema.number,
+  id: pipe(Schema.number, Schema.int(), Schema.positive()),
 });
 const querySchema = { id: Schema.NumberFromString };
 
