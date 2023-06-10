@@ -25,10 +25,11 @@ breaking changes and the internals and the public API are still evolving and cha
 - [Incremental adoption into existing express app](#incremental-adoption-into-existing-express-app)
 - [Cookbook](#cookbook)
   - [Handler input type derivation](#handler-input-type-derivation)
+  - [Descriptions in OpenApi](#descriptions-in-openapi)
 - [API on the client side](#api-on-the-client-side)
   - [Example server](#example-server)
   - [Mock client](#mock-client)
-    - [Common headers](#common-headers)
+  - [Common headers](#common-headers)
 - [Compatibility](#compatibility)
 
 Install using
@@ -40,11 +41,11 @@ pnpm add effect-http
 Bootstrap a simple API specification.
 
 ```typescript
-import * as Http from "effect-http";
-
 import { pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
 import * as Schema from "@effect/schema/Schema";
+
+import * as Http from "effect-http";
 
 const responseSchema = Schema.struct({ name: Schema.string });
 const query = { id: Schema.number };
@@ -110,10 +111,10 @@ They are specified in the input schemas object (3rd argument of `Http.get`, `Htt
 #### Example
 
 ```typescript
-import * as Http from "effect-http";
-
 import { pipe } from "@effect/data/Function";
 import * as Schema from "@effect/schema/Schema";
+
+import * as Http from "effect-http";
 
 export const api = pipe(
   Http.api({ title: "My api" }),
@@ -136,9 +137,9 @@ a mapping from header names onto their schemas. The example below shows an API w
 a single endpoint `/hello` which expects a header `X-Client-Id` to be present.
 
 ```typescript
-import * as Http from "effect-http";
-
 import * as Schema from "@effect/schema/Schema";
+
+import * as Http from "effect-http";
 
 const api = pipe(
   Http.api(),
@@ -196,10 +197,10 @@ and `Http.listen` functions. The `logger` field's allowed values are
 - `"none"` - `@effect/io` none logger - to disable logs
 
 ```typescript
-import * as Http from "effect-http";
-
 import { pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
+
+import * as Http from "effect-http";
 
 const api = pipe(Http.api());
 const server = pipe(api, Http.server, Http.listen({ logger: "json" }));
@@ -281,12 +282,12 @@ Let's see it in action and implement the mentioned user management API. The
 API will look as follows.
 
 ```typescript
-import * as Http from "effect-http";
-
 import * as Context from "@effect/data/Context";
 import { pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
 import * as Schema from "@effect/schema/Schema";
+
+import * as Http from "effect-http";
 
 const api = pipe(
   Http.api({ title: "Users API" }),
@@ -400,11 +401,11 @@ This enables separability of concers for big APIs and provides information for
 generation of tags for the OpenAPI specification.
 
 ```typescript
-import * as Http from "effect-http";
-
 import { pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
 import * as Schema from "@effect/schema/Schema";
+
+import * as Http from "effect-http";
 
 const responseSchema = Schema.struct({ name: Schema.string });
 
@@ -483,11 +484,11 @@ app.listen(3000, () => console.log("Listening on 3000"));
 Now, we'll create an `effect-http` api and server.
 
 ```typescript
-import * as Http from "effect-http";
-
 import { pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
 import * as Schema from "@effect/schema/Schema";
+
+import * as Http from "effect-http";
 
 const api = pipe(
   Http.api(),
@@ -557,11 +558,11 @@ the `Input` type helper which accepts a type of the `Api` and operation
 id type and produces type covering query, params and body schema type.
 
 ```typescript
-import * as Http from "effect-http";
-
 import { pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
 import * as Schema from "@effect/schema/Schema";
+
+import * as Http from "effect-http";
 
 const api = pipe(
   Http.api({ title: "My api" }),
@@ -589,6 +590,59 @@ pipe(server, Http.listen({ port: 3000 }), Effect.runPromise);
 ```
 
 _(This is a complete standalone code example)_
+
+### Descriptions in OpenApi
+
+The [schema-openapi](https://github.com/sukovanej/schema-openapi) library which is
+used for OpenApi derivation from the `Schema` takes into account 
+[description](https://effect-ts.github.io/schema/modules/Schema.ts.html#description)
+annotations and propagates them into the specification.
+
+Some descriptions are provided from the built-in `@effect/schema/Schema` combinators.
+For example, the usage of `Schema.int()` will result in "*a positive number*" 
+description in the OpenApi schema. One can also add custom description using the
+`Schema.description` combinator.
+
+On top of types descriptions which are included in the `schema` field, effect-http
+also checks top-level schema descriptions and uses them for the parent object which
+uses the schema. In the following example, the "*User*" description for the response
+schema is used both as the schema description but also for the response itself. The
+same holds for the `id` query paremeter.
+
+For an operation-level description, call the API endpoint method (`Http.get`,
+`Http.post` etc) with a 4th argument and set the `description` field to the 
+desired description.
+
+```ts
+import { pipe } from "@effect/data/Function";
+import * as Schema from "@effect/schema/Schema";
+
+import * as Http from "effect-http";
+
+const responseSchema = pipe(
+  Schema.struct({
+    name: Schema.string,
+    id: pipe(Schema.number, Schema.int(), Schema.positive()),
+  }),
+  Schema.description("User"),
+);
+const querySchema = {
+  id: pipe(Schema.NumberFromString, Schema.description("User id")),
+};
+
+const api = pipe(
+  Http.api({ title: "Users API" }),
+  Http.get(
+    "getUser",
+    "/user",
+    {
+      response: responseSchema,
+      query: querySchema,
+    },
+    { description: "Returns a User by id" },
+  ),
+);
+```
 
 ## API on the client side
 
@@ -620,11 +674,11 @@ helpful in the following and probably many more cases.
 Use `Http.exampleServer` combinator to generate a `Server` from `Api`.
 
 ```typescript
-import * as Http from "effect-http";
-
 import { pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
 import * as Schema from "@effect/schema/Schema";
+
+import * as Http from "effect-http";
 
 const responseSchema = Schema.struct({ name: Schema.string });
 
@@ -651,10 +705,10 @@ with `/get-value` endpoint returning a number. We can model such
 API as follows.
 
 ```typescript
-import * as Http from "effect-http";
-
 import { pipe } from "@effect/data/Function";
 import * as Schema from "@effect/schema/Schema";
+
+import * as Http from "effect-http";
 
 const api = pipe(
   Http.api(),
@@ -682,7 +736,7 @@ return number `12` when calling the `getValue` operation.
 const client = pipe(api, Http.mockClient({ responses: { getValue: 12 } }));
 ```
 
-#### Common headers
+### Common headers
 
 On the client side, headers that have the same value for all request calls
 (for example `USER-AGENT`) can be configured during a client creation. Such
@@ -694,11 +748,11 @@ for all requests. Common header will be applied only if the given
 endpoint declares it in its schema.
 
 ```typescript
-import * as Http from "effect-http";
-
 import { pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
 import * as Schema from "@effect/schema/Schema";
+
+import * as Http from "effect-http";
 
 const api = pipe(
   Http.api(),

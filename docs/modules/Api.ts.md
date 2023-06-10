@@ -38,6 +38,7 @@ Added in v1.0.0
   - [Api (type alias)](#api-type-alias)
   - [ApiGroup (type alias)](#apigroup-type-alias)
   - [Endpoint (interface)](#endpoint-interface)
+  - [EndpointOptions (interface)](#endpointoptions-interface)
   - [InputSchemas (type alias)](#inputschemas-type-alias)
   - [RecordOptionalSchema (type alias)](#recordoptionalschema-type-alias)
 
@@ -230,6 +231,19 @@ export interface Endpoint<
     headers: Headers
   }
   groupName: string
+  description?: string
+}
+```
+
+Added in v1.0.0
+
+## EndpointOptions (interface)
+
+**Signature**
+
+```ts
+export interface EndpointOptions {
+  description?: string
 }
 ```
 

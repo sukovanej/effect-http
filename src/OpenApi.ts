@@ -1,5 +1,5 @@
 /**
- * Derivation of `OpenApi` specification from an instance of `Api`.
+ * Derivation of `OpenApi` schema from an instance of `Api`.
  *
  * @since 1.0.0
  */
@@ -21,5 +21,4 @@ export type OpenApiSpecification =
  * @category constructors
  * @since 1.0.0
  */
-export const openApi: <A extends Api>(api: A) => OpenApiSpecification =
-  internal.openApi;
+export const openApi: (api: Api) => OpenApiSpecification = internal.openApi;

@@ -37,6 +37,7 @@ export interface Endpoint<
     headers: Headers;
   };
   groupName: string;
+  description?: string;
 }
 
 /**
@@ -65,6 +66,13 @@ export type ApiGroup<E extends Endpoint[] = Endpoint[]> = {
   endpoints: E;
   groupName: string;
 };
+/**
+ * @category models
+ * @since 1.0.0
+ */
+export interface EndpointOptions {
+  description?: string;
+}
 
 /**
  * @category models
