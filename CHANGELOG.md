@@ -1,5 +1,15 @@
 # effect-http
 
+## 0.11.0
+
+### Minor Changes
+
+- 2e0c01f: Add support for descriptions.
+
+  - Descriptions are generated for schemas with `DescriptionAnnotation`.
+  - Endpoint methods (`Http.get`, `Http.post`, etc) accept an optional 4th argument with
+    description of the operation.
+
 ## 0.10.3
 
 ### Patch Changes
