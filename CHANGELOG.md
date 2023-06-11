@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.12.0
+
+### Minor Changes
+
+- 0a66561: Remove `Any*` type variants.
+
 ## 0.11.1
 
 ### Patch Changes
