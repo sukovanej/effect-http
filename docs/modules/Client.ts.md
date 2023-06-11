@@ -48,7 +48,7 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-export type Client<A extends AnyApi, H> = A extends Api<infer Es>
+export type Client<A extends Api, H> = A extends Api<infer Es>
   ? Schema.Spread<{
       [Id in Es[number]['id']]: ClientFunction<
         Es,

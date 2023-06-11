@@ -44,12 +44,6 @@ export interface Endpoint<
  * @category models
  * @since 1.0.0
  */
-export type AnyApi = Api<Endpoint[]>;
-
-/**
- * @category models
- * @since 1.0.0
- */
 export type Api<E extends Endpoint[] = Endpoint[]> = {
   endpoints: E;
   options: {

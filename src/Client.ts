@@ -8,7 +8,7 @@
 import type * as Effect from "@effect/io/Effect";
 import type * as Schema from "@effect/schema/Schema";
 
-import type { AnyApi, Api, Endpoint } from "effect-http/Api";
+import type { Api, Endpoint } from "effect-http/Api";
 import type { ClientError } from "effect-http/ClientError";
 import type {
   EndpointSchemasToInput,
@@ -66,7 +66,7 @@ type ClientFunction<Es extends Endpoint[], Id, I> = Record<
  * @category models
  * @since 1.0.0
  */
-export type Client<A extends AnyApi, H> = A extends Api<infer Es>
+export type Client<A extends Api, H> = A extends Api<infer Es>
   ? Schema.Spread<{
       [Id in Es[number]["id"]]: ClientFunction<
         Es,
@@ -95,7 +95,7 @@ export type ClientOptions<H extends Record<string, unknown>> = {
  * @category constructors
  * @since 1.0.0
  */
-export const client: <A extends AnyApi, H extends Record<string, unknown>>(
+export const client: <A extends Api, H extends Record<string, unknown>>(
   baseUrl: URL,
   options?: ClientOptions<H>,
 ) => (api: A) => Client<A, H> = internal.client;

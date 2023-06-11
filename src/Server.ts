@@ -7,7 +7,7 @@ import type * as Context from "@effect/data/Context";
 import type * as Effect from "@effect/io/Effect";
 import type * as Schema from "@effect/schema/Schema";
 
-import type { AnyApi, Api, Endpoint } from "effect-http/Api";
+import type { Api, Endpoint } from "effect-http/Api";
 import type { ApiError } from "effect-http/ServerError";
 import * as internal from "effect-http/internal/server";
 
@@ -22,12 +22,6 @@ export const ServerId = Symbol("effect-http/Server/Server");
  * @since 1.0.0
  */
 export type ServerId = typeof ServerId;
-
-/**
- * @category models
- * @since 1.0.0
- */
-export type AnyServer = Server<any, Endpoint[]>;
 
 /**
  * @category models
@@ -123,7 +117,7 @@ export type Handler<R = any> = {
  * @since 1.0.0
  */
 export type ProvideService<
-  S extends AnyServer,
+  S extends Server<any>,
   T extends Context.Tag<any, any>,
 > = S extends Server<infer R, infer E>
   ? Server<Exclude<R, Context.Tag.Identifier<T>>, E>
@@ -133,7 +127,7 @@ export type ProvideService<
  * @category models
  * @since 1.0.0
  */
-export type ApiToServer<A extends AnyApi> = A extends Api<infer Es>
+export type ApiToServer<A extends Api> = A extends Api<infer Es>
   ? Server<never, Es>
   : never;
 
@@ -154,7 +148,7 @@ export type DropEndpoint<
  * @category models
  * @since 1.0.0
  */
-export type ServerUnimplementedIds<S extends AnyServer> =
+export type ServerUnimplementedIds<S extends Server<any>> =
   S["_unimplementedEndpoints"][number]["id"];
 
 /**
@@ -162,7 +156,7 @@ export type ServerUnimplementedIds<S extends AnyServer> =
  * @since 1.0.0
  */
 export type AddServerHandle<
-  S extends AnyServer,
+  S extends Server<any>,
   Id extends ServerUnimplementedIds<S>,
   R,
 > = S extends Server<infer R0, infer E>
@@ -182,7 +176,7 @@ export type HandlerResponse<S extends Schema.Schema<any, any>> =
  * @category constructors
  * @since 1.0.0
  */
-export const server: <A extends AnyApi>(api: A) => ApiToServer<A> =
+export const server: <A extends Api>(api: A) => ApiToServer<A> =
   internal.server;
 
 /**
@@ -192,7 +186,7 @@ export const server: <A extends AnyApi>(api: A) => ApiToServer<A> =
  * @since 1.0.0
  */
 export const handle: <
-  S extends AnyServer,
+  S extends Server<any>,
   Id extends ServerUnimplementedIds<S>,
   R,
 >(

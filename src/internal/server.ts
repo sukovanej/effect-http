@@ -2,15 +2,15 @@ import { pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
 import * as Schema from "@effect/schema/Schema";
 
-import type { AnyApi, Endpoint } from "effect-http/Api";
+import type { Api, Endpoint } from "effect-http/Api";
 import { ServerId } from "effect-http/Server";
 import type {
   AddServerHandle,
-  AnyServer,
   ApiToServer,
   Handler,
   InputHandlerFn,
   SelectEndpointById,
+  Server,
   ServerUnimplementedIds,
 } from "effect-http/Server";
 import {
@@ -36,7 +36,7 @@ import {
 import { getSchema, getStructSchema } from "effect-http/internal/utils";
 
 /** @internal */
-export const server = <A extends AnyApi>(api: A): ApiToServer<A> =>
+export const server = <A extends Api>(api: A): ApiToServer<A> =>
   ({
     [ServerId]: {
       _R: (_: never) => _,
@@ -214,7 +214,7 @@ const enhanceHandler = (
 
 /** @internal */
 export const handle =
-  <S extends AnyServer, Id extends ServerUnimplementedIds<S>, R>(
+  <S extends Server<any>, Id extends ServerUnimplementedIds<S>, R>(
     id: Id,
     fn: InputHandlerFn<SelectEndpointById<S["_unimplementedEndpoints"], Id>, R>,
   ) =>

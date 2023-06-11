@@ -34,7 +34,6 @@ Added in v1.0.0
   - [put](#put)
   - [trace](#trace)
 - [models](#models)
-  - [AnyApi (type alias)](#anyapi-type-alias)
   - [Api (type alias)](#api-type-alias)
   - [ApiGroup (type alias)](#apigroup-type-alias)
   - [Endpoint (interface)](#endpoint-interface)
@@ -167,16 +166,6 @@ export declare const trace: any
 Added in v1.0.0
 
 # models
-
-## AnyApi (type alias)
-
-**Signature**
-
-```ts
-export type AnyApi = Api<Endpoint[]>
-```
-
-Added in v1.0.0
 
 ## Api (type alias)
 

@@ -3,7 +3,7 @@ import * as Effect from "@effect/io/Effect";
 import type { ParseError } from "@effect/schema/ParseResult";
 import * as Schema from "@effect/schema/Schema";
 
-import type { AnyApi } from "effect-http/Api";
+import type { Api } from "effect-http/Api";
 import type { Client, ClientOptions } from "effect-http/Client";
 import {
   httpClientError,
@@ -105,7 +105,7 @@ export const createInputParser = ({
   params,
   body,
   headers,
-}: AnyApi["endpoints"][number]["schemas"]) => {
+}: Api["endpoints"][number]["schemas"]) => {
   const encodeQuery = Schema.encodeEffect(getStructSchema(query));
   const encodeParams = Schema.encodeEffect(getStructSchema(params));
   const encodeBody = Schema.encodeEffect(getSchema(body));
@@ -133,7 +133,7 @@ export const createInputParser = ({
 };
 
 export const client =
-  <A extends AnyApi, H extends Record<string, unknown>>(
+  <A extends Api, H extends Record<string, unknown>>(
     baseUrl: URL,
     options?: ClientOptions<H>,
   ) =>

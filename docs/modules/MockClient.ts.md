@@ -44,7 +44,7 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-export type MockClientOptions<A extends AnyApi> = {
+export type MockClientOptions<A extends Api> = {
   responses: {
     [Id in A['endpoints'][number]['id']]: Schema.To<Extract<A['endpoints'][number], { id: Id }>['schemas']['response']>
   }
