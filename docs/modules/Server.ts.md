@@ -21,7 +21,6 @@ Added in v1.0.0
   - [server](#server)
 - [models](#models)
   - [AddServerHandle (type alias)](#addserverhandle-type-alias)
-  - [AnyServer (type alias)](#anyserver-type-alias)
   - [ApiToServer (type alias)](#apitoserver-type-alias)
   - [DropEndpoint (type alias)](#dropendpoint-type-alias)
   - [EndpointSchemasToInput (type alias)](#endpointschemastoinput-type-alias)
@@ -91,7 +90,7 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-export type AddServerHandle<S extends AnyServer, Id extends ServerUnimplementedIds<S>, R> = S extends Server<
+export type AddServerHandle<S extends Server<any>, Id extends ServerUnimplementedIds<S>, R> = S extends Server<
   infer R0,
   infer E
 >
@@ -101,22 +100,12 @@ export type AddServerHandle<S extends AnyServer, Id extends ServerUnimplementedI
 
 Added in v1.0.0
 
-## AnyServer (type alias)
-
-**Signature**
-
-```ts
-export type AnyServer = Server<any, Endpoint[]>
-```
-
-Added in v1.0.0
-
 ## ApiToServer (type alias)
 
 **Signature**
 
 ```ts
-export type ApiToServer<A extends AnyApi> = A extends Api<infer Es> ? Server<never, Es> : never
+export type ApiToServer<A extends Api> = A extends Api<infer Es> ? Server<never, Es> : never
 ```
 
 Added in v1.0.0
@@ -230,7 +219,7 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-export type ProvideService<S extends AnyServer, T extends Context.Tag<any, any>> = S extends Server<infer R, infer E>
+export type ProvideService<S extends Server<any>, T extends Context.Tag<any, any>> = S extends Server<infer R, infer E>
   ? Server<Exclude<R, Context.Tag.Identifier<T>>, E>
   : never
 ```
@@ -291,7 +280,7 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-export type ServerUnimplementedIds<S extends AnyServer> = S['_unimplementedEndpoints'][number]['id']
+export type ServerUnimplementedIds<S extends Server<any>> = S['_unimplementedEndpoints'][number]['id']
 ```
 
 Added in v1.0.0

@@ -3,13 +3,13 @@ import * as OpenApi from "schema-openapi";
 import { pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
 
-import type { AnyApi } from "effect-http/Api";
+import type { Api } from "effect-http/Api";
 import type { Client, ClientOptions } from "effect-http/Client";
 import type { MockClientOptions } from "effect-http/MockClient";
 import { createInputParser } from "effect-http/internal/client";
 
 export const mockClient =
-  <A extends AnyApi, H extends Record<string, unknown>>(
+  <A extends Api, H extends Record<string, unknown>>(
     option?: Partial<MockClientOptions<A> & ClientOptions<H>>,
   ) =>
   (api: A): Client<A, H> =>
