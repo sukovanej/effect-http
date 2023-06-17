@@ -30,6 +30,7 @@ export type ServerId = typeof ServerId;
 export type Server<
   R,
   UnimplementedEndpoints extends Endpoint[] = Endpoint[],
+  A extends Api = Api,
 > = {
   readonly [ServerId]: {
     readonly _R: (_: never) => R;
@@ -38,7 +39,7 @@ export type Server<
   _unimplementedEndpoints: UnimplementedEndpoints;
 
   handlers: Handler<R>[];
-  api: Api;
+  api: A;
 };
 
 /** @ignored */
@@ -128,7 +129,7 @@ export type ProvideService<
  * @since 1.0.0
  */
 export type ApiToServer<A extends Api> = A extends Api<infer Es>
-  ? Server<never, Es>
+  ? Server<never, Es, A>
   : never;
 
 /**
@@ -159,8 +160,8 @@ export type AddServerHandle<
   S extends Server<any>,
   Id extends ServerUnimplementedIds<S>,
   R,
-> = S extends Server<infer R0, infer E>
-  ? Server<R0 | R, DropEndpoint<E, Id>>
+> = S extends Server<infer R0, infer E, infer A>
+  ? Server<R0 | R, DropEndpoint<E, Id>, A>
   : never;
 
 /**
@@ -200,7 +201,9 @@ export const handle: <
  * @category combinators
  * @since 1.0.0
  */
-export const exhaustive = <R>(server: Server<R, []>): Server<R, []> => server;
+export const exhaustive = <R, A extends Api>(
+  server: Server<R, [], A>,
+): Server<R, [], A> => server;
 
 /**
  * Type-helper providing type of a handler input given the type of the

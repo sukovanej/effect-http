@@ -18,6 +18,7 @@ breaking changes and the internals and the public API are still evolving and cha
   - [Example](#example)
 - [Headers](#headers)
 - [Logging](#logging)
+- [Testing the server](#testing-the-server)
 - [Error handling](#error-handling)
   - [Reporting errors in handlers](#reporting-errors-in-handlers)
   - [Example API with conflict API error](#example-api-with-conflict-api-error)
@@ -209,6 +210,54 @@ Effect.runPromise(server);
 ```
 
 _(This is a complete standalone code example)_
+
+### Testing the server
+
+While most of your tests should focus on the functionality independent
+of HTTP exposure, it can be beneficial to perform integration or
+contract tests for your endpoints. The `Testing` module offers a
+`Http.testingClient` combinator that generates a testing client from
+the Server. This derived testing client has a similar interface
+to the one derived by `Http.client`, but with the distinction that
+it returns a `Response` object and bypasses the network by
+directly triggering the handlers defined in the Server.
+
+Now, let's write an example test for the following server.
+
+```ts
+const api = pipe(
+  Http.api(),
+  Http.get("hello", "/hello", {
+    response: Schema.string,
+  }),
+);
+
+const server = pipe(
+  api,
+  Http.server,
+  Http.handle("hello", ({ query }) => Effect.succeed(`${query.input + 1}`)),
+);
+```
+
+The test might look as follows.
+
+```ts
+test("test /hello endpoint", async () => {
+  const response = await pipe(
+    Http.testingClient(server),
+    Effect.flatMap((client) => client.hello({ query: { input: 12 } })),
+    Effect.runPromise,
+  );
+
+  expect(await response.json()).toEqual("13");
+});
+```
+
+In comparison to the `Client` we need to run our endpoint handlers
+in place. Therefore, in case your server uses DI services, you need to
+provide them in the test code. This contract is type safe and you'll be
+notified by the type-checker if the `Effect` isn't invoked with all
+the required services.
 
 ### Error handling
 
@@ -594,23 +643,23 @@ _(This is a complete standalone code example)_
 ### Descriptions in OpenApi
 
 The [schema-openapi](https://github.com/sukovanej/schema-openapi) library which is
-used for OpenApi derivation from the `Schema` takes into account 
+used for OpenApi derivation from the `Schema` takes into account
 [description](https://effect-ts.github.io/schema/modules/Schema.ts.html#description)
 annotations and propagates them into the specification.
 
 Some descriptions are provided from the built-in `@effect/schema/Schema` combinators.
-For example, the usage of `Schema.int()` will result in "*a positive number*" 
+For example, the usage of `Schema.int()` will result in "_a positive number_"
 description in the OpenApi schema. One can also add custom description using the
 `Schema.description` combinator.
 
 On top of types descriptions which are included in the `schema` field, effect-http
 also checks top-level schema descriptions and uses them for the parent object which
-uses the schema. In the following example, the "*User*" description for the response
+uses the schema. In the following example, the "_User_" description for the response
 schema is used both as the schema description but also for the response itself. The
 same holds for the `id` query paremeter.
 
 For an operation-level description, call the API endpoint method (`Http.get`,
-`Http.post` etc) with a 4th argument and set the `description` field to the 
+`Http.post` etc) with a 4th argument and set the `description` field to the
 desired description.
 
 ```ts
