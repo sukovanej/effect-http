@@ -49,7 +49,7 @@ Make sure that all the endpoints are implemented
 **Signature**
 
 ```ts
-export declare const exhaustive: <R>(server: Server<R, []>) => Server<R, []>
+export declare const exhaustive: <R, A extends any>(server: Server<R, [], A>) => Server<R, [], A>
 ```
 
 Added in v1.0.0
@@ -61,7 +61,7 @@ Implement handler for the given operation id.
 **Signature**
 
 ```ts
-export declare const handle: <S extends Server<any, any[]>, Id extends ServerUnimplementedIds<S>, R>(
+export declare const handle: <S extends Server<any, any[], any>, Id extends ServerUnimplementedIds<S>, R>(
   id: Id,
   fn: InputHandlerFn<Extract<S['_unimplementedEndpoints'][number], { id: Id }>, R>
 ) => (api: S) => AddServerHandle<S, Id, R>
@@ -92,9 +92,10 @@ Added in v1.0.0
 ```ts
 export type AddServerHandle<S extends Server<any>, Id extends ServerUnimplementedIds<S>, R> = S extends Server<
   infer R0,
-  infer E
+  infer E,
+  infer A
 >
-  ? Server<R0 | R, DropEndpoint<E, Id>>
+  ? Server<R0 | R, DropEndpoint<E, Id>, A>
   : never
 ```
 
@@ -105,7 +106,7 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-export type ApiToServer<A extends Api> = A extends Api<infer Es> ? Server<never, Es> : never
+export type ApiToServer<A extends Api> = A extends Api<infer Es> ? Server<never, Es, A> : never
 ```
 
 Added in v1.0.0
@@ -251,7 +252,7 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-export type Server<R, UnimplementedEndpoints extends Endpoint[] = Endpoint[]> = {
+export type Server<R, UnimplementedEndpoints extends Endpoint[] = Endpoint[], A extends Api = Api> = {
   readonly [ServerId]: {
     readonly _R: (_: never) => R
   }
@@ -259,7 +260,7 @@ export type Server<R, UnimplementedEndpoints extends Endpoint[] = Endpoint[]> = 
   _unimplementedEndpoints: UnimplementedEndpoints
 
   handlers: Handler<R>[]
-  api: Api
+  api: A
 }
 ```
 
