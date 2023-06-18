@@ -872,8 +872,6 @@ import * as Schema from "@effect/schema/Schema";
 
 import * as Http from "effect-http";
 
-import { withPrettyDebugLogger } from "./_utils";
-
 const api = pipe(
   Http.api({ title: "Users API" }),
   Http.get(
