@@ -25,6 +25,8 @@ Added in v1.0.0
 - [models](#models)
   - [Input (type alias)](#input-type-alias)
   - [Server (type alias)](#server-type-alias)
+  - [ServerExtension (type alias)](#serverextension-type-alias)
+  - [ServerExtensionOptions (type alias)](#serverextensionoptions-type-alias)
 - [utils](#utils)
   - [AddServerHandle (type alias)](#addserverhandle-type-alias)
   - [ApiToServer (type alias)](#apitoserver-type-alias)
@@ -88,9 +90,10 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-export declare const addExtension: <R>(
-  extension: Extension<R>
-) => <S extends Server<any, any[], any>>(server: S) => AddServerDependency<S, R>
+export declare const addExtension: <R, S extends Server<any, any[], any>>(
+  extension: Extension<R>,
+  options?: Partial<ServerExtensionOptions<S['api']['endpoints']>> | undefined
+) => (server: S) => AddServerDependency<S, R>
 ```
 
 Added in v1.0.0
@@ -100,9 +103,10 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-export declare const prependExtension: <R>(
-  extension: Extension<R>
-) => <S extends Server<any, any[], any>>(server: S) => AddServerDependency<S, R>
+export declare const prependExtension: <R, S extends Server<any, any[], any>>(
+  extension: Extension<R>,
+  options?: Partial<ServerExtensionOptions<S['api']['endpoints']>> | undefined
+) => (server: S) => AddServerDependency<S, R>
 ```
 
 Added in v1.0.0
@@ -143,8 +147,34 @@ export type Server<R, UnimplementedEndpoints extends Endpoint[] = Endpoint[], A 
   _unimplementedEndpoints: UnimplementedEndpoints
 
   handlers: Handler<R>[]
-  extensions: Extension<R>[]
+  extensions: ServerExtension<R, A['endpoints']>[]
   api: A
+}
+```
+
+Added in v1.0.0
+
+## ServerExtension (type alias)
+
+**Signature**
+
+```ts
+export type ServerExtension<R, Es extends Endpoint[]> = {
+  extension: Extension<R>
+  options: ServerExtensionOptions<Es>
+}
+```
+
+Added in v1.0.0
+
+## ServerExtensionOptions (type alias)
+
+**Signature**
+
+```ts
+export type ServerExtensionOptions<Es extends Endpoint[]> = {
+  skipOperations: Es[number]['id'][]
+  allowOperations: Es[number]['id'][]
 }
 ```
 
@@ -210,7 +240,7 @@ Added in v1.0.0
 
 ```ts
 export type Handler<R = any> = {
-  fn: (request: Request) => Effect.Effect<R, never, Response>
+  fn: (request: Request) => Effect.Effect<R, unknown, Response>
 
   endpoint: Endpoint
 }

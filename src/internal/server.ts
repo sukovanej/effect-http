@@ -3,7 +3,11 @@ import * as Effect from "@effect/io/Effect";
 import * as Schema from "@effect/schema/Schema";
 
 import type { Api, Endpoint } from "effect-http/Api";
-import { accessLogExtension } from "effect-http/Extensions";
+import {
+  Extension,
+  accessLogExtension,
+  errorLogExtension,
+} from "effect-http/Extensions";
 import type {
   AddServerHandle,
   ApiToServer,
@@ -11,32 +15,19 @@ import type {
   InputHandlerFn,
   SelectEndpointById,
   Server,
+  ServerExtension,
+  ServerExtensionOptions,
   ServerUnimplementedIds,
 } from "effect-http/Server";
 import {
-  API_STATUS_CODES,
-  ApiError,
   internalServerError,
   invalidBodyError,
   invalidHeadersError,
   invalidParamsError,
   invalidQueryError,
   invalidResponseError,
-  isConflictError,
-  isInvalidBodyError,
-  isInvalidHeadersError,
-  isInvalidParamsError,
-  isInvalidQueryError,
-  isInvalidResponseError,
 } from "effect-http/ServerError";
-import {
-  formatValidationError,
-  isParseError,
-} from "effect-http/ValidationErrorFormatter";
 import { getSchema, getStructSchema } from "effect-http/internal/utils";
-
-/** @internal */
-const defaultExtensions = [accessLogExtension()];
 
 /** @internal */
 export const server = <A extends Api>(api: A): ApiToServer<A> =>
@@ -47,61 +38,6 @@ export const server = <A extends Api>(api: A): ApiToServer<A> =>
     handlers: [],
     extensions: defaultExtensions,
   } as unknown as ApiToServer<A>);
-
-/** @internal */
-const formatError = (error: unknown) => {
-  const isValidationError =
-    isInvalidQueryError(error) ||
-    isInvalidBodyError(error) ||
-    isInvalidResponseError(error) ||
-    isInvalidParamsError(error) ||
-    isInvalidHeadersError(error) ||
-    isConflictError(error);
-
-  if (isValidationError) {
-    const innerError = error.error;
-
-    if (isParseError(innerError)) {
-      return formatValidationError(innerError);
-    } else if (typeof innerError === "string") {
-      return Effect.succeed(innerError);
-    }
-  }
-
-  if (typeof error === "object" && error !== null && "error" in error) {
-    if (typeof error.error === "string") {
-      return Effect.succeed(error.error);
-    }
-
-    return Effect.succeed(JSON.stringify(error.error));
-  }
-
-  return Effect.succeed(JSON.stringify(error));
-};
-
-/** @internal */
-export const handleApiFailure = (
-  method: string,
-  path: string,
-  error: ApiError,
-) =>
-  pipe(
-    formatError(error),
-    Effect.tap((details) =>
-      pipe(
-        Effect.logWarning(`${method.toUpperCase()} ${path} failed`),
-        Effect.logAnnotate("errorTag", error._tag),
-        Effect.logAnnotate("error", details),
-      ),
-    ),
-    Effect.map((details) => {
-      const body = JSON.stringify({ error: error._tag, details });
-      return new Response(body, {
-        status: API_STATUS_CODES[error._tag],
-        headers: new Headers({ "Content-Type": "application/json" }),
-      });
-    }),
-  );
 
 const createParamsMatcher = (path: string) => {
   // based on https://github.com/kwhitley/itty-router/blob/73148972bf2e205a4969e85672e1c0bfbf249c27/src/itty-router.js
@@ -124,7 +60,7 @@ const enhanceHandler = (
   fn: InputHandlerFn<Endpoint, any>,
   endpoint: Endpoint,
 ): Handler => {
-  const { schemas, method, path } = endpoint;
+  const { schemas, path } = endpoint;
 
   const parseQuery = Schema.parseEffect(getStructSchema(schemas.query));
   const parseParams = Schema.parseEffect(getStructSchema(schemas.params));
@@ -200,7 +136,6 @@ const enhanceHandler = (
           Effect.mapError(invalidResponseError),
         );
       }),
-      Effect.catchAll((error) => handleApiFailure(method, path, error)),
     );
   };
 
@@ -234,3 +169,21 @@ export const handle =
       handlers: [...api.handlers, handler],
     } as unknown as AddServerHandle<S, Id, R>;
   };
+
+/** @internal */
+export const createServerExtention = <R, Es extends Endpoint[]>(
+  extension: Extension<R>,
+  options?: Partial<ServerExtensionOptions<Es>>,
+): ServerExtension<R, Es> => ({
+  extension,
+  options: {
+    skipOperations: options?.skipOperations ?? [],
+    allowOperations: options?.allowOperations ?? [],
+  },
+});
+
+/** @internal */
+const defaultExtensions = [
+  createServerExtention(accessLogExtension()),
+  createServerExtention(errorLogExtension()),
+];

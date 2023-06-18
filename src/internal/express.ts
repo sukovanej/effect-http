@@ -8,26 +8,45 @@ import swaggerUi from "swagger-ui-express";
 
 import * as Either from "@effect/data/Either";
 import { pipe } from "@effect/data/Function";
+import {
+  isError,
+  isFunction,
+  isObject,
+  isString,
+} from "@effect/data/Predicate";
 import * as Effect from "@effect/io/Effect";
 import * as Logger from "@effect/io/Logger";
 import * as Runtime from "@effect/io/Runtime";
 import * as Scope from "@effect/io/Scope";
 
+import type { Endpoint } from "effect-http/Api";
 import type { ExpressOptions, ListenOptions } from "effect-http/Express";
-import {
+import type {
   AfterHandlerExtension,
   BeforeHandlerExtension,
-  Extension,
+  OnErrorExtension,
 } from "effect-http/Extensions";
 import { openApi } from "effect-http/OpenApi";
-import { Handler, Server } from "effect-http/Server";
-import { internalServerError, notFoundError } from "effect-http/ServerError";
-
-import { handleApiFailure } from "./server";
+import type { Handler, Server, ServerExtension } from "effect-http/Server";
+import {
+  API_STATUS_CODES,
+  internalServerError,
+  isConflictError,
+  isInvalidBodyError,
+  isInvalidHeadersError,
+  isInvalidParamsError,
+  isInvalidQueryError,
+  isInvalidResponseError,
+  notFoundError,
+} from "effect-http/ServerError";
+import {
+  formatValidationError,
+  isParseError,
+} from "effect-http/ValidationErrorFormatter";
 
 /** @internal */
 const errorToLog = (error: unknown): string => {
-  if (error instanceof Error) {
+  if (isError(error)) {
     return error.stack || error.message;
   }
 
@@ -38,40 +57,98 @@ const errorToLog = (error: unknown): string => {
   return JSON.stringify(error, undefined);
 };
 
+/** @internal */
+const formatError = (error: unknown) => {
+  const isValidationError =
+    isInvalidQueryError(error) ||
+    isInvalidBodyError(error) ||
+    isInvalidResponseError(error) ||
+    isInvalidParamsError(error) ||
+    isInvalidHeadersError(error) ||
+    isConflictError(error);
+
+  if (isValidationError) {
+    const innerError = error.error;
+
+    if (isParseError(innerError)) {
+      return formatValidationError(innerError);
+    } else if (isString(innerError)) {
+      return Effect.succeed(innerError);
+    }
+  }
+
+  if (isObject(error) && "error" in error) {
+    if (isString(error.error)) {
+      return Effect.succeed(error.error);
+    }
+
+    return Effect.succeed(JSON.stringify(error.error));
+  }
+
+  return Effect.succeed(JSON.stringify(error));
+};
+
+/** @internal */
+export const convertErrorToResponse = (error: unknown) =>
+  Effect.map(formatError(error), (details) => {
+    const tag =
+      isObject(error) && "_tag" in error && isString(error._tag)
+        ? error._tag
+        : "UnexpectedServerError";
+    const body = JSON.stringify({ error: tag, details });
+
+    return new Response(body, {
+      status: Object.keys(API_STATUS_CODES).includes(tag)
+        ? API_STATUS_CODES[tag as keyof typeof API_STATUS_CODES]
+        : 500,
+      headers: new Headers({ "Content-Type": "application/json" }),
+    });
+  });
+
 export const runHandlerFnWithExtensions = (
-  extensions: Extension<any>[],
+  allExtensions: ServerExtension<any, Endpoint[]>[],
   { fn, endpoint }: Handler,
 ) => {
-  const beforeHandlers = extensions.filter(
+  const extensions = allExtensions
+    .filter(
+      ({ options }) =>
+        options.allowOperations.includes(endpoint.id) ||
+        !options.skipOperations.includes(endpoint.id),
+    )
+    .map(({ extension }) => extension);
+
+  const beforeExtensions = extensions.filter(
     (h): h is BeforeHandlerExtension<any> =>
       h._tag === "BeforeHandlerExtension",
   );
-  const afterHandlers = extensions.filter(
+  const afterExtensions = extensions.filter(
     (h): h is AfterHandlerExtension<any> => h._tag === "AfterHandlerExtension",
+  );
+  const onErrorExtensions = extensions.filter(
+    (h): h is OnErrorExtension<any> => h._tag === "OnErrorExtension",
   );
 
   return (request: Request) =>
     pipe(
-      Effect.allDiscard(beforeHandlers.map(({ fn }) => fn(request))),
+      Effect.allDiscard(beforeExtensions.map(({ fn }) => fn(request))),
       Effect.either,
       Effect.flatMap(
         Either.match(
-          (error) => handleApiFailure(endpoint.method, endpoint.path, error),
+          (error) => convertErrorToResponse(error),
           () =>
-            Effect.flatMap(fn(request), (response) =>
-              pipe(
+            pipe(
+              fn(request),
+              Effect.tapError((error) =>
                 Effect.allDiscard(
-                  afterHandlers.map(({ fn }) => fn(request, response)),
-                ),
-                Effect.either,
-                Effect.flatMap(
-                  Either.match(
-                    (error) =>
-                      handleApiFailure(endpoint.method, endpoint.path, error),
-                    () => Effect.succeed(response),
-                  ),
+                  onErrorExtensions.map(({ fn }) => fn(request, error)),
                 ),
               ),
+              Effect.tap((response) =>
+                Effect.allDiscard(
+                  afterExtensions.map(({ fn }) => fn(request, response)),
+                ),
+              ),
+              Effect.catchAll((error) => convertErrorToResponse(error)),
             ),
         ),
       ),
@@ -80,7 +157,7 @@ export const runHandlerFnWithExtensions = (
 
 /** @internal */
 const toEndpoint = (
-  extensions: Extension<any>[],
+  extensions: ServerExtension<any, Endpoint[]>[],
   handler: Handler,
   runtime: Runtime.Runtime<any>,
 ) => {
@@ -129,7 +206,7 @@ const toEndpoint = (
               response.body instanceof Readable
                 ? response.body
                 : response.body instanceof ReadableStream &&
-                  typeof Readable.fromWeb === "function"
+                  isFunction(Readable.fromWeb)
                 ? Readable.fromWeb(response.body as any)
                 : response.body
                 ? Readable.from(response.body as any)
@@ -196,7 +273,9 @@ export const toExpress =
       }),
       Effect.tap(() => {
         if (server.extensions.length > 0) {
-          const extensions = server.extensions.map(({ id }) => id).join(", ");
+          const extensions = server.extensions
+            .map(({ extension }) => extension.id)
+            .join(", ");
           return Effect.logDebug(
             `Server loaded with extensions: ${extensions}`,
           );
@@ -230,7 +309,7 @@ const DEFAULT_LOGGERS = {
 
 /** @internal */
 const getLoggerFromOptions = (logger: ExpressOptions["logger"]) => {
-  if (typeof logger === "string") {
+  if (isString(logger)) {
     return DEFAULT_LOGGERS[logger];
   }
 
@@ -269,7 +348,7 @@ export const listenExpress =
 
             if (address === null) {
               cb(Effect.fail(new Error("Could not obtain an address")));
-            } else if (typeof address === "string") {
+            } else if (isString(address)) {
               cb(
                 Effect.fail(
                   new Error(`Unexpected obtained address: ${address}`),
