@@ -31,17 +31,18 @@ type MakeHeadersOptionIfAllPartial<I> = I extends { headers: any }
  * @category models
  * @since 1.0.0
  */
-type TestClientFunction<I> = Record<string, never> extends I
-  ? (input?: I) => Effect.Effect<never, unknown, Response>
-  : (input: I) => Effect.Effect<never, unknown, Response>;
+type TestClientFunction<R, I> = Record<string, never> extends I
+  ? (input?: I) => Effect.Effect<R, unknown, Response>
+  : (input: I) => Effect.Effect<R, unknown, Response>;
 
 /**
  * @category models
  * @since 1.0.0
  */
-export type TestingClient<A extends Api> = A extends Api<infer Es>
+export type TestingClient<R, A extends Api> = A extends Api<infer Es>
   ? Schema.Spread<{
       [Id in Es[number]["id"]]: TestClientFunction<
+        R,
         MakeHeadersOptionIfAllPartial<
           EndpointSchemasToInput<SelectEndpointById<Es, Id>["schemas"]>
         >
@@ -66,51 +67,43 @@ export type TestingClient<A extends Api> = A extends Api<infer Es>
  */
 export const testingClient = <R, A extends Api>(
   server: Server<R, [], A>,
-): Effect.Effect<R, never, TestingClient<A>> =>
-  pipe(
-    Effect.runtime<R>(),
-    Effect.map((runtime) =>
-      server.api.endpoints.reduce((client, { id, method, path, schemas }) => {
-        const parseInputs = createInputParser(schemas);
+): TestingClient<R, A> =>
+  server.api.endpoints.reduce((client, { id, method, path, schemas }) => {
+    const parseInputs = createInputParser(schemas);
 
-        const handler = server.handlers.find(
-          ({ endpoint }) => endpoint.id === id,
-        );
+    const handler = server.handlers.find(({ endpoint }) => endpoint.id === id);
 
-        if (handler === undefined) {
-          throw new Error(`Couldn't find server implementation for ${id}`);
-        }
+    if (handler === undefined) {
+      throw new Error(`Couldn't find server implementation for ${id}`);
+    }
 
-        const handleFn = runHandlerFnWithExtensions(server.extensions, handler);
+    const handleFn = runHandlerFnWithExtensions(server.extensions, handler);
 
-        const fn = (_args: any) => {
-          const args = _args || {};
+    const fn = (_args: any) => {
+      const args = _args || {};
 
-          return pipe(
-            parseInputs(args),
-            Effect.tap(() => Effect.logTrace(`${method} ${path}`)),
-            Effect.flatMap(({ body, query, params, headers }) => {
-              const pathStr = Object.entries(params ?? {}).reduce(
-                (path, [key, value]) => path.replace(`:${key}`, value as any),
-                path,
-              );
-
-              const url = new URL(`http://localhost${pathStr}`);
-
-              Object.entries(query ?? {}).forEach(([name, value]) =>
-                url.searchParams.set(name, value as any),
-              );
-
-              const init = { body, headers, method };
-              const request = new Request(url, init);
-
-              return handleFn(request);
-            }),
-            Effect.logAnnotate("clientOperationId", id),
-            Effect.provideContext(runtime.context),
+      return pipe(
+        parseInputs(args),
+        Effect.tap(() => Effect.logTrace(`${method} ${path}`)),
+        Effect.flatMap(({ body, query, params, headers }) => {
+          const pathStr = Object.entries(params ?? {}).reduce(
+            (path, [key, value]) => path.replace(`:${key}`, value as any),
+            path,
           );
-        };
-        return { ...client, [id]: fn };
-      }, {} as TestingClient<A>),
-    ),
-  );
+
+          const url = new URL(`http://localhost${pathStr}`);
+
+          Object.entries(query ?? {}).forEach(([name, value]) =>
+            url.searchParams.set(name, value as any),
+          );
+
+          const init = { body, headers, method };
+          const request = new Request(url, init);
+
+          return handleFn(request);
+        }),
+        Effect.logAnnotate("clientOperationId", id),
+      );
+    };
+    return { ...client, [id]: fn };
+  }, {} as TestingClient<R, A>);

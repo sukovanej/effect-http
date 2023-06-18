@@ -39,7 +39,7 @@ satisfy the conctract in your tests.
 **Signature**
 
 ```ts
-export declare const testingClient: <R, A extends any>(server: any) => Effect.Effect<R, never, TestingClient<A>>
+export declare const testingClient: <R, A extends any>(server: any) => TestingClient<R, A>
 ```
 
 Added in v1.0.0
@@ -51,9 +51,10 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-export type TestingClient<A extends Api> = A extends Api<infer Es>
+export type TestingClient<R, A extends Api> = A extends Api<infer Es>
   ? Schema.Spread<{
       [Id in Es[number]['id']]: TestClientFunction<
+        R,
         MakeHeadersOptionIfAllPartial<EndpointSchemasToInput<SelectEndpointById<Es, Id>['schemas']>>
       >
     }>
