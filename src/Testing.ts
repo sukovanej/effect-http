@@ -15,6 +15,8 @@ import type {
 } from "effect-http/Server";
 import { createInputParser } from "effect-http/internal/client";
 
+import { runHandlerFnWithExtensions } from "./internal/express";
+
 /** @ignore */
 type MakeHeadersOptionIfAllPartial<I> = I extends { headers: any }
   ? Schema.Spread<
@@ -79,6 +81,8 @@ export const testingClient = <R, A extends Api>(
           throw new Error(`Couldn't find server implementation for ${id}`);
         }
 
+        const handleFn = runHandlerFnWithExtensions(server.extensions, handler);
+
         const fn = (_args: any) => {
           const args = _args || {};
 
@@ -100,7 +104,7 @@ export const testingClient = <R, A extends Api>(
               const init = { body, headers, method };
               const request = new Request(url, init);
 
-              return handler.fn(request);
+              return handleFn(request);
             }),
             Effect.logAnnotate("clientOperationId", id),
             Effect.provideContext(runtime.context),

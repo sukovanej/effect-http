@@ -1,6 +1,6 @@
 ---
 title: Server.ts
-nav_order: 9
+nav_order: 10
 parent: Modules
 ---
 
@@ -19,7 +19,11 @@ Added in v1.0.0
   - [handle](#handle)
 - [constructors](#constructors)
   - [server](#server)
+- [extensions](#extensions)
+  - [addExtension](#addextension)
+  - [prependExtension](#prependextension)
 - [models](#models)
+  - [AddServerDependency (type alias)](#addserverdependency-type-alias)
   - [AddServerHandle (type alias)](#addserverhandle-type-alias)
   - [ApiToServer (type alias)](#apitoserver-type-alias)
   - [DropEndpoint (type alias)](#dropendpoint-type-alias)
@@ -83,7 +87,45 @@ export declare const server: <A extends any>(api: A) => ApiToServer<A>
 
 Added in v1.0.0
 
+# extensions
+
+## addExtension
+
+**Signature**
+
+```ts
+export declare const addExtension: <R>(
+  extension: Extension<R>
+) => <S extends Server<any, any[], any>>(server: S) => AddServerDependency<S, R>
+```
+
+Added in v1.0.0
+
+## prependExtension
+
+**Signature**
+
+```ts
+export declare const prependExtension: <R>(
+  extension: Extension<R>
+) => <S extends Server<any, any[], any>>(server: S) => AddServerDependency<S, R>
+```
+
+Added in v1.0.0
+
 # models
+
+## AddServerDependency (type alias)
+
+**Signature**
+
+```ts
+export type AddServerDependency<S extends Server<any>, R> = S extends Server<infer R0, infer E, infer A>
+  ? Server<R0 | R, E, A>
+  : never
+```
+
+Added in v1.0.0
 
 ## AddServerHandle (type alias)
 
@@ -260,6 +302,7 @@ export type Server<R, UnimplementedEndpoints extends Endpoint[] = Endpoint[], A 
   _unimplementedEndpoints: UnimplementedEndpoints
 
   handlers: Handler<R>[]
+  extensions: Extension<R>[]
   api: A
 }
 ```

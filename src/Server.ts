@@ -11,6 +11,8 @@ import type { Api, Endpoint } from "effect-http/Api";
 import type { ApiError } from "effect-http/ServerError";
 import * as internal from "effect-http/internal/server";
 
+import type { Extension } from "./Extensions";
+
 /**
  * @category symbols
  * @since 1.0.0
@@ -39,6 +41,7 @@ export type Server<
   _unimplementedEndpoints: UnimplementedEndpoints;
 
   handlers: Handler<R>[];
+  extensions: Extension<R>[];
   api: A;
 };
 
@@ -156,6 +159,18 @@ export type ServerUnimplementedIds<S extends Server<any>> =
  * @category models
  * @since 1.0.0
  */
+export type AddServerDependency<S extends Server<any>, R> = S extends Server<
+  infer R0,
+  infer E,
+  infer A
+>
+  ? Server<R0 | R, E, A>
+  : never;
+
+/**
+ * @category models
+ * @since 1.0.0
+ */
 export type AddServerHandle<
   S extends Server<any>,
   Id extends ServerUnimplementedIds<S>,
@@ -231,3 +246,27 @@ export type Input<
 > = EndpointSchemasToInput<
   Extract<A["endpoints"][number], { id: Id }>["schemas"]
 >;
+
+/**
+ * @category extensions
+ * @since 1.0.0
+ */
+export const prependExtension =
+  <R>(extension: Extension<R>) =>
+  <S extends Server<any>>(server: S): AddServerDependency<S, R> =>
+    ({
+      ...server,
+      extensions: [extension, ...server.extensions],
+    } as unknown as AddServerDependency<S, R>);
+
+/**
+ * @category extensions
+ * @since 1.0.0
+ */
+export const addExtension =
+  <R>(extension: Extension<R>) =>
+  <S extends Server<any>>(server: S): AddServerDependency<S, R> =>
+    ({
+      ...server,
+      extensions: [...server.extensions, extension],
+    } as unknown as AddServerDependency<S, R>);

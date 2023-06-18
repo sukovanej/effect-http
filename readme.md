@@ -31,6 +31,7 @@ breaking changes and the internals and the public API are still evolving and cha
   - [Example server](#example-server)
   - [Mock client](#mock-client)
   - [Common headers](#common-headers)
+- [Extensions](#extensions)
 - [Compatibility](#compatibility)
 
 Install using
@@ -825,6 +826,94 @@ pipe(client.test(), Effect.runPromise);
 ```
 
 _(This is a complete standalone code example)_
+
+## Extensions
+
+> :warning: The extension API is very experimental.
+
+Extensions allow the `Server` to be extended using effects that
+are applied for all requests. The extension API is primarly
+introduced to allow reusable implementations of authentication,
+authorization, access logging, metrics collection, etc.
+If you have a particular functionality that needs to be triggered
+for every request on the server, extensions might be the way to go.
+
+Extensions are somewhat similar to middlewares. They are represented
+as a list of functions with additional metadata and they run
+sequentially during every request handling. The following
+extension types are supported.
+
+- `BeforeHandlerExtension` - runs before every endpoint handler.
+- `AfterHandlerExtension` - runs after every sucessful endpoint handler.
+
+Failure of extension effects is propagated as the endpoint
+error but success results of extensions are ignored. Therefore, extensions
+don't allow modifications of inputs and outputs of endpoints.
+
+There are built-in extensions in the `effect-http` in the `Extensions`
+module.
+
+- `accessLogExtension` (**applied by default**) - access logs for
+  handled requests.
+- `uuidLogAnnotationExtension` - generates a UUID for every request
+  and uses it in log annotations.
+- `endpointCallsMetricExtension` - measures how many times each endpoint
+  was called in a `server.endpoint_calls` counter metrics.
+
+In the following example, `uuid-log-annotation`, `access-log`
+and `endpoint-calls-metric` extensions are used. Collected metrics
+are accesible as raw data through the _/metrics_ endpoint.
+
+```ts
+import { pipe } from "@effect/data/Function";
+import * as Effect from "@effect/io/Effect";
+import * as Metric from "@effect/io/Metric";
+import * as Schema from "@effect/schema/Schema";
+
+import * as Http from "effect-http";
+
+import { withPrettyDebugLogger } from "./_utils";
+
+const api = pipe(
+  Http.api({ title: "Users API" }),
+  Http.get(
+    "getUser",
+    "/user",
+    { response: Schema.string },
+    { description: "Returns a User by id" },
+  ),
+  Http.get("metrics", "/metrics", { response: Schema.any }),
+);
+
+const server = pipe(
+  api,
+  Http.server,
+  Http.handle("getUser", () => Effect.succeed("Hello")),
+  Http.handle("metrics", () => Metric.snapshot()),
+  Http.prependExtension(Http.uuidLogAnnotationExtension()),
+  Http.addExtension(Http.endpointCallsMetricExtension()),
+  Http.exhaustive,
+);
+
+pipe(server, Http.listen({ port: 3000 }), Effect.runPromise);
+```
+
+Extensions are constructed using `Http.afterHandlerExtension` and
+`Http.beforeHandlerExtension`. The example bellow would fail
+every request with the authorization error.
+
+```ts
+const server = pipe(
+  api,
+  Http.server,
+  Http.addExtension(
+    Http.beforeHandlerExtension("example-auth", () =>
+      Effect.fail(Http.unauthorizedError("sorry bro")),
+    ),
+  ),
+  Http.exhaustive,
+);
+```
 
 ## Compatibility
 
