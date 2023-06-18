@@ -16,8 +16,6 @@ Added in v1.0.0
 
 - [constructors](#constructors)
   - [testingClient](#testingclient)
-- [models](#models)
-  - [TestingClient (type alias)](#testingclient-type-alias)
 
 ---
 
@@ -40,25 +38,6 @@ satisfy the conctract in your tests.
 
 ```ts
 export declare const testingClient: <R, A extends any>(server: any) => TestingClient<R, A>
-```
-
-Added in v1.0.0
-
-# models
-
-## TestingClient (type alias)
-
-**Signature**
-
-```ts
-export type TestingClient<R, A extends Api> = A extends Api<infer Es>
-  ? Schema.Spread<{
-      [Id in Es[number]['id']]: TestClientFunction<
-        R,
-        MakeHeadersOptionIfAllPartial<EndpointSchemasToInput<SelectEndpointById<Es, Id>['schemas']>>
-      >
-    }>
-  : never
 ```
 
 Added in v1.0.0

@@ -4,7 +4,6 @@ import * as Schema from "@effect/schema/Schema";
 
 import type { Api, Endpoint } from "effect-http/Api";
 import { accessLogExtension } from "effect-http/Extensions";
-import { ServerId } from "effect-http/Server";
 import type {
   AddServerHandle,
   ApiToServer,
@@ -42,9 +41,6 @@ const defaultExtensions = [accessLogExtension()];
 /** @internal */
 export const server = <A extends Api>(api: A): ApiToServer<A> =>
   ({
-    [ServerId]: {
-      _R: (_: never) => _,
-    },
     _unimplementedEndpoints: api.endpoints,
     api,
 
