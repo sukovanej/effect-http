@@ -244,10 +244,10 @@ The test might look as follows.
 
 ```ts
 test("test /hello endpoint", async () => {
-  const response = await pipe(
-    Http.testingClient(server),
-    Effect.flatMap((client) => client.hello({ query: { input: 12 } })),
-    Effect.runPromise,
+  const testingClient = Http.testingClient(server);
+
+  const response = await Effect.runPromise(
+    client.hello({ query: { input: 12 } }),
   );
 
   expect(await response.json()).toEqual("13");

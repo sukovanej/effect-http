@@ -252,10 +252,10 @@ The test might look as follows.
 
 ```ts
 test("test /hello endpoint", async () => {
-  const response = await pipe(
-    Http.testingClient(server),
-    Effect.flatMap((client) => client.hello({ query: { input: 12 } })),
-    Effect.runPromise,
+  const testingClient = Http.testingClient(server);
+
+  const response = await Effect.runPromise(
+    client.hello({ query: { input: 12 } }),
   );
 
   expect(await response.json()).toEqual("13");
@@ -904,6 +904,23 @@ const server = pipe(
 );
 
 pipe(server, Http.listen({ port: 3000 }), Effect.runPromise);
+```
+
+Extensions are constructed using `Http.afterHandlerExtension` and
+`Http.beforeHandlerExtension`. The example bellow would fail
+every request with the authorization error.
+
+```ts
+const server = pipe(
+  api,
+  Http.server,
+  Http.addExtension(
+    Http.beforeHandlerExtension("example-auth", () =>
+      Effect.fail(Http.unauthorizedError("sorry bro")),
+    ),
+  ),
+  Http.exhaustive,
+);
 ```
 
 ## Compatibility
