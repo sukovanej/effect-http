@@ -863,8 +863,8 @@ module.
 - `endpointCallsMetricExtension` - measures how many times each endpoint
   was called in a `server.endpoint_calls` counter metrics.
 - `basicAuthExtension` - performs authorization using [Basic auth](https://developer.mozilla.org/en-US/docs/Web/HTTP/Authentication#basic_authentication_scheme).
-  It must be provided with a functions that decideds whether to
-  authorize an access for the input username and password. See
+  It must be provided with a function that decides whether to
+  authorize an access for the input username and password or not. See
   [examples/basic-auth.ts](examples/basic-auth.ts).
 
 In the following example, `uuid-log-annotation`, `access-log`
