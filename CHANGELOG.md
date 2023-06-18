@@ -1,5 +1,16 @@
 # effect-http
 
+## 0.14.0
+
+### Minor Changes
+
+- ccd9911: Extensions.
+
+  - added basic auth built-in extension
+  - added `OnErrorExtension` extension type
+  - added `ServerExtensionOptions` which allow white-/black-listing
+    operations for extensions
+
 ## 0.13.1
 
 ### Patch Changes
