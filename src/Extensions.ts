@@ -162,8 +162,7 @@ export const endpointCallsMetricExtension =
   };
 
 /**
- * Measure how many times each endpoint was called in a
- * `server.endpoint_calls` counter metrics.
+ * Logs out a handler failure.
  *
  * @category extensions
  * @since 1.0.0
@@ -173,12 +172,15 @@ export const errorLogExtension = () =>
     const path = new URL(request.url).pathname;
 
     return pipe(
-      Effect.logWarning(`${request.method.toUpperCase()} ${path} failed`),
+      Effect.logError(`${request.method.toUpperCase()} ${path} failed`),
       isObject(error) && "_tag" in error && isString(error._tag)
         ? Effect.logAnnotate("errorTag", error._tag)
         : identity,
       isObject(error) && "details" in error && isString(error.details)
-        ? Effect.logAnnotate("error", error.details)
+        ? Effect.logAnnotate("errorDetails", error.details)
+        : identity,
+      isObject(error) && "error" in error && isString(error.error)
+        ? Effect.logAnnotate("error", error.error)
         : identity,
     );
   });

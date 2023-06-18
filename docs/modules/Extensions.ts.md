@@ -140,8 +140,7 @@ Added in v1.0.0
 
 ## errorLogExtension
 
-Measure how many times each endpoint was called in a
-`server.endpoint_calls` counter metrics.
+Logs out a handler failure.
 
 **Signature**
 
