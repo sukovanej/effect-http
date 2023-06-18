@@ -27,18 +27,12 @@ type MakeHeadersOptionIfAllPartial<I> = I extends { headers: any }
     >
   : I;
 
-/**
- * @category models
- * @since 1.0.0
- */
+/** @ignore */
 type TestClientFunction<R, I> = Record<string, never> extends I
   ? (input?: I) => Effect.Effect<R, unknown, Response>
   : (input: I) => Effect.Effect<R, unknown, Response>;
 
-/**
- * @category models
- * @since 1.0.0
- */
+/** @ignore */
 export type TestingClient<R, A extends Api> = A extends Api<infer Es>
   ? Schema.Spread<{
       [Id in Es[number]["id"]]: TestClientFunction<

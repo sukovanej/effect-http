@@ -3,7 +3,6 @@
  *
  * @since 1.0.0
  */
-import type * as Context from "@effect/data/Context";
 import type * as Effect from "@effect/io/Effect";
 import type * as Schema from "@effect/schema/Schema";
 
@@ -14,18 +13,6 @@ import * as internal from "effect-http/internal/server";
 import type { Extension } from "./Extensions";
 
 /**
- * @category symbols
- * @since 1.0.0
- */
-export const ServerId = Symbol("effect-http/Server/Server");
-
-/**
- * @category models
- * @since 1.0.0
- */
-export type ServerId = typeof ServerId;
-
-/**
  * @category models
  * @since 1.0.0
  */
@@ -34,10 +21,6 @@ export type Server<
   UnimplementedEndpoints extends Endpoint[] = Endpoint[],
   A extends Api = Api,
 > = {
-  readonly [ServerId]: {
-    readonly _R: (_: never) => R;
-  };
-
   _unimplementedEndpoints: UnimplementedEndpoints;
 
   handlers: Handler<R>[];
@@ -45,7 +28,6 @@ export type Server<
   api: A;
 };
 
-/** @ignored */
 type NonIgnoredFields<K extends keyof A, A> = K extends any
   ? A[K] extends
       | Schema.Schema<any, any>
@@ -54,13 +36,8 @@ type NonIgnoredFields<K extends keyof A, A> = K extends any
     : never
   : never;
 
-/**
- * @category models
- * @since 1.0.0
- */
-export type RemoveIgnoredSchemas<E> = Pick<E, NonIgnoredFields<keyof E, E>>;
+type RemoveIgnoredSchemas<E> = Pick<E, NonIgnoredFields<keyof E, E>>;
 
-/** @ignored */
 type SchemaStructTo<A> = {
   [K in keyof A]: K extends "query" | "params" | "headers"
     ? A[K] extends Record<string, Schema.Schema<any>>
@@ -72,7 +49,7 @@ type SchemaStructTo<A> = {
 };
 
 /**
- * @category models
+ * @ignored
  * @since 1.0.0
  */
 export type SelectEndpointById<Es extends Endpoint[], Id> = Extract<
@@ -81,14 +58,14 @@ export type SelectEndpointById<Es extends Endpoint[], Id> = Extract<
 >;
 
 /**
- * @category models
+ * @ignored
  * @since 1.0.0
  */
 export type EndpointSchemasToInput<E extends Endpoint["schemas"]> =
   Schema.Spread<SchemaStructTo<RemoveIgnoredSchemas<Omit<E, "response">>>>;
 
 /**
- * @category models
+ * @ignored
  * @since 1.0.0
  */
 export type InputHandlerFn<E extends Endpoint, R> = (
@@ -96,18 +73,7 @@ export type InputHandlerFn<E extends Endpoint, R> = (
 ) => Effect.Effect<R, ApiError, HandlerResponse<E["schemas"]["response"]>>;
 
 /**
- * @category models
- * @since 1.0.0
- */
-export type HandlerInput<Q, P, H, B> = {
-  query: Q;
-  params: P;
-  headers: H;
-  body: B;
-};
-
-/**
- * @category models
+ * @ignored
  * @since 1.0.0
  */
 export type Handler<R = any> = {
@@ -117,18 +83,7 @@ export type Handler<R = any> = {
 };
 
 /**
- * @category models
- * @since 1.0.0
- */
-export type ProvideService<
-  S extends Server<any>,
-  T extends Context.Tag<any, any>,
-> = S extends Server<infer R, infer E>
-  ? Server<Exclude<R, Context.Tag.Identifier<T>>, E>
-  : never;
-
-/**
- * @category models
+ * @ignored
  * @since 1.0.0
  */
 export type ApiToServer<A extends Api> = A extends Api<infer Es>
@@ -136,7 +91,7 @@ export type ApiToServer<A extends Api> = A extends Api<infer Es>
   : never;
 
 /**
- * @category models
+ * @ignored
  * @since 1.0.0
  */
 export type DropEndpoint<
@@ -149,17 +104,14 @@ export type DropEndpoint<
   : [];
 
 /**
- * @category models
+ * @ignored
  * @since 1.0.0
  */
 export type ServerUnimplementedIds<S extends Server<any>> =
   S["_unimplementedEndpoints"][number]["id"];
 
-/**
- * @category models
- * @since 1.0.0
- */
-export type AddServerDependency<S extends Server<any>, R> = S extends Server<
+/** @ignored */
+type AddServerDependency<S extends Server<any>, R> = S extends Server<
   infer R0,
   infer E,
   infer A
@@ -168,7 +120,7 @@ export type AddServerDependency<S extends Server<any>, R> = S extends Server<
   : never;
 
 /**
- * @category models
+ * @ignored
  * @since 1.0.0
  */
 export type AddServerHandle<
@@ -180,7 +132,7 @@ export type AddServerHandle<
   : never;
 
 /**
- * @category models
+ * @ignored
  * @since 1.0.0
  */
 export type HandlerResponse<S extends Schema.Schema<any, any>> =

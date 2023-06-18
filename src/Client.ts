@@ -39,10 +39,7 @@ type DropCommonHeaders<I, H> = {
     : I[K];
 };
 
-/**
- * @category models
- * @since 1.0.0
- */
+/** @ignore */
 type ClientFunction<Es extends Endpoint[], Id, I> = Record<
   string,
   never

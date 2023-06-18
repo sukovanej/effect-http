@@ -23,24 +23,18 @@ Added in v1.0.0
   - [addExtension](#addextension)
   - [prependExtension](#prependextension)
 - [models](#models)
-  - [AddServerDependency (type alias)](#addserverdependency-type-alias)
+  - [Input (type alias)](#input-type-alias)
+  - [Server (type alias)](#server-type-alias)
+- [utils](#utils)
   - [AddServerHandle (type alias)](#addserverhandle-type-alias)
   - [ApiToServer (type alias)](#apitoserver-type-alias)
   - [DropEndpoint (type alias)](#dropendpoint-type-alias)
   - [EndpointSchemasToInput (type alias)](#endpointschemastoinput-type-alias)
   - [Handler (type alias)](#handler-type-alias)
-  - [HandlerInput (type alias)](#handlerinput-type-alias)
   - [HandlerResponse (type alias)](#handlerresponse-type-alias)
-  - [Input (type alias)](#input-type-alias)
   - [InputHandlerFn (type alias)](#inputhandlerfn-type-alias)
-  - [ProvideService (type alias)](#provideservice-type-alias)
-  - [RemoveIgnoredSchemas (type alias)](#removeignoredschemas-type-alias)
   - [SelectEndpointById (type alias)](#selectendpointbyid-type-alias)
-  - [Server (type alias)](#server-type-alias)
-  - [ServerId (type alias)](#serverid-type-alias)
   - [ServerUnimplementedIds (type alias)](#serverunimplementedids-type-alias)
-- [symbols](#symbols)
-  - [ServerId](#serverid)
 
 ---
 
@@ -115,17 +109,48 @@ Added in v1.0.0
 
 # models
 
-## AddServerDependency (type alias)
+## Input (type alias)
+
+Type-helper providing type of a handler input given the type of the
+Api `A` and operation id `Id`.
+
+```
+const api = pipe(
+  Http.api(),
+  Http.get("getMilan", "/milan", { response: Schema.string, query: Schema.string })
+)
+
+type GetMilanInput = Http.Input<typeof api, "getMilan">
+// -> { query: string }
+```
 
 **Signature**
 
 ```ts
-export type AddServerDependency<S extends Server<any>, R> = S extends Server<infer R0, infer E, infer A>
-  ? Server<R0 | R, E, A>
-  : never
+export type Input<A extends Api, Id extends A['endpoints'][number]['id']> = EndpointSchemasToInput<
+  Extract<A['endpoints'][number], { id: Id }>['schemas']
+>
 ```
 
 Added in v1.0.0
+
+## Server (type alias)
+
+**Signature**
+
+```ts
+export type Server<R, UnimplementedEndpoints extends Endpoint[] = Endpoint[], A extends Api = Api> = {
+  _unimplementedEndpoints: UnimplementedEndpoints
+
+  handlers: Handler<R>[]
+  extensions: Extension<R>[]
+  api: A
+}
+```
+
+Added in v1.0.0
+
+# utils
 
 ## AddServerHandle (type alias)
 
@@ -193,21 +218,6 @@ export type Handler<R = any> = {
 
 Added in v1.0.0
 
-## HandlerInput (type alias)
-
-**Signature**
-
-```ts
-export type HandlerInput<Q, P, H, B> = {
-  query: Q
-  params: P
-  headers: H
-  body: B
-}
-```
-
-Added in v1.0.0
-
 ## HandlerResponse (type alias)
 
 **Signature**
@@ -216,31 +226,6 @@ Added in v1.0.0
 export type HandlerResponse<S extends Schema.Schema<any, any>> = S extends Schema.Schema<any, infer Body>
   ? Response | Body
   : never
-```
-
-Added in v1.0.0
-
-## Input (type alias)
-
-Type-helper providing type of a handler input given the type of the
-Api `A` and operation id `Id`.
-
-```
-const api = pipe(
-  Http.api(),
-  Http.get("getMilan", "/milan", { response: Schema.string, query: Schema.string })
-)
-
-type GetMilanInput = Http.Input<typeof api, "getMilan">
-// -> { query: string }
-```
-
-**Signature**
-
-```ts
-export type Input<A extends Api, Id extends A['endpoints'][number]['id']> = EndpointSchemasToInput<
-  Extract<A['endpoints'][number], { id: Id }>['schemas']
->
 ```
 
 Added in v1.0.0
@@ -257,28 +242,6 @@ export type InputHandlerFn<E extends Endpoint, R> = (
 
 Added in v1.0.0
 
-## ProvideService (type alias)
-
-**Signature**
-
-```ts
-export type ProvideService<S extends Server<any>, T extends Context.Tag<any, any>> = S extends Server<infer R, infer E>
-  ? Server<Exclude<R, Context.Tag.Identifier<T>>, E>
-  : never
-```
-
-Added in v1.0.0
-
-## RemoveIgnoredSchemas (type alias)
-
-**Signature**
-
-```ts
-export type RemoveIgnoredSchemas<E> = Pick<E, NonIgnoredFields<keyof E, E>>
-```
-
-Added in v1.0.0
-
 ## SelectEndpointById (type alias)
 
 **Signature**
@@ -289,54 +252,12 @@ export type SelectEndpointById<Es extends Endpoint[], Id> = Extract<Es[number], 
 
 Added in v1.0.0
 
-## Server (type alias)
-
-**Signature**
-
-```ts
-export type Server<R, UnimplementedEndpoints extends Endpoint[] = Endpoint[], A extends Api = Api> = {
-  readonly [ServerId]: {
-    readonly _R: (_: never) => R
-  }
-
-  _unimplementedEndpoints: UnimplementedEndpoints
-
-  handlers: Handler<R>[]
-  extensions: Extension<R>[]
-  api: A
-}
-```
-
-Added in v1.0.0
-
-## ServerId (type alias)
-
-**Signature**
-
-```ts
-export type ServerId = typeof ServerId
-```
-
-Added in v1.0.0
-
 ## ServerUnimplementedIds (type alias)
 
 **Signature**
 
 ```ts
 export type ServerUnimplementedIds<S extends Server<any>> = S['_unimplementedEndpoints'][number]['id']
-```
-
-Added in v1.0.0
-
-# symbols
-
-## ServerId
-
-**Signature**
-
-```ts
-export declare const ServerId: typeof ServerId
 ```
 
 Added in v1.0.0
