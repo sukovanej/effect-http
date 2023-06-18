@@ -1,7 +1,11 @@
+import * as Log from "effect-log";
 import fs from "fs";
 
 import * as Data from "@effect/data/Data";
+import { pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
+import * as Logger from "@effect/io/Logger";
+import * as LogLevel from "@effect/io/Logger/Level";
 
 export interface FileNotFoundError extends Data.Case {
   readonly _tag: "FileNotFoundError";
@@ -20,4 +24,13 @@ export const readFile = (filename: string) =>
         cb(Effect.succeed(content));
       }
     }),
+  );
+
+export const withPrettyDebugLogger = <R, E, A>(
+  self: Effect.Effect<R, E, A>,
+): Effect.Effect<R, E, A> =>
+  pipe(
+    self,
+    Effect.provideSomeLayer(Logger.replace(Logger.defaultLogger, Log.pretty)),
+    Logger.withMinimumLogLevel(LogLevel.All),
   );

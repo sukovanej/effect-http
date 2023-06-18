@@ -3,6 +3,7 @@ import * as Effect from "@effect/io/Effect";
 import * as Schema from "@effect/schema/Schema";
 
 import type { Api, Endpoint } from "effect-http/Api";
+import { accessLogExtension } from "effect-http/Extensions";
 import { ServerId } from "effect-http/Server";
 import type {
   AddServerHandle,
@@ -36,6 +37,9 @@ import {
 import { getSchema, getStructSchema } from "effect-http/internal/utils";
 
 /** @internal */
+const defaultExtensions = [accessLogExtension()];
+
+/** @internal */
 export const server = <A extends Api>(api: A): ApiToServer<A> =>
   ({
     [ServerId]: {
@@ -45,6 +49,7 @@ export const server = <A extends Api>(api: A): ApiToServer<A> =>
     api,
 
     handlers: [],
+    extensions: defaultExtensions,
   } as unknown as ApiToServer<A>);
 
 /** @internal */
@@ -79,11 +84,10 @@ const formatError = (error: unknown) => {
 };
 
 /** @internal */
-const handleApiFailure = (
+export const handleApiFailure = (
   method: string,
   path: string,
   error: ApiError,
-  status: number,
 ) =>
   pipe(
     formatError(error),
@@ -97,7 +101,7 @@ const handleApiFailure = (
     Effect.map((details) => {
       const body = JSON.stringify({ error: error._tag, details });
       return new Response(body, {
-        status,
+        status: API_STATUS_CODES[error._tag],
         headers: new Headers({ "Content-Type": "application/json" }),
       });
     }),
@@ -178,9 +182,6 @@ const enhanceHandler = (
           headers: Effect.mapError(parseHeaders(headers), invalidHeadersError),
         }),
       ),
-      Effect.tap(() =>
-        Effect.logTrace(`${method.toUpperCase()} ${url.pathname}`),
-      ),
       Effect.flatMap(fn),
       Effect.flatMap((response) => {
         const status =
@@ -203,9 +204,7 @@ const enhanceHandler = (
           Effect.mapError(invalidResponseError),
         );
       }),
-      Effect.catchAll((error) =>
-        handleApiFailure(method, path, error, API_STATUS_CODES[error._tag]),
-      ),
+      Effect.catchAll((error) => handleApiFailure(method, path, error)),
     );
   };
 

@@ -2,6 +2,7 @@ import express from "express";
 import { createHash } from "node:crypto";
 
 import * as Context from "@effect/data/Context";
+import * as Either from "@effect/data/Either";
 import { pipe } from "@effect/data/Function";
 import * as Option from "@effect/data/Option";
 import * as Effect from "@effect/io/Effect";
@@ -304,5 +305,43 @@ test("Response containing optional field", async () => {
     ),
     Effect.scoped,
     Effect.runPromise,
+  );
+});
+
+const helloApi = pipe(
+  Http.api(),
+  Http.get("hello", "/hello", {
+    response: Schema.string,
+  }),
+);
+
+test("failing after handler extension", async () => {
+  const server = pipe(
+    helloApi,
+    Http.server,
+    Http.handle("hello", () => Effect.succeed("test")),
+    Http.addExtension(
+      Http.beforeHandlerExtension("test", () =>
+        Effect.fail(Http.unauthorizedError("sorry bro")),
+      ),
+    ),
+    Http.exhaustive,
+  );
+
+  const result = await pipe(
+    testServer(server, helloApi),
+    Effect.flatMap((client) => client.hello({})),
+    Effect.either,
+    Effect.scoped,
+    Effect.runPromise,
+  );
+
+  expect(result).toEqual(
+    Either.left(
+      Http.httpClientError(
+        { error: "UnauthorizedError", details: "sorry bro" },
+        401,
+      ),
+    ),
   );
 });

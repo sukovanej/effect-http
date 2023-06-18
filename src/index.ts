@@ -17,3 +17,4 @@ export * from "effect-http/ExampleServer";
 export * from "effect-http/OpenApi";
 export * from "effect-http/MockClient";
 export * from "effect-http/Testing";
+export * from "effect-http/Extensions";

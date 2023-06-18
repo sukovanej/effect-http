@@ -1,6 +1,6 @@
 ---
 title: Testing.ts
-nav_order: 11
+nav_order: 12
 parent: Modules
 ---
 
@@ -53,7 +53,7 @@ Added in v1.0.0
 ```ts
 export type TestingClient<A extends Api> = A extends Api<infer Es>
   ? Schema.Spread<{
-      [Id in Es[number]['id']]: ClientFunction<
+      [Id in Es[number]['id']]: TestClientFunction<
         MakeHeadersOptionIfAllPartial<EndpointSchemasToInput<SelectEndpointById<Es, Id>['schemas']>>
       >
     }>

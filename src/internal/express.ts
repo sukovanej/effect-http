@@ -6,6 +6,7 @@ import type { AddressInfo } from "net";
 import { Readable } from "stream";
 import swaggerUi from "swagger-ui-express";
 
+import * as Either from "@effect/data/Either";
 import { pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
 import * as Logger from "@effect/io/Logger";
@@ -13,9 +14,16 @@ import * as Runtime from "@effect/io/Runtime";
 import * as Scope from "@effect/io/Scope";
 
 import type { ExpressOptions, ListenOptions } from "effect-http/Express";
+import {
+  AfterHandlerExtension,
+  BeforeHandlerExtension,
+  Extension,
+} from "effect-http/Extensions";
 import { openApi } from "effect-http/OpenApi";
 import { Handler, Server } from "effect-http/Server";
 import { internalServerError, notFoundError } from "effect-http/ServerError";
+
+import { handleApiFailure } from "./server";
 
 /** @internal */
 const errorToLog = (error: unknown): string => {
@@ -30,8 +38,53 @@ const errorToLog = (error: unknown): string => {
   return JSON.stringify(error, undefined);
 };
 
+export const runHandlerFnWithExtensions = (
+  extensions: Extension<any>[],
+  { fn, endpoint }: Handler,
+) => {
+  const beforeHandlers = extensions.filter(
+    (h): h is BeforeHandlerExtension<any> =>
+      h._tag === "BeforeHandlerExtension",
+  );
+  const afterHandlers = extensions.filter(
+    (h): h is AfterHandlerExtension<any> => h._tag === "AfterHandlerExtension",
+  );
+
+  return (request: Request) =>
+    pipe(
+      Effect.allDiscard(beforeHandlers.map(({ fn }) => fn(request))),
+      Effect.either,
+      Effect.flatMap(
+        Either.match(
+          (error) => handleApiFailure(endpoint.method, endpoint.path, error),
+          () =>
+            Effect.flatMap(fn(request), (response) =>
+              pipe(
+                Effect.allDiscard(
+                  afterHandlers.map(({ fn }) => fn(request, response)),
+                ),
+                Effect.either,
+                Effect.flatMap(
+                  Either.match(
+                    (error) =>
+                      handleApiFailure(endpoint.method, endpoint.path, error),
+                    () => Effect.succeed(response),
+                  ),
+                ),
+              ),
+            ),
+        ),
+      ),
+    );
+};
+
 /** @internal */
-const toEndpoint = ({ fn }: Handler, runtime: Runtime.Runtime<any>) => {
+const toEndpoint = (
+  extensions: Extension<any>[],
+  handler: Handler,
+  runtime: Runtime.Runtime<any>,
+) => {
+  const hanleFn = runHandlerFnWithExtensions(extensions, handler);
   return (req: express.Request, res: express.Response) => {
     const url = new URL(req.url, `http://${req.headers.host}`);
     Object.entries(req.query).forEach(([name, value]) =>
@@ -64,7 +117,7 @@ const toEndpoint = ({ fn }: Handler, runtime: Runtime.Runtime<any>) => {
     });
 
     return pipe(
-      fn(request),
+      hanleFn(request),
       Effect.flatMap((response) =>
         pipe(
           Effect.tryPromise(async () => {
@@ -121,7 +174,7 @@ export const toExpress =
         for (const handler of server.handlers) {
           const method = handler.endpoint.method;
           const path = handler.endpoint.path;
-          const endpoint = toEndpoint(handler, runtime);
+          const endpoint = toEndpoint(server.extensions, handler, runtime);
           const router = express.Router()[method](path, endpoint);
           app.use(router);
         }
@@ -140,6 +193,16 @@ export const toExpress =
         );
 
         return app;
+      }),
+      Effect.tap(() => {
+        if (server.extensions.length > 0) {
+          const extensions = server.extensions.map(({ id }) => id).join(", ");
+          return Effect.logDebug(
+            `Server loaded with extensions: ${extensions}`,
+          );
+        } else {
+          return Effect.logDebug(`Server loaded without extensions`);
+        }
       }),
       Effect.provideSomeLayer(
         Logger.replace(
