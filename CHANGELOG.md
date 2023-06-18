@@ -1,5 +1,12 @@
 # effect-http
 
+## 0.13.0
+
+### Minor Changes
+
+- 5e5ef61: Introduce extensions.
+- d704fe0: Testing module.
+
 ## 0.12.1
 
 ### Patch Changes
