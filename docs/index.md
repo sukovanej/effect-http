@@ -6,8 +6,6 @@ has_children: false
 has_toc: false
 ---
 
-# effect-http
-
 High-level declarative HTTP API for [effect-ts](https://github.com/Effect-TS).
 
 - :star: **Client derivation**. Write the api specification once, get the type-safe client with runtime validation for free.
@@ -848,11 +846,14 @@ for every request on the server, extensions might be the way to go.
 
 Extensions are somewhat similar to middlewares. They are represented
 as a list of functions with additional metadata and they run
-sequentially during every request handling. The following
-extension types are supported.
+sequentially during every request handling. Contrary to middlewares,
+extensions can't arbitrarly interupt the request-response chain, they can
+only end it by failing. Also, extensions can't perform mutations of
+the request object. The following extension types are supported.
 
 - `BeforeHandlerExtension` - runs before every endpoint handler.
 - `AfterHandlerExtension` - runs after every sucessful endpoint handler.
+- `OnErrorExtension` - runs when the handling fails.
 
 Failure of extension effects is propagated as the endpoint
 error but success results of extensions are ignored. Therefore, extensions
@@ -867,6 +868,10 @@ module.
   and uses it in log annotations.
 - `endpointCallsMetricExtension` - measures how many times each endpoint
   was called in a `server.endpoint_calls` counter metrics.
+- `basicAuthExtension` - performs authorization using [Basic auth](https://developer.mozilla.org/en-US/docs/Web/HTTP/Authentication#basic_authentication_scheme).
+  It must be provided with a functions that decideds whether to
+  authorize an access for the input username and password. See
+  [examples/basic-auth.ts](examples/basic-auth.ts).
 
 In the following example, `uuid-log-annotation`, `access-log`
 and `endpoint-calls-metric` extensions are used. Collected metrics

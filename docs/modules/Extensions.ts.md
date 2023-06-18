@@ -14,19 +14,53 @@ Added in v1.0.0
 
 <h2 class="text-delta">Table of contents</h2>
 
+- [basic auth extension](#basic-auth-extension)
+  - [BasicAuthCredentials (type alias)](#basicauthcredentials-type-alias)
+  - [basicAuthExtension](#basicauthextension)
 - [constructors](#constructors)
   - [afterHandlerExtension](#afterhandlerextension)
   - [beforeHandlerExtension](#beforehandlerextension)
+  - [onHandlerErrorExtension](#onhandlererrorextension)
 - [extensions](#extensions)
   - [accessLogExtension](#accesslogextension)
   - [endpointCallsMetricExtension](#endpointcallsmetricextension)
+  - [errorLogExtension](#errorlogextension)
   - [uuidLogAnnotationExtension](#uuidlogannotationextension)
 - [models](#models)
   - [AfterHandlerExtension (type alias)](#afterhandlerextension-type-alias)
   - [BeforeHandlerExtension (type alias)](#beforehandlerextension-type-alias)
   - [Extension (type alias)](#extension-type-alias)
+  - [OnErrorExtension (type alias)](#onerrorextension-type-alias)
 
 ---
+
+# basic auth extension
+
+## BasicAuthCredentials (type alias)
+
+**Signature**
+
+```ts
+export type BasicAuthCredentials = {
+  user: string
+  password: string
+}
+```
+
+Added in v1.0.0
+
+## basicAuthExtension
+
+**Signature**
+
+```ts
+export declare const basicAuthExtension: <R2, _>(
+  checkCredentials: (credentials: BasicAuthCredentials) => Effect.Effect<R2, string, _>,
+  headerName?: string
+) => BeforeHandlerExtension<R2>
+```
+
+Added in v1.0.0
 
 # constructors
 
@@ -60,6 +94,21 @@ export declare const beforeHandlerExtension: <R>(
 
 Added in v1.0.0
 
+## onHandlerErrorExtension
+
+Create an extension which runs an effect when a handler fails.
+
+**Signature**
+
+```ts
+export declare const onHandlerErrorExtension: <R>(
+  id: string,
+  fn: (request: Request, error: unknown) => Effect.Effect<R, unknown, unknown>
+) => OnErrorExtension<R>
+```
+
+Added in v1.0.0
+
 # extensions
 
 ## accessLogExtension
@@ -85,6 +134,19 @@ Measure how many times each endpoint was called in a
 
 ```ts
 export declare const endpointCallsMetricExtension: () => BeforeHandlerExtension<never>
+```
+
+Added in v1.0.0
+
+## errorLogExtension
+
+Measure how many times each endpoint was called in a
+`server.endpoint_calls` counter metrics.
+
+**Signature**
+
+```ts
+export declare const errorLogExtension: () => OnErrorExtension<never>
 ```
 
 Added in v1.0.0
@@ -148,7 +210,23 @@ Effects applied for all requests. Safer variant of middlewares.
 **Signature**
 
 ```ts
-export type Extension<R> = BeforeHandlerExtension<R> | AfterHandlerExtension<R>
+export type Extension<R> = BeforeHandlerExtension<R> | AfterHandlerExtension<R> | OnErrorExtension<R>
+```
+
+Added in v1.0.0
+
+## OnErrorExtension (type alias)
+
+Effect running after handlers.
+
+**Signature**
+
+```ts
+export type OnErrorExtension<R> = {
+  _tag: 'OnErrorExtension'
+  id: string
+  fn: (request: Request, error: unknown) => Effect.Effect<R, unknown, unknown>
+}
 ```
 
 Added in v1.0.0

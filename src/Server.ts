@@ -24,8 +24,26 @@ export type Server<
   _unimplementedEndpoints: UnimplementedEndpoints;
 
   handlers: Handler<R>[];
-  extensions: Extension<R>[];
+  extensions: ServerExtension<R, A["endpoints"]>[];
   api: A;
+};
+
+/**
+ * @category models
+ * @since 1.0.0
+ */
+export type ServerExtension<R, Es extends Endpoint[]> = {
+  extension: Extension<R>;
+  options: ServerExtensionOptions<Es>;
+};
+
+/**
+ * @category models
+ * @since 1.0.0
+ */
+export type ServerExtensionOptions<Es extends Endpoint[]> = {
+  skipOperations: Es[number]["id"][];
+  allowOperations: Es[number]["id"][];
 };
 
 type NonIgnoredFields<K extends keyof A, A> = K extends any
@@ -77,7 +95,7 @@ export type InputHandlerFn<E extends Endpoint, R> = (
  * @since 1.0.0
  */
 export type Handler<R = any> = {
-  fn: (request: Request) => Effect.Effect<R, never, Response>;
+  fn: (request: Request) => Effect.Effect<R, unknown, Response>;
 
   endpoint: Endpoint;
 };
@@ -204,11 +222,17 @@ export type Input<
  * @since 1.0.0
  */
 export const prependExtension =
-  <R>(extension: Extension<R>) =>
-  <S extends Server<any>>(server: S): AddServerDependency<S, R> =>
+  <R, S extends Server<any>>(
+    extension: Extension<R>,
+    options?: Partial<ServerExtensionOptions<S["api"]["endpoints"]>>,
+  ) =>
+  (server: S): AddServerDependency<S, R> =>
     ({
       ...server,
-      extensions: [extension, ...server.extensions],
+      extensions: [
+        internal.createServerExtention(extension, options),
+        ...server.extensions,
+      ],
     } as unknown as AddServerDependency<S, R>);
 
 /**
@@ -216,9 +240,15 @@ export const prependExtension =
  * @since 1.0.0
  */
 export const addExtension =
-  <R>(extension: Extension<R>) =>
-  <S extends Server<any>>(server: S): AddServerDependency<S, R> =>
+  <R, S extends Server<any>>(
+    extension: Extension<R>,
+    options?: Partial<ServerExtensionOptions<S["api"]["endpoints"]>>,
+  ) =>
+  (server: S): AddServerDependency<S, R> =>
     ({
       ...server,
-      extensions: [...server.extensions, extension],
+      extensions: [
+        ...server.extensions,
+        internal.createServerExtention(extension, options),
+      ],
     } as unknown as AddServerDependency<S, R>);

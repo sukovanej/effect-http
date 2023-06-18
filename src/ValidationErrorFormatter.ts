@@ -7,6 +7,7 @@
 import * as Context from "@effect/data/Context";
 import { pipe } from "@effect/data/Function";
 import * as Option from "@effect/data/Option";
+import { isObject } from "@effect/data/Predicate";
 import * as RA from "@effect/data/ReadonlyArray";
 import * as Effect from "@effect/io/Effect";
 import * as Layer from "@effect/io/Layer";
@@ -33,10 +34,7 @@ export const ValidationErrorFormatterService =
  * @since 1.0.0
  */
 export const isParseError = (error: unknown): error is ParseError =>
-  typeof error === "object" &&
-  error !== null &&
-  "_tag" in error &&
-  error._tag === "ParseError";
+  isObject(error) && "_tag" in error && error._tag === "ParseError";
 
 /**
  * @category combinators

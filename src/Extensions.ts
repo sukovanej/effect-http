@@ -5,13 +5,15 @@
  */
 import * as crypto from "crypto";
 
-import { pipe } from "@effect/data/Function";
+import { identity, pipe } from "@effect/data/Function";
 import * as HashMap from "@effect/data/HashMap";
+import * as Option from "@effect/data/Option";
+import { isObject, isString } from "@effect/data/Predicate";
 import * as Effect from "@effect/io/Effect";
 import * as FiberRef from "@effect/io/FiberRef";
 import * as Metric from "@effect/io/Metric";
 
-import type { ApiError } from "./ServerError";
+import { type ApiError, unauthorizedError } from "./ServerError";
 
 /**
  * Effect running before handlers.
@@ -41,12 +43,27 @@ export type AfterHandlerExtension<R> = {
 };
 
 /**
+ * Effect running after handlers.
+ *
+ * @category models
+ * @since 1.0.0
+ */
+export type OnErrorExtension<R> = {
+  _tag: "OnErrorExtension";
+  id: string;
+  fn: (request: Request, error: unknown) => Effect.Effect<R, unknown, unknown>;
+};
+
+/**
  * Effects applied for all requests. Safer variant of middlewares.
  *
  * @category models
  * @since 1.0.0
  */
-export type Extension<R> = BeforeHandlerExtension<R> | AfterHandlerExtension<R>;
+export type Extension<R> =
+  | BeforeHandlerExtension<R>
+  | AfterHandlerExtension<R>
+  | OnErrorExtension<R>;
 
 /**
  * Create an extension which runs an effect before each endpoint handler.
@@ -69,6 +86,17 @@ export const afterHandlerExtension = <R>(
   id: string,
   fn: AfterHandlerExtension<R>["fn"],
 ): AfterHandlerExtension<R> => ({ _tag: "AfterHandlerExtension", id, fn });
+
+/**
+ * Create an extension which runs an effect when a handler fails.
+ *
+ * @category constructors
+ * @since 1.0.0
+ */
+export const onHandlerErrorExtension = <R>(
+  id: string,
+  fn: OnErrorExtension<R>["fn"],
+): OnErrorExtension<R> => ({ _tag: "OnErrorExtension", id, fn });
 
 /**
  * Add access logs for handled requests. The log runs before each request.
@@ -132,3 +160,92 @@ export const endpointCallsMetricExtension =
       );
     });
   };
+
+/**
+ * Measure how many times each endpoint was called in a
+ * `server.endpoint_calls` counter metrics.
+ *
+ * @category extensions
+ * @since 1.0.0
+ */
+export const errorLogExtension = () =>
+  onHandlerErrorExtension("error-log", (request, error) => {
+    const path = new URL(request.url).pathname;
+
+    return pipe(
+      Effect.logWarning(`${request.method.toUpperCase()} ${path} failed`),
+      isObject(error) && "_tag" in error && isString(error._tag)
+        ? Effect.logAnnotate("errorTag", error._tag)
+        : identity,
+      isObject(error) && "details" in error && isString(error.details)
+        ? Effect.logAnnotate("error", error.details)
+        : identity,
+    );
+  });
+
+/**
+ * @category basic auth extension
+ * @since 1.0.0
+ */
+export type BasicAuthCredentials = {
+  user: string;
+  password: string;
+};
+
+/**
+ *
+ *
+ * @category basic auth extension
+ * @since 1.0.0
+ */
+export const basicAuthExtension = <R2, _>(
+  checkCredentials: (
+    credentials: BasicAuthCredentials,
+  ) => Effect.Effect<R2, string, _>,
+  headerName = "Authorization",
+) =>
+  beforeHandlerExtension("basic-auth", (request) =>
+    pipe(
+      Option.fromNullable(request.headers.get(headerName)),
+      Effect.mapError(() => unauthorizedError(`Expected header ${headerName}`)),
+      Effect.flatMap((authHeader) => {
+        const authorizationParts = authHeader.split(" ");
+
+        if (authorizationParts.length !== 2) {
+          return Effect.fail(
+            unauthorizedError(
+              'Incorrect auhorization scheme. Expected "Basic <credentials>"',
+            ),
+          );
+        }
+
+        if (authorizationParts[0] !== "Basic") {
+          return Effect.fail(
+            unauthorizedError(
+              `Incorrect auhorization type. Expected "Basic", got "${authorizationParts[0]}"`,
+            ),
+          );
+        }
+
+        const credentialsBuffer = Buffer.from(authorizationParts[1], "base64");
+        const credentialsText = credentialsBuffer.toString("utf-8");
+        const credentialsParts = credentialsText.split(":");
+
+        if (credentialsParts.length !== 2) {
+          return Effect.fail(
+            unauthorizedError(
+              'Incorrect basic auth credentials format. Expected base64 encoded "<user>:<pass>".',
+            ),
+          );
+        }
+
+        return Effect.succeed({
+          user: credentialsParts[0],
+          password: credentialsParts[1],
+        });
+      }),
+      Effect.flatMap((credentials) =>
+        Effect.mapError(checkCredentials(credentials), unauthorizedError),
+      ),
+    ),
+  );

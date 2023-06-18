@@ -1,4 +1,5 @@
 import { flow, pipe } from "@effect/data/Function";
+import { isString } from "@effect/data/Predicate";
 import * as Effect from "@effect/io/Effect";
 import type { ParseError } from "@effect/schema/ParseResult";
 import * as Schema from "@effect/schema/Schema";
@@ -55,8 +56,7 @@ const makeHttpCall = (
       Effect.tryPromise(async () => {
         const contentType = response.headers.get("Content-Type");
         const isJson =
-          typeof contentType === "string" &&
-          contentType.startsWith("application/json");
+          isString(contentType) && contentType.startsWith("application/json");
 
         if (isJson) {
           return await response.json();
