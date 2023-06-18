@@ -1,5 +1,12 @@
 # effect-http
 
+## 0.13.1
+
+### Patch Changes
+
+- cb022a4: Update dependencies.
+- e281dd5: Remove unnecessary files from the build.
+
 ## 0.13.0
 
 ### Minor Changes
