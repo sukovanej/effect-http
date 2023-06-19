@@ -4,7 +4,7 @@
   "description": "High-level declarative HTTP API for effect-ts",
   "homepage": "https://sukovanej.github.io/effect-http",
   "types": "./dist/index.d.ts",
-  "main": "./dist/index.js",
+  "main": "./dist/index.cjs",
   "exports": {
     ".": {
       "require": "./dist/index.cjs",
@@ -18,7 +18,7 @@
       },
       "require": {
         "types": "./dist/*.d.ts",
-        "default": "./*.cjs"
+        "default": "./dist/*.cjs"
       }
     }
   },
