@@ -3,13 +3,13 @@
  *
  * @since 1.0.0
  */
-import { isObject, isString } from "@effect/data/Predicate";
+import { isRecord, isString } from "@effect/data/Predicate";
 
 /** @internal */
 const checkByTag =
   <T extends { _tag: string }>(tag: T["_tag"]) =>
   (error: unknown): error is T =>
-    isObject(error) && "_tag" in error && error._tag === tag;
+    isRecord(error) && "_tag" in error && error._tag === tag;
 
 const createError = <T extends { _tag: string; error: unknown }>(
   _tag: T["_tag"],
@@ -465,7 +465,7 @@ export const API_ERROR_TAGS = Object.getOwnPropertyNames(API_STATUS_CODES);
  * @since 1.0.0
  */
 export const isApiError = (error: unknown): error is ApiError =>
-  isObject(error) &&
+  isRecord(error) &&
   "error" in error &&
   "_tag" in error &&
   isString(error._tag) &&
