@@ -864,16 +864,13 @@ don't allow modifications of inputs and outputs of endpoints.
 There are built-in extensions in the `effect-http` in the `Extensions`
 module.
 
-- `accessLogExtension` (**applied by default**) - access logs for
-  handled requests.
-- `uuidLogAnnotationExtension` - generates a UUID for every request
-  and uses it in log annotations.
-- `endpointCallsMetricExtension` - measures how many times each endpoint
-  was called in a `server.endpoint_calls` counter metrics.
-- `basicAuthExtension` - performs authorization using [Basic auth](https://developer.mozilla.org/en-US/docs/Web/HTTP/Authentication#basic_authentication_scheme).
-  It must be provided with a function that decides whether to
-  authorize an access for the input username and password or not. See
-  [examples/basic-auth.ts](examples/basic-auth.ts).
+| Extension                      | Description                                                                                   | Applied by default |
+| ------------------------------ | --------------------------------------------------------------------------------------------- | :----------------: |
+| `accessLogExtension`           | access logs for handled requests                                                              | :white_check_mark: |
+| `errorLogExtension`            | failed requests are logged out                                                                | :white_check_mark: |
+| `uuidLogAnnotationExtension`   | generates a UUID for every request and uses it in log annotations                             | :x:                |
+| `endpointCallsMetricExtension` | measures how many times each endpoint was called in a `server.endpoint_calls` counter metrics | :x:                |
+| `basicAuthExtension`           | authentication / authorization using basic auth                                               | :x:                |
 
 In the following example, `uuid-log-annotation`, `access-log`
 and `endpoint-calls-metric` extensions are used. Collected metrics

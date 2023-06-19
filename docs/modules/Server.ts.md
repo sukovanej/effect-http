@@ -91,7 +91,7 @@ Added in v1.0.0
 
 ```ts
 export declare const addExtension: <R, S extends Server<any, any[], any>>(
-  extension: Extension<R>,
+  extension: any,
   options?: Partial<ServerExtensionOptions<S['api']['endpoints']>> | undefined
 ) => (server: S) => AddServerDependency<S, R>
 ```
@@ -104,7 +104,7 @@ Added in v1.0.0
 
 ```ts
 export declare const prependExtension: <R, S extends Server<any, any[], any>>(
-  extension: Extension<R>,
+  extension: any,
   options?: Partial<ServerExtensionOptions<S['api']['endpoints']>> | undefined
 ) => (server: S) => AddServerDependency<S, R>
 ```

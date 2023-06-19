@@ -73,7 +73,7 @@ Create an extension which runs an effect after each successful endpoint handler.
 ```ts
 export declare const afterHandlerExtension: <R>(
   id: string,
-  fn: (request: Request, response: Response) => Effect.Effect<R, ApiError, unknown>
+  fn: (request: Request, response: Response) => Effect.Effect<R, any, unknown>
 ) => AfterHandlerExtension<R>
 ```
 
@@ -88,7 +88,7 @@ Create an extension which runs an effect before each endpoint handler.
 ```ts
 export declare const beforeHandlerExtension: <R>(
   id: string,
-  fn: (request: Request) => Effect.Effect<R, ApiError, unknown>
+  fn: (request: Request) => Effect.Effect<R, any, unknown>
 ) => BeforeHandlerExtension<R>
 ```
 

@@ -119,6 +119,8 @@ Added in v1.0.0
 
 ## badGatewayError
 
+502 Bad Gateway - invalid response from the upstream server
+
 **Signature**
 
 ```ts
@@ -128,6 +130,8 @@ export declare const badGatewayError: (error: unknown) => BadGatewayError
 Added in v1.0.0
 
 ## conflictError
+
+409 Conflict - request conflicts with the current state of the server
 
 **Signature**
 
@@ -139,6 +143,8 @@ Added in v1.0.0
 
 ## forbiddenError
 
+403 Forbidden - authorization failure
+
 **Signature**
 
 ```ts
@@ -148,6 +154,8 @@ export declare const forbiddenError: (error: unknown) => ForbiddenError
 Added in v1.0.0
 
 ## gatewayTimeoutError
+
+504 Service Unavailable - request timeout from the upstream server
 
 **Signature**
 
@@ -159,6 +167,8 @@ Added in v1.0.0
 
 ## internalServerError
 
+500 Internal Server Error - internal server error
+
 **Signature**
 
 ```ts
@@ -168,6 +178,8 @@ export declare const internalServerError: (error: unknown) => InternalServerErro
 Added in v1.0.0
 
 ## invalidBodyError
+
+400 Bad Request - request body validation failed
 
 **Signature**
 
@@ -179,6 +191,8 @@ Added in v1.0.0
 
 ## invalidHeadersError
 
+400 Bad Request - request headers validation failed
+
 **Signature**
 
 ```ts
@@ -188,6 +202,8 @@ export declare const invalidHeadersError: (error: unknown) => InvalidHeadersErro
 Added in v1.0.0
 
 ## invalidParamsError
+
+400 Bad Request - path parameters validation failed
 
 **Signature**
 
@@ -199,6 +215,8 @@ Added in v1.0.0
 
 ## invalidQueryError
 
+400 Bad Request - query parameters validation failed
+
 **Signature**
 
 ```ts
@@ -208,6 +226,8 @@ export declare const invalidQueryError: (error: unknown) => InvalidQueryError
 Added in v1.0.0
 
 ## invalidResponseError
+
+500 Internal Server Error - response validation failed
 
 **Signature**
 
@@ -219,6 +239,8 @@ Added in v1.0.0
 
 ## notFoundError
 
+404 Not Found - cannot find the requested resource
+
 **Signature**
 
 ```ts
@@ -228,6 +250,8 @@ export declare const notFoundError: (error: unknown) => NotFoundError
 Added in v1.0.0
 
 ## notImplementedError
+
+501 Not Implemented - functionality to fulfill the request is not supported
 
 **Signature**
 
@@ -239,6 +263,8 @@ Added in v1.0.0
 
 ## serviceUnavailableError
 
+503 Service Unavailable - server is not ready to handle the request
+
 **Signature**
 
 ```ts
@@ -248,6 +274,8 @@ export declare const serviceUnavailableError: (error: unknown) => ServiceUnavail
 Added in v1.0.0
 
 ## tooManyRequestsError
+
+429 Too Many Requests - the user has sent too many requests in a given amount of time
 
 **Signature**
 
@@ -259,6 +287,8 @@ Added in v1.0.0
 
 ## unauthorizedError
 
+401 Unauthorized - invalid authentication credentials
+
 **Signature**
 
 ```ts
@@ -268,6 +298,8 @@ export declare const unauthorizedError: (error: unknown) => UnauthorizedError
 Added in v1.0.0
 
 ## unsupportedMediaTypeError
+
+415 Unsupported Media Type - unsupported payload format
 
 **Signature**
 
@@ -327,6 +359,8 @@ Added in v1.0.0
 
 ## BadGatewayError (type alias)
 
+502 Bad Gateway - invalid response from the upstream server
+
 **Signature**
 
 ```ts
@@ -339,6 +373,8 @@ export type BadGatewayError = {
 Added in v1.0.0
 
 ## ConflictError (type alias)
+
+409 Conflict - request conflicts with the current state of the server
 
 **Signature**
 
@@ -353,6 +389,8 @@ Added in v1.0.0
 
 ## ForbiddenError (type alias)
 
+403 Forbidden - authorization failure
+
 **Signature**
 
 ```ts
@@ -362,6 +400,8 @@ export type ForbiddenError = { _tag: 'ForbiddenError'; error: unknown }
 Added in v1.0.0
 
 ## GatewayTimeoutError (type alias)
+
+504 Service Unavailable - request timeout from the upstream server
 
 **Signature**
 
@@ -376,6 +416,8 @@ Added in v1.0.0
 
 ## InternalServerError (type alias)
 
+500 Internal Server Error - internal server error
+
 **Signature**
 
 ```ts
@@ -389,6 +431,8 @@ Added in v1.0.0
 
 ## InvalidBodyError (type alias)
 
+400 Bad Request - request body validation failed
+
 **Signature**
 
 ```ts
@@ -398,6 +442,8 @@ export type InvalidBodyError = { _tag: 'InvalidBodyError'; error: unknown }
 Added in v1.0.0
 
 ## InvalidHeadersError (type alias)
+
+400 Bad Request - request headers validation failed
 
 **Signature**
 
@@ -412,6 +458,8 @@ Added in v1.0.0
 
 ## InvalidParamsError (type alias)
 
+400 Bad Request - path parameters validation failed
+
 **Signature**
 
 ```ts
@@ -422,6 +470,8 @@ Added in v1.0.0
 
 ## InvalidQueryError (type alias)
 
+400 Bad Request - query parameters validation failed
+
 **Signature**
 
 ```ts
@@ -431,6 +481,8 @@ export type InvalidQueryError = { _tag: 'InvalidQueryError'; error: unknown }
 Added in v1.0.0
 
 ## InvalidResponseError (type alias)
+
+500 Internal Server Error - response validation failed
 
 **Signature**
 
@@ -445,6 +497,8 @@ Added in v1.0.0
 
 ## NotFoundError (type alias)
 
+404 Not Found - cannot find the requested resource
+
 **Signature**
 
 ```ts
@@ -454,6 +508,8 @@ export type NotFoundError = { _tag: 'NotFoundError'; error: unknown }
 Added in v1.0.0
 
 ## NotImplementedError (type alias)
+
+501 Not Implemented - functionality to fulfill the request is not supported
 
 **Signature**
 
@@ -468,6 +524,8 @@ Added in v1.0.0
 
 ## ServiceUnavailableError (type alias)
 
+503 Service Unavailable - server is not ready to handle the request
+
 **Signature**
 
 ```ts
@@ -480,6 +538,8 @@ export type ServiceUnavailableError = {
 Added in v1.0.0
 
 ## TooManyRequestsError (type alias)
+
+429 Too Many Requests - the user has sent too many requests in a given amount of time
 
 **Signature**
 
@@ -494,6 +554,8 @@ Added in v1.0.0
 
 ## UnauthorizedError (type alias)
 
+401 Unauthorized - invalid authentication credentials
+
 **Signature**
 
 ```ts
@@ -503,6 +565,8 @@ export type UnauthorizedError = { _tag: 'UnauthorizedError'; error: unknown }
 Added in v1.0.0
 
 ## UnsupportedMediaTypeError (type alias)
+
+415 Unsupported Media Type - unsupported payload format
 
 **Signature**
 
