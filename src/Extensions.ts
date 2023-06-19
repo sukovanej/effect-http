@@ -5,15 +5,19 @@
  */
 import * as crypto from "crypto";
 
-import { identity, pipe } from "@effect/data/Function";
+import { flow, identity, pipe } from "@effect/data/Function";
 import * as HashMap from "@effect/data/HashMap";
 import * as Option from "@effect/data/Option";
-import { isObject, isString } from "@effect/data/Predicate";
+import { isString } from "@effect/data/Predicate";
 import * as Effect from "@effect/io/Effect";
 import * as FiberRef from "@effect/io/FiberRef";
 import * as Metric from "@effect/io/Metric";
 
-import { type ApiError, unauthorizedError } from "effect-http/ServerError";
+import {
+  type ApiError,
+  isApiError,
+  unauthorizedError,
+} from "effect-http/ServerError";
 
 /**
  * Effect running before handlers.
@@ -173,14 +177,14 @@ export const errorLogExtension = () =>
 
     return pipe(
       Effect.logError(`${request.method.toUpperCase()} ${path} failed`),
-      isObject(error) && "_tag" in error && isString(error._tag)
-        ? Effect.logAnnotate("errorTag", error._tag)
-        : identity,
-      isObject(error) && "details" in error && isString(error.details)
-        ? Effect.logAnnotate("errorDetails", error.details)
-        : identity,
-      isObject(error) && "error" in error && isString(error.error)
-        ? Effect.logAnnotate("error", error.error)
+      isApiError(error)
+        ? flow(
+            Effect.logAnnotate("errorTag", error._tag),
+            Effect.logAnnotate(
+              "error",
+              isString(error.error) ? error.error : JSON.stringify(error.error),
+            ),
+          )
         : identity,
     );
   });

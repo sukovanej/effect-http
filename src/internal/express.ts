@@ -11,7 +11,7 @@ import { pipe } from "@effect/data/Function";
 import {
   isError,
   isFunction,
-  isObject,
+  isRecord,
   isString,
 } from "@effect/data/Predicate";
 import * as Effect from "@effect/io/Effect";
@@ -31,6 +31,7 @@ import type { Handler, Server, ServerExtension } from "effect-http/Server";
 import {
   API_STATUS_CODES,
   internalServerError,
+  isApiError,
   isConflictError,
   isInvalidBodyError,
   isInvalidHeadersError,
@@ -54,7 +55,7 @@ const errorToLog = (error: unknown): string => {
     return `${error}`;
   }
 
-  return JSON.stringify(error, undefined);
+  return JSON.stringify(error);
 };
 
 /** @internal */
@@ -77,7 +78,7 @@ const formatError = (error: unknown) => {
     }
   }
 
-  if (isObject(error) && "error" in error) {
+  if (isRecord(error) && "error" in error) {
     if (isString(error.error)) {
       return Effect.succeed(error.error);
     }
@@ -91,10 +92,7 @@ const formatError = (error: unknown) => {
 /** @internal */
 export const convertErrorToResponse = (error: unknown) =>
   Effect.map(formatError(error), (details) => {
-    const tag =
-      isObject(error) && "_tag" in error && isString(error._tag)
-        ? error._tag
-        : "UnexpectedServerError";
+    const tag = isApiError(error) ? error._tag : "InternalServerError";
     const body = JSON.stringify({ error: tag, details });
 
     return new Response(body, {
