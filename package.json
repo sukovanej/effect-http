@@ -4,25 +4,24 @@
   "description": "High-level declarative HTTP API for effect-ts",
   "homepage": "https://sukovanej.github.io/effect-http",
   "types": "./dist/index.d.ts",
-  "main": "./dist/index.cjs",
+  "main": "./dist/index.js",
   "exports": {
     ".": {
-      "require": "./dist/index.cjs",
-      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs",
       "types": "./dist/index.d.ts"
     },
     "./*": {
       "import": {
         "types": "./dist/*.d.ts",
-        "default": "./dist/*.js"
+        "default": "./dist/*.mjs"
       },
       "require": {
         "types": "./dist/*.d.ts",
-        "default": "./dist/*.cjs"
+        "default": "./dist/*.js"
       }
     }
   },
-  "type": "module",
   "scripts": {
     "build": "tsup",
     "post-build": "mv dist/*.cjs . && mkdir -p internal && mv dist/internal/*.cjs ./internal/",
