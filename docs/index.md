@@ -911,19 +911,23 @@ const server = pipe(
 pipe(server, Http.listen({ port: 3000 }), Effect.runPromise);
 ```
 
-Extensions are constructed using `Http.afterHandlerExtension` and
-`Http.beforeHandlerExtension`. The example bellow would fail
-every request with the authorization error.
+Extensions can be constructed using the following constructors.
+
+- `Http.afterHandlerExtension`
+- `Http.beforeHandlerExtension`
+- `Http.onHandlerErrorExtension`
+
+The example bellow would fail every request with the authorization error.
 
 ```ts
+const myExtension = Http.beforeHandlerExtension("example-auth", () =>
+  Effect.fail(Http.unauthorizedError("sorry bro")),
+);
+
 const server = pipe(
   api,
   Http.server,
-  Http.addExtension(
-    Http.beforeHandlerExtension("example-auth", () =>
-      Effect.fail(Http.unauthorizedError("sorry bro")),
-    ),
-  ),
+  Http.addExtension(myExtension),
   Http.exhaustive,
 );
 ```
