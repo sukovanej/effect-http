@@ -14,8 +14,7 @@ import type {
   Server,
 } from "effect-http/Server";
 import { createInputParser } from "effect-http/internal/client";
-
-import { runHandlerFnWithExtensions } from "./internal/express";
+import { runHandlerFnWithExtensions } from "effect-http/internal/express";
 
 /** @ignore */
 type MakeHeadersOptionIfAllPartial<I> = I extends { headers: any }

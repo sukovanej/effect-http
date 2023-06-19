@@ -7,10 +7,9 @@ import type * as Effect from "@effect/io/Effect";
 import type * as Schema from "@effect/schema/Schema";
 
 import type { Api, Endpoint } from "effect-http/Api";
+import type { Extension } from "effect-http/Extensions";
 import type { ApiError } from "effect-http/ServerError";
 import * as internal from "effect-http/internal/server";
-
-import type { Extension } from "./Extensions";
 
 /**
  * @category models

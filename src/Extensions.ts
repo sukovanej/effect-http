@@ -13,7 +13,7 @@ import * as Effect from "@effect/io/Effect";
 import * as FiberRef from "@effect/io/FiberRef";
 import * as Metric from "@effect/io/Metric";
 
-import { type ApiError, unauthorizedError } from "./ServerError";
+import { type ApiError, unauthorizedError } from "effect-http/ServerError";
 
 /**
  * Effect running before handlers.
