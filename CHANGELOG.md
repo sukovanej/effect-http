@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.14.2
+
+### Patch Changes
+
+- 392d0cf: Update dependencies.
+
 ## 0.14.1
 
 ### Patch Changes
