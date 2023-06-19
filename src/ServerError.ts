@@ -17,9 +17,9 @@ const createError = <T extends { _tag: string; error: unknown }>(
   return [(error) => ({ _tag, error } as T), checkByTag(_tag)];
 };
 
-// 400 Bad Request - query parameters validation failed
-
 /**
+ * 400 Bad Request - query parameters validation failed
+ *
  * @category models
  * @since 1.0.0
  */
@@ -30,6 +30,8 @@ const [invalidQueryError, isInvalidQueryError] =
 
 export {
   /**
+   * 400 Bad Request - query parameters validation failed
+   *
    * @category constructors
    * @since 1.0.0
    */
@@ -41,9 +43,9 @@ export {
   isInvalidQueryError,
 };
 
-// 400 Bad Request - path parameters validation failed
-
 /**
+ * 400 Bad Request - path parameters validation failed
+ *
  * @category models
  * @since 1.0.0
  */
@@ -54,6 +56,8 @@ const [invalidParamsError, isInvalidParamsError] =
 
 export {
   /**
+   * 400 Bad Request - path parameters validation failed
+   *
    * @category constructors
    * @since 1.0.0
    */
@@ -65,9 +69,9 @@ export {
   isInvalidParamsError,
 };
 
-// 400 Bad Request - request body validation failed
-
 /**
+ * 400 Bad Request - request body validation failed
+ *
  * @category models
  * @since 1.0.0
  */
@@ -78,6 +82,8 @@ const [invalidBodyError, isInvalidBodyError] =
 
 export {
   /**
+   * 400 Bad Request - request body validation failed
+   *
    * @category constructors
    * @since 1.0.0
    */
@@ -89,9 +95,9 @@ export {
   isInvalidBodyError,
 };
 
-// 400 Bad Request - request headers validation failed
-
 /**
+ * 400 Bad Request - request headers validation failed
+ *
  * @category models
  * @since 1.0.0
  */
@@ -105,6 +111,8 @@ const [invalidHeadersError, isInvalidHeadersError] =
 
 export {
   /**
+   * 400 Bad Request - request headers validation failed
+   *
    * @category constructors
    * @since 1.0.0
    */
@@ -116,9 +124,9 @@ export {
   isInvalidHeadersError,
 };
 
-// 401 Unauthorized - invalid authentication credentials
-
 /**
+ * 401 Unauthorized - invalid authentication credentials
+ *
  * @category models
  * @since 1.0.0
  */
@@ -129,6 +137,8 @@ const [unauthorizedError, isUnauthorizedError] =
 
 export {
   /**
+   * 401 Unauthorized - invalid authentication credentials
+   *
    * @category constructors
    * @since 1.0.0
    */
@@ -140,9 +150,9 @@ export {
   isUnauthorizedError,
 };
 
-// 403 Forbidden - authorization failure
-
 /**
+ * 403 Forbidden - authorization failure
+ *
  * @category models
  * @since 1.0.0
  */
@@ -153,6 +163,8 @@ const [forbiddenError, isForbiddenError] =
 
 export {
   /**
+   * 403 Forbidden - authorization failure
+   *
    * @category constructors
    * @since 1.0.0
    */
@@ -164,9 +176,9 @@ export {
   isForbiddenError,
 };
 
-// 404 Not Found - cannot find the requested resource
-
 /**
+ * 404 Not Found - cannot find the requested resource
+ *
  * @category models
  * @since 1.0.0
  */
@@ -177,6 +189,8 @@ const [notFoundError, isNotFoundError] =
 
 export {
   /**
+   * 404 Not Found - cannot find the requested resource
+   *
    * @category constructors
    * @since 1.0.0
    */
@@ -188,9 +202,9 @@ export {
   isNotFoundError,
 };
 
-// 409 Conflict - request conflicts with the current state of the server
-
 /**
+ * 409 Conflict - request conflicts with the current state of the server
+ *
  * @category models
  * @since 1.0.0
  */
@@ -204,6 +218,8 @@ const [conflictError, isConflictError] =
 
 export {
   /**
+   * 409 Conflict - request conflicts with the current state of the server
+   *
    * @category constructors
    * @since 1.0.0
    */
@@ -215,9 +231,9 @@ export {
   isConflictError,
 };
 
-// 415 Unsupported Media Type - unsupported payload format
-
 /**
+ * 415 Unsupported Media Type - unsupported payload format
+ *
  * @category models
  * @since 1.0.0
  */
@@ -231,6 +247,8 @@ const [unsupportedMediaTypeError, isUnsupportedMediaTypeError] =
 
 export {
   /**
+   * 415 Unsupported Media Type - unsupported payload format
+   *
    * @category constructors
    * @since 1.0.0
    */
@@ -242,9 +260,9 @@ export {
   isUnsupportedMediaTypeError,
 };
 
-// 429 Too Many Requests - the user has sent too many requests in a given amount of time
-
 /**
+ * 429 Too Many Requests - the user has sent too many requests in a given amount of time
+ *
  * @category models
  * @since 1.0.0
  */
@@ -258,6 +276,8 @@ const [tooManyRequestsError, isTooManyRequestsError] =
 
 export {
   /**
+   * 429 Too Many Requests - the user has sent too many requests in a given amount of time
+   *
    * @category constructors
    * @since 1.0.0
    */
@@ -269,9 +289,9 @@ export {
   isTooManyRequestsError,
 };
 
-// 500 Internal Server Error - response validation failed
-
 /**
+ * 500 Internal Server Error - response validation failed
+ *
  * @category models
  * @since 1.0.0
  */
@@ -285,6 +305,8 @@ const [invalidResponseError, isInvalidResponseError] =
 
 export {
   /**
+   * 500 Internal Server Error - response validation failed
+   *
    * @category constructors
    * @since 1.0.0
    */
@@ -296,9 +318,9 @@ export {
   isInvalidResponseError,
 };
 
-// 500 Internal Server Error - internal server error
-
 /**
+ * 500 Internal Server Error - internal server error
+ *
  * @category models
  * @since 1.0.0
  */
@@ -312,6 +334,8 @@ const [internalServerError, isInternalServerError] =
 
 export {
   /**
+   * 500 Internal Server Error - internal server error
+   *
    * @category constructors
    * @since 1.0.0
    */
@@ -323,9 +347,9 @@ export {
   isInternalServerError,
 };
 
-// 501 Not Implemented - functionality to fulfill the request is not supported
-
 /**
+ * 501 Not Implemented - functionality to fulfill the request is not supported
+ *
  * @category models
  * @since 1.0.0
  */
@@ -339,6 +363,8 @@ const [notImplementedError, isNotImplementedError] =
 
 export {
   /**
+   * 501 Not Implemented - functionality to fulfill the request is not supported
+   *
    * @category constructors
    * @since 1.0.0
    */
@@ -350,9 +376,9 @@ export {
   isNotImplementedError,
 };
 
-// 502 Bad Gateway - invalid response from the upstream server
-
 /**
+ * 502 Bad Gateway - invalid response from the upstream server
+ *
  * @category models
  * @since 1.0.0
  */
@@ -366,6 +392,8 @@ const [badGatewayError, isBadGatewayError] =
 
 export {
   /**
+   * 502 Bad Gateway - invalid response from the upstream server
+   *
    * @category constructors
    * @since 1.0.0
    */
@@ -377,9 +405,9 @@ export {
   isBadGatewayError,
 };
 
-// 503 Service Unavailable - server is not ready to handle the request
-
 /**
+ * 503 Service Unavailable - server is not ready to handle the request
+ *
  * @category models
  * @since 1.0.0
  */
@@ -393,6 +421,8 @@ const [serviceUnavailableError, isServiceUnavailableError] =
 
 export {
   /**
+   * 503 Service Unavailable - server is not ready to handle the request
+   *
    * @category constructors
    * @since 1.0.0
    */
@@ -404,9 +434,9 @@ export {
   isServiceUnavailableError,
 };
 
-// 504 Service Unavailable - request timeout from the upstream server
-
 /**
+ * 504 Service Unavailable - request timeout from the upstream server
+ *
  * @category models
  * @since 1.0.0
  */
@@ -420,6 +450,8 @@ const [gatewayTimeoutError, isGatewayTimeoutError] =
 
 export {
   /**
+   * 504 Service Unavailable - request timeout from the upstream server
+   *
    * @category constructors
    * @since 1.0.0
    */
