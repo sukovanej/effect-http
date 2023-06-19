@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.14.1
+
+### Patch Changes
+
+- 8237fff: Fix build.
+
 ## 0.14.0
 
 ### Minor Changes
