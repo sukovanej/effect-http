@@ -5,6 +5,7 @@ import type { ParseError } from "@effect/schema/ParseResult";
 import * as Schema from "@effect/schema/Schema";
 
 import type { Api } from "effect-http/Api";
+import { IgnoredSchemaId } from "effect-http/Api";
 import type { Client, ClientOptions } from "effect-http/Client";
 import {
   httpClientError,
@@ -17,7 +18,6 @@ import {
   invalidParamsError,
   invalidQueryError,
 } from "effect-http/ServerError";
-import { IgnoredSchemaId } from "effect-http/internal/api";
 import { getSchema } from "effect-http/internal/utils";
 import { getStructSchema } from "effect-http/internal/utils";
 

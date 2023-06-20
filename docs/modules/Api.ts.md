@@ -38,8 +38,14 @@ Added in v1.0.0
   - [ApiGroup (type alias)](#apigroup-type-alias)
   - [Endpoint (interface)](#endpoint-interface)
   - [EndpointOptions (interface)](#endpointoptions-interface)
+  - [EndpointSetter (type alias)](#endpointsetter-type-alias)
   - [InputSchemas (type alias)](#inputschemas-type-alias)
   - [RecordOptionalSchema (type alias)](#recordoptionalschema-type-alias)
+- [utils](#utils)
+  - [AddEndpoint (type alias)](#addendpoint-type-alias)
+  - [ComputeEndpoint (type alias)](#computeendpoint-type-alias)
+  - [IgnoredSchemaId](#ignoredschemaid)
+  - [IgnoredSchemaId (type alias)](#ignoredschemaid-type-alias)
 
 ---
 
@@ -90,7 +96,7 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-export declare const delete: any
+export declare const delete: EndpointSetter
 ```
 
 Added in v1.0.0
@@ -100,7 +106,7 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-export declare const get: any
+export declare const get: EndpointSetter
 ```
 
 Added in v1.0.0
@@ -110,7 +116,7 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-export declare const head: any
+export declare const head: EndpointSetter
 ```
 
 Added in v1.0.0
@@ -130,7 +136,7 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-export declare const patch: any
+export declare const patch: EndpointSetter
 ```
 
 Added in v1.0.0
@@ -140,7 +146,7 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-export declare const post: any
+export declare const post: EndpointSetter
 ```
 
 Added in v1.0.0
@@ -150,7 +156,7 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-export declare const put: any
+export declare const put: EndpointSetter
 ```
 
 Added in v1.0.0
@@ -160,7 +166,7 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-export declare const trace: any
+export declare const trace: EndpointSetter
 ```
 
 Added in v1.0.0
@@ -238,6 +244,17 @@ export interface EndpointOptions {
 
 Added in v1.0.0
 
+## EndpointSetter (type alias)
+
+**Signature**
+
+```ts
+export type EndpointSetter = <
+  const
+```
+
+Added in v1.0.0
+
 ## InputSchemas (type alias)
 
 **Signature**
@@ -266,6 +283,67 @@ Added in v1.0.0
 
 ```ts
 export type RecordOptionalSchema = Record<string, Schema.Schema<any>> | undefined
+```
+
+Added in v1.0.0
+
+# utils
+
+## AddEndpoint (type alias)
+
+**Signature**
+
+```ts
+export type AddEndpoint<A extends Api | ApiGroup, Id extends string, Schemas extends InputSchemas> = A extends Api<
+  infer E
+>
+  ? Api<[...E, ComputeEndpoint<Id, Schemas>]>
+  : A extends ApiGroup<infer E>
+  ? ApiGroup<[...E, ComputeEndpoint<Id, Schemas>]>
+  : never
+```
+
+Added in v1.0.0
+
+## ComputeEndpoint (type alias)
+
+**Signature**
+
+```ts
+export type ComputeEndpoint<Id extends string, I extends InputSchemas> = Schema.Spread<
+  Endpoint<
+    Id,
+    I['response'] extends Schema.Schema<any, any> ? I['response'] : never,
+    I['query'] extends Record<string, Schema.Schema<any>> ? I['query'] : IgnoredSchemaId,
+    I['params'] extends Record<string, Schema.Schema<any>> ? I['params'] : IgnoredSchemaId,
+    I['body'] extends Schema.Schema<any> ? I['body'] : IgnoredSchemaId,
+    I['headers'] extends Record<string, Schema.Schema<any>>
+      ? {
+          [K in keyof I['headers'] as K extends string ? Lowercase<K> : never]: I['headers'][K]
+        }
+      : IgnoredSchemaId
+  >
+>
+```
+
+Added in v1.0.0
+
+## IgnoredSchemaId
+
+**Signature**
+
+```ts
+export declare const IgnoredSchemaId: typeof IgnoredSchemaId
+```
+
+Added in v1.0.0
+
+## IgnoredSchemaId (type alias)
+
+**Signature**
+
+```ts
+export type IgnoredSchemaId = typeof IgnoredSchemaId
 ```
 
 Added in v1.0.0

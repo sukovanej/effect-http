@@ -6,8 +6,8 @@ import * as AST from "@effect/schema/AST";
 import type * as Schema from "@effect/schema/Schema";
 
 import type { Api } from "effect-http/Api";
+import { IgnoredSchemaId } from "effect-http/Api";
 import type { OpenApiSpecification } from "effect-http/OpenApi";
-import { IgnoredSchemaId } from "effect-http/internal/api";
 
 export const openApi = (api: Api): OpenApiSpecification => {
   return api.endpoints.reduce(
