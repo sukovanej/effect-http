@@ -1,5 +1,7 @@
 # effect-http
 
+![download badge](https://img.shields.io/npm/dm/effect-http.svg)
+
 High-level declarative HTTP API for [effect-ts](https://github.com/Effect-TS).
 
 - :star: **Client derivation**. Write the api specification once, get the type-safe client with runtime validation for free.
