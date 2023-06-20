@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.14.4
+
+### Patch Changes
+
+- 1431d2e: Update dependencies.
+
 ## 0.14.3
 
 ### Patch Changes
