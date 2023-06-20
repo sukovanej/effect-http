@@ -12,7 +12,67 @@ import type * as OpenApi from "schema-openapi";
 
 import type * as Schema from "@effect/schema/Schema";
 
-import * as internal from "effect-http/internal/api";
+import * as HashSet from "@effect/data/HashSet";
+
+/** Headers are case-insensitive, internally we deal with them as lowercase
+ *  because that's how express deal with them.
+ *
+ *  @internal
+ */
+export const normalizeSchemaStruct = (s: Record<string, Schema.Schema<any>>) =>
+  Object.entries(s).reduce(
+    (acc, [key, value]) => ({ ...acc, [key.toLowerCase()]: value }),
+    {},
+  );
+
+/** @internal */
+const fillDefaultSchemas = <I extends InputSchemas>({
+  response,
+  query,
+  params,
+  body,
+  headers,
+}: I): ComputeEndpoint<string, I>["schemas"] =>
+  ({
+    response,
+    query: query ?? IgnoredSchemaId,
+    params: params ?? IgnoredSchemaId,
+    body: body ?? IgnoredSchemaId,
+    headers: (headers && normalizeSchemaStruct(headers)) ?? IgnoredSchemaId,
+  } as ComputeEndpoint<string, I>["schemas"]);
+
+/** @internal */
+export const endpoint =
+  (method: OpenApi.OpenAPISpecMethodName) =>
+  <const Id extends string, const I extends InputSchemas>(
+    id: Id,
+    path: string,
+    schemas: I,
+    options?: EndpointOptions,
+  ) =>
+  <A extends Api | ApiGroup>(api: A): AddEndpoint<A, Id, I> => {
+    if (method === "get" && schemas.body !== undefined) {
+      throw new Error(`Invalid ${id} endpoint. GET request cant have a body.`);
+    }
+
+    if (api.endpoints.find((endpoint) => endpoint.id === id) !== undefined) {
+      throw new Error(`Endpoint with operation id ${id} already exists`);
+    }
+
+    const newEndpoint = {
+      schemas: fillDefaultSchemas(schemas),
+      id,
+      path,
+      method,
+      groupName: "groupName" in api ? api.groupName : "default",
+      ...options,
+    };
+
+    return {
+      ...api,
+      endpoints: [...api.endpoints, newEndpoint],
+    } as unknown as AddEndpoint<A, Id, I>;
+  };
 
 /**
  * @category models
@@ -112,43 +172,111 @@ export const api = (options?: Partial<Api["options"]>): Api<[]> => ({
   endpoints: [],
 });
 
-/**
- * @category methods
+/** 
+ * @ignored 
  * @since 1.0.0
  */
-export const get = internal.endpoint("get");
+export const IgnoredSchemaId = Symbol("effect-http/ignore-schema-id");
+
+/** 
+ * @ignored 
+ * @since 1.0.0
+ */
+export type IgnoredSchemaId = typeof IgnoredSchemaId;
+
+/** 
+ * @ignored 
+ * @since 1.0.0
+ */
+export type ComputeEndpoint<
+  Id extends string,
+  I extends InputSchemas,
+> = Schema.Spread<
+  Endpoint<
+    Id,
+    I["response"] extends Schema.Schema<any, any> ? I["response"] : never,
+    I["query"] extends Record<string, Schema.Schema<any>>
+      ? I["query"]
+      : IgnoredSchemaId,
+    I["params"] extends Record<string, Schema.Schema<any>>
+      ? I["params"]
+      : IgnoredSchemaId,
+    I["body"] extends Schema.Schema<any> ? I["body"] : IgnoredSchemaId,
+    I["headers"] extends Record<string, Schema.Schema<any>>
+      ? {
+          [K in keyof I["headers"] as K extends string
+            ? Lowercase<K>
+            : never]: I["headers"][K];
+        }
+      : IgnoredSchemaId
+  >
+>;
+
+/** 
+ * @ignored 
+ * @since 1.0.0
+ */
+export type AddEndpoint<
+  A extends Api | ApiGroup,
+  Id extends string,
+  Schemas extends InputSchemas,
+> = A extends Api<infer E>
+  ? Api<[...E, ComputeEndpoint<Id, Schemas>]>
+  : A extends ApiGroup<infer E>
+  ? ApiGroup<[...E, ComputeEndpoint<Id, Schemas>]>
+  : never;
+
+/**
+ * @category models
+ * @since 1.0.0
+ */
+export type EndpointSetter = <
+  const Id extends string,
+  const I extends InputSchemas,
+>(
+  id: Id,
+  path: string,
+  schemas: I,
+  options?: EndpointOptions,
+) => <A extends Api | ApiGroup>(api: A) => AddEndpoint<A, Id, I>;
 
 /**
  * @category methods
  * @since 1.0.0
  */
-export const post = internal.endpoint("post");
+export const get: EndpointSetter = endpoint("get");
 
 /**
  * @category methods
  * @since 1.0.0
  */
-export const put = internal.endpoint("put");
+export const post: EndpointSetter = endpoint("post");
 
 /**
  * @category methods
  * @since 1.0.0
  */
-export const head = internal.endpoint("head");
+export const put: EndpointSetter = endpoint("put");
 
 /**
  * @category methods
  * @since 1.0.0
  */
-export const patch = internal.endpoint("patch");
+export const head: EndpointSetter = endpoint("head");
 
 /**
  * @category methods
  * @since 1.0.0
  */
-export const trace = internal.endpoint("trace");
+export const patch: EndpointSetter = endpoint("patch");
 
-const _delete = internal.endpoint("delete");
+/**
+ * @category methods
+ * @since 1.0.0
+ */
+export const trace: EndpointSetter = endpoint("trace");
+
+const _delete: EndpointSetter = endpoint("delete");
 
 export {
   /**
@@ -162,7 +290,7 @@ export {
  * @category methods
  * @since 1.0.0
  */
-export const options = internal.endpoint("options");
+export const options = endpoint("options");
 
 /**
  * Create new API group with a given name
@@ -181,7 +309,22 @@ export const apiGroup = (groupName: string): ApiGroup<[]> => ({
  * @category combinators
  * @since 1.0.0
  */
-export const addGroup: <E2 extends Endpoint[]>(
-  apiGroup: ApiGroup<E2>,
-) => <E1 extends Endpoint[]>(api: Api<E1>) => Api<[...E1, ...E2]> =
-  internal.addGroup;
+export const addGroup =
+  <E2 extends Endpoint[]>(apiGroup: ApiGroup<E2>) =>
+  <E1 extends Endpoint[]>(api: Api<E1>): Api<[...E1, ...E2]> => {
+    const existingIds = HashSet.make(...api.endpoints.map(({ id }) => id));
+    const newIds = HashSet.make(...apiGroup.endpoints.map(({ id }) => id));
+    const duplicates = HashSet.intersection(existingIds, newIds);
+
+    if (HashSet.size(duplicates) > 0) {
+      throw new Error(
+        `Api group introduces already existing operation ids: ${duplicates}`,
+      );
+    }
+
+    return {
+      ...api,
+      endpoints: [...api.endpoints, ...apiGroup.endpoints],
+    };
+  };
+;
