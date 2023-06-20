@@ -30,7 +30,7 @@ Generate OpenApi specification for the Api.
 **Signature**
 
 ```ts
-export declare const openApi: (api: any) => OpenApiSpecification
+export declare const openApi: (api: Api) => OpenApiSpecification
 ```
 
 Added in v1.0.0
