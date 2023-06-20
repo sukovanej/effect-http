@@ -33,7 +33,10 @@ Derive client implementation from the `Api`
 **Signature**
 
 ```ts
-export declare const client: <A extends any, H extends Record<string, unknown>>(
+export declare const client: <
+  A extends Api<Endpoint<string, any, any, any, any, any>[]>,
+  H extends Record<string, unknown>
+>(
   baseUrl: URL,
   options?: ClientOptions<H> | undefined
 ) => (api: A) => Client<A, H>

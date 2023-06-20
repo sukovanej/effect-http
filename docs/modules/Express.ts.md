@@ -37,7 +37,7 @@ Create express app from the `Server`
 ```ts
 export declare const express: <R>(
   options?: Partial<ExpressOptions> | undefined
-) => (server: any) => Effect.Effect<R, unknown, Express>
+) => (server: Server<R, [], Api<Endpoint<string, any, any, any, any, any>[]>>) => Effect.Effect<R, unknown, Express>
 ```
 
 Added in v1.0.0
@@ -58,7 +58,7 @@ export declare const listen: (
         }
       >
     | undefined
-) => <R>(server: any) => Effect.Effect<R, unknown, void>
+) => <R>(server: Server<R, [], Api<Endpoint<string, any, any, any, any, any>[]>>) => Effect.Effect<R, unknown, void>
 ```
 
 Added in v1.0.0

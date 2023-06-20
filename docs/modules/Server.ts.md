@@ -49,7 +49,9 @@ Make sure that all the endpoints are implemented
 **Signature**
 
 ```ts
-export declare const exhaustive: <R, A extends any>(server: Server<R, [], A>) => Server<R, [], A>
+export declare const exhaustive: <R, A extends Api<Endpoint<string, any, any, any, any, any>[]>>(
+  server: Server<R, [], A>
+) => Server<R, [], A>
 ```
 
 Added in v1.0.0
@@ -61,7 +63,11 @@ Implement handler for the given operation id.
 **Signature**
 
 ```ts
-export declare const handle: <S extends Server<any, any[], any>, Id extends ServerUnimplementedIds<S>, R>(
+export declare const handle: <
+  S extends Server<any, Endpoint<string, any, any, any, any, any>[], Api<Endpoint<string, any, any, any, any, any>[]>>,
+  Id extends ServerUnimplementedIds<S>,
+  R
+>(
   id: Id,
   fn: InputHandlerFn<Extract<S['_unimplementedEndpoints'][number], { id: Id }>, R>
 ) => (api: S) => AddServerHandle<S, Id, R>
@@ -78,7 +84,7 @@ Create new unimplemeted `Server` from `Api`.
 **Signature**
 
 ```ts
-export declare const server: <A extends any>(api: A) => ApiToServer<A>
+export declare const server: <A extends Api<Endpoint<string, any, any, any, any, any>[]>>(api: A) => ApiToServer<A>
 ```
 
 Added in v1.0.0
@@ -90,8 +96,11 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-export declare const addExtension: <R, S extends Server<any, any[], any>>(
-  extension: any,
+export declare const addExtension: <
+  R,
+  S extends Server<any, Endpoint<string, any, any, any, any, any>[], Api<Endpoint<string, any, any, any, any, any>[]>>
+>(
+  extension: Extension<R>,
   options?: Partial<ServerExtensionOptions<S['api']['endpoints']>> | undefined
 ) => (server: S) => AddServerDependency<S, R>
 ```
@@ -103,8 +112,11 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-export declare const prependExtension: <R, S extends Server<any, any[], any>>(
-  extension: any,
+export declare const prependExtension: <
+  R,
+  S extends Server<any, Endpoint<string, any, any, any, any, any>[], Api<Endpoint<string, any, any, any, any, any>[]>>
+>(
+  extension: Extension<R>,
   options?: Partial<ServerExtensionOptions<S['api']['endpoints']>> | undefined
 ) => (server: S) => AddServerDependency<S, R>
 ```
