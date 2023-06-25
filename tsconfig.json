@@ -10,6 +10,7 @@
     "skipLibCheck": true,
     "types": ["vitest/globals"],
     "stripInternal": true,
+    "noErrorTruncation": true,
     "paths": {
       "effect-http": [
         "./src/index.ts"

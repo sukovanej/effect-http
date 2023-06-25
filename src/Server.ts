@@ -6,7 +6,12 @@
 import type * as Effect from "@effect/io/Effect";
 import type * as Schema from "@effect/schema/Schema";
 
-import type { Api, Endpoint } from "effect-http/Api";
+import type {
+  Api,
+  Endpoint,
+  ResponseSchema,
+  ResponseSchemaFull,
+} from "effect-http/Api";
 import type { Extension } from "effect-http/Extensions";
 import type { ApiError } from "effect-http/ServerError";
 import * as internal from "effect-http/internal/server";
@@ -45,6 +50,7 @@ export type ServerExtensionOptions<Es extends Endpoint[]> = {
   allowOperations: Es[number]["id"][];
 };
 
+/** @ignore */
 type NonIgnoredFields<K extends keyof A, A> = K extends any
   ? A[K] extends
       | Schema.Schema<any, any>
@@ -53,8 +59,10 @@ type NonIgnoredFields<K extends keyof A, A> = K extends any
     : never
   : never;
 
+/** @ignore */
 type RemoveIgnoredSchemas<E> = Pick<E, NonIgnoredFields<keyof E, E>>;
 
+/** @ignore */
 type SchemaStructTo<A> = {
   [K in keyof A]: K extends "query" | "params" | "headers"
     ? A[K] extends Record<string, Schema.Schema<any>>
@@ -65,52 +73,34 @@ type SchemaStructTo<A> = {
     : never;
 };
 
-/**
- * @ignored
- * @since 1.0.0
- */
+/** @ignore */
 export type SelectEndpointById<Es extends Endpoint[], Id> = Extract<
   Es[number],
   { id: Id }
 >;
 
-/**
- * @ignored
- * @since 1.0.0
- */
+/** @ignore */
 export type EndpointSchemasToInput<E extends Endpoint["schemas"]> =
   Schema.Spread<SchemaStructTo<RemoveIgnoredSchemas<Omit<E, "response">>>>;
 
-/**
- * @ignored
- * @since 1.0.0
- */
+/** @ignore */
 export type InputHandlerFn<E extends Endpoint, R> = (
   input: EndpointSchemasToInput<E["schemas"]>,
 ) => Effect.Effect<R, ApiError, HandlerResponse<E["schemas"]["response"]>>;
 
-/**
- * @ignored
- * @since 1.0.0
- */
+/** @ignore */
 export type Handler<R = any> = {
   fn: (request: Request) => Effect.Effect<R, unknown, Response>;
 
   endpoint: Endpoint;
 };
 
-/**
- * @ignored
- * @since 1.0.0
- */
+/** @ignore */
 export type ApiToServer<A extends Api> = A extends Api<infer Es>
   ? Server<never, Es, A>
   : never;
 
-/**
- * @ignored
- * @since 1.0.0
- */
+/** @ignore */
 export type DropEndpoint<
   Es extends Endpoint[],
   Id extends string,
@@ -120,14 +110,11 @@ export type DropEndpoint<
     : [First, ...(Rest extends Endpoint[] ? DropEndpoint<Rest, Id> : never)]
   : [];
 
-/**
- * @ignored
- * @since 1.0.0
- */
+/** @ignore */
 export type ServerUnimplementedIds<S extends Server<any>> =
   S["_unimplementedEndpoints"][number]["id"];
 
-/** @ignored */
+/** @ignore */
 type AddServerDependency<S extends Server<any>, R> = S extends Server<
   infer R0,
   infer E,
@@ -136,10 +123,7 @@ type AddServerDependency<S extends Server<any>, R> = S extends Server<
   ? Server<R0 | R, E, A>
   : never;
 
-/**
- * @ignored
- * @since 1.0.0
- */
+/** @ignore */
 export type AddServerHandle<
   S extends Server<any>,
   Id extends ServerUnimplementedIds<S>,
@@ -148,12 +132,31 @@ export type AddServerHandle<
   ? Server<R0 | R, DropEndpoint<E, Id>, A>
   : never;
 
-/**
- * @ignored
- * @since 1.0.0
- */
-export type HandlerResponse<S extends Schema.Schema<any, any>> =
-  S extends Schema.Schema<any, infer Body> ? Response | Body : never;
+/** @ignore */
+export type HandlerResponse<S> = S extends Schema.Schema<
+  any,
+  infer Body
+>
+  ? Response | Body
+  : S extends ResponseSchemaFull
+  ? HandlerResponseFull<S>
+  : never;
+
+/** @ignore */
+type HandlerResponseFull<S extends ResponseSchemaFull> = S extends any
+  ? {
+      status: S["status"];
+      content: S["content"] extends Schema.Schema<any, infer A> ? A : never;
+      headers: S["headers"] extends Record<string, Schema.Schema<string, any>>
+        ? { [K in keyof S["headers"]]: Schema.To<S["headers"][K]> }
+        : never;
+    }
+  : never;
+
+/** @ignore */
+type HandlerResponseFullRemoveNever<S extends ResponseSchemaFull> = S extends any
+  ? S
+  : never;
 
 /**
  * Create new unimplemeted `Server` from `Api`.
