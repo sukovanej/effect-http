@@ -8,7 +8,13 @@
 import type * as Effect from "@effect/io/Effect";
 import type * as Schema from "@effect/schema/Schema";
 
-import type { Api, Endpoint } from "effect-http/Api";
+import type {
+  Api,
+  Endpoint,
+  ResponseSchemaFull,
+  SchemasMap,
+  SchemasMapTo,
+} from "effect-http/Api";
 import type { ClientError } from "effect-http/ClientError";
 import type {
   EndpointSchemasToInput,
@@ -27,17 +33,37 @@ type MakeHeadersOptionIfAllPartial<I> = I extends { headers: any }
   : I;
 
 /** @ignore */
-type DropCommonHeaders<I, H> = {
+type DropCommonHeaders<I, CommonHeaders> = {
   [K in keyof I]: K extends "headers"
     ? Schema.Spread<
         {
-          [HK in Extract<keyof H, keyof I[K]>]?: I[K][HK];
+          [HK in Extract<keyof I[K], keyof CommonHeaders>]?: I[K][HK];
         } & {
-          [HK in Exclude<keyof I[K], keyof H>]: I[K][HK];
+          [HK in Exclude<keyof I[K], keyof CommonHeaders>]: I[K][HK];
         }
       >
     : I[K];
 };
+
+type ResponseSchemaFullToInput<R extends ResponseSchemaFull> = R extends any
+  ? {
+      headers: R["headers"] extends SchemasMap<string>
+        ? Schema.Spread<SchemasMapTo<R["headers"]>>
+        : Record<string, string>;
+      content: R["content"] extends Schema.Schema<any, infer A> ? A : unknown;
+      status: R["status"];
+    }
+  : never;
+
+/** @ignore */
+export type ClientFunctionResponse<S extends Endpoint["schemas"]["response"]> =
+  Schema.Spread<
+    S extends Schema.Schema<any, infer A>
+      ? A
+      : S extends readonly ResponseSchemaFull[]
+      ? ResponseSchemaFullToInput<S[number]>
+      : never
+  >;
 
 /** @ignore */
 type ClientFunction<Es extends Endpoint[], Id, I> = Record<
@@ -49,14 +75,14 @@ type ClientFunction<Es extends Endpoint[], Id, I> = Record<
     ) => Effect.Effect<
       never,
       ClientError,
-      Schema.To<SelectEndpointById<Es, Id>["schemas"]["response"]>
+      ClientFunctionResponse<SelectEndpointById<Es, Id>["schemas"]["response"]>
     >
   : (
       input: I,
     ) => Effect.Effect<
       never,
       ClientError,
-      Schema.To<SelectEndpointById<Es, Id>["schemas"]["response"]>
+      ClientFunctionResponse<SelectEndpointById<Es, Id>["schemas"]["response"]>
     >;
 
 /**
@@ -92,7 +118,10 @@ export type ClientOptions<H extends Record<string, unknown>> = {
  * @category constructors
  * @since 1.0.0
  */
-export const client: <A extends Api, H extends Record<string, unknown>>(
+export const client: <
+  A extends Api,
+  H extends Record<string, unknown> = Record<never, never>,
+>(
   baseUrl: URL,
   options?: ClientOptions<H>,
 ) => (api: A) => Client<A, H> = internal.client;

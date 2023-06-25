@@ -46,7 +46,9 @@ Added in v1.0.0
 ```ts
 export type MockClientOptions<A extends Api> = {
   responses: {
-    [Id in A['endpoints'][number]['id']]: Schema.To<Extract<A['endpoints'][number], { id: Id }>['schemas']['response']>
+    [Id in A['endpoints'][number]['id']]: ClientFunctionResponse<
+      Extract<A['endpoints'][number], { id: Id }>['schemas']['response']
+    >
   }
 }
 ```

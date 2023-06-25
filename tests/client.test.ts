@@ -1,6 +1,7 @@
 import { vi } from "vitest";
 
 import * as Duration from "@effect/data/Duration";
+import * as Either from "@effect/data/Either";
 import { pipe } from "@effect/data/Function";
 import * as Cause from "@effect/io/Cause";
 import * as Effect from "@effect/io/Effect";
@@ -113,7 +114,7 @@ test("All input types", async () => {
     Http.exhaustive,
   );
 
-  await pipe(
+  const result = await pipe(
     testServer(server),
     Effect.flatMap((client) =>
       client.doStuff({
@@ -122,17 +123,48 @@ test("All input types", async () => {
         body: { helloWorld: "helloWorld" },
       }),
     ),
-    Effect.map((response) => {
-      expect(response).toEqual({
-        operation: "operation",
-        value: "value",
-        anotherValue: 1,
-        helloWorld: "helloWorld",
-      });
-    }),
     Effect.scoped,
     Effect.runPromise,
   );
+
+  expect(result).toEqual({
+    operation: "operation",
+    value: "value",
+    anotherValue: 1,
+    helloWorld: "helloWorld",
+  });
+});
+
+test("missing headers", async () => {
+  const api = pipe(
+    Http.api(),
+    Http.get("getUser", "/user", {
+      response: Schema.struct({ name: Schema.string }),
+      headers: {
+        "X-MY-HEADER": Schema.NumberFromString,
+        "Another-Header": Schema.string,
+      },
+    }),
+  );
+
+  const server = pipe(
+    api,
+    Http.server,
+    Http.handle("getUser", ({ headers: { "x-my-header": header } }) =>
+      Effect.succeed({ name: `patrik ${header}` }),
+    ),
+    Http.exhaustive,
+  );
+
+  const result = await pipe(
+    testServer(server, { headers: { "another-header": "str" } }),
+    // @ts-expect-error
+    Effect.flatMap((client) => Effect.either(client.getUser())),
+    Effect.scoped,
+    Effect.runPromise,
+  );
+
+  expect(result).toMatchObject(Either.left({ _tag: "InvalidHeadersError" }));
 });
 
 test("common headers", async () => {
@@ -165,7 +197,7 @@ test("common headers", async () => {
     Http.exhaustive,
   );
 
-  await pipe(
+  const result = await pipe(
     testServerUrl(server),
     Effect.map((url) =>
       pipe(
@@ -175,61 +207,32 @@ test("common headers", async () => {
         }),
       ),
     ),
-    Effect.tap((client) =>
-      pipe(
+    Effect.flatMap((client) =>
+      Effect.all([
         client.getUser({ headers: { "x-my-header": 2 } }),
-        Effect.map((response) => {
-          expect(response).toEqual({ name: "patrik 2" });
-        }),
-      ),
-    ),
-    Effect.tap((client) =>
-      pipe(
         client.getUser({ headers: {} }),
-        Effect.map((response) => {
-          expect(response).toEqual({ name: "patrik 1" });
-        }),
-      ),
-    ),
-    Effect.tap((client) =>
-      pipe(
         client.getUser(),
-        Effect.map((response) => {
-          expect(response).toEqual({ name: "patrik 1" });
-        }),
-      ),
-    ),
-    Effect.tap((client) =>
-      pipe(
         client.doSomething({
           headers: { "x-my-header": 2, "another-header": "another" },
         }),
-        Effect.map((response) => {
-          expect(response).toEqual({ name: "matej 2 another" });
-        }),
-      ),
-    ),
-    Effect.tap((client) =>
-      pipe(
         client.doSomething({
           headers: { "another-header": "another" },
         }),
-        Effect.map((response) => {
-          expect(response).toEqual({ name: "matej 1 another" });
-        }),
-      ),
-    ),
-    Effect.tap((client) =>
-      pipe(
         client.doSomething(),
-        Effect.map((response) => {
-          expect(response).toEqual({ name: "matej 1 test" });
-        }),
-      ),
+      ]),
     ),
     Effect.scoped,
     Effect.runPromise,
   );
+
+  expect(result).toEqual([
+    { name: "patrik 2" },
+    { name: "patrik 1" },
+    { name: "patrik 1" },
+    { name: "matej 2 another" },
+    { name: "matej 1 another" },
+    { name: "matej 1 test" },
+  ]);
 });
 
 test("supports interruption", async () => {

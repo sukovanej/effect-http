@@ -1,10 +1,10 @@
-import { pipe } from "@effect/data/Function";
+import { identity, pipe } from "@effect/data/Function";
 import { isString } from "@effect/data/Predicate";
 import * as Effect from "@effect/io/Effect";
 import type { ParseError } from "@effect/schema/ParseResult";
 import * as Schema from "@effect/schema/Schema";
 
-import type { Api } from "effect-http/Api";
+import type { Api, EndpointSchemas } from "effect-http/Api";
 import { IgnoredSchemaId } from "effect-http/Api";
 import type { Client, ClientOptions } from "effect-http/Client";
 import {
@@ -18,7 +18,7 @@ import {
   invalidParamsError,
   invalidQueryError,
 } from "effect-http/ServerError";
-import { getSchema } from "effect-http/internal/utils";
+import { getSchema, isArray } from "effect-http/internal/utils";
 import { getStructSchema } from "effect-http/internal/utils";
 
 const makeHttpCall = (
@@ -54,6 +54,12 @@ const makeHttpCall = (
     Effect.bindTo("response"),
     Effect.bind("json", ({ response }) =>
       Effect.tryPromise(async () => {
+        const contentLength = response.headers.get("Content-Length");
+
+        if (contentLength && parseInt(contentLength, 10) === 0) {
+          return Promise.resolve(undefined);
+        }
+
         const contentType = response.headers.get("Content-Type");
         const isJson =
           isString(contentType) && contentType.startsWith("application/json");
@@ -67,21 +73,26 @@ const makeHttpCall = (
     ),
     Effect.map(({ response, json }) => ({
       content: json,
-      statusCode: response.status,
+      status: response.status,
+      headers: Object.fromEntries(response.headers.entries()),
     })),
     Effect.mapError(unexpectedClientError),
   );
 
-type Response = { statusCode: number; content: unknown };
+type Response = {
+  status: number;
+  content: unknown;
+  headers: Record<string, string>;
+};
 
 const checkStatusCode = (response: Response) => {
-  const code = response.statusCode;
+  const code = response.status;
 
-  if (code === 200 || code === 201) {
+  if (code >= 200 && code < 300) {
     return Effect.succeed(response);
   }
 
-  return Effect.fail(httpClientError(response.content, response.statusCode));
+  return Effect.fail(httpClientError(response.content, response.status));
 };
 
 const parse = <A, E>(
@@ -126,6 +137,44 @@ export const createInputParser = ({
     });
 };
 
+const createResponseParser = (
+  responseSchema: EndpointSchemas["response"],
+): ((
+  response: Response,
+) => Effect.Effect<
+  never,
+  ParseError,
+  { status: number; headers: unknown; content: unknown }
+>) => {
+  if (isArray(responseSchema)) {
+    const schema = Schema.union(
+      ...responseSchema.map((s) =>
+        Schema.struct({
+          status: Schema.literal(s.status),
+          content: s.content === IgnoredSchemaId ? Schema.unknown : s.content,
+          headers:
+            s.headers === IgnoredSchemaId
+              ? Schema.record(Schema.string, Schema.string)
+              : Schema.extend(
+                  Schema.struct(s.headers),
+                  Schema.record(Schema.string, Schema.string),
+                ),
+        }),
+      ),
+    );
+
+    return Schema.parse(schema);
+  }
+
+  const parseContent = Schema.parse(responseSchema);
+
+  return (response: Response) =>
+    pipe(
+      parseContent(response.content),
+      Effect.map((content) => ({ ...response, content })),
+    );
+};
+
 export const client =
   <A extends Api, H extends Record<string, unknown>>(
     baseUrl: URL,
@@ -134,9 +183,8 @@ export const client =
   (api: A): Client<A, H> =>
     api.endpoints.reduce(
       (client, { id, method, path, schemas }) => {
-        const parseResponse = Schema.parse(schemas.response);
+        const parseResponse = createResponseParser(schemas.response);
         const parseInputs = createInputParser(schemas);
-
         const finalOptions: ClientOptions<any> = { headers: {}, ...options };
 
         const fn = (_args: any) => {
@@ -153,12 +201,15 @@ export const client =
               makeHttpCall(method, baseUrl, path, body, headers, query),
             ),
             Effect.flatMap(checkStatusCode),
-            Effect.flatMap(({ content }) =>
+            Effect.flatMap((response) =>
               pipe(
-                parseResponse(content),
+                parseResponse(response),
                 Effect.mapError(validationClientError),
               ),
             ),
+            isArray(schemas.response)
+              ? identity
+              : Effect.map(({ content }) => content),
             Effect.annotateLogs("clientOperationId", id),
           );
         };

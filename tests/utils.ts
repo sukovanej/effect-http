@@ -54,12 +54,17 @@ export const testServerUrl = <R, A extends Http.Api>(
     Effect.map(([client]) => client),
   );
 
-export const testServer = <R, A extends Http.Api>(
+export const testServer = <
+  R,
+  A extends Http.Api,
+  H extends Record<string, unknown> = Record<never, never>,
+>(
   server: Http.Server<R, [], A>,
+  clientOptions?: Parameters<typeof Http.client<A, H>>[1],
 ) =>
   pipe(
     testServerUrl(server),
-    Effect.map((url) => pipe(server.api, Http.client(url))),
+    Effect.map((url) => pipe(server.api, Http.client(url, clientOptions))),
   );
 
 export const testExpress =

@@ -19,6 +19,7 @@ breaking changes and the internals and the public API are still evolving and cha
 - [Request validation](#request-validation)
   - [Example](#example)
 - [Headers](#headers)
+- [Responses](#responses)
 - [Logging](#logging)
 - [Testing the server](#testing-the-server)
 - [Error handling](#error-handling)
@@ -186,6 +187,82 @@ const handleHello = ({
 
 Take a look at [examples/headers.ts](examples/headers.ts) to see a complete example
 API implementation with in-memory rate-limiting and client identification using headers.
+
+### Responses
+
+Response can be specified using a `Schema.Schema<I, O>` which automatically
+return status code 200 and includes only default headers.
+
+It is also possible to specify multiple responses with concrete status codes,
+headres and content schemas.
+
+```ts
+const api = pipe(
+  Http.api(),
+  Http.post("hello", "/hello", {
+    response: [
+      {
+        status: 201,
+        content: Schema.number,
+      },
+      {
+        status: 200,
+        content: Schema.number,
+        headers: { "My-Header": Schema.string },
+      },
+      {
+        status: 204,
+        headers: { "X-Another": Schema.NumberFromString },
+      },
+    ],
+  }),
+);
+```
+
+The server implemention is type-checked against the api responses
+and one of the specified response objects must be returned.
+
+> :warning: `const` in the example is important because the structure
+> must match exactly on the type level.
+
+```ts
+const server = pipe(
+  Http.server(api),
+  Http.handle("hello", () =>
+    Effect.succeed({
+      status: 200,
+      headers: { "my-header": 12 },
+      content: 12,
+    } as const),
+  ),
+);
+```
+
+The derived client for this `Api` exposes a `hello` method that
+returns the following type.
+
+```ts
+type DerivedTypeOfHelloMethod =
+  | {
+      headers: Record<string, string>;
+      content: number;
+      status: 201;
+    }
+  | {
+      headers: {
+        readonly "my-header": number;
+      };
+      content: number;
+      status: 200;
+    }
+  | {
+      headers: {
+        readonly "x-another": number;
+      };
+      content: unknown;
+      status: 204;
+    };
+```
 
 ### Logging
 
@@ -862,9 +939,9 @@ module.
 | ------------------------------ | --------------------------------------------------------------------------------------------- | :----------------: |
 | `accessLogExtension`           | access logs for handled requests                                                              | :white_check_mark: |
 | `errorLogExtension`            | failed requests are logged out                                                                | :white_check_mark: |
-| `uuidLogAnnotationExtension`   | generates a UUID for every request and uses it in log annotations                             | :x:                |
-| `endpointCallsMetricExtension` | measures how many times each endpoint was called in a `server.endpoint_calls` counter metrics | :x:                |
-| `basicAuthExtension`           | authentication / authorization using basic auth                                               | :x:                |
+| `uuidLogAnnotationExtension`   | generates a UUID for every request and uses it in log annotations                             |        :x:         |
+| `endpointCallsMetricExtension` | measures how many times each endpoint was called in a `server.endpoint_calls` counter metrics |        :x:         |
+| `basicAuthExtension`           | authentication / authorization using basic auth                                               |        :x:         |
 
 In the following example, `uuid-log-annotation`, `access-log`
 and `endpoint-calls-metric` extensions are used. Collected metrics

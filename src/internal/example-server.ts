@@ -3,18 +3,21 @@ import * as OpenApi from "schema-openapi";
 import { pipe } from "@effect/data/Function";
 import * as RA from "@effect/data/ReadonlyArray";
 import * as Effect from "@effect/io/Effect";
+import * as Schema from "@effect/schema/Schema";
 
-import type { Api, Endpoint } from "effect-http/Api";
+import { type Api, type Endpoint, IgnoredSchemaId } from "effect-http/Api";
 import { handle, server } from "effect-http/Server";
 import type { Server } from "effect-http/Server";
 import { internalServerError } from "effect-http/ServerError";
+
+import { isArray } from "./utils";
 
 /** @internal */
 export const exampleServer = <A extends Api>(api: A): Server<never, [], A> => {
   const _server = server(api);
 
   return pipe(
-    _server._unimplementedEndpoints,
+    _server.unimplementedEndpoints,
     RA.reduce(_server, (server, endpoint) =>
       pipe(server, handle(endpoint.id, createExampleHandler(endpoint)) as any),
     ),
@@ -22,10 +25,33 @@ export const exampleServer = <A extends Api>(api: A): Server<never, [], A> => {
 };
 
 /** @internal */
-const createExampleHandler = (endpoint: Endpoint) => () =>
-  pipe(
-    OpenApi.randomExample(endpoint.schemas.response),
-    Effect.mapError(() =>
-      internalServerError("Sorry, I don't have any example response"),
-    ),
-  );
+const createExampleHandler = ({ schemas }: Endpoint) => {
+  const getSchema = () => {
+    if (isArray(schemas.response)) {
+      return Schema.union(
+        ...schemas.response.map(({ status, content, headers }) =>
+          Schema.struct({
+            status: Schema.literal(status),
+            content: content === IgnoredSchemaId ? Schema.undefined : content,
+            headers:
+              headers === IgnoredSchemaId
+                ? Schema.undefined
+                : Schema.struct(headers),
+          }),
+        ),
+      );
+    }
+
+    return schemas.response;
+  };
+
+  const responseSchema = getSchema();
+
+  return () =>
+    pipe(
+      OpenApi.randomExample(responseSchema),
+      Effect.mapError(() =>
+        internalServerError("Sorry, I don't have any example response"),
+      ),
+    );
+};
