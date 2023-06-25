@@ -95,7 +95,7 @@ export const testingClient = <R, A extends Api>(
 
           return handleFn(request);
         }),
-        Effect.logAnnotate("clientOperationId", id),
+        Effect.annotateLogs("clientOperationId", id),
       );
     };
     return { ...client, [id]: fn };

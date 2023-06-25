@@ -179,8 +179,8 @@ export const errorLogExtension = () =>
       Effect.logError(`${request.method.toUpperCase()} ${path} failed`),
       isApiError(error)
         ? flow(
-            Effect.logAnnotate("errorTag", error._tag),
-            Effect.logAnnotate(
+            Effect.annotateLogs("errorTag", error._tag),
+            Effect.annotateLogs(
               "error",
               isString(error.error) ? error.error : JSON.stringify(error.error),
             ),

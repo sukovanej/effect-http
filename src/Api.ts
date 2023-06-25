@@ -10,9 +10,8 @@
  */
 import type * as OpenApi from "schema-openapi";
 
-import type * as Schema from "@effect/schema/Schema";
-
 import * as HashSet from "@effect/data/HashSet";
+import type * as Schema from "@effect/schema/Schema";
 
 /** Headers are case-insensitive, internally we deal with them as lowercase
  *  because that's how express deal with them.
@@ -172,20 +171,20 @@ export const api = (options?: Partial<Api["options"]>): Api<[]> => ({
   endpoints: [],
 });
 
-/** 
- * @ignored 
+/**
+ * @ignored
  * @since 1.0.0
  */
 export const IgnoredSchemaId = Symbol("effect-http/ignore-schema-id");
 
-/** 
- * @ignored 
+/**
+ * @ignored
  * @since 1.0.0
  */
 export type IgnoredSchemaId = typeof IgnoredSchemaId;
 
-/** 
- * @ignored 
+/**
+ * @ignored
  * @since 1.0.0
  */
 export type ComputeEndpoint<
@@ -212,8 +211,8 @@ export type ComputeEndpoint<
   >
 >;
 
-/** 
- * @ignored 
+/**
+ * @ignored
  * @since 1.0.0
  */
 export type AddEndpoint<
@@ -327,4 +326,3 @@ export const addGroup =
       endpoints: [...api.endpoints, ...apiGroup.endpoints],
     };
   };
-;
