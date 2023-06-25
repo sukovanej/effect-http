@@ -226,7 +226,7 @@ const toEndpoint = (
       Effect.catchAllDefect((error) =>
         pipe(
           Effect.logFatal("Defect occured when sending failure response"),
-          Effect.logAnnotate("error", errorToLog(error)),
+          Effect.annotateLogs("error", errorToLog(error)),
         ),
       ),
       Runtime.runPromise(runtime),

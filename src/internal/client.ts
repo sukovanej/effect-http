@@ -164,7 +164,7 @@ export const client =
               Effect.mapError(validationClientError),
             ),
           ),
-          Effect.logAnnotate("clientOperationId", id),
+          Effect.annotateLogs("clientOperationId", id),
         );
       };
       return { ...client, [id]: fn };
