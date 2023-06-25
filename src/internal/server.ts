@@ -1,8 +1,14 @@
 import { pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
+import type { ParseError } from "@effect/schema/ParseResult";
 import * as Schema from "@effect/schema/Schema";
 
-import type { Api, Endpoint } from "effect-http/Api";
+import {
+  type Api,
+  type Endpoint,
+  EndpointSchemas,
+  IgnoredSchemaId,
+} from "effect-http/Api";
 import {
   Extension,
   accessLogExtension,
@@ -27,12 +33,16 @@ import {
   invalidQueryError,
   invalidResponseError,
 } from "effect-http/ServerError";
-import { getSchema, getStructSchema } from "effect-http/internal/utils";
+import {
+  getSchema,
+  getStructSchema,
+  isArray,
+} from "effect-http/internal/utils";
 
 /** @internal */
 export const server = <A extends Api>(api: A): ApiToServer<A> =>
   ({
-    _unimplementedEndpoints: api.endpoints,
+    unimplementedEndpoints: api.endpoints,
     api,
 
     handlers: [],
@@ -50,9 +60,60 @@ const createParamsMatcher = (path: string) => {
       .replace(/\)\.\?\(([^[]+)\[\^/g, "?)\\.?($1(?<=\\.)[^\\.")}/*$`,
   );
   return (url: URL): Record<string, string> => {
-    const match = url.pathname.match(matcher as RegExp);
+    const match = url.pathname.match(matcher);
     return (match && match.groups) || {};
   };
+};
+
+const createResponseEncoder = (
+  responseSchema: EndpointSchemas["response"],
+): ((
+  a: unknown,
+) => Effect.Effect<
+  never,
+  ParseError,
+  { status: number; headers: Headers | undefined; content: unknown }
+>) => {
+  if (isArray(responseSchema)) {
+    const schema = Schema.union(
+      ...responseSchema.map((s) =>
+        Schema.struct({
+          status: Schema.literal(s.status),
+          content:
+            s.content === IgnoredSchemaId
+              ? Schema.optional(Schema.undefined)
+              : (s.content as Schema.Schema<any>),
+          headers:
+            s.headers === IgnoredSchemaId
+              ? Schema.optional(Schema.undefined)
+              : Schema.struct(s.headers),
+        }),
+      ),
+    );
+    const encode = Schema.encode(schema);
+    return (a: any) =>
+      Effect.map(encode(a), ({ headers, content, status }) => {
+        const _headers = new Headers(headers);
+
+        if (content !== undefined) {
+          _headers.set("content-type", "application/json");
+        }
+
+        return { content, status, headers: _headers };
+      });
+  }
+
+  const encodeContent = Schema.encode(responseSchema);
+
+  return (a: unknown) =>
+    pipe(
+      encodeContent(a),
+      Effect.map((content) => ({
+        content,
+        headers: new Headers({ "content-type": "application/json" }),
+        status: 200,
+      })),
+    );
 };
 
 /** @internal */
@@ -66,7 +127,7 @@ const enhanceHandler = (
   const parseParams = Schema.parse(getStructSchema(schemas.params));
   const parseHeaders = Schema.parse(getStructSchema(schemas.headers));
   const parseBody = Schema.parse(getSchema(schemas.body));
-  const encodeResponse = Schema.encode(schemas.response);
+  const encodeResponse = createResponseEncoder(schemas.response);
 
   const getRequestParams = createParamsMatcher(path);
 
@@ -116,22 +177,15 @@ const enhanceHandler = (
       ),
       Effect.flatMap(fn),
       Effect.flatMap((response) => {
-        const status =
-          response instanceof Response ? response.status : undefined;
-        const headers =
-          response instanceof Response
-            ? response.headers
-            : new Headers({ "content-type": "application/json" });
+        if (response instanceof Response) {
+          return Effect.succeed(response);
+        }
 
         return pipe(
-          Effect.promise(() =>
-            response instanceof Response
-              ? response.json()
-              : Promise.resolve(response),
-          ),
-          Effect.flatMap((body) => encodeResponse(body)),
+          encodeResponse(response),
           Effect.map(
-            (body) => new Response(JSON.stringify(body), { status, headers }),
+            ({ content, status, headers }) =>
+              new Response(JSON.stringify(content), { status, headers }),
           ),
           Effect.mapError(invalidResponseError),
         );
@@ -146,10 +200,10 @@ const enhanceHandler = (
 export const handle =
   <S extends Server<any>, Id extends ServerUnimplementedIds<S>, R>(
     id: Id,
-    fn: InputHandlerFn<SelectEndpointById<S["_unimplementedEndpoints"], Id>, R>,
+    fn: InputHandlerFn<SelectEndpointById<S["unimplementedEndpoints"], Id>, R>,
   ) =>
   (api: S): AddServerHandle<S, Id, R> => {
-    const endpoint = api._unimplementedEndpoints.find(
+    const endpoint = api.unimplementedEndpoints.find(
       ({ id: _id }) => _id === id,
     );
 
@@ -157,7 +211,7 @@ export const handle =
       throw new Error(`Operation id ${id} not found`);
     }
 
-    const newUnimplementedEndpoints = api._unimplementedEndpoints.filter(
+    const newUnimplementedEndpoints = api.unimplementedEndpoints.filter(
       ({ id: _id }) => _id !== id,
     );
 
@@ -165,7 +219,7 @@ export const handle =
 
     return {
       ...api,
-      _unimplementedEndpoints: newUnimplementedEndpoints,
+      unimplementedEndpoints: newUnimplementedEndpoints,
       handlers: [...api.handlers, handler],
     } as unknown as AddServerHandle<S, Id, R>;
   };

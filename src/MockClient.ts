@@ -3,10 +3,12 @@
  *
  * @since 1.0.0
  */
-import * as Schema from "@effect/schema/Schema";
-
 import type { Api } from "effect-http/Api";
-import type { Client, ClientOptions } from "effect-http/Client";
+import type {
+  Client,
+  ClientFunctionResponse,
+  ClientOptions,
+} from "effect-http/Client";
 import * as internal from "effect-http/internal/mock-client";
 
 /**
@@ -15,7 +17,7 @@ import * as internal from "effect-http/internal/mock-client";
  */
 export type MockClientOptions<A extends Api> = {
   responses: {
-    [Id in A["endpoints"][number]["id"]]: Schema.To<
+    [Id in A["endpoints"][number]["id"]]: ClientFunctionResponse<
       Extract<A["endpoints"][number], { id: Id }>["schemas"]["response"]
     >;
   };

@@ -51,13 +51,9 @@ Implement handler for the given operation id.
 **Signature**
 
 ```ts
-export declare const handle: <
-  S extends Server<any, Endpoint<string, any, any, any, any, any>[], Api>,
-  Id extends ServerUnimplementedIds<S>,
-  R
->(
+export declare const handle: <S extends Server<any, Endpoint[], Api>, Id extends ServerUnimplementedIds<S>, R>(
   id: Id,
-  fn: InputHandlerFn<Extract<S['_unimplementedEndpoints'][number], { id: Id }>, R>
+  fn: InputHandlerFn<Extract<S['unimplementedEndpoints'][number], { id: Id }>, R>
 ) => (api: S) => AddServerHandle<S, Id, R>
 ```
 
@@ -84,7 +80,7 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-export declare const addExtension: <R, S extends Server<any, Endpoint<string, any, any, any, any, any>[], Api>>(
+export declare const addExtension: <R, S extends Server<any, Endpoint[], Api>>(
   extension: Extension<R>,
   options?: Partial<ServerExtensionOptions<S['api']['endpoints']>> | undefined
 ) => (server: S) => AddServerDependency<S, R>
@@ -97,7 +93,7 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-export declare const prependExtension: <R, S extends Server<any, Endpoint<string, any, any, any, any, any>[], Api>>(
+export declare const prependExtension: <R, S extends Server<any, Endpoint[], Api>>(
   extension: Extension<R>,
   options?: Partial<ServerExtensionOptions<S['api']['endpoints']>> | undefined
 ) => (server: S) => AddServerDependency<S, R>
@@ -137,9 +133,8 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-export type Server<R, UnimplementedEndpoints extends Endpoint[] = Endpoint[], A extends Api = Api> = {
-  _unimplementedEndpoints: UnimplementedEndpoints
-
+export type Server<R, Es extends Endpoint[] = Endpoint[], A extends Api = Api> = {
+  unimplementedEndpoints: Es
   handlers: Handler<R>[]
   extensions: ServerExtension<R, A['endpoints']>[]
   api: A

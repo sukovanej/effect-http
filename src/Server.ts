@@ -6,7 +6,12 @@
 import type * as Effect from "@effect/io/Effect";
 import type * as Schema from "@effect/schema/Schema";
 
-import type { Api, Endpoint } from "effect-http/Api";
+import type {
+  Api,
+  Endpoint,
+  IgnoredSchemaId,
+  ResponseSchemaFull,
+} from "effect-http/Api";
 import type { Extension } from "effect-http/Extensions";
 import type { ApiError } from "effect-http/ServerError";
 import * as internal from "effect-http/internal/server";
@@ -17,11 +22,10 @@ import * as internal from "effect-http/internal/server";
  */
 export type Server<
   R,
-  UnimplementedEndpoints extends Endpoint[] = Endpoint[],
+  Es extends Endpoint[] = Endpoint[],
   A extends Api = Api,
 > = {
-  _unimplementedEndpoints: UnimplementedEndpoints;
-
+  unimplementedEndpoints: Es;
   handlers: Handler<R>[];
   extensions: ServerExtension<R, A["endpoints"]>[];
   api: A;
@@ -45,26 +49,6 @@ export type ServerExtensionOptions<Es extends Endpoint[]> = {
   allowOperations: Es[number]["id"][];
 };
 
-type NonIgnoredFields<K extends keyof A, A> = K extends any
-  ? A[K] extends
-      | Schema.Schema<any, any>
-      | Record<string, Schema.Schema<any, any>>
-    ? K
-    : never
-  : never;
-
-type RemoveIgnoredSchemas<E> = Pick<E, NonIgnoredFields<keyof E, E>>;
-
-type SchemaStructTo<A> = {
-  [K in keyof A]: K extends "query" | "params" | "headers"
-    ? A[K] extends Record<string, Schema.Schema<any>>
-      ? { [KQ in keyof A[K]]: Schema.To<A[K][KQ]> }
-      : never
-    : A[K] extends Schema.Schema<any, infer X>
-    ? X
-    : never;
-};
-
 /** @ignore */
 export type SelectEndpointById<Es extends Endpoint[], Id> = Extract<
   Es[number],
@@ -72,8 +56,22 @@ export type SelectEndpointById<Es extends Endpoint[], Id> = Extract<
 >;
 
 /** @ignore */
+type ConvertToInput<E> = E extends Schema.Schema<any, infer A>
+  ? A
+  : E extends Record<string, any>
+  ? { [K in RequiredFields<E, keyof E>]: ConvertToInput<E[K]> }
+  : E;
+
+/** @ignore */
+type RequiredFields<E, K extends keyof E> = K extends any
+  ? E[K] extends IgnoredSchemaId
+    ? never
+    : K
+  : never;
+
+/** @ignore */
 export type EndpointSchemasToInput<E extends Endpoint["schemas"]> =
-  Schema.Spread<SchemaStructTo<RemoveIgnoredSchemas<Omit<E, "response">>>>;
+  Schema.Spread<ConvertToInput<Omit<E, "response">>>;
 
 /** @ignore */
 export type InputHandlerFn<E extends Endpoint, R> = (
@@ -104,7 +102,7 @@ export type DropEndpoint<
 
 /** @ignore */
 export type ServerUnimplementedIds<S extends Server<any>> =
-  S["_unimplementedEndpoints"][number]["id"];
+  S["unimplementedEndpoints"][number]["id"];
 
 /** @ignore */
 type AddServerDependency<S extends Server<any>, R> = S extends Server<
@@ -125,8 +123,11 @@ export type AddServerHandle<
   : never;
 
 /** @ignore */
-export type HandlerResponse<S extends Schema.Schema<any, any>> =
-  S extends Schema.Schema<any, infer Body> ? Response | Body : never;
+export type HandlerResponse<S> = S extends Schema.Schema<any, infer Body>
+  ? Response | Body
+  : S extends readonly ResponseSchemaFull[]
+  ? ConvertToInput<S[number]>
+  : never;
 
 /**
  * Create new unimplemeted `Server` from `Api`.
@@ -149,7 +150,7 @@ export const handle: <
   R,
 >(
   id: Id,
-  fn: InputHandlerFn<SelectEndpointById<S["_unimplementedEndpoints"], Id>, R>,
+  fn: InputHandlerFn<SelectEndpointById<S["unimplementedEndpoints"], Id>, R>,
 ) => (api: S) => AddServerHandle<S, Id, R> = internal.handle;
 
 /**

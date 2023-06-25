@@ -318,7 +318,7 @@ const getLoggerFromOptions = (logger: ExpressOptions["logger"]) => {
 export const listen =
   (options?: Partial<ListenOptions>) =>
   <R>(server: Server<R, []>): Effect.Effect<R, unknown, void> => {
-    if (server._unimplementedEndpoints.length !== 0) {
+    if (server.unimplementedEndpoints.length !== 0) {
       new Error(`All endpoint must be implemented`);
     }
 

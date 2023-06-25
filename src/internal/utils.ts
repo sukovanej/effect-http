@@ -13,3 +13,7 @@ export const getStructSchema = (
   input: Record<string, Schema.Schema<any>> | IgnoredSchemaId,
 ): Schema.Schema<any> =>
   input == IgnoredSchemaId ? Schema.unknown : Schema.struct(input);
+
+/** @internal */
+export const isArray = (input: unknown): input is readonly any[] =>
+  Array.isArray(input);

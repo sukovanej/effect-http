@@ -37,16 +37,15 @@ test("layers", async () => {
     Http.exhaustive,
   );
 
-  await pipe(
+  const response = await pipe(
     testServer(server),
     Effect.provideSomeLayer(layer),
     Effect.flatMap((client) => client.doStuff({})),
-    Effect.map((response) => {
-      expect(response).toEqual(13);
-    }),
     Effect.scoped,
     Effect.runPromise,
   );
+
+  expect(response).toEqual(13);
 });
 
 test("validation error", async () => {
@@ -62,21 +61,20 @@ test("validation error", async () => {
 
   const server = Http.exampleServer(api);
 
-  await pipe(
+  const result = await pipe(
     testServer(server),
-    Effect.flatMap((client) => client.hello({ query: { country: "abc" } })),
-    Effect.map(() => {
-      assert.fail("Expected failure");
-    }),
-    Effect.catchAll((error) => {
-      expect(error).toMatchObject({
-        _tag: "ValidationClientError",
-        error: { _tag: "InvalidQueryError" },
-      });
-      return Effect.unit;
-    }),
+    Effect.flatMap((client) =>
+      Effect.either(client.hello({ query: { country: "abc" } })),
+    ),
     Effect.scoped,
     Effect.runPromise,
+  );
+
+  expect(result).toMatchObject(
+    Either.left({
+      _tag: "ValidationClientError",
+      error: { _tag: "InvalidQueryError" },
+    }),
   );
 });
 
@@ -94,25 +92,22 @@ test("human-readable error response", async () => {
     ),
   );
 
-  await pipe(
+  const result = await pipe(
     testServer(server),
-    Effect.flatMap((client) => client.hello({})),
-    Effect.map(() => {
-      assert.fail("Expected failure");
-    }),
-    Effect.catchAll((error) => {
-      expect(error).toEqual({
-        _tag: "HttpClientError",
-        statusCode: 404,
-        error: {
-          error: "NotFoundError",
-          details: "Didnt find it",
-        },
-      });
-      return Effect.unit;
-    }),
+    Effect.flatMap((client) => Effect.either(client.hello({}))),
     Effect.scoped,
     Effect.runPromise,
+  );
+
+  expect(result).toEqual(
+    Either.left({
+      _tag: "HttpClientError",
+      statusCode: 404,
+      error: {
+        error: "NotFoundError",
+        details: "Didnt find it",
+      },
+    }),
   );
 });
 
@@ -136,20 +131,18 @@ test("headers", async () => {
     Http.exhaustive,
   );
 
-  await pipe(
+  const result = await pipe(
     testServer(server),
     Effect.flatMap((client) =>
       client.hello({ headers: { "x-client-id": "abc" } }),
     ),
-    Effect.map((result) => {
-      expect(result).toEqual({
-        clientIdHash: "ungWv48Bz+pBQUDeXa4iI7ADYaOWF3qctBD/YfIAFa0=",
-      });
-      return Effect.unit;
-    }),
     Effect.scoped,
     Effect.runPromise,
   );
+
+  expect(result).toEqual({
+    clientIdHash: "ungWv48Bz+pBQUDeXa4iI7ADYaOWF3qctBD/YfIAFa0=",
+  });
 });
 
 test.each(Http.API_ERROR_TAGS as Http.ApiError["_tag"][])(
@@ -169,17 +162,17 @@ test.each(Http.API_ERROR_TAGS as Http.ApiError["_tag"][])(
       ),
     );
 
-    await pipe(
+    const result = await pipe(
       testServer(server),
-      Effect.flatMap((client) => client.hello({})),
-      Effect.catchAll((error) => {
-        expect(error).toMatchObject({
-          statusCode: Http.API_STATUS_CODES[errorTag],
-        });
-        return Effect.unit;
-      }),
+      Effect.flatMap((client) => Effect.either(client.hello({}))),
       Effect.scoped,
       Effect.runPromise,
+    );
+
+    expect(result).toMatchObject(
+      Either.left({
+        statusCode: Http.API_STATUS_CODES[errorTag],
+      }),
     );
   },
 );
@@ -193,7 +186,8 @@ test("Attempt to add a non-existing operation should fail as a safe guard", () =
   expect(() =>
     pipe(
       Http.server(api),
-      Http.handle("nonExistingOperation" as any, () => "" as any),
+      // @ts-expect-error
+      Http.handle("nonExistingOperation", () => ""),
     ),
   ).toThrowError();
 });
@@ -220,18 +214,19 @@ test("Response object", async () => {
     Http.exhaustive,
   );
 
-  await pipe(
+  const result = await pipe(
     testServer(server),
     Effect.flatMap((client) =>
       client.hello({ headers: { "x-client-id": "abc" } }),
     ),
-    Effect.map((result) => expect(result).toEqual({ value: "test" })),
     Effect.scoped,
     Effect.runPromise,
   );
+
+  expect(result).toEqual({ value: "test" });
 });
 
-test("Express interop example", () => {
+test("Express interop example", async () => {
   const legacyApp = express();
 
   legacyApp.get("/legacy-endpoint", (_, res) => {
@@ -251,7 +246,7 @@ test("Express interop example", () => {
     Http.exhaustive,
   );
 
-  pipe(
+  const result = await pipe(
     server,
     Http.express({ logger: "none" }),
     Effect.map((app) => {
@@ -259,15 +254,12 @@ test("Express interop example", () => {
       return app;
     }),
     Effect.flatMap(testExpress(api)),
-    Effect.tap(([client]) =>
-      pipe(
-        client.newEndpoint({}),
-        Effect.map((result) => expect(result).toEqual({ hello: "new world" })),
-      ),
-    ),
+    Effect.flatMap(([client]) => client.newEndpoint({})),
     Effect.scoped,
     Effect.runPromise,
   );
+
+  expect(result).toEqual({ hello: "new world" });
 });
 
 test("Response containing optional field", async () => {
@@ -289,23 +281,14 @@ test("Response containing optional field", async () => {
     Http.exhaustive,
   );
 
-  await pipe(
+  const result = await pipe(
     testServer(server),
-    Effect.tap((client) =>
-      pipe(
-        client.hello({}),
-        Effect.map((result) => expect(result).toEqual({ foo: Option.none() })),
-      ),
-    ),
-    Effect.tap((client) =>
-      pipe(
-        client.hello(),
-        Effect.map((result) => expect(result).toEqual({ foo: Option.none() })),
-      ),
-    ),
+    Effect.flatMap((client) => Effect.all([client.hello({}), client.hello()])),
     Effect.scoped,
     Effect.runPromise,
   );
+
+  expect(result).toEqual([{ foo: Option.none() }, { foo: Option.none() }]);
 });
 
 const helloApi = pipe(
@@ -344,4 +327,80 @@ test("failing after handler extension", async () => {
       ),
     ),
   );
+});
+
+describe("type safe responses", () => {
+  test("responses must have unique status codes", () => {
+    expect(() => {
+      pipe(
+        Http.api(),
+        Http.post("hello", "/hello", {
+          response: [{ status: 201 }, { status: 201 }],
+        }),
+      );
+    }).toThrowError();
+  });
+
+  test("example", async () => {
+    const api = pipe(
+      Http.api(),
+      Http.post("hello", "/hello", {
+        response: [
+          {
+            status: 201,
+            content: Schema.number,
+          },
+          {
+            status: 200,
+            content: Schema.number,
+            headers: { "X-Another-200": Schema.NumberFromString },
+          },
+          {
+            status: 204,
+            headers: { "X-Another": Schema.NumberFromString },
+          },
+        ],
+        query: {
+          value: Schema.NumberFromString,
+        },
+      }),
+    );
+
+    const server = pipe(
+      Http.server(api),
+      Http.handle("hello", ({ query: { value } }) => {
+        const response =
+          value == 12
+            ? ({
+                status: 200,
+                content: 12,
+                headers: { "x-another-200": 12 },
+              } as const)
+            : value == 13
+            ? ({ status: 201, content: 13 } as const)
+            : ({ status: 204, headers: { "x-another": 13 } } as const);
+
+        return Effect.succeed(response);
+      }),
+    );
+
+    const result = await pipe(
+      testServer(server),
+      Effect.flatMap((client) =>
+        Effect.all([
+          client.hello({ query: { value: 12 } }),
+          client.hello({ query: { value: 13 } }),
+          client.hello({ query: { value: 14 } }),
+        ]),
+      ),
+      Effect.scoped,
+      Effect.runPromise,
+    );
+
+    expect(result).toMatchObject([
+      { content: 12, headers: { "x-another-200": 12 }, status: 200 },
+      { content: 13, headers: {}, status: 201 },
+      { content: undefined, headers: { "x-another": 13 }, status: 204 },
+    ]);
+  });
 });

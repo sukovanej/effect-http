@@ -38,9 +38,8 @@ Added in v1.0.0
   - [ApiGroup (type alias)](#apigroup-type-alias)
   - [Endpoint (interface)](#endpoint-interface)
   - [EndpointOptions (interface)](#endpointoptions-interface)
-  - [EndpointSetter (type alias)](#endpointsetter-type-alias)
-  - [InputSchemas (type alias)](#inputschemas-type-alias)
-  - [RecordOptionalSchema (type alias)](#recordoptionalschema-type-alias)
+  - [EndpointSchemas (interface)](#endpointschemas-interface)
+  - [InputEndpointSchemas (type alias)](#inputendpointschemas-type-alias)
 
 ---
 
@@ -53,9 +52,9 @@ Merge the Api `Group` with an `Api`
 **Signature**
 
 ```ts
-export declare const addGroup: <E2 extends Endpoint<string, any, any, any, any, any>[]>(
+export declare const addGroup: <E2 extends Endpoint[]>(
   apiGroup: ApiGroup<E2>
-) => <E1 extends Endpoint<string, any, any, any, any, any>[]>(api: Api<E1>) => Api<[...E1, ...E2]>
+) => <E1 extends Endpoint[]>(api: Api<E1>) => Api<[...E1, ...E2]>
 ```
 
 Added in v1.0.0
@@ -121,25 +120,12 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-export declare const options: <
-  const Id extends string,
-  const I extends InputSchemas<
-    Schema.Schema<any, any>,
-    RecordOptionalSchema,
-    RecordOptionalSchema,
-    Schema.Schema<any, any> | undefined,
-    RecordOptionalSchema
-  >
->(
+export declare const options: <const Id extends string, const I extends InputEndpointSchemas>(
   id: Id,
   path: string,
   schemas: I,
   options?: EndpointOptions | undefined
-) => <
-  A extends Api<Endpoint<string, any, any, any, any, any>[]> | ApiGroup<Endpoint<string, any, any, any, any, any>[]>
->(
-  api: A
-) => AddEndpoint<A, Id, I>
+) => <A extends Api<Endpoint[]> | ApiGroup<Endpoint[]>>(api: A) => AddEndpoint<A, Id, I>
 ```
 
 Added in v1.0.0
@@ -220,24 +206,11 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-export interface Endpoint<
-  Id extends string = string,
-  Response = any,
-  Query = any,
-  Params = any,
-  Body = any,
-  Headers = any
-> {
-  id: Id
+export interface Endpoint {
+  id: string
   path: string
   method: OpenApi.OpenAPISpecMethodName
-  schemas: {
-    response: Response
-    query: Query
-    params: Params
-    body: Body
-    headers: Headers
-  }
+  schemas: EndpointSchemas
   groupName: string
   description?: string
 }
@@ -257,49 +230,34 @@ export interface EndpointOptions {
 
 Added in v1.0.0
 
-## EndpointSetter (type alias)
+## EndpointSchemas (interface)
 
 **Signature**
 
 ```ts
-export type EndpointSetter = <const Id extends string, const I extends InputSchemas>(
-  id: Id,
-  path: string,
-  schemas: I,
-  options?: EndpointOptions
-) => <A extends Api | ApiGroup>(api: A) => AddEndpoint<A, Id, I>
-```
-
-Added in v1.0.0
-
-## InputSchemas (type alias)
-
-**Signature**
-
-```ts
-export type InputSchemas<
-  Response = Schema.Schema<any>,
-  Query = RecordOptionalSchema,
-  Params = RecordOptionalSchema,
-  Body = Schema.Schema<any> | undefined,
-  Headers = RecordOptionalSchema
-> = {
-  response: Response
-  query?: Query
-  params?: Params
-  body?: Body
-  headers?: Headers
+export interface EndpointSchemas {
+  response: Schema.Schema<any> | readonly ResponseSchemaFull[]
+  query: SchemasMap<string> | IgnoredSchemaId
+  params: SchemasMap<string> | IgnoredSchemaId
+  body: Schema.Schema<any> | IgnoredSchemaId
+  headers: SchemasMap<string> | IgnoredSchemaId
 }
 ```
 
 Added in v1.0.0
 
-## RecordOptionalSchema (type alias)
+## InputEndpointSchemas (type alias)
 
 **Signature**
 
 ```ts
-export type RecordOptionalSchema = Record<string, Schema.Schema<any>> | undefined
+export type InputEndpointSchemas = {
+  response: readonly InputResponseSchemaFull[] | Schema.Schema<any>
+  query?: SchemasMap<string>
+  params?: SchemasMap<string>
+  body?: Schema.Schema<any>
+  headers?: SchemasMap<string>
+}
 ```
 
 Added in v1.0.0
