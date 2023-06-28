@@ -9,20 +9,20 @@ dependencies:
     specifier: ^0.12.9
     version: 0.12.9
   '@effect/io':
-    specifier: ^0.27.1
-    version: 0.27.1
+    specifier: ^0.27.2
+    version: 0.27.2
   '@effect/schema':
     specifier: ^0.21.0
     version: 0.21.0
   effect-log:
-    specifier: ^0.3.10
-    version: 0.3.10
+    specifier: ^0.3.11
+    version: 0.3.11
   express:
     specifier: ^4.18.2
     version: 4.18.2
   schema-openapi:
-    specifier: ^0.2.6
-    version: 0.2.6
+    specifier: ^0.2.7
+    version: 0.2.7
   swagger-ui-express:
     specifier: ^4.6.3
     version: 4.6.3(express@4.18.2)
@@ -410,8 +410,8 @@ packages:
     resolution: {integrity: sha512-nuzFo+2LK4yG9H16WRv51MDhUAIuUGhmKYkuSrgCApwwLy2eUATaioQEbbR2rHOTprOiYpbIYKwvPsylEm/Fdw==}
     dev: false
 
-  /@effect/io@0.27.1:
-    resolution: {integrity: sha512-8GQnVrarX5LSJL+WzNabpf/VTnEbwIg+9Bb4f4WxGvGJTReClJk9dJU8LnpGExn1AjfaWzQxwicuBLwcccORlQ==}
+  /@effect/io@0.27.2:
+    resolution: {integrity: sha512-J9s+v2JyGUKzxG5I6v1/X5v+I/e9dST4Afk3y6ZYBEXzU3Slo+3ZDf7XlazicS7koAoTEnvJ6zt79aM4LLkoWA==}
     dependencies:
       '@effect/data': 0.12.9
     dev: false
@@ -420,7 +420,7 @@ packages:
     resolution: {integrity: sha512-IFB6hnwuTzHKaMGrAuzp0LBIIkPtW8gaXXQAik/h7ZnPpE8sOkSWKyDHuD4lpOqgsFp1G55NobVKpJUPcL8Onw==}
     dependencies:
       '@effect/data': 0.12.9
-      '@effect/io': 0.27.1
+      '@effect/io': 0.27.2
       fast-check: 3.10.0
     dev: false
 
@@ -1965,11 +1965,11 @@ packages:
     resolution: {integrity: sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==}
     dev: false
 
-  /effect-log@0.3.10:
-    resolution: {integrity: sha512-QS4lSvmrizd7/iElpq2kIeh+Z4e9RioMg5p+Y81orHBynxrfvmXY1TKbm1c0wX1tg4pVY3JCF8tTtqkyQRgPNw==}
+  /effect-log@0.3.11:
+    resolution: {integrity: sha512-H8Id3o0XN8PFulIw+r2t4fTGQaX1Ni0bttruakZUqPISzxLyJb3Gs6dZsIwo6oif79mKyZiRgVhHsDFyZI1z0Q==}
     dependencies:
       '@effect/data': 0.12.9
-      '@effect/io': 0.27.1
+      '@effect/io': 0.27.2
     dev: false
 
   /emoji-regex@8.0.0:
@@ -4050,11 +4050,11 @@ packages:
   /safer-buffer@2.1.2:
     resolution: {integrity: sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==}
 
-  /schema-openapi@0.2.6:
-    resolution: {integrity: sha512-H/+189PNruxgsSqvjvpG+xqg9Y6dX8p09aJUIA+2vo1PJxlpuKXf/GKKZhzYLjKPIZvW3ZLqxUKABnmCsmUVaw==}
+  /schema-openapi@0.2.7:
+    resolution: {integrity: sha512-Hyr0/Z766uIdnzQnsJdcmWg9lAD/DrTVR6NuPLjfXP78qjGU/oz9CIco2QIEWr/j99a2Di7MMROqPy4mx/hD7Q==}
     dependencies:
       '@effect/data': 0.12.9
-      '@effect/io': 0.27.1
+      '@effect/io': 0.27.2
       '@effect/schema': 0.21.0
     dev: false
 
