@@ -6,7 +6,7 @@ import * as Http from "effect-http";
 
 const api = pipe(
   Http.api(),
-  Http.get("hello", "/hello", {
+  Http.post("hello", "/hello", {
     response: [
       {
         status: 201,
@@ -25,16 +25,13 @@ const api = pipe(
   }),
 );
 
-type R = (typeof api)["endpoints"][0]["schemas"]['response'];
-type X = Http.HandlerResponse<R>;
-
 const server = pipe(
   Http.server(api),
   Http.handle("hello", () =>
     Effect.succeed({
-      status: 201 as const,
+      status: 201,
       content: 12,
-    }),
+    } as const),
   ),
 );
 

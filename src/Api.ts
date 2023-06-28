@@ -59,6 +59,7 @@ export type ApiGroup<E extends Endpoint[] = Endpoint[]> = {
   endpoints: E;
   groupName: string;
 };
+
 /**
  * @category models
  * @since 1.0.0
@@ -160,27 +161,16 @@ export type ComputeEndpoint<
 /** @ignore */
 export type ComputeEndpointResponseFull<R extends InputResponseSchemaFull> =
   R extends any
-    ? SkipIgnoreFields<{
+    ? {
         status: R["status"];
-        content: R["content"] extends Schema.Schema<any, infer A>
-          ? A
+        content: R["content"] extends Schema.Schema<any>
+          ? R["content"]
           : IgnoredSchemaId;
         headers: R["headers"] extends Record<string, Schema.Schema<string, any>>
           ? R["headers"]
           : IgnoredSchemaId;
-      }>
+      }
     : never;
-
-type SkipIgnoreFields<S extends Record<string, any>> = S extends any
-  ? Schema.Spread<Omit<S, FieldsToIgnore<S, keyof S>>>
-  : never;
-
-type FieldsToIgnore<
-  S extends Record<string, any>,
-  K extends keyof S,
-> = S[K] extends IgnoredSchemaId ? K : never;
-
-type X = SkipIgnoreFields<{ x: IgnoredSchemaId; y: string } | { n: string }>;
 
 /** @ignore */
 export type AddEndpoint<
