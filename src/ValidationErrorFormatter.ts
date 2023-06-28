@@ -83,7 +83,7 @@ const stringifyError = (error: ValidationError) => {
   return `${position} must be ${expectedBefore}${expected}, got ${received}`;
 };
 
-/** @ignored */
+/** @ignore */
 type ValidationError = {
   position: string[];
   message?: string;
@@ -92,7 +92,7 @@ type ValidationError = {
   | { _tag: "Unexpected"; expected: string[]; received: unknown }
 );
 
-/** @ignored */
+/** @ignore */
 type ValidationErrorUnexpected = Extract<
   ValidationError,
   { _tag: "Unexpected" }

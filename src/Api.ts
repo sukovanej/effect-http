@@ -13,66 +13,6 @@ import type * as OpenApi from "schema-openapi";
 import * as HashSet from "@effect/data/HashSet";
 import type * as Schema from "@effect/schema/Schema";
 
-/** Headers are case-insensitive, internally we deal with them as lowercase
- *  because that's how express deal with them.
- *
- *  @internal
- */
-export const normalizeSchemaStruct = (s: Record<string, Schema.Schema<any>>) =>
-  Object.entries(s).reduce(
-    (acc, [key, value]) => ({ ...acc, [key.toLowerCase()]: value }),
-    {},
-  );
-
-/** @internal */
-const fillDefaultSchemas = <I extends InputSchemas>({
-  response,
-  query,
-  params,
-  body,
-  headers,
-}: I): ComputeEndpoint<string, I>["schemas"] =>
-  ({
-    response,
-    query: query ?? IgnoredSchemaId,
-    params: params ?? IgnoredSchemaId,
-    body: body ?? IgnoredSchemaId,
-    headers: (headers && normalizeSchemaStruct(headers)) ?? IgnoredSchemaId,
-  } as ComputeEndpoint<string, I>["schemas"]);
-
-/** @internal */
-export const endpoint =
-  (method: OpenApi.OpenAPISpecMethodName) =>
-  <const Id extends string, const I extends InputSchemas>(
-    id: Id,
-    path: string,
-    schemas: I,
-    options?: EndpointOptions,
-  ) =>
-  <A extends Api | ApiGroup>(api: A): AddEndpoint<A, Id, I> => {
-    if (method === "get" && schemas.body !== undefined) {
-      throw new Error(`Invalid ${id} endpoint. GET request cant have a body.`);
-    }
-
-    if (api.endpoints.find((endpoint) => endpoint.id === id) !== undefined) {
-      throw new Error(`Endpoint with operation id ${id} already exists`);
-    }
-
-    const newEndpoint = {
-      schemas: fillDefaultSchemas(schemas),
-      id,
-      path,
-      method,
-      groupName: "groupName" in api ? api.groupName : "default",
-      ...options,
-    };
-
-    return {
-      ...api,
-      endpoints: [...api.endpoints, newEndpoint],
-    } as unknown as AddEndpoint<A, Id, I>;
-  };
-
 /**
  * @category models
  * @since 1.0.0
@@ -119,6 +59,7 @@ export type ApiGroup<E extends Endpoint[] = Endpoint[]> = {
   endpoints: E;
   groupName: string;
 };
+
 /**
  * @category models
  * @since 1.0.0
@@ -131,26 +72,37 @@ export interface EndpointOptions {
  * @category models
  * @since 1.0.0
  */
-export type RecordOptionalSchema =
-  | Record<string, Schema.Schema<any>>
+export type RecordOptionalSchema<From = any> =
+  | Record<string, Schema.Schema<From, any>>
   | undefined;
+
+/** @ignore */
+export type ResponseSchemaFull = {
+  status: number;
+  content: Schema.Schema<any> | IgnoredSchemaId;
+  headers: Record<string, Schema.Schema<string, any>> | IgnoredSchemaId;
+};
+
+/** @ignore */
+export type ResponseSchema = Schema.Schema<any> | ResponseSchemaFull;
+
+/** @ignore */
+export type InputResponseSchemaFull = {
+  status: number;
+  content?: Schema.Schema<any>;
+  headers?: Record<string, Schema.Schema<string, any>>;
+};
 
 /**
  * @category models
  * @since 1.0.0
  */
-export type InputSchemas<
-  Response = Schema.Schema<any>,
-  Query = RecordOptionalSchema,
-  Params = RecordOptionalSchema,
-  Body = Schema.Schema<any> | undefined,
-  Headers = RecordOptionalSchema,
-> = {
-  response: Response;
-  query?: Query;
-  params?: Params;
-  body?: Body;
-  headers?: Headers;
+export type InputSchemas = {
+  response: readonly InputResponseSchemaFull[] | Schema.Schema<any>;
+  query?: RecordOptionalSchema<string>;
+  params?: RecordOptionalSchema<string>;
+  body?: Schema.Schema<any>;
+  headers?: RecordOptionalSchema<string>;
 };
 
 /** @internal */
@@ -171,29 +123,24 @@ export const api = (options?: Partial<Api["options"]>): Api<[]> => ({
   endpoints: [],
 });
 
-/**
- * @ignored
- * @since 1.0.0
- */
+/** @ignore */
 export const IgnoredSchemaId = Symbol("effect-http/ignore-schema-id");
 
-/**
- * @ignored
- * @since 1.0.0
- */
+/** @ignore */
 export type IgnoredSchemaId = typeof IgnoredSchemaId;
 
-/**
- * @ignored
- * @since 1.0.0
- */
+/** @ignore */
 export type ComputeEndpoint<
   Id extends string,
   I extends InputSchemas,
 > = Schema.Spread<
   Endpoint<
     Id,
-    I["response"] extends Schema.Schema<any, any> ? I["response"] : never,
+    I["response"] extends Schema.Schema<any>
+      ? I["response"]
+      : I["response"] extends readonly InputResponseSchemaFull[]
+      ? ComputeEndpointResponseFull<I["response"][number]>
+      : never,
     I["query"] extends Record<string, Schema.Schema<any>>
       ? I["query"]
       : IgnoredSchemaId,
@@ -211,10 +158,21 @@ export type ComputeEndpoint<
   >
 >;
 
-/**
- * @ignored
- * @since 1.0.0
- */
+/** @ignore */
+export type ComputeEndpointResponseFull<R extends InputResponseSchemaFull> =
+  R extends any
+    ? {
+        status: R["status"];
+        content: R["content"] extends Schema.Schema<any>
+          ? R["content"]
+          : IgnoredSchemaId;
+        headers: R["headers"] extends Record<string, Schema.Schema<string, any>>
+          ? R["headers"]
+          : IgnoredSchemaId;
+      }
+    : never;
+
+/** @ignore */
 export type AddEndpoint<
   A extends Api | ApiGroup,
   Id extends string,
@@ -238,6 +196,79 @@ export type EndpointSetter = <
   schemas: I,
   options?: EndpointOptions,
 ) => <A extends Api | ApiGroup>(api: A) => AddEndpoint<A, Id, I>;
+
+/** Headers are case-insensitive, internally we deal with them as lowercase
+ *  because that's how express deal with them.
+ *
+ *  @internal
+ */
+export const normalizeSchemaStruct = (s: Record<string, Schema.Schema<any>>) =>
+  Object.entries(s).reduce(
+    (acc, [key, value]) => ({ ...acc, [key.toLowerCase()]: value }),
+    {},
+  );
+
+/** @internal */
+const fillDefaultSchemas = <I extends InputSchemas>({
+  response,
+  query,
+  params,
+  body,
+  headers,
+}: I): ComputeEndpoint<string, I>["schemas"] =>
+  ({
+    response: Array.isArray(response)
+      ? composeResponseSchema(response)
+      : response,
+    query: query ?? IgnoredSchemaId,
+    params: params ?? IgnoredSchemaId,
+    body: body ?? IgnoredSchemaId,
+    headers: (headers && normalizeSchemaStruct(headers)) ?? IgnoredSchemaId,
+  } as ComputeEndpoint<string, I>["schemas"]);
+
+/** @internal */
+const composeResponseSchema = (response: readonly InputResponseSchemaFull[]) =>
+  response.map(
+    (r) =>
+      ({
+        status: r.status,
+        headers: r.headers ?? IgnoredSchemaId,
+        content: r.content ?? IgnoredSchemaId,
+      } as ResponseSchemaFull),
+  );
+
+/** @internal */
+export const endpoint =
+  (method: OpenApi.OpenAPISpecMethodName) =>
+  <const Id extends string, const I extends InputSchemas>(
+    id: Id,
+    path: string,
+    schemas: I,
+    options?: EndpointOptions,
+  ) =>
+  <A extends Api | ApiGroup>(api: A): AddEndpoint<A, Id, I> => {
+    if (method === "get" && schemas.body !== undefined) {
+      throw new Error(`Invalid ${id} endpoint. GET request cant have a body.`);
+    }
+
+    if (api.endpoints.find((endpoint) => endpoint.id === id) !== undefined) {
+      throw new Error(`Endpoint with operation id ${id} already exists`);
+    }
+
+    const newEndpoint = {
+      schemas: fillDefaultSchemas(schemas),
+      id,
+      path,
+      method,
+      groupName: "groupName" in api ? api.groupName : "default",
+      ...options,
+    };
+
+    return {
+      ...api,
+      endpoints: [...api.endpoints, newEndpoint],
+    } as unknown as AddEndpoint<A, Id, I>;
+  };
 
 /**
  * @category methods

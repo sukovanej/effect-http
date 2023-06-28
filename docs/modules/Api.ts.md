@@ -41,11 +41,6 @@ Added in v1.0.0
   - [EndpointSetter (type alias)](#endpointsetter-type-alias)
   - [InputSchemas (type alias)](#inputschemas-type-alias)
   - [RecordOptionalSchema (type alias)](#recordoptionalschema-type-alias)
-- [utils](#utils)
-  - [AddEndpoint (type alias)](#addendpoint-type-alias)
-  - [ComputeEndpoint (type alias)](#computeendpoint-type-alias)
-  - [IgnoredSchemaId](#ignoredschemaid)
-  - [IgnoredSchemaId (type alias)](#ignoredschemaid-type-alias)
 
 ---
 
@@ -260,18 +255,12 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-export type InputSchemas<
-  Response = Schema.Schema<any>,
-  Query = RecordOptionalSchema,
-  Params = RecordOptionalSchema,
-  Body = Schema.Schema<any> | undefined,
-  Headers = RecordOptionalSchema
-> = {
-  response: Response
-  query?: Query
-  params?: Params
-  body?: Body
-  headers?: Headers
+export type InputSchemas = {
+  response: readonly InputResponseSchemaFull[] | Schema.Schema<any>
+  query?: RecordOptionalSchema<string>
+  params?: RecordOptionalSchema<string>
+  body?: Schema.Schema<any>
+  headers?: RecordOptionalSchema<string>
 }
 ```
 
@@ -282,68 +271,7 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-export type RecordOptionalSchema = Record<string, Schema.Schema<any>> | undefined
-```
-
-Added in v1.0.0
-
-# utils
-
-## AddEndpoint (type alias)
-
-**Signature**
-
-```ts
-export type AddEndpoint<A extends Api | ApiGroup, Id extends string, Schemas extends InputSchemas> = A extends Api<
-  infer E
->
-  ? Api<[...E, ComputeEndpoint<Id, Schemas>]>
-  : A extends ApiGroup<infer E>
-  ? ApiGroup<[...E, ComputeEndpoint<Id, Schemas>]>
-  : never
-```
-
-Added in v1.0.0
-
-## ComputeEndpoint (type alias)
-
-**Signature**
-
-```ts
-export type ComputeEndpoint<Id extends string, I extends InputSchemas> = Schema.Spread<
-  Endpoint<
-    Id,
-    I['response'] extends Schema.Schema<any, any> ? I['response'] : never,
-    I['query'] extends Record<string, Schema.Schema<any>> ? I['query'] : IgnoredSchemaId,
-    I['params'] extends Record<string, Schema.Schema<any>> ? I['params'] : IgnoredSchemaId,
-    I['body'] extends Schema.Schema<any> ? I['body'] : IgnoredSchemaId,
-    I['headers'] extends Record<string, Schema.Schema<any>>
-      ? {
-          [K in keyof I['headers'] as K extends string ? Lowercase<K> : never]: I['headers'][K]
-        }
-      : IgnoredSchemaId
-  >
->
-```
-
-Added in v1.0.0
-
-## IgnoredSchemaId
-
-**Signature**
-
-```ts
-export declare const IgnoredSchemaId: typeof IgnoredSchemaId
-```
-
-Added in v1.0.0
-
-## IgnoredSchemaId (type alias)
-
-**Signature**
-
-```ts
-export type IgnoredSchemaId = typeof IgnoredSchemaId
+export type RecordOptionalSchema<From = any> = Record<string, Schema.Schema<From, any>> | undefined
 ```
 
 Added in v1.0.0

@@ -345,3 +345,55 @@ test("failing after handler extension", async () => {
     ),
   );
 });
+
+describe("type-safe-responses", () => {
+  test("type-safe-responses", async () => {
+    const api = pipe(
+      Http.api(),
+      Http.post("hello", "/hello", {
+        response: [
+          {
+            status: 201,
+            content: Schema.number,
+          },
+          {
+            status: 200,
+            content: Schema.number,
+            headers: { "X-Another-200": Schema.NumberFromString },
+          },
+          {
+            status: 204,
+            headers: { "X-Another": Schema.NumberFromString },
+          },
+        ],
+        query: {
+          value: Schema.NumberFromString,
+        },
+      }),
+    );
+
+    const server = pipe(
+      Http.server(api),
+      Http.handle("hello", () =>
+        Effect.succeed(Http.response(201, { content: 12 })),
+      ),
+    );
+
+    const result = await pipe(
+      testServer(server, helloApi),
+      Effect.flatMap((client) => client.hello({})),
+      Effect.either,
+      Effect.scoped,
+      Effect.runPromise,
+    );
+
+    expect(result).toEqual(
+      Either.left(
+        Http.httpClientError(
+          { error: "UnauthorizedError", details: "sorry bro" },
+          401,
+        ),
+      ),
+    );
+  });
+});

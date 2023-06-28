@@ -6,7 +6,12 @@
 import type * as Effect from "@effect/io/Effect";
 import type * as Schema from "@effect/schema/Schema";
 
-import type { Api, Endpoint } from "effect-http/Api";
+import type {
+  Api,
+  Endpoint,
+  IgnoredSchemaId,
+  ResponseSchemaFull,
+} from "effect-http/Api";
 import type { Extension } from "effect-http/Extensions";
 import type { ApiError } from "effect-http/ServerError";
 import * as internal from "effect-http/internal/server";
@@ -45,72 +50,48 @@ export type ServerExtensionOptions<Es extends Endpoint[]> = {
   allowOperations: Es[number]["id"][];
 };
 
-type NonIgnoredFields<K extends keyof A, A> = K extends any
-  ? A[K] extends
-      | Schema.Schema<any, any>
-      | Record<string, Schema.Schema<any, any>>
-    ? K
-    : never
-  : never;
-
-type RemoveIgnoredSchemas<E> = Pick<E, NonIgnoredFields<keyof E, E>>;
-
-type SchemaStructTo<A> = {
-  [K in keyof A]: K extends "query" | "params" | "headers"
-    ? A[K] extends Record<string, Schema.Schema<any>>
-      ? { [KQ in keyof A[K]]: Schema.To<A[K][KQ]> }
-      : never
-    : A[K] extends Schema.Schema<any, infer X>
-    ? X
-    : never;
-};
-
-/**
- * @ignored
- * @since 1.0.0
- */
+/** @ignore */
 export type SelectEndpointById<Es extends Endpoint[], Id> = Extract<
   Es[number],
   { id: Id }
 >;
 
-/**
- * @ignored
- * @since 1.0.0
- */
-export type EndpointSchemasToInput<E extends Endpoint["schemas"]> =
-  Schema.Spread<SchemaStructTo<RemoveIgnoredSchemas<Omit<E, "response">>>>;
+/** @ignore */
+type ConvertToInput<E> = E extends Schema.Schema<any, infer A>
+  ? A
+  : E extends Record<string, any>
+  ? { [K in RequiredFields<E, keyof E>]: ConvertToInput<E[K]> }
+  : E;
 
-/**
- * @ignored
- * @since 1.0.0
- */
+/** @ignore */
+type RequiredFields<E, K extends keyof E> = K extends any
+  ? E[K] extends IgnoredSchemaId
+    ? never
+    : K
+  : never;
+
+/** @ignore */
+export type EndpointSchemasToInput<E extends Endpoint["schemas"]> =
+  Schema.Spread<ConvertToInput<Omit<E, "response">>>;
+
+/** @ignore */
 export type InputHandlerFn<E extends Endpoint, R> = (
   input: EndpointSchemasToInput<E["schemas"]>,
 ) => Effect.Effect<R, ApiError, HandlerResponse<E["schemas"]["response"]>>;
 
-/**
- * @ignored
- * @since 1.0.0
- */
+/** @ignore */
 export type Handler<R = any> = {
   fn: (request: Request) => Effect.Effect<R, unknown, Response>;
 
   endpoint: Endpoint;
 };
 
-/**
- * @ignored
- * @since 1.0.0
- */
+/** @ignore */
 export type ApiToServer<A extends Api> = A extends Api<infer Es>
   ? Server<never, Es, A>
   : never;
 
-/**
- * @ignored
- * @since 1.0.0
- */
+/** @ignore */
 export type DropEndpoint<
   Es extends Endpoint[],
   Id extends string,
@@ -120,14 +101,11 @@ export type DropEndpoint<
     : [First, ...(Rest extends Endpoint[] ? DropEndpoint<Rest, Id> : never)]
   : [];
 
-/**
- * @ignored
- * @since 1.0.0
- */
+/** @ignore */
 export type ServerUnimplementedIds<S extends Server<any>> =
   S["_unimplementedEndpoints"][number]["id"];
 
-/** @ignored */
+/** @ignore */
 type AddServerDependency<S extends Server<any>, R> = S extends Server<
   infer R0,
   infer E,
@@ -136,10 +114,7 @@ type AddServerDependency<S extends Server<any>, R> = S extends Server<
   ? Server<R0 | R, E, A>
   : never;
 
-/**
- * @ignored
- * @since 1.0.0
- */
+/** @ignore */
 export type AddServerHandle<
   S extends Server<any>,
   Id extends ServerUnimplementedIds<S>,
@@ -148,12 +123,12 @@ export type AddServerHandle<
   ? Server<R0 | R, DropEndpoint<E, Id>, A>
   : never;
 
-/**
- * @ignored
- * @since 1.0.0
- */
-export type HandlerResponse<S extends Schema.Schema<any, any>> =
-  S extends Schema.Schema<any, infer Body> ? Response | Body : never;
+/** @ignore */
+export type HandlerResponse<S> = S extends Schema.Schema<any, infer Body>
+  ? Response | Body
+  : S extends ResponseSchemaFull
+  ? ConvertToInput<S>
+  : never;
 
 /**
  * Create new unimplemeted `Server` from `Api`.
@@ -251,3 +226,11 @@ export const addExtension =
         internal.createServerExtention(extension, options),
       ],
     } as unknown as AddServerDependency<S, R>);
+
+export const response = <S extends number, C = undefined, H = undefined>(
+  status: S,
+  data: { content?: C; headers?: H },
+): { status: S; content: C; headers: H } => ({
+  status,
+  ...data,
+});
