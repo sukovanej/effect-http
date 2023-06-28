@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.15.1
+
+### Patch Changes
+
+- d380340: Update dependencies.
+
 ## 0.15.0
 
 ### Minor Changes
