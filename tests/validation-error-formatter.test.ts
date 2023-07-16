@@ -5,8 +5,11 @@ import * as Schema from "@effect/schema/Schema";
 import { defaultValidationErrorFormatterServer } from "effect-http/ValidationErrorFormatter";
 
 const expectError = <E>(self: Either.Either<E, unknown>): E =>
-  Either.match(self, identity, () => {
-    throw new Error("expected error");
+  Either.match(self, {
+    onLeft: identity,
+    onRight: () => {
+      throw new Error("expected error");
+    },
   });
 
 const evaluate = (value: unknown) => (schema: Schema.Schema<any, any>) =>

@@ -26,7 +26,7 @@ test("basic auth", async () => {
     Http.addExtension(
       Http.basicAuthExtension(({ user, password }) => {
         if (user === "mike" && password === "the-stock-broker") {
-          return Effect.unit();
+          return Effect.unit;
         }
 
         return Effect.fail("wrong credentials");

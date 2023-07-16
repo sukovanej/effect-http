@@ -232,7 +232,7 @@ export const prependExtension =
         internal.createServerExtention(extension, options),
         ...server.extensions,
       ],
-    } as unknown as AddServerDependency<S, R>);
+    }) as unknown as AddServerDependency<S, R>;
 
 /**
  * @category extensions
@@ -250,4 +250,4 @@ export const addExtension =
         ...server.extensions,
         internal.createServerExtention(extension, options),
       ],
-    } as unknown as AddServerDependency<S, R>);
+    }) as unknown as AddServerDependency<S, R>;

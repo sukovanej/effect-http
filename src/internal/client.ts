@@ -1,4 +1,4 @@
-import { flow, pipe } from "@effect/data/Function";
+import { pipe } from "@effect/data/Function";
 import { isString } from "@effect/data/Predicate";
 import * as Effect from "@effect/io/Effect";
 import type { ParseError } from "@effect/schema/ParseResult";
@@ -106,27 +106,21 @@ export const createInputParser = ({
   body,
   headers,
 }: Api["endpoints"][number]["schemas"]) => {
-  const encodeQuery = Schema.encodeEffect(getStructSchema(query));
-  const encodeParams = Schema.encodeEffect(getStructSchema(params));
-  const encodeBody = Schema.encodeEffect(getSchema(body));
-  const encodeHeaders = Schema.encodeEffect(getStructSchema(headers));
+  const encodeQuery = Schema.encode(getStructSchema(query));
+  const encodeParams = Schema.encode(getStructSchema(params));
+  const encodeBody = Schema.encode(getSchema(body));
+  const encodeHeaders = Schema.encode(getStructSchema(headers));
 
   return (args: any) =>
     Effect.all({
-      query: parse(
-        args["query"],
-        encodeQuery,
-        flow(invalidQueryError, validationClientError),
+      query: parse(args["query"], encodeQuery, (e) =>
+        pipe(invalidQueryError(e), validationClientError),
       ),
-      params: parse(
-        args["params"],
-        encodeParams,
-        flow(invalidParamsError, validationClientError),
+      params: parse(args["params"], encodeParams, (e) =>
+        pipe(invalidParamsError(e), validationClientError),
       ),
-      body: parse(
-        args["body"],
-        encodeBody,
-        flow(invalidBodyError, validationClientError),
+      body: parse(args["body"], encodeBody, (e) =>
+        pipe(invalidBodyError(e), validationClientError),
       ),
       headers: parse(args["headers"], encodeHeaders, invalidHeadersError),
     });
@@ -138,34 +132,39 @@ export const client =
     options?: ClientOptions<H>,
   ) =>
   (api: A): Client<A, H> =>
-    api.endpoints.reduce((client, { id, method, path, schemas }) => {
-      const parseResponse = Schema.parseEffect(schemas.response);
-      const parseInputs = createInputParser(schemas);
+    api.endpoints.reduce(
+      (client, { id, method, path, schemas }) => {
+        const parseResponse = Schema.parse(schemas.response);
+        const parseInputs = createInputParser(schemas);
 
-      const finalOptions: ClientOptions<any> = { headers: {}, ...options };
+        const finalOptions: ClientOptions<any> = { headers: {}, ...options };
 
-      const fn = (_args: any) => {
-        const args = _args || {};
+        const fn = (_args: any) => {
+          const args = _args || {};
 
-        return pipe(
-          parseInputs({
-            ...args,
-            headers: { ...finalOptions.headers, ...args.headers },
-          }),
-          Effect.let("path", ({ params }) => constructPath(params, path)),
-          Effect.tap(() => Effect.logTrace(`${method} ${path}`)),
-          Effect.flatMap(({ path, body, query, headers }) =>
-            makeHttpCall(method, baseUrl, path, body, headers, query),
-          ),
-          Effect.flatMap(checkStatusCode),
-          Effect.flatMap(({ content }) =>
-            pipe(
-              parseResponse(content),
-              Effect.mapError(validationClientError),
+          return pipe(
+            parseInputs({
+              ...args,
+              headers: { ...finalOptions.headers, ...args.headers },
+            }),
+            Effect.let("path", ({ params }) => constructPath(params, path)),
+            Effect.tap(() =>
+              Effect.log(`${method} ${path}`, { level: "Trace" }),
             ),
-          ),
-          Effect.annotateLogs("clientOperationId", id),
-        );
-      };
-      return { ...client, [id]: fn };
-    }, {} as Client<A, H>);
+            Effect.flatMap(({ path, body, query, headers }) =>
+              makeHttpCall(method, baseUrl, path, body, headers, query),
+            ),
+            Effect.flatMap(checkStatusCode),
+            Effect.flatMap(({ content }) =>
+              pipe(
+                parseResponse(content),
+                Effect.mapError(validationClientError),
+              ),
+            ),
+            Effect.annotateLogs("clientOperationId", id),
+          );
+        };
+        return { ...client, [id]: fn };
+      },
+      {} as Client<A, H>,
+    );

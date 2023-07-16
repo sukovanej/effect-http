@@ -92,5 +92,5 @@ const descriptionSetter = <A extends { description?: string }>(
   pipe(
     schema.ast,
     AST.getAnnotation<AST.DescriptionAnnotation>(AST.DescriptionAnnotationId),
-    Option.match(() => identity<A>, OpenApi.description),
+    Option.match({ onNone: () => identity<A>, onSome: OpenApi.description }),
   );

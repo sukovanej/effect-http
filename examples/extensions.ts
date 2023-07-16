@@ -22,7 +22,7 @@ const server = pipe(
   api,
   Http.server,
   Http.handle("getUser", () => Effect.succeed("Hello")),
-  Http.handle("metrics", () => Metric.snapshot()),
+  Http.handle("metrics", () => Metric.snapshot),
   Http.prependExtension(Http.uuidLogAnnotationExtension()),
   Http.addExtension(Http.endpointCallsMetricExtension()),
   Http.exhaustive,

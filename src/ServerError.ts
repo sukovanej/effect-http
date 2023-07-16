@@ -14,7 +14,7 @@ const checkByTag =
 const createError = <T extends { _tag: string; error: unknown }>(
   _tag: T["_tag"],
 ): [(error: unknown) => T, (error: unknown) => error is T] => {
-  return [(error) => ({ _tag, error } as T), checkByTag(_tag)];
+  return [(error) => ({ _tag, error }) as T, checkByTag(_tag)];
 };
 
 /**

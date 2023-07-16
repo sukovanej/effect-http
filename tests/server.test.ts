@@ -19,7 +19,7 @@ const Service2 = Context.Tag<string>();
 const layer1 = Layer.succeed(Service2, "hello world");
 const layer2 = pipe(
   Effect.map(Service2, (value) => value.length),
-  Effect.toLayer(Service1),
+  Layer.effect(Service1),
 );
 
 test("layers", async () => {
@@ -73,7 +73,7 @@ test("validation error", async () => {
         _tag: "ValidationClientError",
         error: { _tag: "InvalidQueryError" },
       });
-      return Effect.unit();
+      return Effect.unit;
     }),
     Effect.scoped,
     Effect.runPromise,
@@ -109,7 +109,7 @@ test("human-readable error response", async () => {
           details: "Didnt find it",
         },
       });
-      return Effect.unit();
+      return Effect.unit;
     }),
     Effect.scoped,
     Effect.runPromise,
@@ -145,7 +145,7 @@ test("headers", async () => {
       expect(result).toEqual({
         clientIdHash: "ungWv48Bz+pBQUDeXa4iI7ADYaOWF3qctBD/YfIAFa0=",
       });
-      return Effect.unit();
+      return Effect.unit;
     }),
     Effect.scoped,
     Effect.runPromise,
@@ -176,7 +176,7 @@ test.each(Http.API_ERROR_TAGS as Http.ApiError["_tag"][])(
         expect(error).toMatchObject({
           statusCode: Http.API_STATUS_CODES[errorTag],
         });
-        return Effect.unit();
+        return Effect.unit;
       }),
       Effect.scoped,
       Effect.runPromise,

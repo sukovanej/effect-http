@@ -38,7 +38,7 @@ const fillDefaultSchemas = <I extends InputSchemas>({
     params: params ?? IgnoredSchemaId,
     body: body ?? IgnoredSchemaId,
     headers: (headers && normalizeSchemaStruct(headers)) ?? IgnoredSchemaId,
-  } as ComputeEndpoint<string, I>["schemas"]);
+  }) as ComputeEndpoint<string, I>["schemas"];
 
 /** @internal */
 export const endpoint =

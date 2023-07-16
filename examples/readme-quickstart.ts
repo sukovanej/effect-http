@@ -32,7 +32,9 @@ const client = pipe(api, Http.client(new URL("http://localhost:3000")));
 const callServer = () =>
   pipe(
     client.getUser({ query: { id: 12 } }),
-    Effect.flatMap((user) => Effect.logInfo(`Got ${user.name}, nice!`)),
+    Effect.flatMap((user) =>
+      Effect.log(`Got ${user.name}, nice!`, { level: "Info" }),
+    ),
   );
 
 pipe(
