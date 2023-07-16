@@ -22,7 +22,7 @@ const UserRepositoryService = Context.Tag<UserRepository>();
 
 const mockUserRepository = {
   existsByName: () => Effect.succeed(true),
-  store: () => Effect.unit(),
+  store: () => Effect.unit,
 } satisfies UserRepository;
 
 const handleStoreUser = ({ body }: Http.Input<typeof api, "storeUser">) =>

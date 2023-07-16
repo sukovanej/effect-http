@@ -13,23 +13,27 @@ export const mockClient =
     option?: Partial<MockClientOptions<A> & ClientOptions<H>>,
   ) =>
   (api: A): Client<A, H> =>
-    api.endpoints.reduce((client, { id, schemas }) => {
-      const parseInputs = createInputParser(schemas);
+    api.endpoints.reduce(
+      (client, { id, schemas }) => {
+        const parseInputs = createInputParser(schemas);
 
-      const customResponses = option?.responses;
-      const customResponse =
-        customResponses && customResponses[id as A["endpoints"][number]["id"]];
+        const customResponses = option?.responses;
+        const customResponse =
+          customResponses &&
+          customResponses[id as A["endpoints"][number]["id"]];
 
-      const fn = (args: any) => {
-        return pipe(
-          parseInputs(args),
-          Effect.flatMap(() =>
-            customResponse !== undefined
-              ? Effect.succeed(customResponse)
-              : OpenApi.randomExample(schemas.response),
-          ),
-        );
-      };
+        const fn = (args: any) => {
+          return pipe(
+            parseInputs(args),
+            Effect.flatMap(() =>
+              customResponse !== undefined
+                ? Effect.succeed(customResponse)
+                : OpenApi.randomExample(schemas.response),
+            ),
+          );
+        };
 
-      return { ...client, [id]: fn };
-    }, {} as Client<A, H>);
+        return { ...client, [id]: fn };
+      },
+      {} as Client<A, H>,
+    );

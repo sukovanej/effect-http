@@ -1,6 +1,7 @@
 import * as Context from "@effect/data/Context";
 import { pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
+import * as Layer from "@effect/io/Layer";
 import * as Schema from "@effect/schema/Schema";
 
 import * as Http from "effect-http";
@@ -21,7 +22,7 @@ const StuffService = Context.Tag<{ value: number }>();
 
 const dummyStuff = pipe(
   Effect.succeed({ value: 42 }),
-  Effect.toLayer(StuffService),
+  Layer.effect(StuffService),
 );
 
 // Handlers
@@ -41,7 +42,7 @@ const handleTest = ({ query: { name } }: Http.Input<typeof api, "test">) =>
 const handleLesnek = ({ query }: Http.Input<typeof api, "getLesnek">) =>
   pipe(
     Effect.succeed(`hello ${query.name}`),
-    Effect.tap(() => Effect.logDebug("hello world")),
+    Effect.tap(() => Effect.log("hello world", { level: "Debug" })),
   );
 
 // Api

@@ -61,42 +61,47 @@ export type TestingClient<R, A extends Api> = A extends Api<infer Es>
 export const testingClient = <R, A extends Api>(
   server: Server<R, [], A>,
 ): TestingClient<R, A> =>
-  server.api.endpoints.reduce((client, { id, method, path, schemas }) => {
-    const parseInputs = createInputParser(schemas);
+  server.api.endpoints.reduce(
+    (client, { id, method, path, schemas }) => {
+      const parseInputs = createInputParser(schemas);
 
-    const handler = server.handlers.find(({ endpoint }) => endpoint.id === id);
-
-    if (handler === undefined) {
-      throw new Error(`Couldn't find server implementation for ${id}`);
-    }
-
-    const handleFn = runHandlerFnWithExtensions(server.extensions, handler);
-
-    const fn = (_args: any) => {
-      const args = _args || {};
-
-      return pipe(
-        parseInputs(args),
-        Effect.tap(() => Effect.logTrace(`${method} ${path}`)),
-        Effect.flatMap(({ body, query, params, headers }) => {
-          const pathStr = Object.entries(params ?? {}).reduce(
-            (path, [key, value]) => path.replace(`:${key}`, value as any),
-            path,
-          );
-
-          const url = new URL(`http://localhost${pathStr}`);
-
-          Object.entries(query ?? {}).forEach(([name, value]) =>
-            url.searchParams.set(name, value as any),
-          );
-
-          const init = { body, headers, method };
-          const request = new Request(url, init);
-
-          return handleFn(request);
-        }),
-        Effect.annotateLogs("clientOperationId", id),
+      const handler = server.handlers.find(
+        ({ endpoint }) => endpoint.id === id,
       );
-    };
-    return { ...client, [id]: fn };
-  }, {} as TestingClient<R, A>);
+
+      if (handler === undefined) {
+        throw new Error(`Couldn't find server implementation for ${id}`);
+      }
+
+      const handleFn = runHandlerFnWithExtensions(server.extensions, handler);
+
+      const fn = (_args: any) => {
+        const args = _args || {};
+
+        return pipe(
+          parseInputs(args),
+          Effect.tap(() => Effect.log(`${method} ${path}`, { level: "Trace" })),
+          Effect.flatMap(({ body, query, params, headers }) => {
+            const pathStr = Object.entries(params ?? {}).reduce(
+              (path, [key, value]) => path.replace(`:${key}`, value as any),
+              path,
+            );
+
+            const url = new URL(`http://localhost${pathStr}`);
+
+            Object.entries(query ?? {}).forEach(([name, value]) =>
+              url.searchParams.set(name, value as any),
+            );
+
+            const init = { body, headers, method };
+            const request = new Request(url, init);
+
+            return handleFn(request);
+          }),
+          Effect.annotateLogs("clientOperationId", id),
+        );
+      };
+      return { ...client, [id]: fn };
+    },
+    {} as TestingClient<R, A>,
+  );

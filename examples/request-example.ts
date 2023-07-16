@@ -23,7 +23,7 @@ const GetValueCache = Context.Tag<Request.Cache>();
 const GetValueResolver = RequestResolver.fromFunctionEffect((_: GetValue) =>
   pipe(
     readFile("test-file"),
-    Effect.tap(() => Effect.logDebug("Value read from file")),
+    Effect.tap(() => Effect.log("Value read from file", { level: "Debug" })),
   ),
 );
 
@@ -31,7 +31,7 @@ const requestMyValue = Effect.flatMap(GetValueCache, (getValueCache) =>
   pipe(
     Effect.request(GetValue({}), GetValueResolver),
     Effect.withRequestCache(getValueCache),
-    Effect.withRequestCaching("on"),
+    Effect.withRequestCaching(true),
   ),
 );
 
@@ -45,10 +45,10 @@ const server = pipe(
   Http.handle("getValue", () =>
     Effect.flatMap(GetValueCache, (getValueCache) =>
       pipe(
-        Effect.allPar(RA.replicate(requestMyValue, 10)),
+        Effect.all(RA.replicate(requestMyValue, 10), { concurrency: 10 }),
         Effect.mapError(() => Http.notFoundError("File not found")),
         Effect.withRequestCache(getValueCache),
-        Effect.withRequestCaching("on"),
+        Effect.withRequestCaching(true),
         Effect.map((values) => values.join(", ")),
       ),
     ),
@@ -61,7 +61,7 @@ pipe(
   Logger.withMinimumLogLevel(LogLevel.All),
   Effect.provideServiceEffect(
     GetValueCache,
-    Request.makeCache(100, Duration.seconds(5)),
+    Request.makeCache({ capacity: 100, timeToLive: Duration.seconds(5) }),
   ),
   Effect.runPromise,
 );

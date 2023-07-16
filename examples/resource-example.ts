@@ -28,7 +28,7 @@ const server = pipe(
   Http.server(api),
   Http.handle("getValue", () =>
     pipe(
-      Effect.allPar(RA.replicate(readMyValue, 10)),
+      Effect.all(RA.replicate(readMyValue, 10), { concurrency: 10 }),
       Effect.mapError(() => Http.notFoundError("File not found")),
       Effect.map((values) => values.join(", ")),
     ),
@@ -43,7 +43,9 @@ pipe(
     Resource.auto(
       pipe(
         readFile("test-file"),
-        Effect.tap(() => Effect.logDebug("MyValue refreshed from file")),
+        Effect.tap(() =>
+          Effect.log("MyValue refreshed from file", { level: "Debug" }),
+        ),
       ),
       Schedule.fixed(Duration.seconds(5)),
     ),

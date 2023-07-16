@@ -128,27 +128,27 @@ export const runHandlerFnWithExtensions = (
 
   return (request: Request) =>
     pipe(
-      Effect.allDiscard(beforeExtensions.map(({ fn }) => fn(request))),
+      Effect.all(beforeExtensions.map(({ fn }) => fn(request))),
       Effect.either,
       Effect.flatMap(
-        Either.match(
-          (error) => convertErrorToResponse(error),
-          () =>
+        Either.match({
+          onLeft: (error) => convertErrorToResponse(error),
+          onRight: () =>
             pipe(
               fn(request),
               Effect.tapError((error) =>
-                Effect.allDiscard(
+                Effect.all(
                   onErrorExtensions.map(({ fn }) => fn(request, error)),
                 ),
               ),
               Effect.tap((response) =>
-                Effect.allDiscard(
+                Effect.all(
                   afterExtensions.map(({ fn }) => fn(request, response)),
                 ),
               ),
               Effect.catchAll((error) => convertErrorToResponse(error)),
             ),
-        ),
+        }),
       ),
     );
 };
@@ -225,7 +225,9 @@ const toEndpoint = (
       ),
       Effect.catchAllDefect((error) =>
         pipe(
-          Effect.logFatal("Defect occured when sending failure response"),
+          Effect.log("Defect occured when sending failure response", {
+            level: "Fatal",
+          }),
           Effect.annotateLogs("error", errorToLog(error)),
         ),
       ),
@@ -274,11 +276,13 @@ export const toExpress =
           const extensions = server.extensions
             .map(({ extension }) => extension.id)
             .join(", ");
-          return Effect.logDebug(
-            `Server loaded with extensions: ${extensions}`,
-          );
+          return Effect.log(`Server loaded with extensions: ${extensions}`, {
+            level: "Debug",
+          });
         } else {
-          return Effect.logDebug(`Server loaded without extensions`);
+          return Effect.log(`Server loaded without extensions`, {
+            level: "Debug",
+          });
         }
       }),
       Effect.provideSomeLayer(
@@ -302,7 +306,7 @@ const DEFAULT_LOGGERS = {
   default: Logger.defaultLogger,
   pretty: Log.pretty,
   json: Log.json(),
-  none: Logger.none(),
+  none: Logger.none,
 };
 
 /** @internal */
@@ -366,17 +370,18 @@ export const listenExpress =
               server.removeListener("error", errorListener);
 
               if (error === undefined) {
-                cb(Effect.unit());
+                cb(Effect.unit);
               } else {
-                cb(Effect.logWarning("Server already closed"));
+                cb(Effect.log("Server already closed", { level: "Warning" }));
               }
             });
           }),
       ),
       Effect.tap(([server]) => {
         const address = server.address() as AddressInfo;
-        return Effect.logInfo(
+        return Effect.log(
           `Server listening on ${address.address}:${address.port}`,
+          { level: "Info" },
         );
       }),
       Effect.tap(([server]) => {
@@ -384,7 +389,7 @@ export const listenExpress =
           return options?.onStart(server);
         }
 
-        return Effect.unit();
+        return Effect.unit;
       }),
       Effect.map(([app]) => ({ app })),
       Effect.bind("scope", () => Scope.make()),
@@ -408,7 +413,7 @@ export const listenExpress =
         }),
       ),
       Effect.flatMap((reason) =>
-        Effect.logDebug(`Stopping server (${reason})`),
+        Effect.log(`Stopping server (${reason})`, { level: "Debug" }),
       ),
       Effect.scoped,
       Effect.provideSomeLayer(

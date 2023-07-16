@@ -31,13 +31,13 @@ export const testServerUrl = <R>(
             const sockets: Socket[] = [];
             httpServer.on("connection", (s) => sockets.push(s));
             cb(Effect.succeed([url, httpServer, sockets]));
-            return Effect.unit();
+            return Effect.unit;
           },
         }),
       ),
     ),
     Effect.tap(([_, httpServer, sockets]) =>
-      Effect.acquireRelease(Effect.unit(), () =>
+      Effect.acquireRelease(Effect.unit, () =>
         pipe(
           Effect.try(() => {
             sockets.forEach((s) => {
@@ -100,13 +100,13 @@ export const testExpress =
               const sockets: Socket[] = [];
               httpServer.on("connection", (s) => sockets.push(s));
               cb(Effect.succeed([client, httpServer, sockets]));
-              return Effect.unit();
+              return Effect.unit;
             },
           }),
         ),
       ),
       Effect.tap(([_, httpServer, sockets]) =>
-        Effect.acquireRelease(Effect.unit(), () =>
+        Effect.acquireRelease(Effect.unit, () =>
           pipe(
             Effect.try(() => {
               sockets.forEach((s) => {

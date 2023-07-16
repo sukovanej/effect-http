@@ -5,7 +5,7 @@
  */
 import * as crypto from "crypto";
 
-import { flow, identity, pipe } from "@effect/data/Function";
+import { identity, pipe } from "@effect/data/Function";
 import * as HashMap from "@effect/data/HashMap";
 import * as Option from "@effect/data/Option";
 import { isString } from "@effect/data/Predicate";
@@ -114,7 +114,7 @@ export const accessLogExtension = (
   level: "Info" | "Warning" | "Debug" = "Info",
 ): BeforeHandlerExtension<never> =>
   beforeHandlerExtension("access-log", (request) =>
-    Effect[`log${level}`](`${request.method} ${request.url}`),
+    Effect.log(`${request.method} ${request.url}`, { level }),
   );
 
 /**
@@ -160,7 +160,7 @@ export const endpointCallsMetricExtension =
 
       return pipe(
         Metric.increment(endpointCalledCounter),
-        Effect.tagged("path", url.pathname),
+        Effect.tagMetrics("path", url.pathname),
       );
     });
   };
@@ -176,15 +176,21 @@ export const errorLogExtension = () =>
     const path = new URL(request.url).pathname;
 
     return pipe(
-      Effect.logError(`${request.method.toUpperCase()} ${path} failed`),
+      Effect.log(`${request.method.toUpperCase()} ${path} failed`, {
+        level: "Error",
+      }),
       isApiError(error)
-        ? flow(
-            Effect.annotateLogs("errorTag", error._tag),
-            Effect.annotateLogs(
-              "error",
-              isString(error.error) ? error.error : JSON.stringify(error.error),
-            ),
-          )
+        ? (eff) =>
+            pipe(
+              eff,
+              Effect.annotateLogs("errorTag", error._tag),
+              Effect.annotateLogs(
+                "error",
+                isString(error.error)
+                  ? error.error
+                  : JSON.stringify(error.error),
+              ),
+            )
         : identity,
     );
   });

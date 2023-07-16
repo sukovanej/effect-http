@@ -37,7 +37,7 @@ export const server = <A extends Api>(api: A): ApiToServer<A> =>
 
     handlers: [],
     extensions: defaultExtensions,
-  } as unknown as ApiToServer<A>);
+  }) as unknown as ApiToServer<A>;
 
 const createParamsMatcher = (path: string) => {
   // based on https://github.com/kwhitley/itty-router/blob/73148972bf2e205a4969e85672e1c0bfbf249c27/src/itty-router.js
@@ -62,11 +62,11 @@ const enhanceHandler = (
 ): Handler => {
   const { schemas, path } = endpoint;
 
-  const parseQuery = Schema.parseEffect(getStructSchema(schemas.query));
-  const parseParams = Schema.parseEffect(getStructSchema(schemas.params));
-  const parseHeaders = Schema.parseEffect(getStructSchema(schemas.headers));
-  const parseBody = Schema.parseEffect(getSchema(schemas.body));
-  const encodeResponse = Schema.encodeEffect(schemas.response);
+  const parseQuery = Schema.parse(getStructSchema(schemas.query));
+  const parseParams = Schema.parse(getStructSchema(schemas.params));
+  const parseHeaders = Schema.parse(getStructSchema(schemas.headers));
+  const parseBody = Schema.parse(getSchema(schemas.body));
+  const encodeResponse = Schema.encode(schemas.response);
 
   const getRequestParams = createParamsMatcher(path);
 
@@ -87,8 +87,8 @@ const enhanceHandler = (
       contentLengthHeader === null ? 0 : parseInt(contentLengthHeader);
 
     return pipe(
-      Effect.tryCatchPromise(
-        () => {
+      Effect.tryPromise({
+        try: () => {
           if (contentLength > 0) {
             if (contentTypeHeader?.startsWith("application/json")) {
               return request.json();
@@ -98,11 +98,11 @@ const enhanceHandler = (
           }
           return Promise.resolve(undefined);
         },
-        (err) =>
+        catch: (err) =>
           internalServerError(
             `Cannot get request JSON, ${err}, ${request.body}`,
           ),
-      ),
+      }),
       Effect.flatMap((body) =>
         Effect.all({
           query: Effect.mapError(parseQuery(query), invalidQueryError),
