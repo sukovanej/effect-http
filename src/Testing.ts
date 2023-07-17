@@ -80,7 +80,7 @@ export const testingClient = <R, A extends Api>(
 
         return pipe(
           parseInputs(args),
-          Effect.tap(() => Effect.log(`${method} ${path}`, { level: "Trace" })),
+          Effect.tap(() => Effect.log(`${method} ${path}`, "Trace")),
           Effect.flatMap(({ body, query, params, headers }) => {
             const pathStr = Object.entries(params ?? {}).reduce(
               (path, [key, value]) => path.replace(`:${key}`, value as any),
