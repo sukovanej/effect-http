@@ -43,9 +43,7 @@ pipe(
     Resource.auto(
       pipe(
         readFile("test-file"),
-        Effect.tap(() =>
-          Effect.log("MyValue refreshed from file", { level: "Debug" }),
-        ),
+        Effect.tap(() => Effect.log("MyValue refreshed from file", "Debug")),
       ),
       Schedule.fixed(Duration.seconds(5)),
     ),

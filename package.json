@@ -49,7 +49,7 @@
     "@typescript-eslint/parser": "^6.0.0",
     "@vitest/coverage-c8": "^0.33.0",
     "docs-ts": "^0.8.0",
-    "eslint": "^8.44.0",
+    "eslint": "^8.45.0",
     "prettier": "^3.0.0",
     "tsup": "^7.1.0",
     "tsx": "^3.12.7",
@@ -57,12 +57,12 @@
     "vitest": "^0.33.0"
   },
   "dependencies": {
-    "@effect/data": "^0.14.2",
-    "@effect/io": "^0.32.2",
-    "@effect/schema": "^0.26.1",
-    "effect-log": "^0.4.0",
+    "@effect/data": "^0.15.0",
+    "@effect/io": "^0.33.0",
+    "@effect/schema": "^0.27.0",
+    "effect-log": "^0.5.0",
     "express": "^4.18.2",
-    "schema-openapi": "^0.3.0",
+    "schema-openapi": "^0.4.0",
     "swagger-ui-express": "^5.0.0"
   }
 }
