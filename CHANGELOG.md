@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.16.0
+
+### Minor Changes
+
+- c245afd: Update dependencies.
+
 ## 0.15.1
 
 ### Patch Changes
