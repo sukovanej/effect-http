@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.17.1
+
+### Patch Changes
+
+- dc8d503: Update dependencies.
+
 ## 0.17.0
 
 ### Minor Changes
