@@ -148,7 +148,7 @@ export const client =
               headers: { ...finalOptions.headers, ...args.headers },
             }),
             Effect.let("path", ({ params }) => constructPath(params, path)),
-            Effect.tap(() => Effect.log(`${method} ${path}`, "Trace")),
+            Effect.tap(() => Effect.logTrace(`${method} ${path}`)),
             Effect.flatMap(({ path, body, query, headers }) =>
               makeHttpCall(method, baseUrl, path, body, headers, query),
             ),

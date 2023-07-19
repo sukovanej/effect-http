@@ -225,7 +225,7 @@ const toEndpoint = (
       ),
       Effect.catchAllDefect((error) =>
         pipe(
-          Effect.log("Defect occured when sending failure response", "Fatal"),
+          Effect.logFatal("Defect occured when sending failure response"),
           Effect.annotateLogs("error", errorToLog(error)),
         ),
       ),
@@ -274,12 +274,11 @@ export const toExpress =
           const extensions = server.extensions
             .map(({ extension }) => extension.id)
             .join(", ");
-          return Effect.log(
+          return Effect.logDebug(
             `Server loaded with extensions: ${extensions}`,
-            "Debug",
           );
         } else {
-          return Effect.log(`Server loaded without extensions`, "Debug");
+          return Effect.logDebug("Server loaded without extensions");
         }
       }),
       Effect.provideSomeLayer(
@@ -369,16 +368,15 @@ export const listenExpress =
               if (error === undefined) {
                 cb(Effect.unit);
               } else {
-                cb(Effect.log("Server already closed", "Warning"));
+                cb(Effect.logWarning("Server already closed"));
               }
             });
           }),
       ),
       Effect.tap(([server]) => {
         const address = server.address() as AddressInfo;
-        return Effect.log(
+        return Effect.logInfo(
           `Server listening on ${address.address}:${address.port}`,
-          "Info",
         );
       }),
       Effect.tap(([server]) => {
@@ -410,7 +408,7 @@ export const listenExpress =
         }),
       ),
       Effect.flatMap((reason) =>
-        Effect.log(`Stopping server (${reason})`, "Debug"),
+        Effect.logDebug(`Stopping server (${reason})`),
       ),
       Effect.scoped,
       Effect.provideSomeLayer(

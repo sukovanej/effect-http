@@ -33,7 +33,7 @@ export const ArrayOfCredentialsConfig = pipe(
 
     return Either.right({ user: parts[0], password: parts[1] });
   }),
-  (credentialsConfig) => Config.arrayOf(credentialsConfig, "CREDENTIALS"),
+  (credentialsConfig) => Config.array(credentialsConfig, "CREDENTIALS"),
 );
 
 const CredentialsService = Context.Tag<readonly Http.BasicAuthCredentials[]>();
