@@ -12,17 +12,17 @@ dependencies:
     specifier: ^0.35.1
     version: 0.35.1
   '@effect/schema':
-    specifier: ^0.29.0
-    version: 0.29.0
+    specifier: ^0.30.0
+    version: 0.30.0
   effect-log:
-    specifier: ^0.6.0
-    version: 0.6.0
+    specifier: ^0.6.1
+    version: 0.6.1
   express:
     specifier: ^4.18.2
     version: 4.18.2
   schema-openapi:
-    specifier: ^0.5.0
-    version: 0.5.0
+    specifier: ^0.6.0
+    version: 0.6.0
   swagger-ui-express:
     specifier: ^5.0.0
     version: 5.0.0(express@4.18.2)
@@ -416,8 +416,8 @@ packages:
       '@effect/data': 0.16.0
     dev: false
 
-  /@effect/schema@0.29.0:
-    resolution: {integrity: sha512-yO8FkCoblU1oeB02nHi3yJu0Z66euVd30RbjwyOeZp7YAqyzaA2GPbm6ldd9bNIKDiGz+Zr1gw/wUmS0dvUfHw==}
+  /@effect/schema@0.30.0:
+    resolution: {integrity: sha512-Pj0MUD6kfYwUPUYejig2hAcQUR4aH+9e3My+puc3VkfLLlY1XkyMUIZZGV/B36iZYdMsNF4sEvpzXcZwZOaI6A==}
     dependencies:
       '@effect/data': 0.16.0
       '@effect/io': 0.35.1
@@ -1964,8 +1964,8 @@ packages:
     resolution: {integrity: sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==}
     dev: false
 
-  /effect-log@0.6.0:
-    resolution: {integrity: sha512-VaooVrYFpaNbymjdQRVxdfw9p+fWOYWcIq+UT9QCXlG0lO/n3Spt86gexrtQDSkjZQYnAnatq4jZ8S9swvCqyA==}
+  /effect-log@0.6.1:
+    resolution: {integrity: sha512-t6n6of6hRAgY+P/9RK3qJd1NRBotiCksOpnJqKNHEJnUp2u2SkcxQq8ZWjQD2p37dMWQ5rWhVfMDU0IOvELykA==}
     dependencies:
       '@effect/data': 0.16.0
       '@effect/io': 0.35.1
@@ -4039,12 +4039,12 @@ packages:
   /safer-buffer@2.1.2:
     resolution: {integrity: sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==}
 
-  /schema-openapi@0.5.0:
-    resolution: {integrity: sha512-ghZoLylYzzfgyQ89ma/7Myw6CUG+sNj4ir36qzx/NzZQgjMj30oZ7rhvgKn8P+gqTIuaXqHUU+0gaJxoDmVNqQ==}
+  /schema-openapi@0.6.0:
+    resolution: {integrity: sha512-KIcp573qo77EFcLrv7Uw6gLeUfrcngwx/pad9csKr1OIHuJNUSwUkBx6uzkybS4x8isiO4NIKJRtbuxc2UB7gA==}
     dependencies:
       '@effect/data': 0.16.0
       '@effect/io': 0.35.1
-      '@effect/schema': 0.29.0
+      '@effect/schema': 0.30.0
     dev: false
 
   /semver@5.7.2:
@@ -4331,8 +4331,8 @@ packages:
       acorn: 8.10.0
     dev: true
 
-  /sucrase@3.33.0:
-    resolution: {integrity: sha512-ARGC7vbufOHfpvyGcZZXFaXCMZ9A4fffOGC5ucOW7+WHDGlAe8LJdf3Jts1sWhDeiI1RSWrKy5Hodl+JWGdW2A==}
+  /sucrase@3.34.0:
+    resolution: {integrity: sha512-70/LQEZ07TEcxiU2dz51FKaE6hCTWC6vr7FOk3Gr0U60C3shtAN+H+BFr9XlYe5xqf3RA8nrc+VIwzCfnxuXJw==}
     engines: {node: '>=8'}
     hasBin: true
     dependencies:
@@ -4545,7 +4545,7 @@ packages:
       resolve-from: 5.0.0
       rollup: 3.26.3
       source-map: 0.8.0-beta.0
-      sucrase: 3.33.0
+      sucrase: 3.34.0
       tree-kill: 1.2.2
       typescript: 5.1.6
     transitivePeerDependencies:
