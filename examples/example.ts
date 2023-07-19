@@ -42,7 +42,7 @@ const handleTest = ({ query: { name } }: Http.Input<typeof api, "test">) =>
 const handleLesnek = ({ query }: Http.Input<typeof api, "getLesnek">) =>
   pipe(
     Effect.succeed(`hello ${query.name}`),
-    Effect.tap(() => Effect.log("hello world", "Debug")),
+    Effect.tap(() => Effect.logDebug("hello world")),
   );
 
 // Api

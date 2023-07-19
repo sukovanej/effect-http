@@ -114,7 +114,7 @@ export const accessLogExtension = (
   level: "Info" | "Warning" | "Debug" = "Info",
 ): BeforeHandlerExtension<never> =>
   beforeHandlerExtension("access-log", (request) =>
-    Effect.log(`${request.method} ${request.url}`, level),
+    Effect[`log${level}`](`${request.method} ${request.url}`),
   );
 
 /**
@@ -176,7 +176,7 @@ export const errorLogExtension = () =>
     const path = new URL(request.url).pathname;
 
     return pipe(
-      Effect.log(`${request.method.toUpperCase()} ${path} failed`, "Error"),
+      Effect.logError(`${request.method.toUpperCase()} ${path} failed`),
       isApiError(error)
         ? (eff) =>
             pipe(
