@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.17.0
+
+### Minor Changes
+
+- 19a26ab: Update /data and /io.
+
 ## 0.16.0
 
 ### Minor Changes
