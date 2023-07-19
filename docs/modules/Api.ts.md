@@ -72,7 +72,7 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-export declare const api: (options?: Partial<{ title: string; version: string }> | undefined) => Api<[]>
+export declare const api: (options?: Partial<Api['options']>) => Api<[]>
 ```
 
 Added in v1.0.0
@@ -126,7 +126,25 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-export declare const options: any
+export declare const options: <
+  const Id extends string,
+  const I extends InputSchemas<
+    Schema.Schema<any, any>,
+    RecordOptionalSchema,
+    RecordOptionalSchema,
+    Schema.Schema<any, any> | undefined,
+    RecordOptionalSchema
+  >
+>(
+  id: Id,
+  path: string,
+  schemas: I,
+  options?: EndpointOptions | undefined
+) => <
+  A extends Api<Endpoint<string, any, any, any, any, any>[]> | ApiGroup<Endpoint<string, any, any, any, any, any>[]>
+>(
+  api: A
+) => AddEndpoint<A, Id, I>
 ```
 
 Added in v1.0.0
@@ -249,8 +267,12 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-export type EndpointSetter = <
-  const
+export type EndpointSetter = <const Id extends string, const I extends InputSchemas>(
+  id: Id,
+  path: string,
+  schemas: I,
+  options?: EndpointOptions
+) => <A extends Api | ApiGroup>(api: A) => AddEndpoint<A, Id, I>
 ```
 
 Added in v1.0.0

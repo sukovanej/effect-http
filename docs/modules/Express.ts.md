@@ -36,8 +36,8 @@ Create express app from the `Server`
 
 ```ts
 export declare const express: <R>(
-  options?: Partial<ExpressOptions> | undefined
-) => (server: Server<R, [], Api<Endpoint<string, any, any, any, any, any>[]>>) => Effect.Effect<R, unknown, Express>
+  options?: Partial<ExpressOptions>
+) => (server: Server<R, []>) => Effect.Effect<R, unknown, Express>
 ```
 
 Added in v1.0.0
@@ -50,15 +50,8 @@ Create an express app from the `Server` and start the server
 
 ```ts
 export declare const listen: (
-  options?:
-    | Partial<
-        ExpressOptions & {
-          port: number | undefined
-          onStart?: ((server: any) => Effect.Effect<never, any, any>) | undefined
-        }
-      >
-    | undefined
-) => <R>(server: Server<R, [], Api<Endpoint<string, any, any, any, any, any>[]>>) => Effect.Effect<R, unknown, void>
+  options?: Partial<ExpressOptions & ListenOptions>
+) => <R>(server: Server<R, []>) => Effect.Effect<R, unknown, void>
 ```
 
 Added in v1.0.0
@@ -71,14 +64,7 @@ Start the server from an express app
 
 ```ts
 export declare const listenExpress: (
-  options?:
-    | Partial<
-        ExpressOptions & {
-          port: number | undefined
-          onStart?: ((server: any) => Effect.Effect<never, any, any>) | undefined
-        }
-      >
-    | undefined
+  options?: Partial<ExpressOptions & ListenOptions>
 ) => (express: Express) => Effect.Effect<never, unknown, void>
 ```
 
