@@ -33,7 +33,7 @@ Generate an example Server implementation.
 **Signature**
 
 ```ts
-export declare const exampleServer: (api: Api) => Server<never, []>
+export declare const exampleServer: <A extends Api>(api: A) => Server<never, [], A>
 ```
 
 Added in v1.0.0

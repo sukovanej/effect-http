@@ -38,7 +38,7 @@ test("layers", async () => {
   );
 
   await pipe(
-    testServer(server, api),
+    testServer(server),
     Effect.provideSomeLayer(layer),
     Effect.flatMap((client) => client.doStuff({})),
     Effect.map((response) => {
@@ -63,7 +63,7 @@ test("validation error", async () => {
   const server = Http.exampleServer(api);
 
   await pipe(
-    testServer(server, api),
+    testServer(server),
     Effect.flatMap((client) => client.hello({ query: { country: "abc" } })),
     Effect.map(() => {
       assert.fail("Expected failure");
@@ -95,7 +95,7 @@ test("human-readable error response", async () => {
   );
 
   await pipe(
-    testServer(server, api),
+    testServer(server),
     Effect.flatMap((client) => client.hello({})),
     Effect.map(() => {
       assert.fail("Expected failure");
@@ -137,7 +137,7 @@ test("headers", async () => {
   );
 
   await pipe(
-    testServer(server, api),
+    testServer(server),
     Effect.flatMap((client) =>
       client.hello({ headers: { "x-client-id": "abc" } }),
     ),
@@ -170,7 +170,7 @@ test.each(Http.API_ERROR_TAGS as Http.ApiError["_tag"][])(
     );
 
     await pipe(
-      testServer(server, api),
+      testServer(server),
       Effect.flatMap((client) => client.hello({})),
       Effect.catchAll((error) => {
         expect(error).toMatchObject({
@@ -221,7 +221,7 @@ test("Response object", async () => {
   );
 
   await pipe(
-    testServer(server, api),
+    testServer(server),
     Effect.flatMap((client) =>
       client.hello({ headers: { "x-client-id": "abc" } }),
     ),
@@ -290,7 +290,7 @@ test("Response containing optional field", async () => {
   );
 
   await pipe(
-    testServer(server, api),
+    testServer(server),
     Effect.tap((client) =>
       pipe(
         client.hello({}),
@@ -329,7 +329,7 @@ test("failing after handler extension", async () => {
   );
 
   const result = await pipe(
-    testServer(server, helloApi),
+    testServer(server),
     Effect.flatMap((client) => client.hello({})),
     Effect.either,
     Effect.scoped,

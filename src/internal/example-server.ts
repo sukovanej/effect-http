@@ -10,15 +10,15 @@ import type { Server } from "effect-http/Server";
 import { internalServerError } from "effect-http/ServerError";
 
 /** @internal */
-export const exampleServer = (api: Api): Server<never, []> => {
+export const exampleServer = <A extends Api>(api: A): Server<never, [], A> => {
   const _server = server(api);
 
   return pipe(
     _server._unimplementedEndpoints,
     RA.reduce(_server, (server, endpoint) =>
-      pipe(server, handle(endpoint.id, createExampleHandler(endpoint))),
+      pipe(server, handle(endpoint.id, createExampleHandler(endpoint)) as any),
     ),
-  ) as Server<never, []>;
+  ) as any;
 };
 
 /** @internal */
