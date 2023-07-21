@@ -6,23 +6,23 @@ settings:
 
 dependencies:
   '@effect/data':
-    specifier: ^0.16.0
-    version: 0.16.0
+    specifier: ^0.16.1
+    version: 0.16.1
   '@effect/io':
-    specifier: ^0.35.1
-    version: 0.35.1
+    specifier: ^0.35.2
+    version: 0.35.2
   '@effect/schema':
     specifier: ^0.30.1
     version: 0.30.1
   effect-log:
-    specifier: ^0.6.1
-    version: 0.6.1
+    specifier: ^0.6.2
+    version: 0.6.2
   express:
     specifier: ^4.18.2
     version: 4.18.2
   schema-openapi:
-    specifier: ^0.6.1
-    version: 0.6.1
+    specifier: ^0.6.2
+    version: 0.6.2
   swagger-ui-express:
     specifier: ^5.0.0
     version: 5.0.0(express@4.18.2)
@@ -35,8 +35,8 @@ devDependencies:
     specifier: ^0.1.2
     version: 0.1.2(@types/node@20.4.2)(typescript@5.1.6)
   '@trivago/prettier-plugin-sort-imports':
-    specifier: ^4.1.1
-    version: 4.1.1(prettier@3.0.0)
+    specifier: ^4.2.0
+    version: 4.2.0(prettier@3.0.0)
   '@types/express':
     specifier: ^4.17.17
     version: 4.17.17
@@ -405,8 +405,8 @@ packages:
       '@jridgewell/trace-mapping': 0.3.9
     dev: true
 
-  /@effect/data@0.16.0:
-    resolution: {integrity: sha512-ckZ/WvvI4zZGo+vRVTRBfBi4KvY9ZjLlnDWlrfhKnAJvgDu6SI8A5FJ8c/eJphmtLWNdoQx8j9pFhWLSIQe5RQ==}
+  /@effect/data@0.16.1:
+    resolution: {integrity: sha512-rIoLk+5xY1lakbzd7k5xbuPvfiR+BSQSrOyxX5Fo5oXWt1a29k31K/0Cq+9NtwqsAE7aNMlQtw6Z1d0Sxw1i9Q==}
     dev: false
 
   /@effect/docgen@0.1.2(@types/node@20.4.2)(typescript@5.1.6):
@@ -432,17 +432,17 @@ packages:
       - '@types/node'
     dev: true
 
-  /@effect/io@0.35.1:
-    resolution: {integrity: sha512-kSYaYXSzBkDdtEgBOBZTOsF+7D9HRiMNwkDTGRARRow/5zXJVZxHxDAZJdA/3Am7irCD7yeDDsxsMVwqgfJdYg==}
+  /@effect/io@0.35.2:
+    resolution: {integrity: sha512-+F9A5785QmjK8OOO5d5SDHcZjNwpp0D8nAf7PlGSXPBFxeex2S5qYhhlUbE1zBQeTZoDwp40UIIMtgTb8yFOTw==}
     dependencies:
-      '@effect/data': 0.16.0
+      '@effect/data': 0.16.1
     dev: false
 
   /@effect/schema@0.30.1:
     resolution: {integrity: sha512-A/WwOnTgdmomXwFekJlqItAYBazSPEXbQHl0joJBb796GZtf5K/IZEhuTaL9TqdHTXi6FL+iSlFveZdRjz0Nzw==}
     dependencies:
-      '@effect/data': 0.16.0
-      '@effect/io': 0.35.1
+      '@effect/data': 0.16.1
+      '@effect/io': 0.35.2
       fast-check: 3.11.0
     dev: false
 
@@ -1042,11 +1042,11 @@ packages:
     resolution: {integrity: sha512-+Fj43pSMwJs4KRrH/938Uf+uAELIgVBmQzg/q1YG10djyfA3TnrU8N8XzqCh/okZdszqBQTZf96idMfE5lnwTA==}
     dev: true
 
-  /@trivago/prettier-plugin-sort-imports@4.1.1(prettier@3.0.0):
-    resolution: {integrity: sha512-dQ2r2uzNr1x6pJsuh/8x0IRA3CBUB+pWEW3J/7N98axqt7SQSm+2fy0FLNXvXGg77xEDC7KHxJlHfLYyi7PDcw==}
+  /@trivago/prettier-plugin-sort-imports@4.2.0(prettier@3.0.0):
+    resolution: {integrity: sha512-YBepjbt+ZNBVmN3ev1amQH3lWCmHyt5qTbLCp/syXJRu/Kw2koXh44qayB1gMRxcL/gV8egmjN5xWSrYyfUtyw==}
     peerDependencies:
       '@vue/compiler-sfc': 3.x
-      prettier: 2.x
+      prettier: 2.x - 3.x
     peerDependenciesMeta:
       '@vue/compiler-sfc':
         optional: true
@@ -2019,11 +2019,11 @@ packages:
     resolution: {integrity: sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==}
     dev: false
 
-  /effect-log@0.6.1:
-    resolution: {integrity: sha512-t6n6of6hRAgY+P/9RK3qJd1NRBotiCksOpnJqKNHEJnUp2u2SkcxQq8ZWjQD2p37dMWQ5rWhVfMDU0IOvELykA==}
+  /effect-log@0.6.2:
+    resolution: {integrity: sha512-sJVg8H8hMZHjYhnx0hj1FPcOCg4t2I9nV1rWxb5abgpnEh/sKcw14BUw2QRCv/aGr7ybUXup4kpFFI49pVXMeQ==}
     dependencies:
-      '@effect/data': 0.16.0
-      '@effect/io': 0.35.1
+      '@effect/data': 0.16.1
+      '@effect/io': 0.35.2
     dev: false
 
   /emoji-regex@8.0.0:
@@ -3826,8 +3826,8 @@ packages:
       yaml: 2.3.1
     dev: true
 
-  /postcss@8.4.26:
-    resolution: {integrity: sha512-jrXHFF8iTloAenySjM/ob3gSj7pCu0Ji49hnjqzsgSRa50hkWCKD0HQ+gMNJkW38jBI68MpAAg7ZWwHwX8NMMw==}
+  /postcss@8.4.27:
+    resolution: {integrity: sha512-gY/ACJtJPSmUFPDCHtX78+01fHa64FaU4zaaWfuh1MhGJISufJAH4cun6k/8fwsHYeK4UQmENQK+tRLCFJE8JQ==}
     engines: {node: ^10 || ^12 || >=14}
     dependencies:
       nanoid: 3.3.6
@@ -4123,11 +4123,11 @@ packages:
   /safer-buffer@2.1.2:
     resolution: {integrity: sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==}
 
-  /schema-openapi@0.6.1:
-    resolution: {integrity: sha512-3gdbKOVyfW9ZYj/l8FDXY5fJ+zIlp5xwwEXAX/4R0Y0zpAD8TSVct194atuYHPgxPicpAMUfJ5MvvIt5zZFUVw==}
+  /schema-openapi@0.6.2:
+    resolution: {integrity: sha512-Rvorm9uMnC6CQqnaciSSB+vhTjOPvNtZ1eDdZanxBggV02zbNchqHldbfZQx593vkKHQ/OGHMO0O0JbMh7rRag==}
     dependencies:
-      '@effect/data': 0.16.0
-      '@effect/io': 0.35.1
+      '@effect/data': 0.16.1
+      '@effect/io': 0.35.2
       '@effect/schema': 0.30.1
     dev: false
 
@@ -4864,7 +4864,7 @@ packages:
       mlly: 1.4.0
       pathe: 1.1.1
       picocolors: 1.0.0
-      vite: 4.4.4(@types/node@20.4.2)
+      vite: 4.4.6(@types/node@20.4.2)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -4876,8 +4876,8 @@ packages:
       - terser
     dev: true
 
-  /vite@4.4.4(@types/node@20.4.2):
-    resolution: {integrity: sha512-4mvsTxjkveWrKDJI70QmelfVqTm+ihFAb6+xf4sjEU2TmUCTlVX87tmg/QooPEMQb/lM9qGHT99ebqPziEd3wg==}
+  /vite@4.4.6(@types/node@20.4.2):
+    resolution: {integrity: sha512-EY6Mm8vJ++S3D4tNAckaZfw3JwG3wa794Vt70M6cNJ6NxT87yhq7EC8Rcap3ahyHdo8AhCmV9PTk+vG1HiYn1A==}
     engines: {node: ^14.18.0 || >=16.0.0}
     hasBin: true
     peerDependencies:
@@ -4906,7 +4906,7 @@ packages:
     dependencies:
       '@types/node': 20.4.2
       esbuild: 0.18.15
-      postcss: 8.4.26
+      postcss: 8.4.27
       rollup: 3.26.3
     optionalDependencies:
       fsevents: 2.3.2
@@ -4964,7 +4964,7 @@ packages:
       strip-literal: 1.0.1
       tinybench: 2.5.0
       tinypool: 0.6.0
-      vite: 4.4.4(@types/node@20.4.2)
+      vite: 4.4.6(@types/node@20.4.2)
       vite-node: 0.33.0(@types/node@20.4.2)
       why-is-node-running: 2.2.2
     transitivePeerDependencies:
