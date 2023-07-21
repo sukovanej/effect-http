@@ -1,5 +1,15 @@
 # effect-http
 
+## 0.18.0
+
+### Minor Changes
+
+- 693d85e: Example server has precise `Api` type.
+
+### Patch Changes
+
+- 97c23b8: Update /data and /io.
+
 ## 0.17.2
 
 ### Patch Changes
