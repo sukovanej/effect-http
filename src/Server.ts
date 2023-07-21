@@ -65,52 +65,34 @@ type SchemaStructTo<A> = {
     : never;
 };
 
-/**
- * @ignored
- * @since 1.0.0
- */
+/** @ignore */
 export type SelectEndpointById<Es extends Endpoint[], Id> = Extract<
   Es[number],
   { id: Id }
 >;
 
-/**
- * @ignored
- * @since 1.0.0
- */
+/** @ignore */
 export type EndpointSchemasToInput<E extends Endpoint["schemas"]> =
   Schema.Spread<SchemaStructTo<RemoveIgnoredSchemas<Omit<E, "response">>>>;
 
-/**
- * @ignored
- * @since 1.0.0
- */
+/** @ignore */
 export type InputHandlerFn<E extends Endpoint, R> = (
   input: EndpointSchemasToInput<E["schemas"]>,
 ) => Effect.Effect<R, ApiError, HandlerResponse<E["schemas"]["response"]>>;
 
-/**
- * @ignored
- * @since 1.0.0
- */
+/** @ignore */
 export type Handler<R = any> = {
   fn: (request: Request) => Effect.Effect<R, unknown, Response>;
 
   endpoint: Endpoint;
 };
 
-/**
- * @ignored
- * @since 1.0.0
- */
+/** @ignore */
 export type ApiToServer<A extends Api> = A extends Api<infer Es>
   ? Server<never, Es, A>
   : never;
 
-/**
- * @ignored
- * @since 1.0.0
- */
+/** @ignore */
 export type DropEndpoint<
   Es extends Endpoint[],
   Id extends string,
@@ -120,14 +102,11 @@ export type DropEndpoint<
     : [First, ...(Rest extends Endpoint[] ? DropEndpoint<Rest, Id> : never)]
   : [];
 
-/**
- * @ignored
- * @since 1.0.0
- */
+/** @ignore */
 export type ServerUnimplementedIds<S extends Server<any>> =
   S["_unimplementedEndpoints"][number]["id"];
 
-/** @ignored */
+/** @ignore */
 type AddServerDependency<S extends Server<any>, R> = S extends Server<
   infer R0,
   infer E,
@@ -136,10 +115,7 @@ type AddServerDependency<S extends Server<any>, R> = S extends Server<
   ? Server<R0 | R, E, A>
   : never;
 
-/**
- * @ignored
- * @since 1.0.0
- */
+/** @ignore */
 export type AddServerHandle<
   S extends Server<any>,
   Id extends ServerUnimplementedIds<S>,
@@ -148,10 +124,7 @@ export type AddServerHandle<
   ? Server<R0 | R, DropEndpoint<E, Id>, A>
   : never;
 
-/**
- * @ignored
- * @since 1.0.0
- */
+/** @ignore */
 export type HandlerResponse<S extends Schema.Schema<any, any>> =
   S extends Schema.Schema<any, infer Body> ? Response | Body : never;
 

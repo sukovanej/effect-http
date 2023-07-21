@@ -171,22 +171,13 @@ export const api = (options?: Partial<Api["options"]>): Api<[]> => ({
   endpoints: [],
 });
 
-/**
- * @ignored
- * @since 1.0.0
- */
+/** @ignore */
 export const IgnoredSchemaId = Symbol("effect-http/ignore-schema-id");
 
-/**
- * @ignored
- * @since 1.0.0
- */
+/** @ignore */
 export type IgnoredSchemaId = typeof IgnoredSchemaId;
 
-/**
- * @ignored
- * @since 1.0.0
- */
+/** @ignore */
 export type ComputeEndpoint<
   Id extends string,
   I extends InputSchemas,
@@ -211,10 +202,7 @@ export type ComputeEndpoint<
   >
 >;
 
-/**
- * @ignored
- * @since 1.0.0
- */
+/** @ignore */
 export type AddEndpoint<
   A extends Api | ApiGroup,
   Id extends string,
