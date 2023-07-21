@@ -31,7 +31,7 @@ test("quickstart example e2e", async () => {
   );
 
   await pipe(
-    testServer(server, api),
+    testServer(server),
     Effect.flatMap((client) => client.getUser({ query: { id: 12 } })),
     Effect.map((response) => {
       expect(response).toEqual({ name: "milan:12" });
@@ -70,7 +70,7 @@ test.each(methods)("Dummy call - %s", async (method) => {
   );
 
   await pipe(
-    testServer(server, api),
+    testServer(server),
     Effect.flatMap((client) => client.doStuff({})),
     Effect.map((response) => {
       expect(response).toEqual({ name: "milan" });
@@ -114,7 +114,7 @@ test("All input types", async () => {
   );
 
   await pipe(
-    testServer(server, api),
+    testServer(server),
     Effect.flatMap((client) =>
       client.doStuff({
         params: { operation: "operation" },

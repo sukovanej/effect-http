@@ -10,7 +10,7 @@ test("example server", async () => {
   const server = Http.exampleServer(simpleApi1);
 
   await pipe(
-    testServer(server, simpleApi1),
+    testServer(server),
     Effect.flatMap((client) => client.myOperation({})),
     Effect.map((response) => {
       expect(typeof response).toEqual("string");

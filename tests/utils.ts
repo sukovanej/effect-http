@@ -8,8 +8,8 @@ import * as Scope from "@effect/io/Scope";
 
 import * as Http from "effect-http";
 
-export const testServerUrl = <R>(
-  server: Http.Server<R, []>,
+export const testServerUrl = <R, A extends Http.Api>(
+  server: Http.Server<R, [], A>,
 ): Effect.Effect<R | Scope.Scope, unknown, URL> =>
   pipe(
     Effect.asyncEffect<
@@ -54,17 +54,12 @@ export const testServerUrl = <R>(
     Effect.map(([client]) => client),
   );
 
-export const testServer = <R, Es extends Http.Endpoint[]>(
-  server: Http.Server<R, []>,
-  api: Http.Api<Es>,
-): Effect.Effect<
-  R | Scope.Scope,
-  unknown,
-  Http.Client<Http.Api<Es>, Record<string, never>>
-> =>
+export const testServer = <R, A extends Http.Api>(
+  server: Http.Server<R, [], A>,
+) =>
   pipe(
     testServerUrl(server),
-    Effect.map((url) => pipe(api, Http.client(url))),
+    Effect.map((url) => pipe(server.api, Http.client(url))),
   );
 
 export const testExpress =

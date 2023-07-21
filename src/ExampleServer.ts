@@ -18,5 +18,5 @@ import * as internal from "effect-http/internal/example-server";
  * @category constructors
  * @since 1.0.0
  */
-export const exampleServer: (api: Api) => Server<never, []> =
+export const exampleServer: <A extends Api>(api: A) => Server<never, [], A> =
   internal.exampleServer;

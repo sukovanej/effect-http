@@ -42,7 +42,7 @@ test("basic auth", async () => {
   );
 
   const result = await pipe(
-    testServer(server, helloApi),
+    testServer(server),
     Effect.flatMap((client) =>
       Effect.all(
         [
