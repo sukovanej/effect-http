@@ -6,14 +6,15 @@ import * as Effect from "@effect/io/Effect";
 import * as Schema from "@effect/schema/Schema";
 
 import { type Api, type Endpoint, IgnoredSchemaId } from "effect-http/Api";
-import { handle, server } from "effect-http/Server";
-import type { Server } from "effect-http/Server";
+import { ServerBuilder, handle, server } from "effect-http/ServerBuilder";
 import { internalServerError } from "effect-http/ServerError";
 
 import { isArray } from "./utils";
 
 /** @internal */
-export const exampleServer = <A extends Api>(api: A): Server<never, [], A> => {
+export const exampleServer = <A extends Api>(
+  api: A,
+): ServerBuilder<never, [], A> => {
   const _server = server(api);
 
   return pipe(

@@ -35,9 +35,9 @@ Create express app from the `Server`
 **Signature**
 
 ```ts
-export declare const express: <R>(
+export declare const express: (
   options?: Partial<ExpressOptions>
-) => (server: Server<R, []>) => Effect.Effect<R, unknown, Express>
+) => <R>(serverBuilder: ServerBuilder<R, []>) => Effect.Effect<R, unknown, _express.Express>
 ```
 
 Added in v1.0.0
@@ -50,8 +50,8 @@ Create an express app from the `Server` and start the server
 
 ```ts
 export declare const listen: (
-  options?: Partial<ExpressOptions & ListenOptions>
-) => <R>(server: Server<R, []>) => Effect.Effect<R, unknown, void>
+  options?: Partial<ListenOptions>
+) => <R>(serverBuilder: ServerBuilder<R, []>) => Effect.Effect<R, unknown, void>
 ```
 
 Added in v1.0.0
@@ -64,8 +64,8 @@ Start the server from an express app
 
 ```ts
 export declare const listenExpress: (
-  options?: Partial<ExpressOptions & ListenOptions>
-) => (express: Express) => Effect.Effect<never, unknown, void>
+  options?: Partial<ListenOptions>
+) => (express: _express.Express) => Effect.Effect<never, unknown, void>
 ```
 
 Added in v1.0.0

@@ -19,7 +19,7 @@ import type { ClientError } from "effect-http/ClientError";
 import type {
   EndpointSchemasToInput,
   SelectEndpointById,
-} from "effect-http/Server";
+} from "effect-http/ServerBuilder";
 import * as internal from "effect-http/internal/client";
 
 /** @ignore */

@@ -93,10 +93,7 @@ export const endpoint =
       ...options,
     };
 
-    return {
-      ...api,
-      endpoints: [...api.endpoints, newEndpoint],
-    } as unknown as AddEndpoint<A, Id, I>;
+    return { ...api, endpoints: [...api.endpoints, newEndpoint] } as any;
   };
 
 /**
