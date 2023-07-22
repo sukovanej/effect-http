@@ -16,7 +16,10 @@ const api = pipe(
         status: 200,
         content: Schema.number,
         headers: {
-          "My-Header": Schema.description("My header")(Schema.NumberFromString),
+          "My-Header": pipe(
+            Schema.NumberFromString,
+            Schema.description("My header"),
+          ),
         },
       },
       {
@@ -25,8 +28,9 @@ const api = pipe(
       },
     ],
     headers: {
-      "User-Agent": Schema.description("Identifier of the user")(
+      "User-Agent": pipe(
         Schema.NumberFromString,
+        Schema.description("Identifier of the user"),
       ),
     },
   }),
@@ -34,13 +38,18 @@ const api = pipe(
 
 const server = pipe(
   Http.server(api),
-  Http.handle("hello", () =>
-    Effect.succeed({
-      status: 200,
-      headers: { "my-header": 12 },
-      content: 12,
-    } as const),
+  Http.handle("hello", ({ ResponseUtil }) =>
+    Effect.succeed(
+      ResponseUtil.response200({ content: 12, headers: { "my-header": 69 } }),
+    ),
   ),
 );
+
+const HelloResponseUtil = Http.responseUtil(api, "hello");
+const response200 = HelloResponseUtil.response200({
+  headers: { "my-header": 12 },
+  content: 12,
+});
+console.log(response200);
 
 pipe(server, Http.listen({ port: 3000 }), Effect.runPromise);

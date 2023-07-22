@@ -114,16 +114,18 @@ const api = pipe(
   Http.get("getMilan", "/milan", { response: Schema.string, query: Schema.string })
 )
 
-type GetMilanInput = Http.Input<typeof api, "getMilan">
+type Api = typeof api;
+
+type GetMilanInput = Http.Input<Api, "getMilan">;
 // -> { query: string }
 ```
 
 **Signature**
 
 ```ts
-export type Input<A extends Api, Id extends A['endpoints'][number]['id']> = EndpointSchemasToInput<
-  Extract<A['endpoints'][number], { id: Id }>['schemas']
->
+export type Input<A extends Api, Id extends A['endpoints'][number]['id']> = Parameters<
+  InputHandlerFn<Extract<A['endpoints'][number], { id: Id }>, never>
+>[0]
 ```
 
 Added in v1.0.0

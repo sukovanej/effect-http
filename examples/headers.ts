@@ -61,7 +61,7 @@ const UsagesService = Context.Tag<Usages>();
 
 const handleHello = ({
   headers: { "x-client-id": clientId },
-}: Http.Input<typeof api, "hello">) =>
+}: Http.Input<Api, "hello">) =>
   pipe(
     Effect.filterOrFail(
       Effect.flatMap(ClientsService, (clients) => clients.hasAccess(clientId)),
@@ -94,6 +94,8 @@ export const api = pipe(
     headers: { "X-Client-Id": Schema.string },
   }),
 );
+
+type Api = typeof api;
 
 const server = pipe(
   api,

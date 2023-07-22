@@ -27,19 +27,21 @@ const dummyStuff = pipe(
 
 // Handlers
 
-const handleMilan = ({ body }: Http.Input<typeof api, "handleMilan">) =>
+type Api = typeof api;
+
+const handleMilan = ({ body }: Http.Input<Api, "handleMilan">) =>
   Effect.map(StuffService, ({ value }) => ({
     ...body,
     penisLength: body.penisLength + value,
   }));
 
-const handleStanda = ({ body }: Http.Input<typeof api, "standa">) =>
+const handleStanda = ({ body }: Http.Input<Api, "standa">) =>
   Effect.succeed({ ...body, standa: "je borec" });
 
-const handleTest = ({ query: { name } }: Http.Input<typeof api, "test">) =>
+const handleTest = ({ query: { name } }: Http.Input<Api, "test">) =>
   Effect.succeed({ name });
 
-const handleLesnek = ({ query }: Http.Input<typeof api, "getLesnek">) =>
+const handleLesnek = ({ query }: Http.Input<Api, "getLesnek">) =>
   pipe(
     Effect.succeed(`hello ${query.name}`),
     Effect.tap(() => Effect.logDebug("hello world")),
