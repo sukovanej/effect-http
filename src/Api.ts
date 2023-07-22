@@ -305,9 +305,9 @@ type AddEndpoint<
   Id extends string,
   Schemas extends InputEndpointSchemas,
 > = A extends Api<infer E>
-  ? Api<[...E, CreateEndpointFromInput<Id, Schemas>]>
+  ? Api<[...E, Schema.Spread<CreateEndpointFromInput<Id, Schemas>>]>
   : A extends ApiGroup<infer E>
-  ? ApiGroup<[...E, CreateEndpointFromInput<Id, Schemas>]>
+  ? ApiGroup<[...E, Schema.Spread<CreateEndpointFromInput<Id, Schemas>>]>
   : never;
 
 /** @ignore */

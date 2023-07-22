@@ -180,9 +180,11 @@ implement the handler, both autocompletion and type-checking would hint the
 lower-cased form of the header name.
 
 ```typescript
+type Api = typeof api;
+
 const handleHello = ({
   headers: { "x-client-id": clientId },
-}: Http.Input<typeof api, "hello">) => Effect.succeed("all good");
+}: Http.Input<Api, "hello">) => Effect.succeed("all good");
 ```
 
 Take a look at [examples/headers.ts](examples/headers.ts) to see a complete example
@@ -222,20 +224,27 @@ const api = pipe(
 The server implemention is type-checked against the api responses
 and one of the specified response objects must be returned.
 
-> :warning: `const` in the example is important because the structure
-> must match exactly on the type level.
+The response object can be generated using a `ResponseUtil`. It is
+a derived object based on the `Api` and operation id and it provides
+methods named `response<status>` that create the response.
 
 ```ts
 const server = pipe(
   Http.server(api),
-  Http.handle("hello", () =>
-    Effect.succeed({
-      status: 200,
-      headers: { "my-header": 12 },
-      content: 12,
-    } as const),
+  Http.handle("hello", ({ ResponseUtil }) =>
+    Effect.succeed(
+      ResponseUtil.response200({ headers: { "my-header": 12 }, content: 12 }),
+    ),
   ),
 );
+```
+
+Note that one can create the response util object using `Http.responseUtil`
+if needed independently of the server implementation.
+
+```ts
+const HelloResponseUtil = Http.responseUtil(api, "hello");
+const response200 = HelloResponseUtil.response200({ headers: { "my-header": 12 }, content: 12 })
 ```
 
 The derived client for this `Api` exposes a `hello` method that
@@ -425,6 +434,8 @@ const api = pipe(
     body: Schema.struct({ name: Schema.string }),
   }),
 );
+
+type Api = typeof api;
 ```
 
 Now, let's implement a `UserRepository` interface abstracting the interaction with
@@ -449,7 +460,7 @@ const mockUserRepository = {
 And finally, we have the actual `Server` implementation.
 
 ```typescript
-const handleStoreUser = ({ body }: Http.Input<typeof api, "storeUser">) =>
+const handleStoreUser = ({ body }: Http.Input<Api, "storeUser">) =>
   pipe(
     Effect.flatMap(UserRepositoryService, (userRepository) =>
       userRepository.existsByName(body.name),
@@ -701,8 +712,10 @@ const api = pipe(
   }),
 );
 
+type Api = typeof api;
+
 // Notice query has type { readonly value: string; }
-const handleStuff = ({ query }: Http.Input<typeof api, "stuff">) =>
+const handleStuff = ({ query }: Http.Input<Api, "stuff">) =>
   pipe(
     Effect.fail(Http.notFoundError("I didnt find it")),
     Effect.tap(() => Effect.log(`Received ${query.value}`)),

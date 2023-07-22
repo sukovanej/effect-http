@@ -33,6 +33,7 @@ import {
   invalidQueryError,
   invalidResponseError,
 } from "effect-http/ServerError";
+import { ResponseUtil, responseUtil } from "effect-http/Utils";
 import {
   getSchema,
   getStructSchema,
@@ -120,6 +121,7 @@ const createResponseEncoder = (
 const enhanceHandler = (
   fn: InputHandlerFn<Endpoint, any>,
   endpoint: Endpoint,
+  responseUtil: ResponseUtil<Endpoint>,
 ): Handler => {
   const { schemas, path } = endpoint;
 
@@ -173,6 +175,7 @@ const enhanceHandler = (
           ),
           body: Effect.mapError(parseBody(body), invalidBodyError),
           headers: Effect.mapError(parseHeaders(headers), invalidHeadersError),
+          ResponseUtil: Effect.succeed(responseUtil),
         }),
       ),
       Effect.flatMap(fn),
@@ -202,8 +205,8 @@ export const handle =
     id: Id,
     fn: InputHandlerFn<SelectEndpointById<S["unimplementedEndpoints"], Id>, R>,
   ) =>
-  (api: S): AddServerHandle<S, Id, R> => {
-    const endpoint = api.unimplementedEndpoints.find(
+  (server: S): AddServerHandle<S, Id, R> => {
+    const endpoint = server.unimplementedEndpoints.find(
       ({ id: _id }) => _id === id,
     );
 
@@ -211,16 +214,17 @@ export const handle =
       throw new Error(`Operation id ${id} not found`);
     }
 
-    const newUnimplementedEndpoints = api.unimplementedEndpoints.filter(
+    const newUnimplementedEndpoints = server.unimplementedEndpoints.filter(
       ({ id: _id }) => _id !== id,
     );
 
-    const handler = enhanceHandler(fn, endpoint);
+    const _responseUtil = responseUtil(server.api, endpoint.id);
+    const handler = enhanceHandler(fn as any, endpoint, _responseUtil);
 
     return {
-      ...api,
+      ...server,
       unimplementedEndpoints: newUnimplementedEndpoints,
-      handlers: [...api.handlers, handler],
+      handlers: [...server.handlers, handler],
     } as unknown as AddServerHandle<S, Id, R>;
   };
 

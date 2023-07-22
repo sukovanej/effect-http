@@ -187,7 +187,7 @@ lower-cased form of the header name.
 ```typescript
 const handleHello = ({
   headers: { "x-client-id": clientId },
-}: Http.Input<typeof api, "hello">) => Effect.succeed("all good");
+}: Http.Input<Api, "hello">) => Effect.succeed(`Client id is ${clientId}`);
 ```
 
 Take a look at [examples/headers.ts](examples/headers.ts) to see a complete example
@@ -354,6 +354,8 @@ const api = pipe(
     body: Schema.struct({ name: Schema.string }),
   }),
 );
+
+type Api = typeof api;
 ```
 
 Now, let's implement a `UserRepository` interface abstracting the interaction with
@@ -378,7 +380,7 @@ const mockUserRepository = {
 And finally, we have the actual `Server` implementation.
 
 ```typescript
-const handleStoreUser = ({ body }: Http.Input<typeof api, "storeUser">) =>
+const handleStoreUser = ({ body }: Http.Input<Api, "storeUser">) =>
   pipe(
     Effect.flatMap(UserRepositoryService, (userRepository) =>
       userRepository.existsByName(body.name),
@@ -630,8 +632,10 @@ const api = pipe(
   }),
 );
 
+type Api = typeof api;
+
 // Notice query has type { readonly value: string; }
-const handleStuff = ({ query }: Http.Input<typeof api, "stuff">) =>
+const handleStuff = ({ query }: Http.Input<Api, "stuff">) =>
   pipe(
     Effect.fail(Http.notFoundError("I didnt find it")),
     Effect.tap(() => Effect.log(`Received ${query.value}`)),
@@ -868,9 +872,9 @@ module.
 | ------------------------------ | --------------------------------------------------------------------------------------------- | :----------------: |
 | `accessLogExtension`           | access logs for handled requests                                                              | :white_check_mark: |
 | `errorLogExtension`            | failed requests are logged out                                                                | :white_check_mark: |
-| `uuidLogAnnotationExtension`   | generates a UUID for every request and uses it in log annotations                             | :x:                |
-| `endpointCallsMetricExtension` | measures how many times each endpoint was called in a `server.endpoint_calls` counter metrics | :x:                |
-| `basicAuthExtension`           | authentication / authorization using basic auth                                               | :x:                |
+| `uuidLogAnnotationExtension`   | generates a UUID for every request and uses it in log annotations                             |        :x:         |
+| `endpointCallsMetricExtension` | measures how many times each endpoint was called in a `server.endpoint_calls` counter metrics |        :x:         |
+| `basicAuthExtension`           | authentication / authorization using basic auth                                               |        :x:         |
 
 In the following example, `uuid-log-annotation`, `access-log`
 and `endpoint-calls-metric` extensions are used. Collected metrics

@@ -13,6 +13,8 @@ const api = pipe(
   }),
 );
 
+type Api = typeof api;
+
 interface UserRepository {
   existsByName: (name: string) => Effect.Effect<never, never, boolean>;
   store: (user: string) => Effect.Effect<never, never, void>;
@@ -25,7 +27,7 @@ const mockUserRepository = {
   store: () => Effect.unit,
 } satisfies UserRepository;
 
-const handleStoreUser = ({ body }: Http.Input<typeof api, "storeUser">) =>
+const handleStoreUser = ({ body }: Http.Input<Api, "storeUser">) =>
   pipe(
     Effect.flatMap(UserRepositoryService, (userRepository) =>
       userRepository.existsByName(body.name),

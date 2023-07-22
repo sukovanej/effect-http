@@ -12,8 +12,10 @@ const api = pipe(
   }),
 );
 
+type Api = typeof api;
+
 // Notice query has type { readonly value: string; }
-const handleStuff = ({ query }: Http.Input<typeof api, "stuff">) =>
+const handleStuff = ({ query }: Http.Input<Api, "stuff">) =>
   pipe(
     Effect.fail(Http.notFoundError("I didnt find it")),
     Effect.tap(() => Effect.log(`Received ${query.value}`)),
