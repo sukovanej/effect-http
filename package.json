@@ -62,7 +62,7 @@
     "@effect/schema": "^0.30.1",
     "effect-log": "^0.6.2",
     "express": "^4.18.2",
-    "schema-openapi": "^0.7.0",
+    "schema-openapi": "^0.8.0",
     "swagger-ui-express": "^5.0.0"
   }
 }
