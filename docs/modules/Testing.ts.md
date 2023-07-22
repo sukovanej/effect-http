@@ -1,6 +1,6 @@
 ---
 title: Testing.ts
-nav_order: 12
+nav_order: 13
 parent: Modules
 ---
 
@@ -37,7 +37,7 @@ satisfy the conctract in your tests.
 **Signature**
 
 ```ts
-export declare const testingClient: <R, A extends Api>(server: Server<R, [], A>) => TestingClient<R, A>
+export declare const testingClient: <R, A extends Api>(serverBuilder: ServerBuilder<R, [], A>) => TestingClient<R, A>
 ```
 
 Added in v1.0.0

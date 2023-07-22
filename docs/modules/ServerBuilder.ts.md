@@ -1,0 +1,186 @@
+---
+title: ServerBuilder.ts
+nav_order: 11
+parent: Modules
+---
+
+## ServerBuilder overview
+
+Combinators and constructors for server-side implemnetation.
+
+Added in v1.0.0
+
+---
+
+<h2 class="text-delta">Table of contents</h2>
+
+- [combinators](#combinators)
+  - [exhaustive](#exhaustive)
+  - [handle](#handle)
+- [constructors](#constructors)
+  - [server](#server)
+- [extensions](#extensions)
+  - [addExtension](#addextension)
+  - [prependExtension](#prependextension)
+- [models](#models)
+  - [Input (type alias)](#input-type-alias)
+  - [ServerBuilder (type alias)](#serverbuilder-type-alias)
+  - [ServerBuilderHandler (type alias)](#serverbuilderhandler-type-alias)
+  - [ServerExtension (type alias)](#serverextension-type-alias)
+  - [ServerExtensionOptions (type alias)](#serverextensionoptions-type-alias)
+
+---
+
+# combinators
+
+## exhaustive
+
+Make sure that all the endpoints are implemented
+
+**Signature**
+
+```ts
+export declare const exhaustive: <R, A extends Api>(server: ServerBuilder<R, [], A>) => ServerBuilder<R, [], A>
+```
+
+Added in v1.0.0
+
+## handle
+
+Implement handler for the given operation id.
+
+**Signature**
+
+```ts
+export declare const handle: <S extends ServerBuilder<any, Endpoint[], Api>, Id extends ServerUnimplementedIds<S>, R>(
+  id: Id,
+  fn: InputServerBuilderHandler<R, Extract<S['unimplementedEndpoints'][number], { id: Id }>>
+) => (server: S) => AddServerHandle<S, Id, R>
+```
+
+Added in v1.0.0
+
+# constructors
+
+## server
+
+Create new unimplemeted `ServerBuilder` from `Api`.
+
+**Signature**
+
+```ts
+export declare const server: <A extends Api>(api: A) => ApiToServer<A>
+```
+
+Added in v1.0.0
+
+# extensions
+
+## addExtension
+
+**Signature**
+
+```ts
+export declare const addExtension: <R, S extends ServerBuilder<any, Endpoint[], Api>>(
+  extension: Extension<R>,
+  options?: Partial<ServerExtensionOptions<S['api']['endpoints']>> | undefined
+) => (server: S) => AddServerDependency<S, R>
+```
+
+Added in v1.0.0
+
+## prependExtension
+
+**Signature**
+
+```ts
+export declare const prependExtension: <R, S extends ServerBuilder<any, Endpoint[], Api>>(
+  extension: Extension<R>,
+  options?: Partial<ServerExtensionOptions<S['api']['endpoints']>> | undefined
+) => (server: S) => AddServerDependency<S, R>
+```
+
+Added in v1.0.0
+
+# models
+
+## Input (type alias)
+
+Type-helper providing type of a handler input given the type of the
+Api `A` and operation id `Id`.
+
+```
+const api = pipe(
+  Http.api(),
+  Http.get("getMilan", "/milan", { response: Schema.string, query: Schema.string })
+)
+
+type Api = typeof api;
+
+type GetMilanInput = Http.Input<Api, "getMilan">;
+// -> { query: string }
+```
+
+**Signature**
+
+```ts
+export type Input<A extends Api, Id extends A['endpoints'][number]['id']> = Parameters<
+  InputServerBuilderHandler<never, Extract<A['endpoints'][number], { id: Id }>>
+>[0]
+```
+
+Added in v1.0.0
+
+## ServerBuilder (type alias)
+
+**Signature**
+
+```ts
+export type ServerBuilder<R, Es extends Endpoint[] = Endpoint[], A extends Api = Api> = {
+  unimplementedEndpoints: Es
+  handlers: ServerBuilderHandler<R>[]
+  extensions: ServerExtension<R, A['endpoints']>[]
+  api: A
+}
+```
+
+Added in v1.0.0
+
+## ServerBuilderHandler (type alias)
+
+**Signature**
+
+```ts
+export type ServerBuilderHandler<R> = {
+  fn: InputServerBuilderHandler<R, Endpoint>
+  endpoint: Endpoint
+}
+```
+
+Added in v1.0.0
+
+## ServerExtension (type alias)
+
+**Signature**
+
+```ts
+export type ServerExtension<R, Es extends Endpoint[]> = {
+  extension: Extension<R>
+  options: ServerExtensionOptions<Es>
+}
+```
+
+Added in v1.0.0
+
+## ServerExtensionOptions (type alias)
+
+**Signature**
+
+```ts
+export type ServerExtensionOptions<Es extends Endpoint[]> = {
+  skipOperations: Es[number]['id'][]
+  allowOperations: Es[number]['id'][]
+}
+```
+
+Added in v1.0.0

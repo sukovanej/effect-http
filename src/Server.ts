@@ -3,233 +3,344 @@
  *
  * @since 1.0.0
  */
-import type * as Effect from "@effect/io/Effect";
-import type * as Schema from "@effect/schema/Schema";
+import * as Either from "@effect/data/Either";
+import { pipe } from "@effect/data/Function";
+import { isRecord, isString } from "@effect/data/Predicate";
+import * as Effect from "@effect/io/Effect";
+import { ParseError } from "@effect/schema/ParseResult";
+import * as Schema from "@effect/schema/Schema";
 
-import type {
+import {
   Api,
   Endpoint,
+  EndpointSchemas,
   IgnoredSchemaId,
-  ResponseSchemaFull,
 } from "effect-http/Api";
-import type { Extension } from "effect-http/Extensions";
-import type { ApiError } from "effect-http/ServerError";
-import * as internal from "effect-http/internal/server";
+import type {
+  AfterHandlerExtension,
+  BeforeHandlerExtension,
+  OnErrorExtension,
+} from "effect-http/Extensions";
+import {
+  API_STATUS_CODES,
+  ApiError,
+  internalServerError,
+  invalidBodyError,
+  invalidHeadersError,
+  invalidParamsError,
+  invalidQueryError,
+  invalidResponseError,
+  isApiError,
+  isConflictError,
+  isInvalidBodyError,
+  isInvalidHeadersError,
+  isInvalidParamsError,
+  isInvalidQueryError,
+  isInvalidResponseError,
+} from "effect-http/ServerError";
+import {
+  getSchema,
+  getStructSchema,
+  isArray,
+} from "effect-http/internal/utils";
 
-import type { ResponseUtil } from "./Utils";
-
-/**
- * @category models
- * @since 1.0.0
- */
-export type Server<
-  R,
-  Es extends Endpoint[] = Endpoint[],
-  A extends Api = Api,
-> = {
-  unimplementedEndpoints: Es;
-  handlers: Handler<R>[];
-  extensions: ServerExtension<R, A["endpoints"]>[];
-  api: A;
-};
-
-/**
- * @category models
- * @since 1.0.0
- */
-export type ServerExtension<R, Es extends Endpoint[]> = {
-  extension: Extension<R>;
-  options: ServerExtensionOptions<Es>;
-};
-
-/**
- * @category models
- * @since 1.0.0
- */
-export type ServerExtensionOptions<Es extends Endpoint[]> = {
-  skipOperations: Es[number]["id"][];
-  allowOperations: Es[number]["id"][];
-};
-
-/**
- * Create new unimplemeted `Server` from `Api`.
- *
- * @category constructors
- * @since 1.0.0
- */
-export const server: <A extends Api>(api: A) => ApiToServer<A> =
-  internal.server;
-
-/**
- * Implement handler for the given operation id.
- *
- * @category combinators
- * @since 1.0.0
- */
-export const handle: <
-  S extends Server<any>,
-  Id extends ServerUnimplementedIds<S>,
-  R,
->(
-  id: Id,
-  fn: InputHandlerFn<SelectEndpointById<S["unimplementedEndpoints"], Id>, R>,
-) => (api: S) => AddServerHandle<S, Id, R> = internal.handle;
-
-/**
- * Make sure that all the endpoints are implemented
- *
- * @category combinators
- * @since 1.0.0
- */
-export const exhaustive = <R, A extends Api>(
-  server: Server<R, [], A>,
-): Server<R, [], A> => server;
-
-/**
- * Type-helper providing type of a handler input given the type of the
- * Api `A` and operation id `Id`.
- *
- * ```
- * const api = pipe(
- *   Http.api(),
- *   Http.get("getMilan", "/milan", { response: Schema.string, query: Schema.string })
- * )
- *
- * type Api = typeof api;
- *
- * type GetMilanInput = Http.Input<Api, "getMilan">;
- * // -> { query: string }
- * ```
- *
- * @param A Api type of the API
- * @param Id operation id
- *
- * @category models
- * @since 1.0.0
- */
-export type Input<
-  A extends Api,
-  Id extends A["endpoints"][number]["id"],
-> = Parameters<
-  InputHandlerFn<Extract<A["endpoints"][number], { id: Id }>, never>
->[0];
-
-/**
- * @category extensions
- * @since 1.0.0
- */
-export const prependExtension =
-  <R, S extends Server<any>>(
-    extension: Extension<R>,
-    options?: Partial<ServerExtensionOptions<S["api"]["endpoints"]>>,
-  ) =>
-  (server: S): AddServerDependency<S, R> =>
-    ({
-      ...server,
-      extensions: [
-        internal.createServerExtention(extension, options),
-        ...server.extensions,
-      ],
-    }) as unknown as AddServerDependency<S, R>;
-
-/**
- * @category extensions
- * @since 1.0.0
- */
-export const addExtension =
-  <R, S extends Server<any>>(
-    extension: Extension<R>,
-    options?: Partial<ServerExtensionOptions<S["api"]["endpoints"]>>,
-  ) =>
-  (server: S): AddServerDependency<S, R> =>
-    ({
-      ...server,
-      extensions: [
-        ...server.extensions,
-        internal.createServerExtention(extension, options),
-      ],
-    }) as unknown as AddServerDependency<S, R>;
-
-// Internal type helpers
+import { ServerBuilder, ServerExtension } from "./ServerBuilder";
+import { responseUtil } from "./Utils";
+import {
+  formatValidationError,
+  isParseError,
+} from "./ValidationErrorFormatter";
 
 /** @ignore */
-export type SelectEndpointById<Es extends Endpoint[], Id> = Extract<
-  Es[number],
-  { id: Id }
->;
-
-/** @ignore */
-type ConvertToInput<E> = E extends Schema.Schema<any, infer A>
-  ? A
-  : E extends Record<string, any>
-  ? { [K in RequiredFields<E, keyof E>]: ConvertToInput<E[K]> }
-  : E;
-
-/** @ignore */
-type RequiredFields<E, K extends keyof E> = K extends any
-  ? E[K] extends IgnoredSchemaId
-    ? never
-    : K
-  : never;
-
-/** @ignore */
-export type EndpointSchemasToInput<E extends Endpoint["schemas"]> =
-  Schema.Spread<ConvertToInput<Omit<E, "response">>>;
-
-/** @ignore */
-export type InputHandlerFn<E extends Endpoint, R> = (
-  input: EndpointSchemasToInput<E["schemas"]> & {
-    ResponseUtil: ResponseUtil<E>;
-  },
-) => Effect.Effect<R, ApiError, HandlerResponse<E["schemas"]["response"]>>;
-
-/** @ignore */
-export type Handler<R = any> = {
-  fn: (request: Request) => Effect.Effect<R, unknown, Response>;
-
+export type ServerHandler<R = any> = {
+  fn: (request: Request) => Effect.Effect<R, ApiError, Response>;
   endpoint: Endpoint;
 };
 
-/** @ignore */
-export type ApiToServer<A extends Api> = A extends Api<infer Es>
-  ? Server<never, Es, A>
-  : never;
+/**
+ * @category models
+ * @since 1.0.0
+ */
+export interface Server<R, A extends Api = Api> {
+  api: A;
+  handlers: readonly ServerHandler<R>[];
+  extensions: readonly ServerExtension<R, A["endpoints"]>[];
+}
 
-/** @ignore */
-export type DropEndpoint<
-  Es extends Endpoint[],
-  Id extends string,
-> = Es extends [infer First, ...infer Rest]
-  ? First extends { id: Id }
-    ? Rest
-    : [First, ...(Rest extends Endpoint[] ? DropEndpoint<Rest, Id> : never)]
-  : [];
+/**
+ * @category constructors
+ * @since 1.0.0
+ */
+export const buildServer = <R, A extends Api>(
+  serverBuilder: ServerBuilder<R, [], A>,
+): Server<R, A> => {
+  if (serverBuilder.unimplementedEndpoints.length !== 0) {
+    new Error(`All endpoint must be implemented`);
+  }
 
-/** @ignore */
-export type ServerUnimplementedIds<S extends Server<any>> =
-  S["unimplementedEndpoints"][number]["id"];
+  return {
+    api: serverBuilder.api,
+    handlers: serverBuilder.handlers.map(buildHandler(serverBuilder)),
+    extensions: serverBuilder.extensions,
+  };
+};
 
-/** @ignore */
-type AddServerDependency<S extends Server<any>, R> = S extends Server<
-  infer R0,
-  infer E,
-  infer A
->
-  ? Server<R0 | R, E, A>
-  : never;
+// internal
 
-/** @ignore */
-export type AddServerHandle<
-  S extends Server<any>,
-  Id extends ServerUnimplementedIds<S>,
-  R,
-> = S extends Server<infer R0, infer E, infer A>
-  ? Server<R0 | R, DropEndpoint<E, Id>, A>
-  : never;
+/** @internal */
+const buildHandler =
+  (serverBuilder: ServerBuilder<any>) =>
+  (handler: ServerBuilder<any>["handlers"][number]): ServerHandler => {
+    const { schemas, path } = handler.endpoint;
 
-/** @ignore */
-export type HandlerResponse<S> = S extends Schema.Schema<any, infer Body>
-  ? Response | Body
-  : S extends readonly ResponseSchemaFull[]
-  ? ConvertToInput<S[number]>
-  : never;
+    const parseQuery = Schema.parse(getStructSchema(schemas.query));
+    const parseParams = Schema.parse(getStructSchema(schemas.params));
+    const parseHeaders = Schema.parse(getStructSchema(schemas.headers));
+    const parseBody = Schema.parse(getSchema(schemas.body));
+    const encodeResponse = createResponseEncoder(schemas.response);
+
+    const getRequestParams = createParamsMatcher(path);
+
+    const _responseUtil = responseUtil(serverBuilder.api, handler.endpoint.id);
+
+    const enhancedFn: ServerHandler["fn"] = (request) => {
+      const url = new URL(request.url);
+      const query = Array.from(url.searchParams.entries()).reduce(
+        (acc, [name, value]) => ({ ...acc, [name]: value }),
+        {},
+      );
+      const headers = Array.from(request.headers.entries()).reduce(
+        (acc, [name, value]) => ({ ...acc, [name]: value }),
+        {},
+      );
+
+      const contentLengthHeader = request.headers.get("content-length");
+      const contentTypeHeader = request.headers.get("content-type");
+      const contentLength =
+        contentLengthHeader === null ? 0 : parseInt(contentLengthHeader);
+
+      return pipe(
+        Effect.tryPromise({
+          try: () => {
+            if (contentLength > 0) {
+              if (contentTypeHeader?.startsWith("application/json")) {
+                return request.json();
+              } else {
+                return request.text();
+              }
+            }
+            return Promise.resolve(undefined);
+          },
+          catch: (err) =>
+            internalServerError(
+              `Cannot get request JSON, ${err}, ${request.body}`,
+            ),
+        }),
+        Effect.flatMap((body) =>
+          Effect.all({
+            query: Effect.mapError(parseQuery(query), invalidQueryError),
+            params: Effect.mapError(
+              parseParams(getRequestParams(url)),
+              invalidParamsError,
+            ),
+            body: Effect.mapError(parseBody(body), invalidBodyError),
+            headers: Effect.mapError(
+              parseHeaders(headers),
+              invalidHeadersError,
+            ),
+            ResponseUtil: Effect.succeed(_responseUtil),
+          }),
+        ),
+        Effect.flatMap(handler.fn),
+        Effect.flatMap((response) => {
+          if (response instanceof Response) {
+            return Effect.succeed(response);
+          }
+
+          return pipe(
+            encodeResponse(response),
+            Effect.map(
+              ({ content, status, headers }) =>
+                new Response(JSON.stringify(content), { status, headers }),
+            ),
+            Effect.mapError(invalidResponseError),
+          );
+        }),
+      );
+    };
+
+    return {
+      endpoint: handler.endpoint,
+      fn: runHandlerFnWithExtensions(
+        serverBuilder.extensions,
+        handler.endpoint,
+        enhancedFn,
+      ),
+    };
+  };
+
+/** @internal */
+const createParamsMatcher = (path: string) => {
+  // based on https://github.com/kwhitley/itty-router/blob/73148972bf2e205a4969e85672e1c0bfbf249c27/src/itty-router.js
+  const matcher = RegExp(
+    `^${path
+      .replace(/(\/?)\*/g, "($1.*)?")
+      .replace(/\/$/, "")
+      .replace(/:(\w+)(\?)?(\.)?/g, "$2(?<$1>[^/]+)$2$3")
+      .replace(/\.(?=[\w(])/, "\\.")
+      .replace(/\)\.\?\(([^[]+)\[\^/g, "?)\\.?($1(?<=\\.)[^\\.")}/*$`,
+  );
+  return (url: URL): Record<string, string> => {
+    const match = url.pathname.match(matcher);
+    return (match && match.groups) || {};
+  };
+};
+
+/** @internal */
+const formatError = (error: unknown) => {
+  const isValidationError =
+    isInvalidQueryError(error) ||
+    isInvalidBodyError(error) ||
+    isInvalidResponseError(error) ||
+    isInvalidParamsError(error) ||
+    isInvalidHeadersError(error) ||
+    isConflictError(error);
+
+  if (isValidationError) {
+    const innerError = error.error;
+
+    if (isParseError(innerError)) {
+      return formatValidationError(innerError);
+    } else if (isString(innerError)) {
+      return Effect.succeed(innerError);
+    }
+  }
+
+  if (isRecord(error) && "error" in error) {
+    if (isString(error.error)) {
+      return Effect.succeed(error.error);
+    }
+
+    return Effect.succeed(JSON.stringify(error.error));
+  }
+
+  return Effect.succeed(JSON.stringify(error));
+};
+
+/** @internal */
+export const convertErrorToResponse = (error: unknown) =>
+  Effect.map(formatError(error), (details) => {
+    const tag = isApiError(error) ? error._tag : "InternalServerError";
+    const body = JSON.stringify({ error: tag, details });
+
+    return new Response(body, {
+      status: Object.keys(API_STATUS_CODES).includes(tag)
+        ? API_STATUS_CODES[tag as keyof typeof API_STATUS_CODES]
+        : 500,
+      headers: new Headers({ "Content-Type": "application/json" }),
+    });
+  });
+
+/** @internal */
+const runHandlerFnWithExtensions = (
+  allExtensions: ServerExtension<any, Endpoint[]>[],
+  endpoint: Endpoint,
+  fn: ServerHandler["fn"],
+) => {
+  const extensions = allExtensions
+    .filter(
+      ({ options }) =>
+        options.allowOperations.includes(endpoint.id) ||
+        !options.skipOperations.includes(endpoint.id),
+    )
+    .map(({ extension }) => extension);
+
+  const beforeExtensions = extensions.filter(
+    (h): h is BeforeHandlerExtension<any> =>
+      h._tag === "BeforeHandlerExtension",
+  );
+  const afterExtensions = extensions.filter(
+    (h): h is AfterHandlerExtension<any> => h._tag === "AfterHandlerExtension",
+  );
+  const onErrorExtensions = extensions.filter(
+    (h): h is OnErrorExtension<any> => h._tag === "OnErrorExtension",
+  );
+
+  return (request: Request) =>
+    pipe(
+      Effect.all(beforeExtensions.map(({ fn }) => fn(request))),
+      Effect.either,
+      Effect.flatMap(
+        Either.match({
+          onLeft: (error) => convertErrorToResponse(error),
+          onRight: () =>
+            pipe(
+              fn(request),
+              Effect.tapError((error) =>
+                Effect.all(
+                  onErrorExtensions.map(({ fn }) => fn(request, error)),
+                ),
+              ),
+              Effect.tap((response) =>
+                Effect.all(
+                  afterExtensions.map(({ fn }) => fn(request, response)),
+                ),
+              ),
+              Effect.catchAll((error) => convertErrorToResponse(error)),
+            ),
+        }),
+      ),
+    );
+};
+
+/** @internal */
+const createResponseEncoder = (
+  responseSchema: EndpointSchemas["response"],
+): ((
+  a: unknown,
+) => Effect.Effect<
+  never,
+  ParseError,
+  { status: number; headers: Headers | undefined; content: unknown }
+>) => {
+  if (isArray(responseSchema)) {
+    const schema = Schema.union(
+      ...responseSchema.map((s) =>
+        Schema.struct({
+          status: Schema.literal(s.status),
+          content:
+            s.content === IgnoredSchemaId
+              ? Schema.optional(Schema.undefined)
+              : (s.content as Schema.Schema<any>),
+          headers:
+            s.headers === IgnoredSchemaId
+              ? Schema.optional(Schema.undefined)
+              : Schema.struct(s.headers),
+        }),
+      ),
+    );
+    const encode = Schema.encode(schema);
+    return (a: any) =>
+      Effect.map(encode(a), ({ headers, content, status }) => {
+        const _headers = new Headers(headers);
+
+        if (content !== undefined) {
+          _headers.set("content-type", "application/json");
+        }
+
+        return { content, status, headers: _headers };
+      });
+  }
+
+  const encodeContent = Schema.encode(responseSchema);
+
+  return (a: unknown) =>
+    pipe(
+      encodeContent(a),
+      Effect.map((content) => ({
+        content,
+        headers: new Headers({ "content-type": "application/json" }),
+        status: 200,
+      })),
+    );
+};

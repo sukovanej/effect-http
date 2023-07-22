@@ -8,6 +8,7 @@
  */
 export * from "effect-http/Api";
 export * from "effect-http/Server";
+export * from "effect-http/ServerBuilder";
 export * from "effect-http/ServerError";
 export * from "effect-http/ValidationErrorFormatter";
 export * from "effect-http/Client";

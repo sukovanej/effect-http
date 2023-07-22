@@ -8,13 +8,14 @@ import * as Effect from "@effect/io/Effect";
 import type * as Schema from "@effect/schema/Schema";
 
 import type { Api } from "effect-http/Api";
+import { buildServer } from "effect-http/Server";
+import { createInputParser } from "effect-http/internal/client";
+
 import type {
   EndpointSchemasToInput,
   SelectEndpointById,
-  Server,
-} from "effect-http/Server";
-import { createInputParser } from "effect-http/internal/client";
-import { runHandlerFnWithExtensions } from "effect-http/internal/express";
+  ServerBuilder,
+} from "./ServerBuilder";
 
 /** @ignore */
 type MakeHeadersOptionIfAllPartial<I> = I extends { headers: any }
@@ -59,9 +60,11 @@ export type TestingClient<R, A extends Api> = A extends Api<infer Es>
  * @since 1.0.0
  */
 export const testingClient = <R, A extends Api>(
-  server: Server<R, [], A>,
-): TestingClient<R, A> =>
-  server.api.endpoints.reduce(
+  serverBuilder: ServerBuilder<R, [], A>,
+): TestingClient<R, A> => {
+  const server = buildServer(serverBuilder);
+
+  return server.api.endpoints.reduce(
     (client, { id, method, path, schemas }) => {
       const parseInputs = createInputParser(schemas);
 
@@ -72,8 +75,6 @@ export const testingClient = <R, A extends Api>(
       if (handler === undefined) {
         throw new Error(`Couldn't find server implementation for ${id}`);
       }
-
-      const handleFn = runHandlerFnWithExtensions(server.extensions, handler);
 
       const fn = (_args: any) => {
         const args = _args || {};
@@ -96,7 +97,7 @@ export const testingClient = <R, A extends Api>(
             const init = { body, headers, method };
             const request = new Request(url, init);
 
-            return handleFn(request);
+            return handler.fn(request);
           }),
           Effect.annotateLogs("clientOperationId", id),
         );
@@ -105,3 +106,4 @@ export const testingClient = <R, A extends Api>(
     },
     {} as TestingClient<R, A>,
   );
+};

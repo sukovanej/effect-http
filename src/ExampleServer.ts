@@ -9,8 +9,9 @@
  * @since 1.0.0
  */
 import type { Api } from "effect-http/Api";
-import type { Server } from "effect-http/Server";
 import * as internal from "effect-http/internal/example-server";
+
+import { ServerBuilder } from "./ServerBuilder";
 
 /**
  * Generate an example Server implementation.
@@ -18,5 +19,6 @@ import * as internal from "effect-http/internal/example-server";
  * @category constructors
  * @since 1.0.0
  */
-export const exampleServer: <A extends Api>(api: A) => Server<never, [], A> =
-  internal.exampleServer;
+export const exampleServer: <A extends Api>(
+  api: A,
+) => ServerBuilder<never, [], A> = internal.exampleServer;
