@@ -114,7 +114,7 @@ const createParameterSetters = (
       "header",
       schema,
       descriptionSetter(schema),
-      ps.isOptional ? OpenApi.required : identity,
+      ps.isOptional ? identity : OpenApi.required,
     );
   });
 };
