@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.20.2
+
+### Patch Changes
+
+- 7ce5cec: Fix OpenApi parameter types.
+
 ## 0.20.1
 
 ### Patch Changes
