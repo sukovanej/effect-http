@@ -136,6 +136,34 @@ export const api = pipe(
 
 _(This is a complete standalone code example)_
 
+### Optional path parameters
+
+Optional parameter is denoted using a question mark in the path
+match pattern. In the request param schema, use `Schema.optional(<schema>)`.
+
+In the following example the last `:another` path parameter can be
+ommited on the client side.
+
+```typescript
+import { pipe } from "@effect/data/Function";
+import * as Schema from "@effect/schema/Schema";
+
+import * as Http from "effect-http";
+
+export const api = pipe(
+  Http.api({ title: "My api" }),
+  Http.get("stuff", "/stuff/:param/:another?", {
+    response: Schema.struct({ value: Schema.number }),
+    request: {
+      params: Schema.struct({
+        param: Schema.string,
+        another: Schema.optional(Schema.string),
+      }),
+    },
+  }),
+);
+```
+
 ### Headers
 
 Request headers are part of input schemas along with the request body or query parameters.

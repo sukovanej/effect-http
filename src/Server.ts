@@ -5,6 +5,7 @@
  */
 import * as Either from "@effect/data/Either";
 import { pipe } from "@effect/data/Function";
+import * as Option from "@effect/data/Option";
 import { isRecord, isString } from "@effect/data/Predicate";
 import * as Effect from "@effect/io/Effect";
 import { ParseError } from "@effect/schema/ParseResult";
@@ -40,7 +41,11 @@ import {
 } from "effect-http/ServerError";
 import { getSchema, isArray } from "effect-http/internal/utils";
 
-import { ServerBuilder, ServerExtension } from "./ServerBuilder";
+import type {
+  ServerBuilder,
+  ServerBuilderHandler,
+  ServerExtension,
+} from "./ServerBuilder";
 import { responseUtil } from "./Utils";
 import {
   formatValidationError,
@@ -86,7 +91,7 @@ export const buildServer = <R, A extends Api>(
 /** @internal */
 const buildHandler =
   (serverBuilder: ServerBuilder<any>) =>
-  (handler: ServerBuilder<any>["handlers"][number]): ServerHandler => {
+  (handler: ServerBuilderHandler<any>): ServerHandler => {
     const { schemas, path } = handler.endpoint;
 
     const parseQuery = Schema.parse(getSchema(schemas.request.query));
@@ -176,7 +181,7 @@ const buildHandler =
   };
 
 /** @internal */
-const createParamsMatcher = (path: string) => {
+export const createParamsMatcher = (path: string) => {
   // based on https://github.com/kwhitley/itty-router/blob/73148972bf2e205a4969e85672e1c0bfbf249c27/src/itty-router.js
   const matcher = RegExp(
     `^${path
@@ -188,7 +193,15 @@ const createParamsMatcher = (path: string) => {
   );
   return (url: URL): Record<string, string> => {
     const match = url.pathname.match(matcher);
-    return (match && match.groups) || {};
+    return pipe(
+      Option.fromNullable(match),
+      Option.flatMap(({ groups }) => Option.fromNullable(groups)),
+      Option.map((groups) =>
+        Object.entries(groups).filter(([_, value]) => value !== undefined),
+      ),
+      Option.map(Object.fromEntries),
+      Option.getOrElse(() => ({})),
+    );
   };
 };
 
