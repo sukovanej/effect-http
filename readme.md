@@ -18,6 +18,7 @@ breaking changes and the internals and the public API are still evolving and cha
 - [Quickstart](#quickstart)
 - [Request validation](#request-validation)
   - [Example](#example)
+  - [Optional path parameters](#optional-path-parameters)
 - [Headers](#headers)
 - [Responses](#responses)
 - [Logging](#logging)
@@ -136,7 +137,7 @@ export const api = pipe(
 
 _(This is a complete standalone code example)_
 
-### Optional path parameters
+#### Optional path parameters
 
 Optional parameter is denoted using a question mark in the path
 match pattern. In the request param schema, use `Schema.optional(<schema>)`.
