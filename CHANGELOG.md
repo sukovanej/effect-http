@@ -1,5 +1,12 @@
 # effect-http
 
+## 0.20.0
+
+### Minor Changes
+
+- c24e990: Split server building into two parts.
+- b9b8b2b: Change api schemas struture. All request locations are specified using Schema instead of record of Schemas.
+
 ## 0.19.0
 
 ### Minor Changes
