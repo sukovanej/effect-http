@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.20.3
+
+### Patch Changes
+
+- 310cb15: Fix optional path parameters.
+
 ## 0.20.2
 
 ### Patch Changes
