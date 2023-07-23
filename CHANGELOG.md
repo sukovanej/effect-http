@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.20.1
+
+### Patch Changes
+
+- 21a3cff: Fix OpenApi required flag.
+
 ## 0.20.0
 
 ### Minor Changes
