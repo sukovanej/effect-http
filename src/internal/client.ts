@@ -4,7 +4,7 @@ import * as Effect from "@effect/io/Effect";
 import type { ParseError } from "@effect/schema/ParseResult";
 import * as Schema from "@effect/schema/Schema";
 
-import type { Api, EndpointSchemas } from "effect-http/Api";
+import type { Api, Endpoint, EndpointSchemas } from "effect-http/Api";
 import { IgnoredSchemaId } from "effect-http/Api";
 import type { Client, ClientOptions } from "effect-http/Client";
 import {
@@ -19,7 +19,6 @@ import {
   invalidQueryError,
 } from "effect-http/ServerError";
 import { getSchema, isArray } from "effect-http/internal/utils";
-import { getStructSchema } from "effect-http/internal/utils";
 
 const makeHttpCall = (
   method: string,
@@ -111,16 +110,13 @@ const constructPath = (params: Record<string, string>, path: string) =>
     path,
   );
 
-export const createInputParser = ({
-  query,
-  params,
-  body,
-  headers,
-}: Api["endpoints"][number]["schemas"]) => {
-  const encodeQuery = Schema.encode(getStructSchema(query));
-  const encodeParams = Schema.encode(getStructSchema(params));
-  const encodeBody = Schema.encode(getSchema(body));
-  const encodeHeaders = Schema.encode(getStructSchema(headers));
+export const createRequestEncoder = (
+  requestSchemas: Endpoint["schemas"]["request"],
+) => {
+  const encodeQuery = Schema.encode(getSchema(requestSchemas.query));
+  const encodeParams = Schema.encode(getSchema(requestSchemas.params));
+  const encodeBody = Schema.encode(getSchema(requestSchemas.body));
+  const encodeHeaders = Schema.encode(getSchema(requestSchemas.headers));
 
   return (args: any) =>
     Effect.all({
@@ -151,14 +147,11 @@ const createResponseParser = (
       ...responseSchema.map((s) =>
         Schema.struct({
           status: Schema.literal(s.status),
-          content: s.content === IgnoredSchemaId ? Schema.unknown : s.content,
-          headers:
-            s.headers === IgnoredSchemaId
-              ? Schema.record(Schema.string, Schema.string)
-              : Schema.extend(
-                  Schema.struct(s.headers),
-                  Schema.record(Schema.string, Schema.string),
-                ),
+          content: getSchema(s.content),
+          headers: getSchema(
+            s.headers,
+            Schema.record(Schema.string, Schema.string),
+          ),
         }),
       ),
     );
@@ -184,19 +177,19 @@ export const client =
     api.endpoints.reduce(
       (client, { id, method, path, schemas }) => {
         const parseResponse = createResponseParser(schemas.response);
-        const parseInputs = createInputParser(schemas);
+        const encodeRequest = createRequestEncoder(schemas.request);
         const finalOptions: ClientOptions<any> = { headers: {}, ...options };
 
         const fn = (_args: any) => {
           const args = _args || {};
 
           return pipe(
-            parseInputs({
+            encodeRequest({
               ...args,
               headers: { ...finalOptions.headers, ...args.headers },
             }),
             Effect.let("path", ({ params }) => constructPath(params, path)),
-            Effect.tap(() => Effect.logTrace(`${method} ${path}`)),
+            Effect.tap((args) => Effect.logTrace(`${method} ${path}, ${args}`)),
             Effect.flatMap(({ path, body, query, headers }) =>
               makeHttpCall(method, baseUrl, path, body, headers, query),
             ),

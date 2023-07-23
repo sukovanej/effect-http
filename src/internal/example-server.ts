@@ -34,10 +34,7 @@ const createExampleHandler = ({ schemas }: Endpoint) => {
           Schema.struct({
             status: Schema.literal(status),
             content: content === IgnoredSchemaId ? Schema.undefined : content,
-            headers:
-              headers === IgnoredSchemaId
-                ? Schema.undefined
-                : Schema.struct(headers),
+            headers: headers === IgnoredSchemaId ? Schema.undefined : headers,
           }),
         ),
       );

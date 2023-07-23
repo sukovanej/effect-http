@@ -11,20 +11,32 @@
 import type * as OpenApi from "schema-openapi";
 
 import * as HashSet from "@effect/data/HashSet";
-import type * as Schema from "@effect/schema/Schema";
+import * as Schema from "@effect/schema/Schema";
 
-import { isArray } from "./internal/utils";
+import { AnySchema, isArray } from "./internal/utils";
 
 /** Headers are case-insensitive, internally we deal with them as lowercase
  *  because that's how express deal with them.
  *
  *  @internal
  */
-export const fieldsToLowerCase = (s: SchemasMap<any>) =>
-  Object.entries(s).reduce(
-    (acc, [key, value]) => ({ ...acc, [key.toLowerCase()]: value }),
-    {},
-  );
+export const fieldsToLowerCase = (s: AnySchema) => {
+  const ast = s.ast;
+
+  if (ast._tag !== "TypeLiteral") {
+    throw new Error(`Expected type literal schema`);
+  }
+
+  const newPropertySignatures = ast.propertySignatures.map((ps) => {
+    if (typeof ps.name !== "string") {
+      throw new Error(`Expected string property key`);
+    }
+
+    return { ...ps, name: ps.name.toLowerCase() };
+  });
+
+  return Schema.make({ ...ast, propertySignatures: newPropertySignatures });
+};
 
 /** @internal */
 const composeResponseSchema = (response: readonly InputResponseSchemaFull[]) =>
@@ -40,19 +52,20 @@ const composeResponseSchema = (response: readonly InputResponseSchemaFull[]) =>
 /** @internal */
 const createSchemasFromInput = <I extends InputEndpointSchemas>({
   response,
-  query,
-  params,
-  body,
-  headers,
+  request,
 }: I): CreateEndpointSchemasFromInput<I> =>
   ({
     response: Array.isArray(response)
       ? composeResponseSchema(response)
       : response,
-    query: query ?? IgnoredSchemaId,
-    params: params ?? IgnoredSchemaId,
-    body: body ?? IgnoredSchemaId,
-    headers: (headers && fieldsToLowerCase(headers)) ?? IgnoredSchemaId,
+    request: {
+      query: request?.query ?? IgnoredSchemaId,
+      params: request?.params ?? IgnoredSchemaId,
+      body: request?.body ?? IgnoredSchemaId,
+      headers:
+        (request?.headers && fieldsToLowerCase(request?.headers)) ??
+        IgnoredSchemaId,
+    },
   }) as CreateEndpointSchemasFromInput<I>;
 
 /** @internal */
@@ -65,7 +78,7 @@ export const endpoint =
     options?: EndpointOptions,
   ) =>
   <A extends Api | ApiGroup>(api: A): AddEndpoint<A, Id, I> => {
-    if (method === "get" && schemas.body !== undefined) {
+    if (method === "get" && schemas.request?.body !== undefined) {
       throw new Error(`Invalid ${id} endpoint. GET request cant have a body.`);
     }
 
@@ -101,11 +114,13 @@ export const endpoint =
  * @since 1.0.0
  */
 export interface EndpointSchemas {
-  response: Schema.Schema<any> | readonly ResponseSchemaFull[];
-  query: SchemasMap<string> | IgnoredSchemaId;
-  params: SchemasMap<string> | IgnoredSchemaId;
-  body: Schema.Schema<any> | IgnoredSchemaId;
-  headers: SchemasMap<string> | IgnoredSchemaId;
+  response: AnySchema | readonly ResponseSchemaFull[];
+  request: {
+    query: AnySchema | IgnoredSchemaId;
+    params: AnySchema | IgnoredSchemaId;
+    body: AnySchema | IgnoredSchemaId;
+    headers: AnySchema | IgnoredSchemaId;
+  };
 }
 
 /**
@@ -155,11 +170,13 @@ export interface EndpointOptions {
  * @since 1.0.0
  */
 export type InputEndpointSchemas = {
-  response: readonly InputResponseSchemaFull[] | Schema.Schema<any>;
-  query?: SchemasMap<string>;
-  params?: SchemasMap<string>;
-  body?: Schema.Schema<any>;
-  headers?: SchemasMap<string>;
+  response: readonly InputResponseSchemaFull[] | AnySchema;
+  request?: {
+    query?: AnySchema;
+    params?: AnySchema;
+    body?: AnySchema;
+    headers?: AnySchema;
+  };
 };
 
 /** @internal */
@@ -315,34 +332,53 @@ export type IgnoredSchemaId = typeof IgnoredSchemaId;
 
 /** @ignore */
 type ResponseSchemaFromInput<S extends InputEndpointSchemas["response"]> =
-  S extends Schema.Schema<any>
+  S extends AnySchema
     ? S
     : S extends readonly InputResponseSchemaFull[]
     ? ComputeEndpointResponseFull<S>
     : never;
 
+type GetOptional<
+  A extends Record<string, unknown> | undefined,
+  K extends keyof Exclude<A, undefined>,
+> = A extends Record<string, unknown>
+  ? K extends keyof A
+    ? A[K]
+    : undefined
+  : undefined;
+
 /** @ignore */
 export type CreateEndpointSchemasFromInput<I extends InputEndpointSchemas> =
   Schema.Spread<{
     response: ResponseSchemaFromInput<I["response"]>;
-    query: UndefinedToIgnoredSchema<I["query"]>;
-    params: UndefinedToIgnoredSchema<I["params"]>;
-    body: UndefinedToIgnoredSchema<I["body"]>;
-    headers: I["headers"] extends SchemasMap<any>
-      ? {
-          [K in keyof I["headers"] as K extends string
-            ? Lowercase<K>
-            : never]: I["headers"][K];
-        }
-      : IgnoredSchemaId;
+    request: {
+      query: UndefinedToIgnoredSchema<GetOptional<I["request"], "query">>;
+      params: UndefinedToIgnoredSchema<GetOptional<I["request"], "params">>;
+      body: UndefinedToIgnoredSchema<GetOptional<I["request"], "body">>;
+      headers: UndefinedToIgnoredSchemaLowercased<
+        GetOptional<I["request"], "headers">
+      >;
+    };
   }>;
 
 /** @ignore */
-type UndefinedToIgnoredSchema<S extends unknown | undefined> = S extends
-  | Schema.Schema<any>
-  | SchemasMap<any>
-  ? S
-  : IgnoredSchemaId;
+type UndefinedToIgnoredSchema<S extends unknown | undefined> =
+  S extends AnySchema ? S : IgnoredSchemaId;
+
+/** @ignore */
+type UndefinedToIgnoredSchemaLowercased<S extends unknown | undefined> =
+  S extends Schema.Schema<infer I, infer O>
+    ? O extends Record<string, any>
+      ? I extends Record<string, any>
+        ? Schema.Schema<LowercaseFields<I>, LowercaseFields<O>>
+        : never
+      : never
+    : IgnoredSchemaId;
+
+/** @ignore */
+type LowercaseFields<A extends Record<string, unknown>> = Schema.Spread<{
+  [K in keyof A as K extends string ? Lowercase<K> : never]: A[K];
+}>;
 
 /** @ignore */
 export type ComputeEndpointResponseFull<
@@ -354,13 +390,7 @@ export type ComputeEndpointResponseFull<
           {
             status: R["status"];
             content: UndefinedToIgnoredSchema<R["content"]>;
-            headers: R["headers"] extends SchemasMap
-              ? {
-                  [K in keyof R["headers"] as K extends string
-                    ? Lowercase<K>
-                    : never]: R["headers"][K];
-                }
-              : IgnoredSchemaId;
+            headers: UndefinedToIgnoredSchemaLowercased<R["headers"]>;
           },
           ...ComputeEndpointResponseFull<Rest>,
         ]
@@ -369,23 +399,15 @@ export type ComputeEndpointResponseFull<
   : [];
 
 /** @ignore */
-export type SchemasMap<From = any> = Record<string, Schema.Schema<From, any>>;
-
-/** @ignore */
-export type SchemasMapTo<S extends SchemasMap<any>> = {
-  [K in keyof S]: Schema.To<S[K]>;
-};
-
-/** @ignore */
 export type ResponseSchemaFull = {
   status: number;
-  content: Schema.Schema<any> | IgnoredSchemaId;
-  headers: SchemasMap<string> | IgnoredSchemaId;
+  content: AnySchema | IgnoredSchemaId;
+  headers: AnySchema | IgnoredSchemaId;
 };
 
 /** @ignore */
 export type InputResponseSchemaFull = {
   status: number;
-  content?: Schema.Schema<any>;
-  headers?: SchemasMap<string>;
+  content?: AnySchema;
+  headers?: AnySchema;
 };

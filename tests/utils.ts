@@ -8,7 +8,7 @@ import * as Scope from "@effect/io/Scope";
 
 import * as Http from "effect-http";
 
-export const testServerUrl = <R, A extends Http.Api>(
+const testServerUrl = <R, A extends Http.Api>(
   serverBuilder: Http.ServerBuilder<R, [], A>,
 ): Effect.Effect<R | Scope.Scope, unknown, URL> =>
   pipe(

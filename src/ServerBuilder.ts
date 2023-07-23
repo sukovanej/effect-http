@@ -20,6 +20,8 @@ import {
 import type { ApiError } from "effect-http/ServerError";
 import { ResponseUtil } from "effect-http/Utils";
 
+import { AnySchema, SchemaTo } from "./internal/utils";
+
 /**
  * @category models
  * @since 1.0.0
@@ -215,29 +217,32 @@ export type SelectEndpointById<Es extends Endpoint[], Id> = Extract<
 >;
 
 /** @ignore */
-type ConvertToInput<E> = E extends Schema.Schema<any, infer A>
-  ? A
-  : E extends Record<string, any>
-  ? { [K in RequiredFields<E, keyof E>]: ConvertToInput<E[K]> }
-  : E;
+export type RequiredFields<E> = {
+  [K in keyof E]: E[K] extends IgnoredSchemaId ? never : K;
+}[keyof E];
 
 /** @ignore */
-type RequiredFields<E, K extends keyof E> = K extends any
-  ? E[K] extends IgnoredSchemaId
-    ? never
-    : K
-  : never;
-
-/** @ignore */
-export type EndpointSchemasToInput<E extends Endpoint["schemas"]> =
-  Schema.Spread<ConvertToInput<Omit<E, "response">>>;
+export type EndpointSchemasTo<E extends Endpoint["schemas"]> = Schema.Spread<{
+  response: EndpointResponseSchemaTo<E["response"]>;
+  request: {
+    [K in Extract<keyof E["request"], RequiredFields<E["request"]>>]: SchemaTo<
+      E["request"][K]
+    >;
+  };
+}>;
 
 /** @ignore */
 export type InputServerBuilderHandler<R, E extends Endpoint> = (
-  input: EndpointSchemasToInput<E["schemas"]> & {
-    ResponseUtil: ResponseUtil<E>;
-  },
-) => Effect.Effect<R, ApiError, HandlerResponse<E["schemas"]["response"]>>;
+  input: Schema.Spread<
+    EndpointSchemasTo<E["schemas"]>["request"] & {
+      ResponseUtil: ResponseUtil<E>;
+    }
+  >,
+) => Effect.Effect<
+  R,
+  ApiError,
+  EndpointResponseSchemaTo<E["schemas"]["response"]>
+>;
 
 /** @ignore */
 type ApiToServer<A extends Api> = A extends Api<infer Es>
@@ -276,8 +281,21 @@ type AddServerHandle<
   : never;
 
 /** @ignore */
-type HandlerResponse<S> = S extends Schema.Schema<any, infer Body>
-  ? Response | Body
+export type EndpointResponseSchemaTo<S> = S extends AnySchema
+  ? Response | SchemaTo<S>
   : S extends readonly ResponseSchemaFull[]
-  ? ConvertToInput<S[number]>
+  ? ResponseSchemaFullTo<S[number]>
+  : never;
+
+/** @ignore */
+export type ResponseSchemaFullTo<S extends ResponseSchemaFull> = S extends any
+  ? Schema.Spread<
+      {
+        status: S["status"];
+      } & {
+        [K in Exclude<RequiredFields<S>, "status">]: S[K] extends AnySchema
+          ? Schema.To<S[K]>
+          : never;
+      }
+    >
   : never;

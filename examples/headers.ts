@@ -90,8 +90,10 @@ export const api = pipe(
   Http.api(),
   Http.post("hello", "/hello", {
     response: Schema.string,
-    body: Schema.struct({ value: Schema.number }),
-    headers: { "X-Client-Id": Schema.string },
+    request: {
+      body: Schema.struct({ value: Schema.number }),
+      headers: Schema.struct({ "X-Client-Id": Schema.string }),
+    },
   }),
 );
 

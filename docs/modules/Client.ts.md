@@ -54,7 +54,7 @@ export type Client<A extends Api, H> = A extends Api<infer Es>
         Es,
         Id,
         MakeHeadersOptionIfAllPartial<
-          DropCommonHeaders<EndpointSchemasToInput<SelectEndpointById<Es, Id>['schemas']>, H>
+          DropCommonHeaders<EndpointSchemasTo<SelectEndpointById<Es, Id>['schemas']>['request'], H>
         >
       >
     }>

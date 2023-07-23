@@ -38,11 +38,7 @@ import {
   isInvalidQueryError,
   isInvalidResponseError,
 } from "effect-http/ServerError";
-import {
-  getSchema,
-  getStructSchema,
-  isArray,
-} from "effect-http/internal/utils";
+import { getSchema, isArray } from "effect-http/internal/utils";
 
 import { ServerBuilder, ServerExtension } from "./ServerBuilder";
 import { responseUtil } from "./Utils";
@@ -93,10 +89,10 @@ const buildHandler =
   (handler: ServerBuilder<any>["handlers"][number]): ServerHandler => {
     const { schemas, path } = handler.endpoint;
 
-    const parseQuery = Schema.parse(getStructSchema(schemas.query));
-    const parseParams = Schema.parse(getStructSchema(schemas.params));
-    const parseHeaders = Schema.parse(getStructSchema(schemas.headers));
-    const parseBody = Schema.parse(getSchema(schemas.body));
+    const parseQuery = Schema.parse(getSchema(schemas.request.query));
+    const parseParams = Schema.parse(getSchema(schemas.request.params));
+    const parseHeaders = Schema.parse(getSchema(schemas.request.headers));
+    const parseBody = Schema.parse(getSchema(schemas.request.body));
     const encodeResponse = createResponseEncoder(schemas.response);
 
     const getRequestParams = createParamsMatcher(path);
@@ -311,11 +307,11 @@ const createResponseEncoder = (
           content:
             s.content === IgnoredSchemaId
               ? Schema.optional(Schema.undefined)
-              : (s.content as Schema.Schema<any>),
+              : s.content,
           headers:
             s.headers === IgnoredSchemaId
               ? Schema.optional(Schema.undefined)
-              : Schema.struct(s.headers),
+              : s.headers,
         }),
       ),
     );
