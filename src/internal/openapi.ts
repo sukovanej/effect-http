@@ -111,7 +111,7 @@ const createParameterSetters = (
 
     return OpenApi.parameter(
       ps.name,
-      "header",
+      type,
       schema,
       descriptionSetter(schema),
       ps.isOptional ? identity : OpenApi.required,
