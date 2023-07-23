@@ -414,7 +414,7 @@ describe("type safe responses", () => {
 test("optional headers / query / params fields", async () => {
   const api = pipe(
     Http.api(),
-    Http.post("hello", "/hello/:value", {
+    Http.post("hello", "/hello/:value/another/:another?", {
       response: Schema.struct({
         query: Schema.struct({
           value: Schema.number,
@@ -422,6 +422,7 @@ test("optional headers / query / params fields", async () => {
         }),
         params: Schema.struct({
           value: Schema.number,
+          another: Schema.optional(Schema.string),
         }),
         headers: Schema.struct({
           value: Schema.number,
@@ -436,6 +437,7 @@ test("optional headers / query / params fields", async () => {
         }),
         params: Schema.struct({
           value: Schema.NumberFromString,
+          another: Schema.optional(Schema.string),
         }),
         headers: Schema.struct({
           value: Schema.NumberFromString,
@@ -462,7 +464,7 @@ test("optional headers / query / params fields", async () => {
     {
       query: { value: 12, another: "query-another-2" },
       headers: { value: 12 },
-      params: { value: 12 },
+      params: { value: 12, another: "params-another-2" },
     },
     {
       query: { value: 12 },
@@ -482,5 +484,62 @@ test("optional headers / query / params fields", async () => {
     Effect.runPromise,
   );
 
-  expect(result).toEqual(params);
+  expect(result).toStrictEqual(params);
+});
+
+test.each([
+  { path: "/users", input: "/users", expected: {} },
+  { path: "/users/:name", input: "/users/hello", expected: { name: "hello" } },
+  {
+    path: "/users/:name/:another?",
+    input: "/users/hello",
+    expected: { name: "hello" },
+  },
+  {
+    path: "/users/:name/hello/:another?",
+    input: "/users/test/hello/another",
+    expected: { name: "test", another: "another" },
+  },
+])("params matcher %#", ({ path, input, expected }) => {
+  const matcher = Http.createParamsMatcher(path);
+  expect(matcher(new URL(input, "http://localhost:3000/"))).toEqual(expected);
+});
+
+test("optional parameters", async () => {
+  const api = pipe(
+    Http.api(),
+    Http.post("hello", "/hello/:value/another/:another?", {
+      response: Schema.struct({
+        params: Schema.struct({
+          value: Schema.number,
+          another: Schema.optional(Schema.string),
+        }),
+      }),
+      request: {
+        params: Schema.struct({
+          value: Schema.NumberFromString,
+          another: Schema.optional(Schema.string),
+        }),
+      },
+    }),
+  );
+
+  const server = pipe(
+    Http.server(api),
+    Http.handle("hello", ({ params }) => Effect.succeed({ params })),
+  );
+
+  const params = [
+    { params: { value: 12 } },
+    { params: { value: 12, another: "another" } },
+  ] as const;
+
+  const result = await pipe(
+    testServer(server),
+    Effect.flatMap((client) => Effect.all(RA.map(params, client.hello))),
+    Effect.scoped,
+    Effect.runPromise,
+  );
+
+  expect(result).toStrictEqual(params);
 });

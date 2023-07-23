@@ -104,11 +104,18 @@ const parse = <A, E>(
     Effect.mapError(onError),
   );
 
-const constructPath = (params: Record<string, string>, path: string) =>
-  Object.entries(params ?? {}).reduce(
-    (path, [key, value]) => path.replace(`:${key}`, value),
-    path,
-  );
+const constructPath = (
+  params: Record<string, string> | undefined,
+  path: string,
+) => {
+  return Object.entries(params ?? {})
+    .reduce(
+      (path, [key, value]) =>
+        path.replace(new RegExp(`(:${key})(\\?)?`), value),
+      path,
+    )
+    .replace(/\/:(\w+)(\?)?/, "");
+};
 
 export const createRequestEncoder = (
   requestSchemas: Endpoint["schemas"]["request"],

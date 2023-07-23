@@ -96,10 +96,16 @@ const createParameterSetters = (
   type: "query" | "header" | "path",
   schema: Schema.Schema<any>,
 ) => {
-  const ast = schema.ast;
+  let ast = schema.ast;
+
+  if (ast._tag === "Transform") {
+    ast = ast.from;
+  }
 
   if (ast._tag !== "TypeLiteral") {
-    throw new Error(`${type} parameter must be a type literal schema`);
+    throw new Error(
+      `${type} parameter must be a type literal schema, found ${ast._tag}`,
+    );
   }
 
   return ast.propertySignatures.map((ps) => {
@@ -120,7 +126,11 @@ const createParameterSetters = (
 };
 
 const createResponseHeadersSchemaMap = (schema: Schema.Schema<any>) => {
-  const ast = schema.ast;
+  let ast = schema.ast;
+
+  if (ast._tag === "Transform") {
+    ast = ast.from;
+  }
 
   if (ast._tag !== "TypeLiteral") {
     throw new Error(`Response headers must be a type literal schema`);
