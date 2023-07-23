@@ -12,7 +12,7 @@ const milanSchema = Schema.struct({
   penisLength: Schema.number,
   name: Schema.string,
 });
-const lesnekSchema = { name: Schema.string };
+const lesnekSchema = Schema.struct({ name: Schema.string });
 const standaSchema = Schema.record(
   Schema.string,
   Schema.union(Schema.string, Schema.number),
@@ -54,20 +54,31 @@ const api = pipe(
   Http.get("getMilan", "/milan", { response: Schema.string }),
   Http.get("getLesnek", "/lesnek", {
     response: Schema.string,
-    query: lesnekSchema,
+    request: {
+      query: lesnekSchema,
+    },
   }),
-  Http.get("test", "/test", { response: standaSchema, query: lesnekSchema }),
+  Http.get("test", "/test", {
+    response: standaSchema,
+    request: { query: lesnekSchema },
+  }),
   Http.post("standa", "/standa", {
     response: standaSchema,
-    body: standaSchema,
+    request: {
+      body: standaSchema,
+    },
   }),
   Http.post("handleMilan", "/petr", {
     response: milanSchema,
-    body: milanSchema,
+    request: {
+      body: milanSchema,
+    },
   }),
   Http.put("callStanda", "/api/zdar", {
     response: Schema.string,
-    body: Schema.struct({ zdar: Schema.literal("zdar") }),
+    request: {
+      body: Schema.struct({ zdar: Schema.literal("zdar") }),
+    },
   }),
 );
 

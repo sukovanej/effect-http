@@ -8,6 +8,8 @@ has_toc: false
 
 # effect-http
 
+![download badge](https://img.shields.io/npm/dm/effect-http.svg)
+
 High-level declarative HTTP API for [effect-ts](https://github.com/Effect-TS).
 
 - :star: **Client derivation**. Write the api specification once, get the type-safe client with runtime validation for free.
@@ -25,6 +27,7 @@ breaking changes and the internals and the public API are still evolving and cha
 - [Request validation](#request-validation)
   - [Example](#example)
 - [Headers](#headers)
+- [Responses](#responses)
 - [Logging](#logging)
 - [Testing the server](#testing-the-server)
 - [Error handling](#error-handling)
@@ -58,13 +61,13 @@ import * as Schema from "@effect/schema/Schema";
 import * as Http from "effect-http";
 
 const responseSchema = Schema.struct({ name: Schema.string });
-const query = { id: Schema.number };
+const query = Schema.struct({ id: Schema.number });
 
 const api = pipe(
   Http.api({ title: "Users API" }),
   Http.get("getUser", "/user", {
     response: responseSchema,
-    query: query,
+    request: { query: query },
   }),
 );
 ```
@@ -130,9 +133,11 @@ export const api = pipe(
   Http.api({ title: "My api" }),
   Http.get("stuff", "/stuff/:param", {
     response: Schema.struct({ value: Schema.number }),
-    body: Schema.struct({ bodyField: Schema.array(Schema.string) }),
-    query: { query: Schema.string },
-    params: { param: Schema.string },
+    request: {
+      body: Schema.struct({ bodyField: Schema.array(Schema.string) }),
+      query: Schema.struct({ query: Schema.string }),
+      params: Schema.struct({ param: Schema.string }),
+    },
   }),
 );
 ```
@@ -155,7 +160,9 @@ const api = pipe(
   Http.api(),
   Http.get("hello", "/hello", {
     response: Schema.string,
-    headers: { "X-Client-Id": Schema.string },
+    request: {
+      headers: Schema.struct({ "X-Client-Id": Schema.string }),
+    },
   }),
 );
 ```
@@ -185,13 +192,99 @@ implement the handler, both autocompletion and type-checking would hint the
 lower-cased form of the header name.
 
 ```typescript
+type Api = typeof api;
+
 const handleHello = ({
   headers: { "x-client-id": clientId },
-}: Http.Input<Api, "hello">) => Effect.succeed(`Client id is ${clientId}`);
+}: Http.Input<Api, "hello">) => Effect.succeed("all good");
 ```
 
 Take a look at [examples/headers.ts](examples/headers.ts) to see a complete example
 API implementation with in-memory rate-limiting and client identification using headers.
+
+### Responses
+
+Response can be specified using a `Schema.Schema<I, O>` which automatically
+return status code 200 and includes only default headers.
+
+It is also possible to specify multiple responses with concrete status codes,
+headres and content schemas.
+
+```ts
+const api = pipe(
+  Http.api(),
+  Http.post("hello", "/hello", {
+    response: [
+      {
+        status: 201,
+        content: Schema.number,
+      },
+      {
+        status: 200,
+        content: Schema.number,
+        headers: { "My-Header": Schema.string },
+      },
+      {
+        status: 204,
+        headers: { "X-Another": Schema.NumberFromString },
+      },
+    ],
+  }),
+);
+```
+
+The server implemention is type-checked against the api responses
+and one of the specified response objects must be returned.
+
+The response object can be generated using a `ResponseUtil`. It is
+a derived object based on the `Api` and operation id and it provides
+methods named `response<status>` that create the response.
+
+```ts
+const server = pipe(
+  Http.server(api),
+  Http.handle("hello", ({ ResponseUtil }) =>
+    Effect.succeed(
+      ResponseUtil.response200({ headers: { "my-header": 12 }, content: 12 }),
+    ),
+  ),
+);
+```
+
+Note that one can create the response util object using `Http.responseUtil`
+if needed independently of the server implementation.
+
+```ts
+const HelloResponseUtil = Http.responseUtil(api, "hello");
+const response200 = HelloResponseUtil.response200({
+  headers: { "my-header": 12 },
+  content: 12,
+});
+```
+
+The derived client for this `Api` exposes a `hello` method that
+returns the following type.
+
+```ts
+type DerivedTypeOfHelloMethod =
+  | {
+      content: number;
+      status: 201;
+    }
+  | {
+      headers: {
+        readonly "my-header": number;
+      };
+      content: number;
+      status: 200;
+    }
+  | {
+      headers: {
+        readonly "x-another": number;
+      };
+      status: 204;
+    };
+```
 
 ### Logging
 
@@ -351,7 +444,9 @@ const api = pipe(
   Http.api({ title: "Users API" }),
   Http.post("storeUser", "/users", {
     response: Schema.string,
-    body: Schema.struct({ name: Schema.string }),
+    request: {
+      body: Schema.struct({ name: Schema.string }),
+    },
   }),
 );
 
@@ -628,7 +723,9 @@ const api = pipe(
   Http.api({ title: "My api" }),
   Http.get("stuff", "/stuff", {
     response: Schema.string,
-    query: { value: Schema.string },
+    request: {
+      query: Schema.struct({ value: Schema.string }),
+    },
   }),
 );
 
@@ -688,9 +785,9 @@ const responseSchema = pipe(
   }),
   Schema.description("User"),
 );
-const querySchema = {
+const querySchema = Schema.struct({
   id: pipe(Schema.NumberFromString, Schema.description("User id")),
-};
+});
 
 const api = pipe(
   Http.api({ title: "Users API" }),
@@ -699,7 +796,7 @@ const api = pipe(
     "/user",
     {
       response: responseSchema,
-      query: querySchema,
+      request: { query: querySchema },
     },
     { description: "Returns a User by id" },
   ),
@@ -820,7 +917,9 @@ const api = pipe(
   Http.api(),
   Http.get("test", "/test", {
     response: Schema.struct({ name: Schema.string }),
-    headers: { AUTHORIZATION: Schema.string },
+    request: {
+      headers: Schema.struct({ AUTHORIZATION: Schema.string }),
+    },
   }),
 );
 

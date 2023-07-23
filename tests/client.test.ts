@@ -11,14 +11,16 @@ import * as Schema from "@effect/schema/Schema";
 
 import * as Http from "effect-http";
 
-import { testServer, testServerUrl } from "./utils";
+import { testServer } from "./utils";
 
 test("quickstart example e2e", async () => {
   const api = pipe(
     Http.api(),
     Http.get("getUser", "/user", {
       response: Schema.struct({ name: Schema.string }),
-      query: { id: Schema.NumberFromString },
+      request: {
+        query: Schema.struct({ id: Schema.NumberFromString }),
+      },
     }),
   );
 
@@ -88,20 +90,22 @@ test("All input types", async () => {
     operation: Schema.string,
     helloWorld: Schema.string,
   });
-  const querySchema = {
+  const querySchema = Schema.struct({
     value: Schema.string,
     anotherValue: Schema.NumberFromString,
-  };
-  const paramsSchema = { operation: Schema.string };
+  });
+  const paramsSchema = Schema.struct({ operation: Schema.string });
   const bodySchema = Schema.struct({ helloWorld: Schema.string });
 
   const api = pipe(
     Http.api(),
     Http.post("doStuff", "/stuff/:operation", {
       response: responseSchema,
-      body: bodySchema,
-      query: querySchema,
-      params: paramsSchema,
+      request: {
+        body: bodySchema,
+        query: querySchema,
+        params: paramsSchema,
+      },
     }),
   );
 
@@ -140,9 +144,11 @@ test("missing headers", async () => {
     Http.api(),
     Http.get("getUser", "/user", {
       response: Schema.struct({ name: Schema.string }),
-      headers: {
-        "X-MY-HEADER": Schema.NumberFromString,
-        "Another-Header": Schema.string,
+      request: {
+        headers: Schema.struct({
+          "X-MY-HEADER": Schema.NumberFromString,
+          "Another-Header": Schema.string,
+        }),
       },
     }),
   );
@@ -172,13 +178,17 @@ test("common headers", async () => {
     Http.api(),
     Http.get("getUser", "/user", {
       response: Schema.struct({ name: Schema.string }),
-      headers: { "X-MY-HEADER": Schema.NumberFromString },
+      request: {
+        headers: Schema.struct({ "X-MY-HEADER": Schema.NumberFromString }),
+      },
     }),
     Http.post("doSomething", "/something", {
       response: Schema.struct({ name: Schema.string }),
-      headers: {
-        "X-MY-HEADER": Schema.NumberFromString,
-        "ANOTHER-HEADER": Schema.string,
+      request: {
+        headers: Schema.struct({
+          "X-MY-HEADER": Schema.NumberFromString,
+          "ANOTHER-HEADER": Schema.string,
+        }),
       },
     }),
   );
@@ -198,15 +208,9 @@ test("common headers", async () => {
   );
 
   const result = await pipe(
-    testServerUrl(server),
-    Effect.map((url) =>
-      pipe(
-        api,
-        Http.client(url, {
-          headers: { "x-my-header": 1, "another-header": "test" },
-        }),
-      ),
-    ),
+    testServer(server, {
+      headers: { "x-my-header": 1, "another-header": "test" },
+    }),
     Effect.flatMap((client) =>
       Effect.all([
         client.getUser({ headers: { "x-my-header": 2 } }),
@@ -255,8 +259,7 @@ test("supports interruption", async () => {
   );
 
   await pipe(
-    testServerUrl(server),
-    Effect.map((url) => pipe(api, Http.client(url))),
+    testServer(server),
     Effect.flatMap((client) =>
       Effect.gen(function* ($) {
         const request = yield* $(Effect.fork(client.getUser()));

@@ -8,16 +8,11 @@
 import type * as Effect from "@effect/io/Effect";
 import type * as Schema from "@effect/schema/Schema";
 
-import type {
-  Api,
-  Endpoint,
-  ResponseSchemaFull,
-  SchemasMap,
-  SchemasMapTo,
-} from "effect-http/Api";
+import type { Api, Endpoint, ResponseSchemaFull } from "effect-http/Api";
 import type { ClientError } from "effect-http/ClientError";
 import type {
-  EndpointSchemasToInput,
+  EndpointSchemasTo,
+  ResponseSchemaFullTo,
   SelectEndpointById,
 } from "effect-http/ServerBuilder";
 import * as internal from "effect-http/internal/client";
@@ -33,27 +28,15 @@ type MakeHeadersOptionIfAllPartial<I> = I extends { headers: any }
   : I;
 
 /** @ignore */
-type DropCommonHeaders<I, CommonHeaders> = {
+type DropCommonHeaders<I, CommonHeaders> = Schema.Spread<{
   [K in keyof I]: K extends "headers"
     ? Schema.Spread<
         {
           [HK in Extract<keyof I[K], keyof CommonHeaders>]?: I[K][HK];
-        } & {
-          [HK in Exclude<keyof I[K], keyof CommonHeaders>]: I[K][HK];
-        }
+        } & Pick<I[K], Exclude<keyof I[K], keyof CommonHeaders>>
       >
     : I[K];
-};
-
-type ResponseSchemaFullToInput<R extends ResponseSchemaFull> = R extends any
-  ? {
-      headers: R["headers"] extends SchemasMap<string>
-        ? Schema.Spread<SchemasMapTo<R["headers"]>>
-        : Record<string, string>;
-      content: R["content"] extends Schema.Schema<any, infer A> ? A : unknown;
-      status: R["status"];
-    }
-  : never;
+}>;
 
 /** @ignore */
 export type ClientFunctionResponse<S extends Endpoint["schemas"]["response"]> =
@@ -61,7 +44,7 @@ export type ClientFunctionResponse<S extends Endpoint["schemas"]["response"]> =
     S extends Schema.Schema<any, infer A>
       ? A
       : S extends readonly ResponseSchemaFull[]
-      ? ResponseSchemaFullToInput<S[number]>
+      ? ResponseSchemaFullTo<S[number]>
       : never
   >;
 
@@ -96,7 +79,7 @@ export type Client<A extends Api, H> = A extends Api<infer Es>
         Id,
         MakeHeadersOptionIfAllPartial<
           DropCommonHeaders<
-            EndpointSchemasToInput<SelectEndpointById<Es, Id>["schemas"]>,
+            EndpointSchemasTo<SelectEndpointById<Es, Id>["schemas"]>["request"],
             H
           >
         >

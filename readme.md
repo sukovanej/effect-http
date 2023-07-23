@@ -53,13 +53,13 @@ import * as Schema from "@effect/schema/Schema";
 import * as Http from "effect-http";
 
 const responseSchema = Schema.struct({ name: Schema.string });
-const query = { id: Schema.number };
+const query = Schema.struct({ id: Schema.number });
 
 const api = pipe(
   Http.api({ title: "Users API" }),
   Http.get("getUser", "/user", {
     response: responseSchema,
-    query: query,
+    request: { query: query },
   }),
 );
 ```
@@ -125,9 +125,11 @@ export const api = pipe(
   Http.api({ title: "My api" }),
   Http.get("stuff", "/stuff/:param", {
     response: Schema.struct({ value: Schema.number }),
-    body: Schema.struct({ bodyField: Schema.array(Schema.string) }),
-    query: { query: Schema.string },
-    params: { param: Schema.string },
+    request: {
+      body: Schema.struct({ bodyField: Schema.array(Schema.string) }),
+      query: Schema.struct({ query: Schema.string }),
+      params: Schema.struct({ param: Schema.string }),
+    },
   }),
 );
 ```
@@ -150,7 +152,9 @@ const api = pipe(
   Http.api(),
   Http.get("hello", "/hello", {
     response: Schema.string,
-    headers: { "X-Client-Id": Schema.string },
+    request: {
+      headers: Schema.struct({ "X-Client-Id": Schema.string }),
+    },
   }),
 );
 ```
@@ -244,7 +248,10 @@ if needed independently of the server implementation.
 
 ```ts
 const HelloResponseUtil = Http.responseUtil(api, "hello");
-const response200 = HelloResponseUtil.response200({ headers: { "my-header": 12 }, content: 12 })
+const response200 = HelloResponseUtil.response200({
+  headers: { "my-header": 12 },
+  content: 12,
+});
 ```
 
 The derived client for this `Api` exposes a `hello` method that
@@ -253,7 +260,6 @@ returns the following type.
 ```ts
 type DerivedTypeOfHelloMethod =
   | {
-      headers: Record<string, string>;
       content: number;
       status: 201;
     }
@@ -268,7 +274,6 @@ type DerivedTypeOfHelloMethod =
       headers: {
         readonly "x-another": number;
       };
-      content: unknown;
       status: 204;
     };
 ```
@@ -431,7 +436,9 @@ const api = pipe(
   Http.api({ title: "Users API" }),
   Http.post("storeUser", "/users", {
     response: Schema.string,
-    body: Schema.struct({ name: Schema.string }),
+    request: {
+      body: Schema.struct({ name: Schema.string }),
+    },
   }),
 );
 
@@ -708,7 +715,9 @@ const api = pipe(
   Http.api({ title: "My api" }),
   Http.get("stuff", "/stuff", {
     response: Schema.string,
-    query: { value: Schema.string },
+    request: {
+      query: Schema.struct({ value: Schema.string }),
+    },
   }),
 );
 
@@ -768,9 +777,9 @@ const responseSchema = pipe(
   }),
   Schema.description("User"),
 );
-const querySchema = {
+const querySchema = Schema.struct({
   id: pipe(Schema.NumberFromString, Schema.description("User id")),
-};
+});
 
 const api = pipe(
   Http.api({ title: "Users API" }),
@@ -779,7 +788,7 @@ const api = pipe(
     "/user",
     {
       response: responseSchema,
-      query: querySchema,
+      request: { query: querySchema },
     },
     { description: "Returns a User by id" },
   ),
@@ -900,7 +909,9 @@ const api = pipe(
   Http.api(),
   Http.get("test", "/test", {
     response: Schema.struct({ name: Schema.string }),
-    headers: { AUTHORIZATION: Schema.string },
+    request: {
+      headers: Schema.struct({ AUTHORIZATION: Schema.string }),
+    },
   }),
 );
 

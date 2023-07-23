@@ -11,11 +11,10 @@ import type {
   EndpointSchemas,
   IgnoredSchemaId,
   ResponseSchemaFull,
-  SchemasMap,
-  SchemasMapTo,
 } from "effect-http/Api";
 
-import { isArray } from "./internal/utils";
+import { RequiredFields } from "./ServerBuilder";
+import { AnySchema, SchemaTo, isArray } from "./internal/utils";
 
 /**
  * Derive utility object with methods enabling type-safe response object creation.
@@ -92,12 +91,9 @@ type NormalizeResponseSchemaFull<S extends ResponseSchemaFull> = S extends any
 /** @ignore */
 type CreateInput<
   S extends {
-    headers: IgnoredSchemaId | SchemasMap<string>;
-    content: IgnoredSchemaId | Schema.Schema<any>;
+    headers: IgnoredSchemaId | AnySchema;
+    content: IgnoredSchemaId | AnySchema;
   },
-> = (S["headers"] extends SchemasMap<string>
-  ? { headers: Schema.Spread<SchemasMapTo<S["headers"]>> }
-  : Record<never, never>) &
-  (S["content"] extends Schema.Schema<any, infer A>
-    ? { content: A }
-    : Record<never, never>);
+> = {
+  [K in Extract<RequiredFields<S>, "headers" | "content">]: SchemaTo<S[K]>;
+};

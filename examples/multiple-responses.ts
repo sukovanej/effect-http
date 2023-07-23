@@ -15,23 +15,25 @@ const api = pipe(
       {
         status: 200,
         content: Schema.number,
-        headers: {
+        headers: Schema.struct({
           "My-Header": pipe(
             Schema.NumberFromString,
             Schema.description("My header"),
           ),
-        },
+        }),
       },
       {
         status: 204,
-        headers: { "X-Another": Schema.NumberFromString },
+        headers: Schema.struct({ "X-Another": Schema.NumberFromString }),
       },
     ],
-    headers: {
-      "User-Agent": pipe(
-        Schema.NumberFromString,
-        Schema.description("Identifier of the user"),
-      ),
+    request: {
+      headers: Schema.struct({
+        "User-Agent": pipe(
+          Schema.NumberFromString,
+          Schema.description("Identifier of the user"),
+        ),
+      }),
     },
   }),
 );

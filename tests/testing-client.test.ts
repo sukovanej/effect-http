@@ -10,7 +10,9 @@ test("testing query", async () => {
     Http.api(),
     Http.get("hello", "/hello", {
       response: Schema.string,
-      query: { input: Schema.NumberFromString },
+      request: {
+        query: Schema.struct({ input: Schema.NumberFromString }),
+      },
     }),
   );
 
@@ -59,7 +61,9 @@ test("testing with dependencies", async () => {
     Http.api(),
     Http.get("hello", "/hello", {
       response: Schema.string,
-      query: { input: Schema.NumberFromString },
+      request: {
+        query: Schema.struct({ input: Schema.NumberFromString }),
+      },
     }),
   );
 
@@ -87,7 +91,9 @@ test("testing params", async () => {
     Http.api(),
     Http.get("hello", "/hello/:input", {
       response: Schema.string,
-      params: { input: Schema.NumberFromString },
+      request: {
+        params: Schema.struct({ input: Schema.NumberFromString }),
+      },
     }),
   );
 

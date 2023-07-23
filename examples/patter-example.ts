@@ -8,8 +8,10 @@ const api = pipe(
   Http.api({ title: "My awesome pets API", version: "1.0.0" }),
   Http.get("test", "/test", {
     response: Schema.string,
-    query: {
-      value: pipe(Schema.string, Schema.pattern(/[A-Z]/)),
+    request: {
+      query: Schema.struct({
+        value: pipe(Schema.string, Schema.pattern(/[A-Z]/)),
+      }),
     },
   }),
 );

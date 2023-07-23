@@ -9,10 +9,10 @@ import type * as Schema from "@effect/schema/Schema";
 
 import type { Api } from "effect-http/Api";
 import { buildServer } from "effect-http/Server";
-import { createInputParser } from "effect-http/internal/client";
+import { createRequestEncoder } from "effect-http/internal/client";
 
 import type {
-  EndpointSchemasToInput,
+  EndpointSchemasTo,
   SelectEndpointById,
   ServerBuilder,
 } from "./ServerBuilder";
@@ -38,7 +38,7 @@ export type TestingClient<R, A extends Api> = A extends Api<infer Es>
       [Id in Es[number]["id"]]: TestClientFunction<
         R,
         MakeHeadersOptionIfAllPartial<
-          EndpointSchemasToInput<SelectEndpointById<Es, Id>["schemas"]>
+          EndpointSchemasTo<SelectEndpointById<Es, Id>["schemas"]>["request"]
         >
       >;
     }>
@@ -66,7 +66,7 @@ export const testingClient = <R, A extends Api>(
 
   return server.api.endpoints.reduce(
     (client, { id, method, path, schemas }) => {
-      const parseInputs = createInputParser(schemas);
+      const parseInputs = createRequestEncoder(schemas.request);
 
       const handler = server.handlers.find(
         ({ endpoint }) => endpoint.id === id,

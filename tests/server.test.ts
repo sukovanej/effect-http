@@ -5,6 +5,7 @@ import * as Context from "@effect/data/Context";
 import * as Either from "@effect/data/Either";
 import { pipe } from "@effect/data/Function";
 import * as Option from "@effect/data/Option";
+import * as RA from "@effect/data/ReadonlyArray";
 import * as Effect from "@effect/io/Effect";
 import * as Layer from "@effect/io/Layer";
 import * as Schema from "@effect/schema/Schema";
@@ -52,8 +53,10 @@ test("validation error", async () => {
   const api = pipe(
     Http.api(),
     Http.get("hello", "/hello", {
-      query: {
-        country: pipe(Schema.string, Schema.pattern(/^[A-Z]{2}$/)),
+      request: {
+        query: Schema.struct({
+          country: pipe(Schema.string, Schema.pattern(/^[A-Z]{2}$/)),
+        }),
       },
       response: Schema.string,
     }),
@@ -116,7 +119,9 @@ test("headers", async () => {
     Http.api(),
     Http.get("hello", "/hello", {
       response: Schema.struct({ clientIdHash: Schema.string }),
-      headers: { "X-Client-Id": Schema.string },
+      request: {
+        headers: Schema.struct({ "X-Client-Id": Schema.string }),
+      },
     }),
   );
 
@@ -353,32 +358,35 @@ describe("type safe responses", () => {
           {
             status: 200,
             content: Schema.number,
-            headers: { "X-Another-200": Schema.NumberFromString },
+            headers: Schema.struct({
+              "X-Another-200": Schema.NumberFromString,
+            }),
           },
           {
             status: 204,
-            headers: { "X-Another": Schema.NumberFromString },
+            headers: Schema.struct({ "X-Another": Schema.NumberFromString }),
           },
         ],
-        query: {
-          value: Schema.NumberFromString,
+        request: {
+          query: Schema.struct({
+            value: Schema.NumberFromString,
+          }),
         },
       }),
     );
 
     const server = pipe(
       Http.server(api),
-      Http.handle("hello", ({ query: { value } }) => {
+      Http.handle("hello", ({ query: { value }, ResponseUtil }) => {
         const response =
           value == 12
-            ? ({
-                status: 200,
+            ? ResponseUtil.response200({
                 content: 12,
                 headers: { "x-another-200": 12 },
-              } as const)
+              })
             : value == 13
-            ? ({ status: 201, content: 13 } as const)
-            : ({ status: 204, headers: { "x-another": 13 } } as const);
+            ? ResponseUtil.response201({ content: 13 })
+            : ResponseUtil.response204({ headers: { "x-another": 13 } });
 
         return Effect.succeed(response);
       }),
@@ -387,11 +395,9 @@ describe("type safe responses", () => {
     const result = await pipe(
       testServer(server),
       Effect.flatMap((client) =>
-        Effect.all([
-          client.hello({ query: { value: 12 } }),
-          client.hello({ query: { value: 13 } }),
-          client.hello({ query: { value: 14 } }),
-        ]),
+        Effect.all(
+          RA.map([12, 13, 14], (value) => client.hello({ query: { value } })),
+        ),
       ),
       Effect.scoped,
       Effect.runPromise,
@@ -403,4 +409,78 @@ describe("type safe responses", () => {
       { content: undefined, headers: { "x-another": 13 }, status: 204 },
     ]);
   });
+});
+
+test("optional headers / query / params fields", async () => {
+  const api = pipe(
+    Http.api(),
+    Http.post("hello", "/hello/:value", {
+      response: Schema.struct({
+        query: Schema.struct({
+          value: Schema.number,
+          another: Schema.optional(Schema.string),
+        }),
+        params: Schema.struct({
+          value: Schema.number,
+        }),
+        headers: Schema.struct({
+          value: Schema.number,
+          another: Schema.optional(Schema.string),
+          hello: Schema.optional(Schema.string),
+        }),
+      }),
+      request: {
+        query: Schema.struct({
+          value: Schema.NumberFromString,
+          another: Schema.optional(Schema.string),
+        }),
+        params: Schema.struct({
+          value: Schema.NumberFromString,
+        }),
+        headers: Schema.struct({
+          value: Schema.NumberFromString,
+          another: Schema.optional(Schema.string),
+          hello: Schema.optional(Schema.string),
+        }),
+      },
+    }),
+  );
+
+  const server = pipe(
+    Http.server(api),
+    Http.handle("hello", ({ query, params, headers }) =>
+      Effect.succeed({ query, params, headers }),
+    ),
+  );
+
+  const params = [
+    {
+      query: { value: 12 },
+      headers: { value: 12 },
+      params: { value: 12 },
+    },
+    {
+      query: { value: 12, another: "query-another-2" },
+      headers: { value: 12 },
+      params: { value: 12 },
+    },
+    {
+      query: { value: 12 },
+      headers: {
+        value: 12,
+        another: "headers-another-3",
+        hello: "params-hello-3",
+      },
+      params: { value: 12 },
+    },
+  ] as const;
+
+  const result = await pipe(
+    testServer(server),
+    Effect.flatMap((client) => Effect.all(RA.map(params, client.hello))),
+    Effect.scoped,
+    Effect.runPromise,
+  );
+
+  expect(result).toEqual(params);
 });

@@ -17,8 +17,10 @@ test("response helpers", () => {
           status: 200,
         },
       ],
-      query: {
-        value: Schema.NumberFromString,
+      request: {
+        query: Schema.struct({
+          value: Schema.NumberFromString,
+        }),
       },
     }),
     Http.post("hello", "/hello", {
@@ -30,15 +32,17 @@ test("response helpers", () => {
         {
           status: 200,
           content: Schema.number,
-          headers: { "X-Another-200": Schema.NumberFromString },
+          headers: Schema.struct({ "X-Another-200": Schema.NumberFromString }),
         },
         {
           status: 204,
-          headers: { "X-Another": Schema.NumberFromString },
+          headers: Schema.struct({ "X-Another": Schema.NumberFromString }),
         },
       ],
-      query: {
-        value: Schema.NumberFromString,
+      request: {
+        query: Schema.struct({
+          value: Schema.NumberFromString,
+        }),
       },
     }),
   );

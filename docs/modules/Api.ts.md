@@ -236,11 +236,13 @@ Added in v1.0.0
 
 ```ts
 export interface EndpointSchemas {
-  response: Schema.Schema<any> | readonly ResponseSchemaFull[]
-  query: SchemasMap<string> | IgnoredSchemaId
-  params: SchemasMap<string> | IgnoredSchemaId
-  body: Schema.Schema<any> | IgnoredSchemaId
-  headers: SchemasMap<string> | IgnoredSchemaId
+  response: AnySchema | readonly ResponseSchemaFull[]
+  request: {
+    query: AnySchema | IgnoredSchemaId
+    params: AnySchema | IgnoredSchemaId
+    body: AnySchema | IgnoredSchemaId
+    headers: AnySchema | IgnoredSchemaId
+  }
 }
 ```
 
@@ -252,11 +254,13 @@ Added in v1.0.0
 
 ```ts
 export type InputEndpointSchemas = {
-  response: readonly InputResponseSchemaFull[] | Schema.Schema<any>
-  query?: SchemasMap<string>
-  params?: SchemasMap<string>
-  body?: Schema.Schema<any>
-  headers?: SchemasMap<string>
+  response: readonly InputResponseSchemaFull[] | AnySchema
+  request?: {
+    query?: AnySchema
+    params?: AnySchema
+    body?: AnySchema
+    headers?: AnySchema
+  }
 }
 ```
 

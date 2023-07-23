@@ -11,9 +11,9 @@ const responseSchema = pipe(
   }),
   Schema.description("User"),
 );
-const querySchema = {
+const querySchema = Schema.struct({
   id: pipe(Schema.NumberFromString, Schema.description("User id")),
-};
+});
 
 const api = pipe(
   Http.api({ title: "Users API" }),
@@ -22,7 +22,9 @@ const api = pipe(
     "/user",
     {
       response: responseSchema,
-      query: querySchema,
+      request: {
+        query: querySchema,
+      },
     },
     { description: "Returns a User by id" },
   ),

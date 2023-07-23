@@ -9,7 +9,9 @@ const api = pipe(
   Http.api({ title: "Users API" }),
   Http.post("storeUser", "/users", {
     response: Schema.string,
-    body: Schema.struct({ name: Schema.string }),
+    request: {
+      body: Schema.struct({ name: Schema.string }),
+    },
   }),
 );
 

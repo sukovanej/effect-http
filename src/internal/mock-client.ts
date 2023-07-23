@@ -7,8 +7,8 @@ import * as Schema from "@effect/schema/Schema";
 import { type Api, IgnoredSchemaId } from "effect-http/Api";
 import type { Client, ClientOptions } from "effect-http/Client";
 import type { MockClientOptions } from "effect-http/MockClient";
-import { createInputParser } from "effect-http/internal/client";
 
+import { createRequestEncoder } from "./client";
 import { isArray } from "./utils";
 
 export const mockClient =
@@ -18,7 +18,7 @@ export const mockClient =
   (api: A): Client<A, H> =>
     api.endpoints.reduce(
       (client, { id, schemas }) => {
-        const parseInputs = createInputParser(schemas);
+        const parseInputs = createRequestEncoder(schemas.request);
 
         const customResponses = option?.responses;
         const customResponse =
@@ -35,9 +35,7 @@ export const mockClient =
                     content:
                       content === IgnoredSchemaId ? Schema.undefined : content,
                     headers:
-                      headers === IgnoredSchemaId
-                        ? Schema.undefined
-                        : Schema.struct(headers),
+                      headers === IgnoredSchemaId ? Schema.undefined : headers,
                   }),
                 ),
               );

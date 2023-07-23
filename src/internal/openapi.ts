@@ -22,7 +22,9 @@ export const openApi = (api: Api): OpenApiSpecification => {
           const setHeaders =
             headers === IgnoredSchemaId
               ? identity
-              : OpenApi.responseHeaders(headers);
+              : OpenApi.responseHeaders(
+                  createResponseHeadersSchemaMap(headers),
+                );
 
           operationSpec.push(
             OpenApi.jsonResponse(
@@ -45,39 +47,22 @@ export const openApi = (api: Api): OpenApiSpecification => {
         );
       }
 
-      if (schemas.params !== IgnoredSchemaId) {
-        for (const [name, schema] of Object.entries(schemas.params)) {
-          operationSpec.push(
-            OpenApi.parameter(name, "path", schema, descriptionSetter(schema)),
-          );
-        }
+      const { params, query, body, headers } = schemas.request;
+
+      if (params !== IgnoredSchemaId) {
+        operationSpec.push(...createParameterSetters("path", params));
       }
 
-      if (schemas.query !== IgnoredSchemaId) {
-        for (const [name, schema] of Object.entries(schemas.query)) {
-          operationSpec.push(
-            OpenApi.parameter(name, "query", schema, descriptionSetter(schema)),
-          );
-        }
+      if (query !== IgnoredSchemaId) {
+        operationSpec.push(...createParameterSetters("query", query));
       }
 
-      if (schemas.body !== IgnoredSchemaId) {
-        operationSpec.push(
-          OpenApi.jsonRequest(schemas.body, descriptionSetter(schemas.body)),
-        );
+      if (headers !== IgnoredSchemaId) {
+        operationSpec.push(...createParameterSetters("header", headers));
       }
 
-      if (schemas.headers !== IgnoredSchemaId) {
-        for (const [name, schema] of Object.entries(schemas.headers)) {
-          operationSpec.push(
-            OpenApi.parameter(
-              name,
-              "header",
-              schema,
-              descriptionSetter(schema),
-            ),
-          );
-        }
+      if (body !== IgnoredSchemaId) {
+        operationSpec.push(OpenApi.jsonRequest(body, descriptionSetter(body)));
       }
 
       if (description) {
@@ -106,3 +91,45 @@ const descriptionSetter = <A extends { description?: string }>(
     AST.getAnnotation<AST.DescriptionAnnotation>(AST.DescriptionAnnotationId),
     Option.match({ onNone: () => identity<A>, onSome: OpenApi.description }),
   );
+
+const createParameterSetters = (
+  type: "query" | "header" | "path",
+  schema: Schema.Schema<any>,
+) => {
+  const ast = schema.ast;
+
+  if (ast._tag !== "TypeLiteral") {
+    throw new Error(`${type} parameter must be a type literal schema`);
+  }
+
+  return ast.propertySignatures.map((ps) => {
+    if (typeof ps.name !== "string") {
+      throw new Error(`${type} parameter struct fields must be strings`);
+    }
+
+    const schema = Schema.make(ps.type);
+
+    return OpenApi.parameter(
+      ps.name,
+      "header",
+      schema,
+      descriptionSetter(schema),
+      ps.isOptional ? OpenApi.required : identity,
+    );
+  });
+};
+
+const createResponseHeadersSchemaMap = (schema: Schema.Schema<any>) => {
+  const ast = schema.ast;
+
+  if (ast._tag !== "TypeLiteral") {
+    throw new Error(`Response headers must be a type literal schema`);
+  }
+
+  return Object.fromEntries(
+    ast.propertySignatures.map((ps) => [
+      ps.name,
+      Schema.make<string, unknown>(ps.type),
+    ]),
+  );
+};

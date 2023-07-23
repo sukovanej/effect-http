@@ -8,13 +8,15 @@ const responseSchema = Schema.struct({
   name: Schema.string,
   id: pipe(Schema.number, Schema.int(), Schema.positive()),
 });
-const querySchema = { id: Schema.NumberFromString };
+const querySchema = Schema.struct({ id: Schema.NumberFromString });
 
 const api = pipe(
   Http.api({ title: "Users API" }),
   Http.get("getUser", "/user", {
     response: responseSchema,
-    query: querySchema,
+    request: {
+      query: querySchema,
+    },
   }),
 );
 
