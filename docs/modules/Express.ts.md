@@ -21,8 +21,8 @@ Added in v1.0.0
   - [listen](#listen)
   - [listenExpress](#listenexpress)
 - [models](#models)
-  - [ExpressOptions (type alias)](#expressoptions-type-alias)
-  - [ListenOptions (type alias)](#listenoptions-type-alias)
+  - [ExpressOptions (interface)](#expressoptions-interface)
+  - [ListenOptions (interface)](#listenoptions-interface)
 
 ---
 
@@ -37,7 +37,7 @@ Create express app from the `Server`
 ```ts
 export declare const express: (
   options?: Partial<ExpressOptions>
-) => <R>(serverBuilder: ServerBuilder<R, []>) => Effect.Effect<R, unknown, _express.Express>
+) => <R>(serverBuilder: ServerBuilder<R, [], Api<Endpoint[]>>) => Effect.Effect<R, unknown, _express.Express>
 ```
 
 Added in v1.0.0
@@ -51,7 +51,7 @@ Create an express app from the `Server` and start the server
 ```ts
 export declare const listen: (
   options?: Partial<ListenOptions>
-) => <R>(serverBuilder: ServerBuilder<R, []>) => Effect.Effect<R, unknown, void>
+) => <R>(serverBuilder: ServerBuilder<R, [], Api<Endpoint[]>>) => Effect.Effect<R, unknown, void>
 ```
 
 Added in v1.0.0
@@ -72,12 +72,12 @@ Added in v1.0.0
 
 # models
 
-## ExpressOptions (type alias)
+## ExpressOptions (interface)
 
 **Signature**
 
 ```ts
-export type ExpressOptions = {
+export interface ExpressOptions {
   /** Controls whether to expose OpenAPI UI or not. */
   openapiEnabled: boolean
 
@@ -97,12 +97,12 @@ export type ExpressOptions = {
 
 Added in v1.0.0
 
-## ListenOptions (type alias)
+## ListenOptions (interface)
 
 **Signature**
 
 ```ts
-export type ListenOptions = {
+export interface ListenOptions extends ExpressOptions {
   /** Port to listen on
    *
    *  By default, any available port will be used.
@@ -113,7 +113,7 @@ export type ListenOptions = {
 
   /** Run effect after server starts. */
   onStart?: (server: http.Server) => Effect.Effect<never, any, any>
-} & ExpressOptions
+}
 ```
 
 Added in v1.0.0

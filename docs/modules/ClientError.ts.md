@@ -21,10 +21,10 @@ Added in v1.0.0
   - [validationClientError](#validationclienterror)
 - [models](#models)
   - [ClientError (type alias)](#clienterror-type-alias)
-  - [HttpClientError (type alias)](#httpclienterror-type-alias)
-  - [InvalidUrlClientError (type alias)](#invalidurlclienterror-type-alias)
-  - [UnexpectedClientError (type alias)](#unexpectedclienterror-type-alias)
-  - [ValidationClientError (type alias)](#validationclienterror-type-alias)
+  - [HttpClientError (interface)](#httpclienterror-interface)
+  - [InvalidUrlClientError (interface)](#invalidurlclienterror-interface)
+  - [UnexpectedClientError (interface)](#unexpectedclienterror-interface)
+  - [ValidationClientError (interface)](#validationclienterror-interface)
 
 ---
 
@@ -82,12 +82,12 @@ export type ClientError = InvalidUrlClientError | HttpClientError | ValidationCl
 
 Added in v1.0.0
 
-## HttpClientError (type alias)
+## HttpClientError (interface)
 
 **Signature**
 
 ```ts
-export type HttpClientError = {
+export interface HttpClientError {
   _tag: 'HttpClientError'
   statusCode: number
   error: unknown
@@ -96,12 +96,12 @@ export type HttpClientError = {
 
 Added in v1.0.0
 
-## InvalidUrlClientError (type alias)
+## InvalidUrlClientError (interface)
 
 **Signature**
 
 ```ts
-export type InvalidUrlClientError = {
+export interface InvalidUrlClientError {
   _tag: 'InvalidUrlClientError'
   error: unknown
 }
@@ -109,12 +109,12 @@ export type InvalidUrlClientError = {
 
 Added in v1.0.0
 
-## UnexpectedClientError (type alias)
+## UnexpectedClientError (interface)
 
 **Signature**
 
 ```ts
-export type UnexpectedClientError = {
+export interface UnexpectedClientError {
   _tag: 'UnexpectedClientError'
   error: unknown
 }
@@ -122,12 +122,12 @@ export type UnexpectedClientError = {
 
 Added in v1.0.0
 
-## ValidationClientError (type alias)
+## ValidationClientError (interface)
 
 **Signature**
 
 ```ts
-export type ValidationClientError = {
+export interface ValidationClientError {
   _tag: 'ValidationClientError'
   error: unknown
 }

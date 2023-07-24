@@ -28,7 +28,7 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-export declare const buildServer: <R, A extends Api>(serverBuilder: ServerBuilder<R, [], A>) => Server<R, A>
+export declare const buildServer: <R, A extends Api<Endpoint[]>>(serverBuilder: ServerBuilder<R, [], A>) => Server<R, A>
 ```
 
 Added in v1.0.0

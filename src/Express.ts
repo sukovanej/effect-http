@@ -29,7 +29,7 @@ import { internalServerError, notFoundError } from "effect-http/ServerError";
  * @category models
  * @since 1.0.0
  */
-export type ExpressOptions = {
+export interface ExpressOptions {
   /** Controls whether to expose OpenAPI UI or not. */
   openapiEnabled: boolean;
 
@@ -44,7 +44,7 @@ export type ExpressOptions = {
    *  @default "pretty"
    */
   logger: Logger.Logger<any, any> | "none" | "default" | "pretty" | "json";
-};
+}
 
 /**
  * Create express app from the `Server`
@@ -114,7 +114,7 @@ export const express =
  * @category models
  * @since 1.0.0
  */
-export type ListenOptions = {
+export interface ListenOptions extends ExpressOptions {
   /** Port to listen on
    *
    *  By default, any available port will be used.
@@ -125,7 +125,7 @@ export type ListenOptions = {
 
   /** Run effect after server starts. */
   onStart?: (server: http.Server) => Effect.Effect<never, any, any>;
-} & ExpressOptions;
+}
 
 /**
  * Create an express app from the `Server` and start the server

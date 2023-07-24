@@ -25,11 +25,11 @@ import {
  * @category models
  * @since 1.0.0
  */
-export type BeforeHandlerExtension<R> = {
+export interface BeforeHandlerExtension<R> {
   _tag: "BeforeHandlerExtension";
   id: string;
   fn: (request: Request) => Effect.Effect<R, ApiError, unknown>;
-};
+}
 
 /**
  * Effect running after handlers.
@@ -37,14 +37,14 @@ export type BeforeHandlerExtension<R> = {
  * @category models
  * @since 1.0.0
  */
-export type AfterHandlerExtension<R> = {
+export interface AfterHandlerExtension<R> {
   _tag: "AfterHandlerExtension";
   id: string;
   fn: (
     request: Request,
     response: Response,
   ) => Effect.Effect<R, ApiError, unknown>;
-};
+}
 
 /**
  * Effect running after handlers.
@@ -52,11 +52,11 @@ export type AfterHandlerExtension<R> = {
  * @category models
  * @since 1.0.0
  */
-export type OnErrorExtension<R> = {
+export interface OnErrorExtension<R> {
   _tag: "OnErrorExtension";
   id: string;
   fn: (request: Request, error: unknown) => Effect.Effect<R, unknown, unknown>;
-};
+}
 
 /**
  * Effects applied for all requests. Safer variant of middlewares.
@@ -197,10 +197,10 @@ export const errorLogExtension = () =>
  * @category basic auth extension
  * @since 1.0.0
  */
-export type BasicAuthCredentials = {
+export interface BasicAuthCredentials {
   user: string;
   password: string;
-};
+}
 
 /**
  *

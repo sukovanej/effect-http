@@ -28,7 +28,7 @@ Derive utility object with methods enabling type-safe response object creation.
 **Signature**
 
 ```ts
-export declare const responseUtil: <A extends Api, Id extends A['endpoints'][number]['id']>(
+export declare const responseUtil: <A extends Api<Endpoint[]>, Id extends A['endpoints'][number]['id']>(
   api: A,
   id: Id
 ) => Schema.Spread<

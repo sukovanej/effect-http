@@ -23,7 +23,10 @@ const createError = <T extends { _tag: string; error: unknown }>(
  * @category models
  * @since 1.0.0
  */
-export type InvalidQueryError = { _tag: "InvalidQueryError"; error: unknown };
+export interface InvalidQueryError {
+  _tag: "InvalidQueryError";
+  error: unknown;
+}
 
 const [invalidQueryError, isInvalidQueryError] =
   createError<InvalidQueryError>("InvalidQueryError");
@@ -49,7 +52,10 @@ export {
  * @category models
  * @since 1.0.0
  */
-export type InvalidParamsError = { _tag: "InvalidParamsError"; error: unknown };
+export interface InvalidParamsError {
+  _tag: "InvalidParamsError";
+  error: unknown;
+}
 
 const [invalidParamsError, isInvalidParamsError] =
   createError<InvalidParamsError>("InvalidParamsError");
@@ -75,7 +81,10 @@ export {
  * @category models
  * @since 1.0.0
  */
-export type InvalidBodyError = { _tag: "InvalidBodyError"; error: unknown };
+export interface InvalidBodyError {
+  _tag: "InvalidBodyError";
+  error: unknown;
+}
 
 const [invalidBodyError, isInvalidBodyError] =
   createError<InvalidBodyError>("InvalidBodyError");
@@ -101,10 +110,10 @@ export {
  * @category models
  * @since 1.0.0
  */
-export type InvalidHeadersError = {
+export interface InvalidHeadersError {
   _tag: "InvalidHeadersError";
   error: unknown;
-};
+}
 
 const [invalidHeadersError, isInvalidHeadersError] =
   createError<InvalidHeadersError>("InvalidHeadersError");
@@ -130,7 +139,10 @@ export {
  * @category models
  * @since 1.0.0
  */
-export type UnauthorizedError = { _tag: "UnauthorizedError"; error: unknown };
+export interface UnauthorizedError {
+  _tag: "UnauthorizedError";
+  error: unknown;
+}
 
 const [unauthorizedError, isUnauthorizedError] =
   createError<UnauthorizedError>("UnauthorizedError");
@@ -156,7 +168,10 @@ export {
  * @category models
  * @since 1.0.0
  */
-export type ForbiddenError = { _tag: "ForbiddenError"; error: unknown };
+export interface ForbiddenError {
+  _tag: "ForbiddenError";
+  error: unknown;
+}
 
 const [forbiddenError, isForbiddenError] =
   createError<ForbiddenError>("ForbiddenError");
@@ -182,7 +197,10 @@ export {
  * @category models
  * @since 1.0.0
  */
-export type NotFoundError = { _tag: "NotFoundError"; error: unknown };
+export interface NotFoundError {
+  _tag: "NotFoundError";
+  error: unknown;
+}
 
 const [notFoundError, isNotFoundError] =
   createError<NotFoundError>("NotFoundError");
@@ -208,10 +226,10 @@ export {
  * @category models
  * @since 1.0.0
  */
-export type ConflictError = {
+export interface ConflictError {
   _tag: "ConflictError";
   error: unknown;
-};
+}
 
 const [conflictError, isConflictError] =
   createError<ConflictError>("ConflictError");
@@ -237,10 +255,10 @@ export {
  * @category models
  * @since 1.0.0
  */
-export type UnsupportedMediaTypeError = {
+export interface UnsupportedMediaTypeError {
   _tag: "UnsupportedMediaTypeError";
   error: unknown;
-};
+}
 
 const [unsupportedMediaTypeError, isUnsupportedMediaTypeError] =
   createError<UnsupportedMediaTypeError>("UnsupportedMediaTypeError");
@@ -266,10 +284,10 @@ export {
  * @category models
  * @since 1.0.0
  */
-export type TooManyRequestsError = {
+export interface TooManyRequestsError {
   _tag: "TooManyRequestsError";
   error: unknown;
-};
+}
 
 const [tooManyRequestsError, isTooManyRequestsError] =
   createError<TooManyRequestsError>("TooManyRequestsError");
@@ -295,10 +313,10 @@ export {
  * @category models
  * @since 1.0.0
  */
-export type InvalidResponseError = {
+export interface InvalidResponseError {
   _tag: "InvalidResponseError";
   error: unknown;
-};
+}
 
 const [invalidResponseError, isInvalidResponseError] =
   createError<InvalidResponseError>("InvalidResponseError");
@@ -324,10 +342,10 @@ export {
  * @category models
  * @since 1.0.0
  */
-export type InternalServerError = {
+export interface InternalServerError {
   _tag: "InternalServerError";
   error: unknown;
-};
+}
 
 const [internalServerError, isInternalServerError] =
   createError<InternalServerError>("InternalServerError");
@@ -353,10 +371,10 @@ export {
  * @category models
  * @since 1.0.0
  */
-export type NotImplementedError = {
+export interface NotImplementedError {
   _tag: "NotImplementedError";
   error: unknown;
-};
+}
 
 const [notImplementedError, isNotImplementedError] =
   createError<NotImplementedError>("NotImplementedError");
@@ -382,10 +400,10 @@ export {
  * @category models
  * @since 1.0.0
  */
-export type BadGatewayError = {
+export interface BadGatewayError {
   _tag: "BadGatewayError";
   error: unknown;
-};
+}
 
 const [badGatewayError, isBadGatewayError] =
   createError<BadGatewayError>("BadGatewayError");
@@ -411,10 +429,10 @@ export {
  * @category models
  * @since 1.0.0
  */
-export type ServiceUnavailableError = {
+export interface ServiceUnavailableError {
   _tag: "ServiceUnavailableError";
   error: unknown;
-};
+}
 
 const [serviceUnavailableError, isServiceUnavailableError] =
   createError<ServiceUnavailableError>("ServiceUnavailableError");
@@ -440,10 +458,10 @@ export {
  * @category models
  * @since 1.0.0
  */
-export type GatewayTimeoutError = {
+export interface GatewayTimeoutError {
   _tag: "GatewayTimeoutError";
   error: unknown;
-};
+}
 
 const [gatewayTimeoutError, isGatewayTimeoutError] =
   createError<GatewayTimeoutError>("GatewayTimeoutError");

@@ -20,7 +20,7 @@ Added in v1.0.0
   - [client](#client)
 - [models](#models)
   - [Client (type alias)](#client-type-alias)
-  - [ClientOptions (type alias)](#clientoptions-type-alias)
+  - [ClientOptions (interface)](#clientoptions-interface)
 
 ---
 
@@ -33,7 +33,7 @@ Derive client implementation from the `Api`
 **Signature**
 
 ```ts
-export declare const client: <A extends Api, H extends Record<string, unknown> = Record<never, never>>(
+export declare const client: <A extends Api<Endpoint[]>, H extends Record<string, unknown> = Record<never, never>>(
   api: A,
   baseUrl: URL,
   options?: ClientOptions<H> | undefined
@@ -64,12 +64,12 @@ export type Client<A extends Api, H> = A extends Api<infer Es>
 
 Added in v1.0.0
 
-## ClientOptions (type alias)
+## ClientOptions (interface)
 
 **Signature**
 
 ```ts
-export type ClientOptions<H extends Record<string, unknown>> = {
+export interface ClientOptions<H extends Record<string, unknown>> {
   headers: H
 }
 ```

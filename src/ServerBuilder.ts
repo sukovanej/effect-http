@@ -25,43 +25,43 @@ import type { AnySchema, SchemaTo } from "effect-http/internal";
  * @category models
  * @since 1.0.0
  */
-export type ServerBuilder<
+export interface ServerBuilder<
   R,
   Es extends Endpoint[] = Endpoint[],
   A extends Api = Api,
-> = {
+> {
   unimplementedEndpoints: Es;
   handlers: ServerBuilderHandler<R>[];
   extensions: ServerExtension<R, A["endpoints"]>[];
   api: A;
-};
+}
 
 /**
  * @category models
  * @since 1.0.0
  */
-export type ServerBuilderHandler<R> = {
+export interface ServerBuilderHandler<R> {
   fn: InputServerBuilderHandler<R, Endpoint>;
   endpoint: Endpoint;
-};
+}
 
 /**
  * @category models
  * @since 1.0.0
  */
-export type ServerExtension<R, Es extends Endpoint[]> = {
+export interface ServerExtension<R, Es extends Endpoint[]> {
   extension: Extension<R>;
   options: ServerExtensionOptions<Es>;
-};
+}
 
 /**
  * @category models
  * @since 1.0.0
  */
-export type ServerExtensionOptions<Es extends Endpoint[]> = {
+export interface ServerExtensionOptions<Es extends Endpoint[]> {
   skipOperations: Es[number]["id"][];
   allowOperations: Es[number]["id"][];
-};
+}
 
 /**
  * Create new unimplemeted `ServerBuilder` from `Api`.

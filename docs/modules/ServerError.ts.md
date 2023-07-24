@@ -38,22 +38,22 @@ Added in v1.0.0
   - [ApiClientError (type alias)](#apiclienterror-type-alias)
   - [ApiError (type alias)](#apierror-type-alias)
   - [ApiServerError (type alias)](#apiservererror-type-alias)
-  - [BadGatewayError (type alias)](#badgatewayerror-type-alias)
-  - [ConflictError (type alias)](#conflicterror-type-alias)
-  - [ForbiddenError (type alias)](#forbiddenerror-type-alias)
-  - [GatewayTimeoutError (type alias)](#gatewaytimeouterror-type-alias)
-  - [InternalServerError (type alias)](#internalservererror-type-alias)
-  - [InvalidBodyError (type alias)](#invalidbodyerror-type-alias)
-  - [InvalidHeadersError (type alias)](#invalidheaderserror-type-alias)
-  - [InvalidParamsError (type alias)](#invalidparamserror-type-alias)
-  - [InvalidQueryError (type alias)](#invalidqueryerror-type-alias)
-  - [InvalidResponseError (type alias)](#invalidresponseerror-type-alias)
-  - [NotFoundError (type alias)](#notfounderror-type-alias)
-  - [NotImplementedError (type alias)](#notimplementederror-type-alias)
-  - [ServiceUnavailableError (type alias)](#serviceunavailableerror-type-alias)
-  - [TooManyRequestsError (type alias)](#toomanyrequestserror-type-alias)
-  - [UnauthorizedError (type alias)](#unauthorizederror-type-alias)
-  - [UnsupportedMediaTypeError (type alias)](#unsupportedmediatypeerror-type-alias)
+  - [BadGatewayError (interface)](#badgatewayerror-interface)
+  - [ConflictError (interface)](#conflicterror-interface)
+  - [ForbiddenError (interface)](#forbiddenerror-interface)
+  - [GatewayTimeoutError (interface)](#gatewaytimeouterror-interface)
+  - [InternalServerError (interface)](#internalservererror-interface)
+  - [InvalidBodyError (interface)](#invalidbodyerror-interface)
+  - [InvalidHeadersError (interface)](#invalidheaderserror-interface)
+  - [InvalidParamsError (interface)](#invalidparamserror-interface)
+  - [InvalidQueryError (interface)](#invalidqueryerror-interface)
+  - [InvalidResponseError (interface)](#invalidresponseerror-interface)
+  - [NotFoundError (interface)](#notfounderror-interface)
+  - [NotImplementedError (interface)](#notimplementederror-interface)
+  - [ServiceUnavailableError (interface)](#serviceunavailableerror-interface)
+  - [TooManyRequestsError (interface)](#toomanyrequestserror-interface)
+  - [UnauthorizedError (interface)](#unauthorizederror-interface)
+  - [UnsupportedMediaTypeError (interface)](#unsupportedmediatypeerror-interface)
 - [refinements](#refinements)
   - [isApiError](#isapierror)
   - [isBadGatewayError](#isbadgatewayerror)
@@ -357,14 +357,14 @@ export type ApiServerError =
 
 Added in v1.0.0
 
-## BadGatewayError (type alias)
+## BadGatewayError (interface)
 
 502 Bad Gateway - invalid response from the upstream server
 
 **Signature**
 
 ```ts
-export type BadGatewayError = {
+export interface BadGatewayError {
   _tag: 'BadGatewayError'
   error: unknown
 }
@@ -372,14 +372,14 @@ export type BadGatewayError = {
 
 Added in v1.0.0
 
-## ConflictError (type alias)
+## ConflictError (interface)
 
 409 Conflict - request conflicts with the current state of the server
 
 **Signature**
 
 ```ts
-export type ConflictError = {
+export interface ConflictError {
   _tag: 'ConflictError'
   error: unknown
 }
@@ -387,26 +387,29 @@ export type ConflictError = {
 
 Added in v1.0.0
 
-## ForbiddenError (type alias)
+## ForbiddenError (interface)
 
 403 Forbidden - authorization failure
 
 **Signature**
 
 ```ts
-export type ForbiddenError = { _tag: 'ForbiddenError'; error: unknown }
+export interface ForbiddenError {
+  _tag: 'ForbiddenError'
+  error: unknown
+}
 ```
 
 Added in v1.0.0
 
-## GatewayTimeoutError (type alias)
+## GatewayTimeoutError (interface)
 
 504 Service Unavailable - request timeout from the upstream server
 
 **Signature**
 
 ```ts
-export type GatewayTimeoutError = {
+export interface GatewayTimeoutError {
   _tag: 'GatewayTimeoutError'
   error: unknown
 }
@@ -414,14 +417,14 @@ export type GatewayTimeoutError = {
 
 Added in v1.0.0
 
-## InternalServerError (type alias)
+## InternalServerError (interface)
 
 500 Internal Server Error - internal server error
 
 **Signature**
 
 ```ts
-export type InternalServerError = {
+export interface InternalServerError {
   _tag: 'InternalServerError'
   error: unknown
 }
@@ -429,26 +432,29 @@ export type InternalServerError = {
 
 Added in v1.0.0
 
-## InvalidBodyError (type alias)
+## InvalidBodyError (interface)
 
 400 Bad Request - request body validation failed
 
 **Signature**
 
 ```ts
-export type InvalidBodyError = { _tag: 'InvalidBodyError'; error: unknown }
+export interface InvalidBodyError {
+  _tag: 'InvalidBodyError'
+  error: unknown
+}
 ```
 
 Added in v1.0.0
 
-## InvalidHeadersError (type alias)
+## InvalidHeadersError (interface)
 
 400 Bad Request - request headers validation failed
 
 **Signature**
 
 ```ts
-export type InvalidHeadersError = {
+export interface InvalidHeadersError {
   _tag: 'InvalidHeadersError'
   error: unknown
 }
@@ -456,38 +462,44 @@ export type InvalidHeadersError = {
 
 Added in v1.0.0
 
-## InvalidParamsError (type alias)
+## InvalidParamsError (interface)
 
 400 Bad Request - path parameters validation failed
 
 **Signature**
 
 ```ts
-export type InvalidParamsError = { _tag: 'InvalidParamsError'; error: unknown }
+export interface InvalidParamsError {
+  _tag: 'InvalidParamsError'
+  error: unknown
+}
 ```
 
 Added in v1.0.0
 
-## InvalidQueryError (type alias)
+## InvalidQueryError (interface)
 
 400 Bad Request - query parameters validation failed
 
 **Signature**
 
 ```ts
-export type InvalidQueryError = { _tag: 'InvalidQueryError'; error: unknown }
+export interface InvalidQueryError {
+  _tag: 'InvalidQueryError'
+  error: unknown
+}
 ```
 
 Added in v1.0.0
 
-## InvalidResponseError (type alias)
+## InvalidResponseError (interface)
 
 500 Internal Server Error - response validation failed
 
 **Signature**
 
 ```ts
-export type InvalidResponseError = {
+export interface InvalidResponseError {
   _tag: 'InvalidResponseError'
   error: unknown
 }
@@ -495,26 +507,29 @@ export type InvalidResponseError = {
 
 Added in v1.0.0
 
-## NotFoundError (type alias)
+## NotFoundError (interface)
 
 404 Not Found - cannot find the requested resource
 
 **Signature**
 
 ```ts
-export type NotFoundError = { _tag: 'NotFoundError'; error: unknown }
+export interface NotFoundError {
+  _tag: 'NotFoundError'
+  error: unknown
+}
 ```
 
 Added in v1.0.0
 
-## NotImplementedError (type alias)
+## NotImplementedError (interface)
 
 501 Not Implemented - functionality to fulfill the request is not supported
 
 **Signature**
 
 ```ts
-export type NotImplementedError = {
+export interface NotImplementedError {
   _tag: 'NotImplementedError'
   error: unknown
 }
@@ -522,14 +537,14 @@ export type NotImplementedError = {
 
 Added in v1.0.0
 
-## ServiceUnavailableError (type alias)
+## ServiceUnavailableError (interface)
 
 503 Service Unavailable - server is not ready to handle the request
 
 **Signature**
 
 ```ts
-export type ServiceUnavailableError = {
+export interface ServiceUnavailableError {
   _tag: 'ServiceUnavailableError'
   error: unknown
 }
@@ -537,14 +552,14 @@ export type ServiceUnavailableError = {
 
 Added in v1.0.0
 
-## TooManyRequestsError (type alias)
+## TooManyRequestsError (interface)
 
 429 Too Many Requests - the user has sent too many requests in a given amount of time
 
 **Signature**
 
 ```ts
-export type TooManyRequestsError = {
+export interface TooManyRequestsError {
   _tag: 'TooManyRequestsError'
   error: unknown
 }
@@ -552,26 +567,29 @@ export type TooManyRequestsError = {
 
 Added in v1.0.0
 
-## UnauthorizedError (type alias)
+## UnauthorizedError (interface)
 
 401 Unauthorized - invalid authentication credentials
 
 **Signature**
 
 ```ts
-export type UnauthorizedError = { _tag: 'UnauthorizedError'; error: unknown }
+export interface UnauthorizedError {
+  _tag: 'UnauthorizedError'
+  error: unknown
+}
 ```
 
 Added in v1.0.0
 
-## UnsupportedMediaTypeError (type alias)
+## UnsupportedMediaTypeError (interface)
 
 415 Unsupported Media Type - unsupported payload format
 
 **Signature**
 
 ```ts
-export type UnsupportedMediaTypeError = {
+export interface UnsupportedMediaTypeError {
   _tag: 'UnsupportedMediaTypeError'
   error: unknown
 }

@@ -47,10 +47,10 @@ import {
 import { getSchema, isArray, isSchema } from "effect-http/internal";
 
 /** @ignore */
-export type ServerHandler<R = any> = {
+export interface ServerHandler<R = any> {
   fn: (request: Request) => Effect.Effect<R, ApiError, Response>;
   endpoint: Endpoint;
-};
+}
 
 /**
  * @category models

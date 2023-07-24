@@ -15,19 +15,14 @@ import { IgnoredSchemaId } from "effect-http/Api";
 import { isArray, isSchema } from "effect-http/internal";
 
 /**
- * @category models
- * @since 1.0.0
- */
-export type OpenApiSpecification =
-  OpenApi.OpenAPISpec<OpenApi.OpenAPISchemaType>;
-
-/**
  * Generate OpenApi specification for the Api.
  *
  * @category constructors
  * @since 1.0.0
  */
-export const openApi = (api: Api): OpenApiSpecification => {
+export const openApi = (
+  api: Api,
+): OpenApi.OpenAPISpec<OpenApi.OpenAPISchemaType> => {
   return api.endpoints.reduce(
     (spec, { path, method, schemas, id, groupName, description }) => {
       const operationSpec = [];
