@@ -5,7 +5,7 @@ import * as Schema from "@effect/schema/Schema";
 
 import * as Http from "effect-http";
 
-import { testServer } from "./utils";
+import { runTestEffect, testServer } from "./utils";
 
 const helloApi = pipe(
   Http.api(),
@@ -56,8 +56,7 @@ test("basic auth", async () => {
         ].map(Effect.either),
       ),
     ),
-    Effect.scoped,
-    Effect.runPromise,
+    runTestEffect,
   );
 
   expect(result).toEqual([

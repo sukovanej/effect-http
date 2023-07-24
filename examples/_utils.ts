@@ -4,6 +4,7 @@ import fs from "fs";
 import * as Data from "@effect/data/Data";
 import { pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
+import * as Layer from "@effect/io/Layer";
 import * as Logger from "@effect/io/Logger";
 import * as LogLevel from "@effect/io/Logger/Level";
 
@@ -26,11 +27,7 @@ export const readFile = (filename: string) =>
     }),
   );
 
-export const withPrettyDebugLogger = <R, E, A>(
-  self: Effect.Effect<R, E, A>,
-): Effect.Effect<R, E, A> =>
-  pipe(
-    self,
-    Effect.provideSomeLayer(Logger.replace(Logger.defaultLogger, Log.pretty)),
-    Logger.withMinimumLogLevel(LogLevel.All),
-  );
+export const setDebugLogger = pipe(
+  Logger.replace(Logger.defaultLogger, Log.pretty),
+  Layer.merge(Logger.minimumLogLevel(LogLevel.All)),
+);

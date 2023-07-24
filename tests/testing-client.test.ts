@@ -5,6 +5,8 @@ import * as Schema from "@effect/schema/Schema";
 
 import * as Http from "effect-http";
 
+import { runTestEffect } from "./utils";
+
 test("testing query", async () => {
   const api = pipe(
     Http.api(),
@@ -24,7 +26,7 @@ test("testing query", async () => {
 
   const response = await pipe(
     Http.testingClient(server).hello({ query: { input: 12 } }),
-    Effect.runPromise,
+    runTestEffect,
   );
 
   expect(await response.json()).toEqual("13");
@@ -46,7 +48,7 @@ test("testing failure", async () => {
 
   const response = await pipe(
     Http.testingClient(server).hello({ query: { input: 12 } }),
-    Effect.runPromise,
+    runTestEffect,
   );
 
   expect(await response.json()).toEqual({
@@ -80,7 +82,7 @@ test("testing with dependencies", async () => {
   const response = await pipe(
     Http.testingClient(server).hello({ query: { input: 12 } }),
     Effect.provideService(MyService, 2),
-    Effect.runPromise,
+    runTestEffect,
   );
 
   expect(await response.json()).toEqual("14");
@@ -105,7 +107,7 @@ test("testing params", async () => {
 
   const response = await pipe(
     Http.testingClient(server).hello({ params: { input: 12 } }),
-    Effect.runPromise,
+    runTestEffect,
   );
 
   expect(await response.json()).toEqual("13");

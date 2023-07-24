@@ -4,6 +4,7 @@ import { AddressInfo, Socket } from "net";
 
 import { pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
+import * as Logger from "@effect/io/Logger";
 import * as Scope from "@effect/io/Scope";
 
 import * as Http from "effect-http";
@@ -23,7 +24,6 @@ const testServerUrl = <R, A extends Http.Api>(
       pipe(
         serverBuilder,
         Http.listen({
-          logger: "none",
           onStart: (httpServer) => {
             const url = new URL(
               `http://localhost:${(httpServer.address() as AddressInfo).port}`,
@@ -92,7 +92,6 @@ export const testExpress =
         pipe(
           server,
           Http.listenExpress({
-            logger: "none",
             onStart: (httpServer) => {
               const port = (httpServer.address() as AddressInfo).port;
               const url = new URL(`http://localhost:${port}`);
@@ -122,3 +121,13 @@ export const testExpress =
       ),
       Effect.map(([client, httpServer]) => [client, httpServer]),
     );
+
+const logger = Logger.none;
+
+export const runTestEffect = <E, A>(self: Effect.Effect<Scope.Scope, E, A>) =>
+  pipe(
+    self,
+    Effect.provideSomeLayer(Logger.replace(Logger.defaultLogger, logger)),
+    Effect.scoped,
+    Effect.runPromise,
+  );
