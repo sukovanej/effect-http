@@ -11,17 +11,17 @@ import * as Effect from "@effect/io/Effect";
 import { ParseError } from "@effect/schema/ParseResult";
 import * as Schema from "@effect/schema/Schema";
 
-import {
-  Api,
-  Endpoint,
-  EndpointSchemas,
-  IgnoredSchemaId,
-} from "effect-http/Api";
+import { Api, Endpoint, EndpointSchemas } from "effect-http/Api";
 import type {
   AfterHandlerExtension,
   BeforeHandlerExtension,
   OnErrorExtension,
 } from "effect-http/Extensions";
+import type {
+  ServerBuilder,
+  ServerBuilderHandler,
+  ServerExtension,
+} from "effect-http/ServerBuilder";
 import {
   API_STATUS_CODES,
   ApiError,
@@ -39,18 +39,12 @@ import {
   isInvalidQueryError,
   isInvalidResponseError,
 } from "effect-http/ServerError";
-import { getSchema, isArray } from "effect-http/internal/utils";
-
-import type {
-  ServerBuilder,
-  ServerBuilderHandler,
-  ServerExtension,
-} from "./ServerBuilder";
-import { responseUtil } from "./Utils";
+import { responseUtil } from "effect-http/Utils";
 import {
   formatValidationError,
   isParseError,
-} from "./ValidationErrorFormatter";
+} from "effect-http/ValidationErrorFormatter";
+import { getSchema, isArray } from "effect-http/internal";
 
 /** @ignore */
 export type ServerHandler<R = any> = {
@@ -312,44 +306,40 @@ const createResponseEncoder = (
   ParseError,
   { status: number; headers: Headers | undefined; content: unknown }
 >) => {
-  if (isArray(responseSchema)) {
-    const schema = Schema.union(
-      ...responseSchema.map((s) =>
-        Schema.struct({
-          status: Schema.literal(s.status),
-          content:
-            s.content === IgnoredSchemaId
-              ? Schema.optional(Schema.undefined)
-              : s.content,
-          headers:
-            s.headers === IgnoredSchemaId
-              ? Schema.optional(Schema.undefined)
-              : s.headers,
-        }),
-      ),
-    );
-    const encode = Schema.encode(schema);
-    return (a: any) =>
-      Effect.map(encode(a), ({ headers, content, status }) => {
-        const _headers = new Headers(headers);
+  if (!isArray(responseSchema)) {
+    const encodeContent = Schema.encode(responseSchema);
 
-        if (content !== undefined) {
-          _headers.set("content-type", "application/json");
-        }
-
-        return { content, status, headers: _headers };
-      });
+    return (a: unknown) =>
+      pipe(
+        encodeContent(a),
+        Effect.map((content) => ({
+          content,
+          headers: new Headers({ "content-type": "application/json" }),
+          status: 200,
+        })),
+      );
   }
 
-  const encodeContent = Schema.encode(responseSchema);
+  const schema = Schema.union(
+    ...responseSchema.map(({ status, content, headers }) =>
+      Schema.struct({
+        status: Schema.literal(status),
+        content: getSchema(content, Schema.optional(Schema.undefined)),
+        headers: getSchema(headers, Schema.optional(Schema.undefined)),
+      }),
+    ),
+  );
 
-  return (a: unknown) =>
-    pipe(
-      encodeContent(a),
-      Effect.map((content) => ({
-        content,
-        headers: new Headers({ "content-type": "application/json" }),
-        status: 200,
-      })),
-    );
+  const encode = Schema.encode(schema);
+
+  return (a: any) =>
+    Effect.map(encode(a), ({ headers, content, status }) => {
+      const _headers = new Headers(headers);
+
+      if (content !== undefined) {
+        _headers.set("content-type", "application/json");
+      }
+
+      return { content, status, headers: _headers };
+    });
 };

@@ -18,9 +18,8 @@ import {
   errorLogExtension,
 } from "effect-http/Extensions";
 import type { ApiError } from "effect-http/ServerError";
-import { ResponseUtil } from "effect-http/Utils";
-
-import { AnySchema, SchemaTo } from "./internal/utils";
+import type { ResponseUtil } from "effect-http/Utils";
+import type { AnySchema, SchemaTo } from "effect-http/internal";
 
 /**
  * @category models

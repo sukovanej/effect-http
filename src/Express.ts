@@ -22,9 +22,8 @@ import * as Scope from "@effect/io/Scope";
 
 import { openApi } from "effect-http/OpenApi";
 import { type ServerHandler, buildServer } from "effect-http/Server";
+import { ServerBuilder } from "effect-http/ServerBuilder";
 import { internalServerError, notFoundError } from "effect-http/ServerError";
-
-import { ServerBuilder } from "./ServerBuilder";
 
 /**
  * @category models
