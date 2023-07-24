@@ -24,10 +24,10 @@ Added in v1.0.0
   - [prependExtension](#prependextension)
 - [models](#models)
   - [Input (type alias)](#input-type-alias)
-  - [ServerBuilder (type alias)](#serverbuilder-type-alias)
-  - [ServerBuilderHandler (type alias)](#serverbuilderhandler-type-alias)
-  - [ServerExtension (type alias)](#serverextension-type-alias)
-  - [ServerExtensionOptions (type alias)](#serverextensionoptions-type-alias)
+  - [ServerBuilder (interface)](#serverbuilder-interface)
+  - [ServerBuilderHandler (interface)](#serverbuilderhandler-interface)
+  - [ServerExtension (interface)](#serverextension-interface)
+  - [ServerExtensionOptions (interface)](#serverextensionoptions-interface)
 
 ---
 
@@ -40,7 +40,9 @@ Make sure that all the endpoints are implemented
 **Signature**
 
 ```ts
-export declare const exhaustive: <R, A extends Api>(server: ServerBuilder<R, [], A>) => ServerBuilder<R, [], A>
+export declare const exhaustive: <R, A extends Api<Endpoint[]>>(
+  server: ServerBuilder<R, [], A>
+) => ServerBuilder<R, [], A>
 ```
 
 Added in v1.0.0
@@ -52,7 +54,11 @@ Implement handler for the given operation id.
 **Signature**
 
 ```ts
-export declare const handle: <S extends ServerBuilder<any, Endpoint[], Api>, Id extends ServerUnimplementedIds<S>, R>(
+export declare const handle: <
+  S extends ServerBuilder<any, Endpoint[], Api<Endpoint[]>>,
+  Id extends ServerUnimplementedIds<S>,
+  R
+>(
   id: Id,
   fn: InputServerBuilderHandler<R, Extract<S['unimplementedEndpoints'][number], { id: Id }>>
 ) => (server: S) => AddServerHandle<S, Id, R>
@@ -69,7 +75,7 @@ Create new unimplemeted `ServerBuilder` from `Api`.
 **Signature**
 
 ```ts
-export declare const server: <A extends Api>(api: A) => ApiToServer<A>
+export declare const server: <A extends Api<Endpoint[]>>(api: A) => ApiToServer<A>
 ```
 
 Added in v1.0.0
@@ -81,7 +87,7 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-export declare const addExtension: <R, S extends ServerBuilder<any, Endpoint[], Api>>(
+export declare const addExtension: <R, S extends ServerBuilder<any, Endpoint[], Api<Endpoint[]>>>(
   extension: Extension<R>,
   options?: Partial<ServerExtensionOptions<S['api']['endpoints']>> | undefined
 ) => (server: S) => AddServerDependency<S, R>
@@ -94,7 +100,7 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-export declare const prependExtension: <R, S extends ServerBuilder<any, Endpoint[], Api>>(
+export declare const prependExtension: <R, S extends ServerBuilder<any, Endpoint[], Api<Endpoint[]>>>(
   extension: Extension<R>,
   options?: Partial<ServerExtensionOptions<S['api']['endpoints']>> | undefined
 ) => (server: S) => AddServerDependency<S, R>
@@ -131,12 +137,12 @@ export type Input<A extends Api, Id extends A['endpoints'][number]['id']> = Para
 
 Added in v1.0.0
 
-## ServerBuilder (type alias)
+## ServerBuilder (interface)
 
 **Signature**
 
 ```ts
-export type ServerBuilder<R, Es extends Endpoint[] = Endpoint[], A extends Api = Api> = {
+export interface ServerBuilder<R, Es extends Endpoint[] = Endpoint[], A extends Api = Api> {
   unimplementedEndpoints: Es
   handlers: ServerBuilderHandler<R>[]
   extensions: ServerExtension<R, A['endpoints']>[]
@@ -146,12 +152,12 @@ export type ServerBuilder<R, Es extends Endpoint[] = Endpoint[], A extends Api =
 
 Added in v1.0.0
 
-## ServerBuilderHandler (type alias)
+## ServerBuilderHandler (interface)
 
 **Signature**
 
 ```ts
-export type ServerBuilderHandler<R> = {
+export interface ServerBuilderHandler<R> {
   fn: InputServerBuilderHandler<R, Endpoint>
   endpoint: Endpoint
 }
@@ -159,12 +165,12 @@ export type ServerBuilderHandler<R> = {
 
 Added in v1.0.0
 
-## ServerExtension (type alias)
+## ServerExtension (interface)
 
 **Signature**
 
 ```ts
-export type ServerExtension<R, Es extends Endpoint[]> = {
+export interface ServerExtension<R, Es extends Endpoint[]> {
   extension: Extension<R>
   options: ServerExtensionOptions<Es>
 }
@@ -172,12 +178,12 @@ export type ServerExtension<R, Es extends Endpoint[]> = {
 
 Added in v1.0.0
 
-## ServerExtensionOptions (type alias)
+## ServerExtensionOptions (interface)
 
 **Signature**
 
 ```ts
-export type ServerExtensionOptions<Es extends Endpoint[]> = {
+export interface ServerExtensionOptions<Es extends Endpoint[]> {
   skipOperations: Es[number]['id'][]
   allowOperations: Es[number]['id'][]
 }

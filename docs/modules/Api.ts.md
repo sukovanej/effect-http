@@ -34,12 +34,12 @@ Added in v1.0.0
   - [put](#put)
   - [trace](#trace)
 - [models](#models)
-  - [Api (type alias)](#api-type-alias)
-  - [ApiGroup (type alias)](#apigroup-type-alias)
+  - [Api (interface)](#api-interface)
+  - [ApiGroup (interface)](#apigroup-interface)
   - [Endpoint (interface)](#endpoint-interface)
   - [EndpointOptions (interface)](#endpointoptions-interface)
   - [EndpointSchemas (interface)](#endpointschemas-interface)
-  - [InputEndpointSchemas (type alias)](#inputendpointschemas-type-alias)
+  - [InputEndpointSchemas (interface)](#inputendpointschemas-interface)
 
 ---
 
@@ -172,12 +172,12 @@ Added in v1.0.0
 
 # models
 
-## Api (type alias)
+## Api (interface)
 
 **Signature**
 
 ```ts
-export type Api<E extends Endpoint[] = Endpoint[]> = {
+export interface Api<E extends Endpoint[] = Endpoint[]> {
   endpoints: E
   options: {
     title: string
@@ -188,12 +188,12 @@ export type Api<E extends Endpoint[] = Endpoint[]> = {
 
 Added in v1.0.0
 
-## ApiGroup (type alias)
+## ApiGroup (interface)
 
 **Signature**
 
 ```ts
-export type ApiGroup<E extends Endpoint[] = Endpoint[]> = {
+export interface ApiGroup<E extends Endpoint[] = Endpoint[]> {
   endpoints: E
   groupName: string
 }
@@ -248,12 +248,12 @@ export interface EndpointSchemas {
 
 Added in v1.0.0
 
-## InputEndpointSchemas (type alias)
+## InputEndpointSchemas (interface)
 
 **Signature**
 
 ```ts
-export type InputEndpointSchemas = {
+export interface InputEndpointSchemas {
   response: InputResponseSchemaFull | readonly InputResponseSchemaFull[] | AnySchema
   request?: {
     query?: AnySchema

@@ -191,22 +191,22 @@ export interface Endpoint {
  * @category models
  * @since 1.0.0
  */
-export type Api<E extends Endpoint[] = Endpoint[]> = {
+export interface Api<E extends Endpoint[] = Endpoint[]> {
   endpoints: E;
   options: {
     title: string;
     version: string;
   };
-};
+}
 
 /**
  * @category models
  * @since 1.0.0
  */
-export type ApiGroup<E extends Endpoint[] = Endpoint[]> = {
+export interface ApiGroup<E extends Endpoint[] = Endpoint[]> {
   endpoints: E;
   groupName: string;
-};
+}
 
 /**
  * @category models
@@ -220,7 +220,7 @@ export interface EndpointOptions {
  * @category models
  * @since 1.0.0
  */
-export type InputEndpointSchemas = {
+export interface InputEndpointSchemas {
   response:
     | InputResponseSchemaFull
     | readonly InputResponseSchemaFull[]
@@ -231,7 +231,7 @@ export type InputEndpointSchemas = {
     body?: AnySchema;
     headers?: AnySchema;
   };
-};
+}
 
 /** @internal */
 const DEFAULT_OPTIONS: Api["options"] = {
@@ -250,18 +250,6 @@ export const api = (options?: Partial<Api["options"]>): Api<[]> => ({
   },
   endpoints: [],
 });
-
-type CreateEndpointFromInput<
-  Id extends string,
-  Schemas extends InputEndpointSchemas,
-> = {
-  id: Id;
-  schemas: CreateEndpointSchemasFromInput<Schemas>;
-  path: string;
-  method: OpenApi.OpenAPISpecMethodName;
-  groupName: string;
-  description?: string;
-};
 
 /**
  * @category models
@@ -368,6 +356,19 @@ export const addGroup =
 // Internal type helpers
 
 /** @ignore */
+type CreateEndpointFromInput<
+  Id extends string,
+  Schemas extends InputEndpointSchemas,
+> = {
+  id: Id;
+  schemas: CreateEndpointSchemasFromInput<Schemas>;
+  path: string;
+  method: OpenApi.OpenAPISpecMethodName;
+  groupName: string;
+  description?: string;
+};
+
+/** @ignore */
 type AddEndpoint<
   A extends Api | ApiGroup,
   Id extends string,
@@ -455,15 +456,15 @@ type ResponseSchemaFullFromInput<R extends InputResponseSchemaFull> = {
 };
 
 /** @ignore */
-export type ResponseSchemaFull = {
+export interface ResponseSchemaFull {
   status: number;
   content: AnySchema | IgnoredSchemaId;
   headers: AnySchema | IgnoredSchemaId;
-};
+}
 
 /** @ignore */
-export type InputResponseSchemaFull = {
+export interface InputResponseSchemaFull {
   status: number;
   content?: AnySchema;
   headers?: AnySchema;
-};
+}

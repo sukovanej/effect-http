@@ -57,9 +57,9 @@ export type Client<A extends Api, H> = A extends Api<infer Es>
  * @category models
  * @since 1.0.0
  */
-export type ClientOptions<H extends Record<string, unknown>> = {
+export interface ClientOptions<H extends Record<string, unknown>> {
   headers: H;
-};
+}
 
 /** @internal */
 const makeHttpCall = (

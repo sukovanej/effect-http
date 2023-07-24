@@ -8,10 +8,10 @@
  * @category models
  * @since 1.0.0
  */
-export type InvalidUrlClientError = {
+export interface InvalidUrlClientError {
   _tag: "InvalidUrlClientError";
   error: unknown;
-};
+}
 
 /**
  * @category constructors
@@ -26,10 +26,10 @@ export const invalidUrlError = (error: unknown): InvalidUrlClientError => ({
  * @category models
  * @since 1.0.0
  */
-export type UnexpectedClientError = {
+export interface UnexpectedClientError {
   _tag: "UnexpectedClientError";
   error: unknown;
-};
+}
 
 /**
  * @category constructors
@@ -46,10 +46,10 @@ export const unexpectedClientError = (
  * @category models
  * @since 1.0.0
  */
-export type ValidationClientError = {
+export interface ValidationClientError {
   _tag: "ValidationClientError";
   error: unknown;
-};
+}
 
 /**
  * @category constructors
@@ -66,11 +66,11 @@ export const validationClientError = (
  * @category models
  * @since 1.0.0
  */
-export type HttpClientError = {
+export interface HttpClientError {
   _tag: "HttpClientError";
   statusCode: number;
   error: unknown;
-};
+}
 
 /**
  * @category constructors

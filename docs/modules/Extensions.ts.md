@@ -15,7 +15,7 @@ Added in v1.0.0
 <h2 class="text-delta">Table of contents</h2>
 
 - [basic auth extension](#basic-auth-extension)
-  - [BasicAuthCredentials (type alias)](#basicauthcredentials-type-alias)
+  - [BasicAuthCredentials (interface)](#basicauthcredentials-interface)
   - [basicAuthExtension](#basicauthextension)
 - [constructors](#constructors)
   - [afterHandlerExtension](#afterhandlerextension)
@@ -27,21 +27,21 @@ Added in v1.0.0
   - [errorLogExtension](#errorlogextension)
   - [uuidLogAnnotationExtension](#uuidlogannotationextension)
 - [models](#models)
-  - [AfterHandlerExtension (type alias)](#afterhandlerextension-type-alias)
-  - [BeforeHandlerExtension (type alias)](#beforehandlerextension-type-alias)
+  - [AfterHandlerExtension (interface)](#afterhandlerextension-interface)
+  - [BeforeHandlerExtension (interface)](#beforehandlerextension-interface)
   - [Extension (type alias)](#extension-type-alias)
-  - [OnErrorExtension (type alias)](#onerrorextension-type-alias)
+  - [OnErrorExtension (interface)](#onerrorextension-interface)
 
 ---
 
 # basic auth extension
 
-## BasicAuthCredentials (type alias)
+## BasicAuthCredentials (interface)
 
 **Signature**
 
 ```ts
-export type BasicAuthCredentials = {
+export interface BasicAuthCredentials {
   user: string
   password: string
 }
@@ -170,14 +170,14 @@ Added in v1.0.0
 
 # models
 
-## AfterHandlerExtension (type alias)
+## AfterHandlerExtension (interface)
 
 Effect running after handlers.
 
 **Signature**
 
 ```ts
-export type AfterHandlerExtension<R> = {
+export interface AfterHandlerExtension<R> {
   _tag: 'AfterHandlerExtension'
   id: string
   fn: (request: Request, response: Response) => Effect.Effect<R, ApiError, unknown>
@@ -186,14 +186,14 @@ export type AfterHandlerExtension<R> = {
 
 Added in v1.0.0
 
-## BeforeHandlerExtension (type alias)
+## BeforeHandlerExtension (interface)
 
 Effect running before handlers.
 
 **Signature**
 
 ```ts
-export type BeforeHandlerExtension<R> = {
+export interface BeforeHandlerExtension<R> {
   _tag: 'BeforeHandlerExtension'
   id: string
   fn: (request: Request) => Effect.Effect<R, ApiError, unknown>
@@ -214,14 +214,14 @@ export type Extension<R> = BeforeHandlerExtension<R> | AfterHandlerExtension<R> 
 
 Added in v1.0.0
 
-## OnErrorExtension (type alias)
+## OnErrorExtension (interface)
 
 Effect running after handlers.
 
 **Signature**
 
 ```ts
-export type OnErrorExtension<R> = {
+export interface OnErrorExtension<R> {
   _tag: 'OnErrorExtension'
   id: string
   fn: (request: Request, error: unknown) => Effect.Effect<R, unknown, unknown>

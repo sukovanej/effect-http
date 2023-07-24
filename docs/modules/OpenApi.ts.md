@@ -16,8 +16,6 @@ Added in v1.0.0
 
 - [constructors](#constructors)
   - [openApi](#openapi)
-- [models](#models)
-  - [OpenApiSpecification (type alias)](#openapispecification-type-alias)
 
 ---
 
@@ -30,19 +28,7 @@ Generate OpenApi specification for the Api.
 **Signature**
 
 ```ts
-export declare const openApi: (api: Api) => OpenApiSpecification
-```
-
-Added in v1.0.0
-
-# models
-
-## OpenApiSpecification (type alias)
-
-**Signature**
-
-```ts
-export type OpenApiSpecification = OpenApi.OpenAPISpec<OpenApi.OpenAPISchemaType>
+export declare const openApi: (api: Api) => OpenApi.OpenAPISpec<OpenApi.OpenAPISchemaType>
 ```
 
 Added in v1.0.0
