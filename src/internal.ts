@@ -86,3 +86,17 @@ export const isSchema = (
   input: unknown,
 ): input is Schema.Schema<unknown, unknown> =>
   isObject(input) && "ast" in input;
+
+export const getSchemaPropertySignatures = (schema: AnySchema) => {
+  let ast = schema.ast;
+
+  if (ast._tag === "Transform") {
+    ast = ast.from;
+  }
+
+  if (ast._tag !== "TypeLiteral") {
+    throw new Error(`Response headers must be a type literal schema`);
+  }
+
+  return ast.propertySignatures;
+};
