@@ -226,10 +226,26 @@ API implementation with in-memory rate-limiting and client identification using 
 ### Responses
 
 Response can be specified using a `Schema.Schema<I, O>` which automatically
-return status code 200 and includes only default headers.
+returns status code 200 and includes only default headers.
 
-It is also possible to specify multiple responses with concrete status codes,
-headres and content schemas.
+If you want a response with custom headers and status code, use the full response
+schema instead. The following example will enforce (both for types and runtime)
+that returned status, content and headers conform the specified response.
+
+```ts
+const api = pipe(
+  Http.api(),
+  Http.post("hello", "/hello", {
+    response: {
+      status: 200,
+      content: Schema.number,
+      headers: { "My-Header": Schema.string },
+    },
+  }),
+);
+```
+
+It is also possible to specify multiple full response schemas.
 
 ```ts
 const api = pipe(

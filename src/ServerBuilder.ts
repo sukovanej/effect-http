@@ -281,9 +281,11 @@ type AddServerHandle<
 
 /** @ignore */
 export type EndpointResponseSchemaTo<S> = S extends AnySchema
-  ? Response | SchemaTo<S>
+  ? SchemaTo<S>
   : S extends readonly ResponseSchemaFull[]
   ? ResponseSchemaFullTo<S[number]>
+  : S extends ResponseSchemaFull
+  ? ResponseSchemaFullTo<S>
   : never;
 
 /** @ignore */

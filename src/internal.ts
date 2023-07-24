@@ -1,17 +1,17 @@
 import { pipe } from "@effect/data/Function";
+import { isObject } from "@effect/data/Predicate";
 import * as Effect from "@effect/io/Effect";
 import { ParseError } from "@effect/schema/ParseResult";
 import * as Schema from "@effect/schema/Schema";
 
 import { Endpoint, IgnoredSchemaId } from "effect-http/Api";
-
-import { validationClientError } from "./ClientError";
+import { validationClientError } from "effect-http/ClientError";
 import {
   invalidBodyError,
   invalidHeadersError,
   invalidParamsError,
   invalidQueryError,
-} from "./ServerError";
+} from "effect-http/ServerError";
 
 /** @internal */
 export const getSchema = <A = AnySchema>(
@@ -30,20 +30,21 @@ export type SchemaTo<S> = S extends Schema.Schema<any, infer A> ? A : never;
 export const createResponseSchema = (
   responseSchema: Endpoint["schemas"]["response"],
 ) => {
-  if (!isArray(responseSchema)) {
+  if (isSchema(responseSchema)) {
     return responseSchema;
   }
 
   return Schema.union(
-    ...responseSchema.map(({ status, content, headers }) =>
-      Schema.struct({
-        status: Schema.literal(status),
-        content: getSchema(content),
-        headers: getSchema(
-          headers,
-          Schema.record(Schema.string, Schema.string),
-        ),
-      }),
+    ...(isArray(responseSchema) ? responseSchema : [responseSchema]).map(
+      ({ status, content, headers }) =>
+        Schema.struct({
+          status: Schema.literal(status),
+          content: getSchema(content),
+          headers: getSchema(
+            headers,
+            Schema.record(Schema.string, Schema.string),
+          ),
+        }),
     ),
   );
 };
@@ -79,3 +80,9 @@ export const createRequestEncoder = (
       Effect.mapError(validationClientError),
     );
 };
+
+// TODO https://github.com/Effect-TS/schema/pull/357
+export const isSchema = (
+  input: unknown,
+): input is Schema.Schema<unknown, unknown> =>
+  isObject(input) && "ast" in input;

@@ -194,22 +194,28 @@ test("Attempt to add a non-existing operation should fail as a safe guard", () =
   ).toThrowError();
 });
 
-test("Response object", async () => {
+test("Custom headers and status", async () => {
   const api = pipe(
     Http.api(),
     Http.get("hello", "/hello", {
-      response: Schema.struct({ value: Schema.string }),
+      response: {
+        status: 201,
+        content: Schema.struct({ value: Schema.string }),
+        headers: Schema.struct({
+          "Content-Type": Schema.literal("application/json"),
+        }),
+      },
     }),
   );
 
   const server = pipe(
     api,
     Http.server,
-    Http.handle("hello", () =>
+    Http.handle("hello", ({ ResponseUtil }) =>
       Effect.succeed(
-        new Response(JSON.stringify({ value: "test" }), {
-          status: 201,
-          headers: new Headers({ "Content-Type": "application/json" }),
+        ResponseUtil.response201({
+          content: { value: "test" },
+          headers: { "content-type": "application/json" },
         }),
       ),
     ),
@@ -225,7 +231,11 @@ test("Response object", async () => {
     Effect.runPromise,
   );
 
-  expect(result).toEqual({ value: "test" });
+  expect(result).toEqual({
+    status: 201,
+    content: { value: "test" },
+    headers: { "content-type": "application/json" },
+  });
 });
 
 test("Express interop example", async () => {
@@ -539,4 +549,59 @@ test("optional parameters", async () => {
   );
 
   expect(result).toStrictEqual(params);
+});
+
+test("single full response", async () => {
+  const api = pipe(
+    Http.api(),
+    Http.post("hello", "/hello", {
+      response: {
+        status: 200,
+        content: Schema.number,
+        headers: Schema.struct({
+          "My-Header": Schema.string,
+        }),
+      },
+    }),
+    Http.post("another", "/another", {
+      response: {
+        status: 200,
+        content: Schema.number,
+      },
+    }),
+  );
+
+  const server = pipe(
+    Http.server(api),
+    Http.handle("hello", ({ ResponseUtil }) =>
+      Effect.succeed(
+        ResponseUtil.response200({
+          content: 12,
+          headers: { "my-header": "test" },
+        }),
+      ),
+    ),
+    Http.handle("another", ({ ResponseUtil }) =>
+      Effect.succeed(ResponseUtil.response200({ content: 12 })),
+    ),
+  );
+
+  const result = await pipe(
+    testServer(server),
+    Effect.flatMap((client) => Effect.all([client.hello(), client.another()])),
+    Effect.scoped,
+    Effect.runPromise,
+  );
+
+  expect(result).toMatchObject([
+    {
+      status: 200,
+      content: 12,
+      headers: { "my-header": "test" },
+    },
+    {
+      status: 200,
+      content: 12,
+    },
+  ]);
 });

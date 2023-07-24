@@ -258,6 +258,8 @@ export type ClientFunctionResponse<S extends Endpoint["schemas"]["response"]> =
       ? A
       : S extends readonly ResponseSchemaFull[]
       ? ResponseSchemaFullTo<S[number]>
+      : S extends ResponseSchemaFull
+      ? ResponseSchemaFullTo<S>
       : never
   >;
 

@@ -236,7 +236,7 @@ Added in v1.0.0
 
 ```ts
 export interface EndpointSchemas {
-  response: AnySchema | readonly ResponseSchemaFull[]
+  response: AnySchema | ResponseSchemaFull | readonly ResponseSchemaFull[]
   request: {
     query: AnySchema | IgnoredSchemaId
     params: AnySchema | IgnoredSchemaId
@@ -254,7 +254,7 @@ Added in v1.0.0
 
 ```ts
 export type InputEndpointSchemas = {
-  response: readonly InputResponseSchemaFull[] | AnySchema
+  response: InputResponseSchemaFull | readonly InputResponseSchemaFull[] | AnySchema
   request?: {
     query?: AnySchema
     params?: AnySchema

@@ -13,7 +13,7 @@ import type {
   ResponseSchemaFull,
 } from "effect-http/Api";
 import { RequiredFields } from "effect-http/ServerBuilder";
-import { AnySchema, SchemaTo, isArray } from "effect-http/internal";
+import { AnySchema, SchemaTo, isArray, isSchema } from "effect-http/internal";
 
 /**
  * Derive utility object with methods enabling type-safe response object creation.
@@ -33,11 +33,13 @@ export const responseUtil = <
     throw new Error(`Endpoint ${id} not found`);
   }
 
-  if (!isArray(endpoint.schemas.response)) {
+  const responseSchema = endpoint.schemas.response;
+
+  if (isSchema(responseSchema)) {
     return {} as any;
   }
 
-  return endpoint.schemas.response.reduce(
+  return (isArray(responseSchema) ? responseSchema : [responseSchema]).reduce(
     (obj, responseSchema) => ({
       ...obj,
       [`response${responseSchema.status}`]: (data: any) => ({
@@ -70,7 +72,7 @@ type NormalizedSchemasBydId = {
 /** @ignore */
 type NormalizedSchemasByIdToResponseUtils<M extends NormalizedSchemasBydId> = {
   [Status in M["status"] as `response${Status}`]: (
-    data: Schema.Spread<Extract<M, { status: Status }>["input"]>,
+    data: Extract<M, { status: Status }>["input"],
   ) => Schema.Spread<
     { status: Status } & Extract<M, { status: Status }>["input"]
   >;
@@ -80,6 +82,8 @@ type NormalizedSchemasByIdToResponseUtils<M extends NormalizedSchemasBydId> = {
 type NormalizeSchemas<S extends EndpointSchemas["response"]> =
   S extends readonly ResponseSchemaFull[]
     ? NormalizeResponseSchemaFull<S[number]>
+    : S extends ResponseSchemaFull
+    ? NormalizeResponseSchemaFull<S>
     : never;
 
 /** @ignore */
@@ -93,6 +97,6 @@ type CreateInput<
     headers: IgnoredSchemaId | AnySchema;
     content: IgnoredSchemaId | AnySchema;
   },
-> = {
+> = Schema.Spread<{
   [K in Extract<RequiredFields<S>, "headers" | "content">]: SchemaTo<S[K]>;
-};
+}>;
