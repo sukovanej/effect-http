@@ -34,9 +34,10 @@ Derive client implementation from the `Api`
 
 ```ts
 export declare const client: <A extends Api, H extends Record<string, unknown> = Record<never, never>>(
+  api: A,
   baseUrl: URL,
   options?: ClientOptions<H> | undefined
-) => (api: A) => Client<A, H>
+) => Client<A, H>
 ```
 
 Added in v1.0.0

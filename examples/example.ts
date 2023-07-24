@@ -95,7 +95,7 @@ const server = pipe(
   Http.handle("callStanda", () => Effect.succeed("zdar")),
 );
 
-const client = pipe(api, Http.client(new URL("http://localhost:4000")));
+const client = Http.client(api, new URL("http://localhost:4000"));
 
 pipe(
   server,

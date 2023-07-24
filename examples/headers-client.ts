@@ -9,7 +9,7 @@ import { api } from "../examples/headers";
 // Example client triggering the API from `examples/headers.ts`
 // Running the script call the `/hello` endpoint 1000k times
 
-const client = pipe(api, Http.client(new URL("http://localhost:3000")));
+const client = Http.client(api, new URL("http://localhost:3000"));
 
 pipe(
   Effect.all(

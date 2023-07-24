@@ -29,7 +29,7 @@ const server = pipe(
   Http.exhaustive,
 );
 
-const client = pipe(api, Http.client(new URL("http://localhost:3000")));
+const client = Http.client(api, new URL("http://localhost:3000"));
 
 const callServer = () =>
   pipe(

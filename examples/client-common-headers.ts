@@ -12,14 +12,11 @@ const api = pipe(
   }),
 );
 
-const client = pipe(
-  api,
-  Http.client(new URL("http://my-url"), {
-    headers: {
-      authorization: "Basic aGVsbG8gcGF0cmlrLCBob3cgYXJlIHlvdSB0b2RheQ==",
-    },
-  }),
-);
+const client = Http.client(api, new URL("http://my-url"), {
+  headers: {
+    authorization: "Basic aGVsbG8gcGF0cmlrLCBob3cgYXJlIHlvdSB0b2RheQ==",
+  },
+});
 
 // "x-my-header" can be provided to override the default but it's not necessary
 pipe(client.test(), Effect.runPromise);

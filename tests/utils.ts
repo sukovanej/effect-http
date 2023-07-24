@@ -60,13 +60,11 @@ export const testServer = <
   H extends Record<string, unknown> = Record<never, never>,
 >(
   serverBuilder: Http.ServerBuilder<R, [], A>,
-  clientOptions?: Parameters<typeof Http.client<A, H>>[1],
+  clientOptions?: Parameters<typeof Http.client<A, H>>[2],
 ) =>
   pipe(
     testServerUrl(serverBuilder),
-    Effect.map((url) =>
-      pipe(serverBuilder.api, Http.client(url, clientOptions)),
-    ),
+    Effect.map((url) => Http.client(serverBuilder.api, url, clientOptions)),
   );
 
 export const testExpress =
@@ -98,7 +96,7 @@ export const testExpress =
             onStart: (httpServer) => {
               const port = (httpServer.address() as AddressInfo).port;
               const url = new URL(`http://localhost:${port}`);
-              const client = pipe(api, Http.client(url));
+              const client = Http.client(api, url);
               const sockets: Socket[] = [];
               httpServer.on("connection", (s) => sockets.push(s));
               cb(Effect.succeed([client, httpServer, sockets]));
