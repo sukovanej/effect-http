@@ -11,7 +11,7 @@ import * as Schema from "@effect/schema/Schema";
 
 import * as Http from "effect-http";
 
-import { testServer } from "./utils";
+import { runTestEffect, testServer } from "./utils";
 
 test("quickstart example e2e", async () => {
   const api = pipe(
@@ -39,8 +39,7 @@ test("quickstart example e2e", async () => {
     Effect.map((response) => {
       expect(response).toEqual({ name: "milan:12" });
     }),
-    Effect.scoped,
-    Effect.runPromise,
+    runTestEffect,
   );
 });
 
@@ -78,8 +77,7 @@ test.each(methods)("Dummy call - %s", async (method) => {
     Effect.map((response) => {
       expect(response).toEqual({ name: "milan" });
     }),
-    Effect.scoped,
-    Effect.runPromise,
+    runTestEffect,
   );
 });
 
@@ -127,8 +125,7 @@ test("All input types", async () => {
         body: { helloWorld: "helloWorld" },
       }),
     ),
-    Effect.scoped,
-    Effect.runPromise,
+    runTestEffect,
   );
 
   expect(result).toEqual({
@@ -166,8 +163,7 @@ test("missing headers", async () => {
     testServer(server, { headers: { "another-header": "str" } }),
     // @ts-expect-error
     Effect.flatMap((client) => Effect.either(client.getUser())),
-    Effect.scoped,
-    Effect.runPromise,
+    runTestEffect,
   );
 
   expect(result).toMatchObject(
@@ -227,8 +223,7 @@ test("common headers", async () => {
         client.doSomething(),
       ]),
     ),
-    Effect.scoped,
-    Effect.runPromise,
+    runTestEffect,
   );
 
   expect(result).toEqual([
@@ -272,7 +267,6 @@ test("supports interruption", async () => {
         expect(generateName).not.toHaveBeenCalled();
       }),
     ),
-    Effect.scoped,
-    Effect.runPromise,
+    runTestEffect,
   );
 });

@@ -5,7 +5,6 @@
  *
  * @since 1.0.0
  */
-import * as Log from "effect-log";
 import { once } from "events";
 import _express from "express";
 import http from "http";
@@ -16,7 +15,6 @@ import swaggerUi from "swagger-ui-express";
 import { pipe } from "@effect/data/Function";
 import { isError, isFunction, isString } from "@effect/data/Predicate";
 import * as Effect from "@effect/io/Effect";
-import * as Logger from "@effect/io/Logger";
 import * as Runtime from "@effect/io/Runtime";
 import * as Scope from "@effect/io/Scope";
 
@@ -35,15 +33,6 @@ export interface ExpressOptions {
 
   /** Which path should be the OpenAPI UI exposed on. */
   openapiPath: string;
-
-  /** Set logger.
-   *
-   *  The value can be either an instance of `Logger.Logger<I, O>` or
-   *  one of `"default"`, `"pretty"`, `"json"` or `"none"` shorthands.
-   *
-   *  @default "pretty"
-   */
-  logger: Logger.Logger<any, any> | "none" | "default" | "pretty" | "json";
 }
 
 /**
@@ -101,12 +90,6 @@ export const express =
           return Effect.logDebug("Server loaded without extensions");
         }
       }),
-      Effect.provideSomeLayer(
-        Logger.replace(
-          Logger.defaultLogger,
-          getLoggerFromOptions(finalOptions.logger),
-        ),
-      ),
     );
   };
 
@@ -230,12 +213,6 @@ export const listenExpress =
         Effect.logDebug(`Stopping server (${reason})`),
       ),
       Effect.scoped,
-      Effect.provideSomeLayer(
-        Logger.replace(
-          Logger.defaultLogger,
-          getLoggerFromOptions(finalOptions.logger),
-        ),
-      ),
     );
   };
 
@@ -243,25 +220,7 @@ export const listenExpress =
 export const DEFAULT_OPTIONS = {
   openapiEnabled: true,
   openapiPath: "/docs",
-  logger: "pretty",
 } satisfies ExpressOptions;
-
-/** @internal */
-const DEFAULT_LOGGERS = {
-  default: Logger.defaultLogger,
-  pretty: Log.pretty,
-  json: Log.json(),
-  none: Logger.none,
-};
-
-/** @internal */
-const getLoggerFromOptions = (logger: ExpressOptions["logger"]) => {
-  if (isString(logger)) {
-    return DEFAULT_LOGGERS[logger];
-  }
-
-  return logger;
-};
 
 /** @internal */
 const errorToLog = (error: unknown): string => {

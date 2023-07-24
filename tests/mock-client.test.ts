@@ -1,8 +1,9 @@
 import { pipe } from "@effect/data/Function";
-import * as Effect from "@effect/io/Effect";
 import * as Schema from "@effect/schema/Schema";
 
 import * as Http from "effect-http";
+
+import { runTestEffect } from "./utils";
 
 const api = pipe(
   Http.api(),
@@ -11,24 +12,14 @@ const api = pipe(
 
 test("random example", async () => {
   const client = pipe(api, Http.mockClient());
+  const response = await runTestEffect(client.getValue({}));
 
-  await pipe(
-    client.getValue({}),
-    Effect.map((response) => {
-      expect(typeof response).toEqual("number");
-    }),
-    Effect.runPromise,
-  );
+  expect(typeof response).toEqual("number");
 });
 
 test("custom response", async () => {
   const client = pipe(api, Http.mockClient({ responses: { getValue: 12 } }));
+  const response = await runTestEffect(client.getValue({}));
 
-  await pipe(
-    client.getValue({}),
-    Effect.map((response) => {
-      expect(response).toEqual(12);
-    }),
-    Effect.runPromise,
-  );
+  expect(response).toEqual(12);
 });

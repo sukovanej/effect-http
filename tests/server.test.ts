@@ -12,7 +12,7 @@ import * as Schema from "@effect/schema/Schema";
 
 import * as Http from "effect-http";
 
-import { testExpress, testServer } from "./utils";
+import { runTestEffect, testExpress, testServer } from "./utils";
 
 const Service1 = Context.Tag<number>();
 const Service2 = Context.Tag<string>();
@@ -42,8 +42,7 @@ test("layers", async () => {
     testServer(server),
     Effect.provideSomeLayer(layer),
     Effect.flatMap((client) => client.doStuff({})),
-    Effect.scoped,
-    Effect.runPromise,
+    runTestEffect,
   );
 
   expect(response).toEqual(13);
@@ -69,8 +68,7 @@ test("validation error", async () => {
     Effect.flatMap((client) =>
       Effect.either(client.hello({ query: { country: "abc" } })),
     ),
-    Effect.scoped,
-    Effect.runPromise,
+    runTestEffect,
   );
 
   expect(result).toMatchObject(
@@ -95,8 +93,7 @@ test("human-readable error response", async () => {
   const result = await pipe(
     testServer(server),
     Effect.flatMap((client) => Effect.either(client.hello({}))),
-    Effect.scoped,
-    Effect.runPromise,
+    runTestEffect,
   );
 
   expect(result).toEqual(
@@ -138,8 +135,7 @@ test("headers", async () => {
     Effect.flatMap((client) =>
       client.hello({ headers: { "x-client-id": "abc" } }),
     ),
-    Effect.scoped,
-    Effect.runPromise,
+    runTestEffect,
   );
 
   expect(result).toEqual({
@@ -167,8 +163,7 @@ test.each(Http.API_ERROR_TAGS as Http.ApiError["_tag"][])(
     const result = await pipe(
       testServer(server),
       Effect.flatMap((client) => Effect.either(client.hello({}))),
-      Effect.scoped,
-      Effect.runPromise,
+      runTestEffect,
     );
 
     expect(result).toMatchObject(
@@ -227,8 +222,7 @@ test("Custom headers and status", async () => {
     Effect.flatMap((client) =>
       client.hello({ headers: { "x-client-id": "abc" } }),
     ),
-    Effect.scoped,
-    Effect.runPromise,
+    runTestEffect,
   );
 
   expect(result).toEqual({
@@ -260,15 +254,14 @@ test("Express interop example", async () => {
 
   const result = await pipe(
     server,
-    Http.express({ logger: "none" }),
+    Http.express(),
     Effect.map((app) => {
       app.use(legacyApp);
       return app;
     }),
     Effect.flatMap(testExpress(api)),
     Effect.flatMap(([client]) => client.newEndpoint({})),
-    Effect.scoped,
-    Effect.runPromise,
+    runTestEffect,
   );
 
   expect(result).toEqual({ hello: "new world" });
@@ -296,8 +289,7 @@ test("Response containing optional field", async () => {
   const result = await pipe(
     testServer(server),
     Effect.flatMap((client) => Effect.all([client.hello({}), client.hello()])),
-    Effect.scoped,
-    Effect.runPromise,
+    runTestEffect,
   );
 
   expect(result).toEqual([{ foo: Option.none() }, { foo: Option.none() }]);
@@ -327,8 +319,7 @@ test("failing after handler extension", async () => {
     testServer(server),
     Effect.flatMap((client) => client.hello({})),
     Effect.either,
-    Effect.scoped,
-    Effect.runPromise,
+    runTestEffect,
   );
 
   expect(result).toEqual(
@@ -406,8 +397,7 @@ describe("type safe responses", () => {
           RA.map([12, 13, 14], (value) => client.hello({ query: { value } })),
         ),
       ),
-      Effect.scoped,
-      Effect.runPromise,
+      runTestEffect,
     );
 
     expect(result).toMatchObject([
@@ -487,8 +477,7 @@ test("optional headers / query / params fields", async () => {
   const result = await pipe(
     testServer(server),
     Effect.flatMap((client) => Effect.all(RA.map(params, client.hello))),
-    Effect.scoped,
-    Effect.runPromise,
+    runTestEffect,
   );
 
   expect(result).toStrictEqual(params);
@@ -544,8 +533,7 @@ test("optional parameters", async () => {
   const result = await pipe(
     testServer(server),
     Effect.flatMap((client) => Effect.all(RA.map(params, client.hello))),
-    Effect.scoped,
-    Effect.runPromise,
+    runTestEffect,
   );
 
   expect(result).toStrictEqual(params);
@@ -589,8 +577,7 @@ test("single full response", async () => {
   const result = await pipe(
     testServer(server),
     Effect.flatMap((client) => Effect.all([client.hello(), client.another()])),
-    Effect.scoped,
-    Effect.runPromise,
+    runTestEffect,
   );
 
   expect(result).toMatchObject([

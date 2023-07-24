@@ -83,15 +83,6 @@ export interface ExpressOptions {
 
   /** Which path should be the OpenAPI UI exposed on. */
   openapiPath: string
-
-  /** Set logger.
-   *
-   *  The value can be either an instance of `Logger.Logger<I, O>` or
-   *  one of `"default"`, `"pretty"`, `"json"` or `"none"` shorthands.
-   *
-   *  @default "pretty"
-   */
-  logger: Logger.Logger<any, any> | 'none' | 'default' | 'pretty' | 'json'
 }
 ```
 

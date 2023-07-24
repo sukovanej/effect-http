@@ -21,7 +21,6 @@ breaking changes and the internals and the public API are still evolving and cha
   - [Optional path parameters](#optional-path-parameters)
 - [Headers](#headers)
 - [Responses](#responses)
-- [Logging](#logging)
 - [Testing the server](#testing-the-server)
 - [Error handling](#error-handling)
   - [Reporting errors in handlers](#reporting-errors-in-handlers)
@@ -322,33 +321,6 @@ type DerivedTypeOfHelloMethod =
       status: 204;
     };
 ```
-
-### Logging
-
-While you can deal with logging directly using Effect (see
-[Effect logging](https://effect-ts.github.io/io/modules/Effect.ts.html#logging)
-and [Logger module](https://effect-ts.github.io/io/modules/Logger.ts.html)),
-there are shorthands for setting up logger through options of `Http.express`
-and `Http.listen` functions. The `logger` field's allowed values are
-
-- `"json"` - `effect-log` json logger
-- `"pretty"` - `effect-log` pretty logger
-- `"default"` - `@effect/io` default logger
-- `"none"` - `@effect/io` none logger - to disable logs
-
-```typescript
-import { pipe } from "@effect/data/Function";
-import * as Effect from "@effect/io/Effect";
-
-import * as Http from "effect-http";
-
-const api = pipe(Http.api());
-const server = pipe(api, Http.server, Http.listen({ logger: "json" }));
-
-Effect.runPromise(server);
-```
-
-_(This is a complete standalone code example)_
 
 ### Testing the server
 

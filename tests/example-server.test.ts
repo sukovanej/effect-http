@@ -4,7 +4,7 @@ import * as Effect from "@effect/io/Effect";
 import * as Http from "effect-http";
 
 import { simpleApi1 } from "./example-apis";
-import { testServer } from "./utils";
+import { runTestEffect, testServer } from "./utils";
 
 test("example server", async () => {
   const server = Http.exampleServer(simpleApi1);
@@ -15,7 +15,6 @@ test("example server", async () => {
     Effect.map((response) => {
       expect(typeof response).toEqual("string");
     }),
-    Effect.scoped,
-    Effect.runPromise,
+    runTestEffect,
   );
 });
