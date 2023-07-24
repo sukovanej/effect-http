@@ -79,7 +79,7 @@ const server = pipe(
 Now, we can generate an object providing the HTTP client interface using `Http.client`.
 
 ```typescript
-const client = pipe(api, Http.client(new URL("http://localhost:3000")));
+const client = Http.client(api, new URL("http://localhost:3000"));
 ```
 
 And spawn the server on port 3000 and call it using the `client`.
@@ -944,14 +944,11 @@ const api = pipe(
   }),
 );
 
-const client = pipe(
-  api,
-  Http.client(new URL("http://my-url"), {
-    headers: {
-      authorization: "Basic aGVsbG8gcGF0cmlrLCBob3cgYXJlIHlvdSB0b2RheQ==",
-    },
-  }),
-);
+const client = Http.client(api, new URL("http://my-url"), {
+  headers: {
+    authorization: "Basic aGVsbG8gcGF0cmlrLCBob3cgYXJlIHlvdSB0b2RheQ==",
+  },
+});
 
 // "x-my-header" can be provided to override the default but it's not necessary
 pipe(client.test(), Effect.runPromise);

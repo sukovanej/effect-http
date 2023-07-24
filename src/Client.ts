@@ -183,48 +183,50 @@ const createResponseParser = (
  * @category constructors
  * @since 1.0.0
  */
-export const client =
-  <A extends Api, H extends Record<string, unknown> = Record<never, never>>(
-    baseUrl: URL,
-    options?: ClientOptions<H>,
-  ) =>
-  (api: A): Client<A, H> =>
-    api.endpoints.reduce(
-      (client, { id, method, path, schemas }) => {
-        const parseResponse = createResponseParser(schemas.response);
-        const encodeRequest = createRequestEncoder(schemas.request);
-        const finalOptions: ClientOptions<any> = { headers: {}, ...options };
+export const client = <
+  A extends Api,
+  H extends Record<string, unknown> = Record<never, never>,
+>(
+  api: A,
+  baseUrl: URL,
+  options?: ClientOptions<H>,
+): Client<A, H> =>
+  api.endpoints.reduce(
+    (client, { id, method, path, schemas }) => {
+      const parseResponse = createResponseParser(schemas.response);
+      const encodeRequest = createRequestEncoder(schemas.request);
+      const finalOptions: ClientOptions<any> = { headers: {}, ...options };
 
-        const fn = (_args: any) => {
-          const args = _args || {};
+      const fn = (_args: any) => {
+        const args = _args || {};
 
-          return pipe(
-            encodeRequest({
-              ...args,
-              headers: { ...finalOptions.headers, ...args.headers },
-            }),
-            Effect.let("path", ({ params }) => constructPath(params, path)),
-            Effect.tap((args) => Effect.logTrace(`${method} ${path}, ${args}`)),
-            Effect.flatMap(({ path, body, query, headers }) =>
-              makeHttpCall(method, baseUrl, path, body, headers, query),
+        return pipe(
+          encodeRequest({
+            ...args,
+            headers: { ...finalOptions.headers, ...args.headers },
+          }),
+          Effect.let("path", ({ params }) => constructPath(params, path)),
+          Effect.tap((args) => Effect.logTrace(`${method} ${path}, ${args}`)),
+          Effect.flatMap(({ path, body, query, headers }) =>
+            makeHttpCall(method, baseUrl, path, body, headers, query),
+          ),
+          Effect.flatMap(checkStatusCode),
+          Effect.flatMap((response) =>
+            pipe(
+              parseResponse(response),
+              Effect.mapError(validationClientError),
             ),
-            Effect.flatMap(checkStatusCode),
-            Effect.flatMap((response) =>
-              pipe(
-                parseResponse(response),
-                Effect.mapError(validationClientError),
-              ),
-            ),
-            isArray(schemas.response)
-              ? identity
-              : Effect.map(({ content }) => content),
-            Effect.annotateLogs("clientOperationId", id),
-          );
-        };
-        return { ...client, [id]: fn };
-      },
-      {} as Client<A, H>,
-    );
+          ),
+          isArray(schemas.response)
+            ? identity
+            : Effect.map(({ content }) => content),
+          Effect.annotateLogs("clientOperationId", id),
+        );
+      };
+      return { ...client, [id]: fn };
+    },
+    {} as Client<A, H>,
+  );
 
 // Internal type helpers
 
