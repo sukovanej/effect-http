@@ -1,5 +1,31 @@
 # effect-http
 
+## 0.21.0
+
+### Minor Changes
+
+- 71d9a3d: Make `Http.client` data-first.
+
+  Instead of
+
+  ```ts
+  const client = pipe(api, Http.client(url, options));
+  ```
+
+  use
+
+  ```ts
+  const client = Http.client(api, url, options);
+  ```
+
+- e0fa6e6: Remove `effect-log` and logging functionality.
+- 7ee7ec3: Custom response. Remove possibility to return `Response`.
+
+### Patch Changes
+
+- db40417: Fix OpenApi path string format.
+- 368ae52: Make sure path string matches the param schema.
+
 ## 0.20.3
 
 ### Patch Changes
