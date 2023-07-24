@@ -13,7 +13,7 @@ import type * as OpenApi from "schema-openapi";
 import * as HashSet from "@effect/data/HashSet";
 import * as Schema from "@effect/schema/Schema";
 
-import { AnySchema, isArray } from "effect-http/internal";
+import { AnySchema, isArray, isSchema } from "effect-http/internal";
 
 /** Headers are case-insensitive, internally we deal with them as lowercase
  *  because that's how express deal with them.
@@ -55,9 +55,9 @@ const createSchemasFromInput = <I extends InputEndpointSchemas>({
   request,
 }: I): CreateEndpointSchemasFromInput<I> =>
   ({
-    response: Array.isArray(response)
-      ? composeResponseSchema(response)
-      : response,
+    response: isSchema(response)
+      ? response
+      : composeResponseSchema(isArray(response) ? response : [response]),
     request: {
       query: request?.query ?? IgnoredSchemaId,
       params: request?.params ?? IgnoredSchemaId,
@@ -114,7 +114,7 @@ export const endpoint =
  * @since 1.0.0
  */
 export interface EndpointSchemas {
-  response: AnySchema | readonly ResponseSchemaFull[];
+  response: AnySchema | ResponseSchemaFull | readonly ResponseSchemaFull[];
   request: {
     query: AnySchema | IgnoredSchemaId;
     params: AnySchema | IgnoredSchemaId;
@@ -170,7 +170,10 @@ export interface EndpointOptions {
  * @since 1.0.0
  */
 export type InputEndpointSchemas = {
-  response: readonly InputResponseSchemaFull[] | AnySchema;
+  response:
+    | InputResponseSchemaFull
+    | readonly InputResponseSchemaFull[]
+    | AnySchema;
   request?: {
     query?: AnySchema;
     params?: AnySchema;
@@ -336,6 +339,8 @@ type ResponseSchemaFromInput<S extends InputEndpointSchemas["response"]> =
     ? S
     : S extends readonly InputResponseSchemaFull[]
     ? ComputeEndpointResponseFull<S>
+    : S extends InputResponseSchemaFull
+    ? ResponseSchemaFullFromInput<S>
     : never;
 
 type GetOptional<
@@ -386,17 +391,17 @@ export type ComputeEndpointResponseFull<
 > = Rs extends readonly [infer R, ...infer Rest]
   ? R extends InputResponseSchemaFull
     ? Rest extends readonly InputResponseSchemaFull[]
-      ? [
-          {
-            status: R["status"];
-            content: UndefinedToIgnoredSchema<R["content"]>;
-            headers: UndefinedToIgnoredSchemaLowercased<R["headers"]>;
-          },
-          ...ComputeEndpointResponseFull<Rest>,
-        ]
+      ? [ResponseSchemaFullFromInput<R>, ...ComputeEndpointResponseFull<Rest>]
       : never
     : never
   : [];
+
+/** @ignore */
+type ResponseSchemaFullFromInput<R extends InputResponseSchemaFull> = {
+  status: R["status"];
+  content: UndefinedToIgnoredSchema<R["content"]>;
+  headers: UndefinedToIgnoredSchemaLowercased<R["headers"]>;
+};
 
 /** @ignore */
 export type ResponseSchemaFull = {

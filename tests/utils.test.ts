@@ -6,8 +6,8 @@ import * as Http from "effect-http";
 test("response helpers", () => {
   const api = pipe(
     Http.api(),
-    Http.post("doSutff", "/hello", { response: Schema.string }),
-    Http.post("createSomething", "/hello", {
+    Http.post("doSutff", "/do-stuff", { response: Schema.string }),
+    Http.post("createSomething", "/create-something", {
       response: [
         {
           status: 201,
@@ -45,11 +45,18 @@ test("response helpers", () => {
         }),
       },
     }),
+    Http.post("another", "/another", {
+      response: {
+        status: 200,
+        content: Schema.string,
+      },
+    }),
   );
 
   const DoStuffResponseUtil = Http.responseUtil(api, "doSutff");
   const HelloResponseUtil = Http.responseUtil(api, "hello");
   const CreateSomethingResponseUtil = Http.responseUtil(api, "createSomething");
+  const AnotherResponseUtil = Http.responseUtil(api, "another");
 
   expect(
     HelloResponseUtil.response204({ headers: { "x-another": 12 } }),
@@ -72,6 +79,11 @@ test("response helpers", () => {
   expect(CreateSomethingResponseUtil.response201({ content: 69 })).toEqual({
     status: 201,
     content: 69,
+  });
+
+  expect(AnotherResponseUtil.response200({ content: "patrik" })).toEqual({
+    status: 200,
+    content: "patrik",
   });
 
   // @ts-expect-error 202 status doesn't exist

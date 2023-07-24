@@ -12,7 +12,7 @@ import * as Schema from "@effect/schema/Schema";
 
 import type { Api } from "effect-http/Api";
 import { IgnoredSchemaId } from "effect-http/Api";
-import { isArray } from "effect-http/internal";
+import { isArray, isSchema } from "effect-http/internal";
 
 /**
  * @category models
@@ -32,34 +32,38 @@ export const openApi = (api: Api): OpenApiSpecification => {
     (spec, { path, method, schemas, id, groupName, description }) => {
       const operationSpec = [];
 
-      if (isArray(schemas.response)) {
-        schemas.response.map(({ status, content, headers }) => {
-          const schema = content === IgnoredSchemaId ? undefined : content;
-          const setHeaders =
-            headers === IgnoredSchemaId
-              ? identity
-              : OpenApi.responseHeaders(
-                  createResponseHeadersSchemaMap(headers),
-                );
+      const responseSchema = schemas.response;
 
-          operationSpec.push(
-            OpenApi.jsonResponse(
-              status as OpenApi.OpenAPISpecStatusCode,
-              schema,
-              `Response ${status}`,
-              schema ? descriptionSetter(schema) : identity,
-              setHeaders,
-            ),
-          );
-        });
-      } else {
+      if (isSchema(responseSchema)) {
         operationSpec.push(
           OpenApi.jsonResponse(
             200,
-            schemas.response,
+            responseSchema,
             "Response",
-            descriptionSetter(schemas.response),
+            descriptionSetter(responseSchema),
           ),
+        );
+      } else {
+        (isArray(responseSchema) ? responseSchema : [responseSchema]).map(
+          ({ status, content, headers }) => {
+            const schema = content === IgnoredSchemaId ? undefined : content;
+            const setHeaders =
+              headers === IgnoredSchemaId
+                ? identity
+                : OpenApi.responseHeaders(
+                    createResponseHeadersSchemaMap(headers),
+                  );
+
+            operationSpec.push(
+              OpenApi.jsonResponse(
+                status as OpenApi.OpenAPISpecStatusCode,
+                schema,
+                `Response ${status}`,
+                schema ? descriptionSetter(schema) : identity,
+                setHeaders,
+              ),
+            );
+          },
         );
       }
 

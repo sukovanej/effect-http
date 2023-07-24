@@ -44,7 +44,7 @@ import {
   formatValidationError,
   isParseError,
 } from "effect-http/ValidationErrorFormatter";
-import { getSchema, isArray } from "effect-http/internal";
+import { getSchema, isArray, isSchema } from "effect-http/internal";
 
 /** @ignore */
 export type ServerHandler<R = any> = {
@@ -147,20 +147,16 @@ const buildHandler =
           }),
         ),
         Effect.flatMap(handler.fn),
-        Effect.flatMap((response) => {
-          if (response instanceof Response) {
-            return Effect.succeed(response);
-          }
-
-          return pipe(
+        Effect.flatMap((response) =>
+          pipe(
             encodeResponse(response),
             Effect.map(
               ({ content, status, headers }) =>
                 new Response(JSON.stringify(content), { status, headers }),
             ),
             Effect.mapError(invalidResponseError),
-          );
-        }),
+          ),
+        ),
       );
     };
 
@@ -306,7 +302,7 @@ const createResponseEncoder = (
   ParseError,
   { status: number; headers: Headers | undefined; content: unknown }
 >) => {
-  if (!isArray(responseSchema)) {
+  if (isSchema(responseSchema)) {
     const encodeContent = Schema.encode(responseSchema);
 
     return (a: unknown) =>
@@ -321,12 +317,13 @@ const createResponseEncoder = (
   }
 
   const schema = Schema.union(
-    ...responseSchema.map(({ status, content, headers }) =>
-      Schema.struct({
-        status: Schema.literal(status),
-        content: getSchema(content, Schema.optional(Schema.undefined)),
-        headers: getSchema(headers, Schema.optional(Schema.undefined)),
-      }),
+    ...(isArray(responseSchema) ? responseSchema : [responseSchema]).map(
+      ({ status, content, headers }) =>
+        Schema.struct({
+          status: Schema.literal(status),
+          content: getSchema(content, Schema.optional(Schema.undefined)),
+          headers: getSchema(headers, Schema.optional(Schema.undefined)),
+        }),
     ),
   );
 
