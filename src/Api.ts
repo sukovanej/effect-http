@@ -10,10 +10,19 @@
  */
 import type * as OpenApi from "schema-openapi";
 
+import * as Equivalence from "@effect/data/Equivalence";
+import { pipe } from "@effect/data/Function";
 import * as HashSet from "@effect/data/HashSet";
+import * as Order from "@effect/data/Order";
+import * as RA from "@effect/data/ReadonlyArray";
 import * as Schema from "@effect/schema/Schema";
 
-import { AnySchema, isArray, isSchema } from "effect-http/internal";
+import {
+  AnySchema,
+  getSchemaPropertySignatures,
+  isArray,
+  isSchema,
+} from "effect-http/internal";
 
 /** Headers are case-insensitive, internally we deal with them as lowercase
  *  because that's how express deal with them.
@@ -68,6 +77,46 @@ const createSchemasFromInput = <I extends InputEndpointSchemas>({
     },
   }) as CreateEndpointSchemasFromInput<I>;
 
+const tupleOrder = Order.tuple(Order.string, Order.boolean) as Order.Order<
+  readonly [string, boolean]
+>; // TODO check on @effect/data why the type is not readonly
+const tupleEquivalence = Equivalence.tuple(
+  Equivalence.string,
+  Equivalence.boolean,
+);
+const arrayOfTupleEquals = RA.getEquivalence(tupleEquivalence);
+
+const checkPathPatternMatchesSchema = (
+  id: string,
+  path: string,
+  schema?: AnySchema,
+) => {
+  const fromSchema = pipe(
+    schema === undefined ? [] : getSchemaPropertySignatures(schema),
+    RA.fromIterable,
+    RA.map((ps) => [ps.name as string, ps.isOptional] as const),
+    RA.sort(tupleOrder),
+  );
+
+  const fromPath = pipe(
+    path.matchAll(/:(\w+)[?]?/g),
+    RA.fromIterable,
+    RA.map(([name]) => {
+      if (name.endsWith("?")) {
+        return [name.slice(1, -1), true] as const;
+      }
+      return [name.slice(1), false] as const;
+    }),
+    RA.sort(tupleOrder),
+  );
+
+  const matched = arrayOfTupleEquals(fromPath, fromSchema);
+
+  if (!matched) {
+    throw new Error(`Path doesn't match the param schema (endpoint: "${id}").`);
+  }
+};
+
 /** @internal */
 export const endpoint =
   (method: OpenApi.OpenAPISpecMethodName) =>
@@ -96,6 +145,8 @@ export const endpoint =
         `Responses for endpoint ${id} must have unique status codes`,
       );
     }
+
+    checkPathPatternMatchesSchema(id, path, schemas.request?.params);
 
     const newEndpoint = {
       schemas: createSchemasFromInput(schemas),
