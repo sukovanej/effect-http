@@ -9,40 +9,12 @@ import type * as Schema from "@effect/schema/Schema";
 
 import type { Api } from "effect-http/Api";
 import { buildServer } from "effect-http/Server";
-import { createRequestEncoder } from "effect-http/internal/client";
-
 import type {
   EndpointSchemasTo,
   SelectEndpointById,
   ServerBuilder,
-} from "./ServerBuilder";
-
-/** @ignore */
-type MakeHeadersOptionIfAllPartial<I> = I extends { headers: any }
-  ? Schema.Spread<
-      (Record<string, never> extends I["headers"]
-        ? { headers?: I["headers"] }
-        : Pick<I, "headers">) &
-        Omit<I, "headers">
-    >
-  : I;
-
-/** @ignore */
-type TestClientFunction<R, I> = Record<string, never> extends I
-  ? (input?: I) => Effect.Effect<R, unknown, Response>
-  : (input: I) => Effect.Effect<R, unknown, Response>;
-
-/** @ignore */
-export type TestingClient<R, A extends Api> = A extends Api<infer Es>
-  ? Schema.Spread<{
-      [Id in Es[number]["id"]]: TestClientFunction<
-        R,
-        MakeHeadersOptionIfAllPartial<
-          EndpointSchemasTo<SelectEndpointById<Es, Id>["schemas"]>["request"]
-        >
-      >;
-    }>
-  : never;
+} from "effect-http/ServerBuilder";
+import { createRequestEncoder } from "effect-http/internal";
 
 /**
  * Create a testing client for the `Server`. It generates a similar interface
@@ -107,3 +79,32 @@ export const testingClient = <R, A extends Api>(
     {} as TestingClient<R, A>,
   );
 };
+
+// Internal type helpers
+
+/** @ignore */
+export type TestingClient<R, A extends Api> = A extends Api<infer Es>
+  ? Schema.Spread<{
+      [Id in Es[number]["id"]]: TestClientFunction<
+        R,
+        MakeHeadersOptionIfAllPartial<
+          EndpointSchemasTo<SelectEndpointById<Es, Id>["schemas"]>["request"]
+        >
+      >;
+    }>
+  : never;
+
+/** @ignore */
+type TestClientFunction<R, I> = Record<string, never> extends I
+  ? (input?: I) => Effect.Effect<R, unknown, Response>
+  : (input: I) => Effect.Effect<R, unknown, Response>;
+
+/** @ignore */
+type MakeHeadersOptionIfAllPartial<I> = I extends { headers: any }
+  ? Schema.Spread<
+      (Record<string, never> extends I["headers"]
+        ? { headers?: I["headers"] }
+        : Pick<I, "headers">) &
+        Omit<I, "headers">
+    >
+  : I;

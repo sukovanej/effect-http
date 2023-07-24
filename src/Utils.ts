@@ -12,9 +12,8 @@ import type {
   IgnoredSchemaId,
   ResponseSchemaFull,
 } from "effect-http/Api";
-
-import { RequiredFields } from "./ServerBuilder";
-import { AnySchema, SchemaTo, isArray } from "./internal/utils";
+import { RequiredFields } from "effect-http/ServerBuilder";
+import { AnySchema, SchemaTo, isArray } from "effect-http/internal";
 
 /**
  * Derive utility object with methods enabling type-safe response object creation.

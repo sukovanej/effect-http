@@ -8,10 +8,16 @@
  *
  * @since 1.0.0
  */
-import type { Api } from "effect-http/Api";
-import * as internal from "effect-http/internal/example-server";
+import * as OpenApi from "schema-openapi";
 
-import { ServerBuilder } from "./ServerBuilder";
+import { pipe } from "@effect/data/Function";
+import * as RA from "@effect/data/ReadonlyArray";
+import * as Effect from "@effect/io/Effect";
+
+import type { Api, Endpoint } from "effect-http/Api";
+import { ServerBuilder, handle, server } from "effect-http/ServerBuilder";
+import { internalServerError } from "effect-http/ServerError";
+import { createResponseSchema } from "effect-http/internal";
 
 /**
  * Generate an example Server implementation.
@@ -19,6 +25,28 @@ import { ServerBuilder } from "./ServerBuilder";
  * @category constructors
  * @since 1.0.0
  */
-export const exampleServer: <A extends Api>(
+export const exampleServer = <A extends Api>(
   api: A,
-) => ServerBuilder<never, [], A> = internal.exampleServer;
+): ServerBuilder<never, [], A> => {
+  const _server = server(api);
+
+  return pipe(
+    _server.unimplementedEndpoints,
+    RA.reduce(_server, (server, endpoint) =>
+      pipe(server, handle(endpoint.id, createExampleHandler(endpoint)) as any),
+    ),
+  ) as any;
+};
+
+/** @internal */
+const createExampleHandler = ({ schemas }: Endpoint) => {
+  const responseSchema = createResponseSchema(schemas.response);
+
+  return () =>
+    pipe(
+      OpenApi.randomExample(responseSchema),
+      Effect.mapError(() =>
+        internalServerError("Sorry, I don't have any example response"),
+      ),
+    );
+};

@@ -74,10 +74,7 @@ test("validation error", async () => {
   );
 
   expect(result).toMatchObject(
-    Either.left({
-      _tag: "ValidationClientError",
-      error: { _tag: "InvalidQueryError" },
-    }),
+    Either.left(Http.validationClientError({ _tag: "InvalidQueryError" })),
   );
 });
 

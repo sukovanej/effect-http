@@ -13,7 +13,7 @@ import type * as OpenApi from "schema-openapi";
 import * as HashSet from "@effect/data/HashSet";
 import * as Schema from "@effect/schema/Schema";
 
-import { AnySchema, isArray } from "./internal/utils";
+import { AnySchema, isArray } from "effect-http/internal";
 
 /** Headers are case-insensitive, internally we deal with them as lowercase
  *  because that's how express deal with them.

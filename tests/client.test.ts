@@ -170,7 +170,9 @@ test("missing headers", async () => {
     Effect.runPromise,
   );
 
-  expect(result).toMatchObject(Either.left({ _tag: "InvalidHeadersError" }));
+  expect(result).toMatchObject(
+    Either.left(Http.validationClientError({ _tag: "InvalidHeadersError" })),
+  );
 });
 
 test("common headers", async () => {
