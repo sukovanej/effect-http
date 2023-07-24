@@ -90,7 +90,7 @@ export const openApi = (api: Api): OpenApiSpecification => {
       }
 
       return OpenApi.path(
-        path,
+        createPath(path),
         OpenApi.operation(
           method,
           OpenApi.operationId(id),
@@ -102,6 +102,15 @@ export const openApi = (api: Api): OpenApiSpecification => {
     OpenApi.openAPI(api.options.title, api.options.version),
   );
 };
+
+/**
+ * Convert path pattern to OpenApi syntax. Replaces :param by {param}.
+ */
+const createPath = (path: string) =>
+  path
+    .replace(/:(\w+)(\/)/g, "{$1}$2")
+    .replace(/:(\w+)[?]/g, "{$1}")
+    .replace(/:(\w+)$/g, "{$1}");
 
 const descriptionSetter = <A extends { description?: string }>(
   schema: Schema.Schema<any, any>,
