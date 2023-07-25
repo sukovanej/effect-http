@@ -12,7 +12,7 @@ import * as Schema from "@effect/schema/Schema";
 
 import type { Api } from "effect-http/Api";
 import { IgnoredSchemaId } from "effect-http/Api";
-import { isArray, isSchema } from "effect-http/internal";
+import { isArray } from "effect-http/internal";
 
 /**
  * Generate OpenApi specification for the Api.
@@ -29,7 +29,7 @@ export const openApi = (
 
       const responseSchema = schemas.response;
 
-      if (isSchema(responseSchema)) {
+      if (Schema.isSchema(responseSchema)) {
         operationSpec.push(
           OpenApi.jsonResponse(
             200,
