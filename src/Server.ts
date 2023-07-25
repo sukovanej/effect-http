@@ -44,7 +44,7 @@ import {
   formatValidationError,
   isParseError,
 } from "effect-http/ValidationErrorFormatter";
-import { getSchema, isArray, isSchema } from "effect-http/internal";
+import { getSchema, isArray } from "effect-http/internal";
 
 /** @ignore */
 export interface ServerHandler<R = any> {
@@ -302,7 +302,7 @@ const createResponseEncoder = (
   ParseError,
   { status: number; headers: Headers | undefined; content: unknown }
 >) => {
-  if (isSchema(responseSchema)) {
+  if (Schema.isSchema(responseSchema)) {
     const encodeContent = Schema.encode(responseSchema);
 
     return (a: unknown) =>

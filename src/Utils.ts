@@ -3,7 +3,7 @@
  *
  * @since 1.0.0
  */
-import type * as Schema from "@effect/schema/Schema";
+import * as Schema from "@effect/schema/Schema";
 
 import type {
   Api,
@@ -13,7 +13,7 @@ import type {
   ResponseSchemaFull,
 } from "effect-http/Api";
 import { RequiredFields } from "effect-http/ServerBuilder";
-import { AnySchema, SchemaTo, isArray, isSchema } from "effect-http/internal";
+import { AnySchema, SchemaTo, isArray } from "effect-http/internal";
 
 /**
  * Derive utility object with methods enabling type-safe response object creation.
@@ -35,7 +35,7 @@ export const responseUtil = <
 
   const responseSchema = endpoint.schemas.response;
 
-  if (isSchema(responseSchema)) {
+  if (Schema.isSchema(responseSchema)) {
     return {} as any;
   }
 

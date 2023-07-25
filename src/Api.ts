@@ -21,7 +21,6 @@ import {
   AnySchema,
   getSchemaPropertySignatures,
   isArray,
-  isSchema,
 } from "effect-http/internal";
 
 /** Headers are case-insensitive, internally we deal with them as lowercase
@@ -64,7 +63,7 @@ const createSchemasFromInput = <I extends InputEndpointSchemas>({
   request,
 }: I): CreateEndpointSchemasFromInput<I> =>
   ({
-    response: isSchema(response)
+    response: Schema.isSchema(response)
       ? response
       : composeResponseSchema(isArray(response) ? response : [response]),
     request: {

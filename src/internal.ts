@@ -30,7 +30,7 @@ export type SchemaTo<S> = S extends Schema.Schema<any, infer A> ? A : never;
 export const createResponseSchema = (
   responseSchema: Endpoint["schemas"]["response"],
 ) => {
-  if (isSchema(responseSchema)) {
+  if (Schema.isSchema(responseSchema)) {
     return responseSchema;
   }
 
@@ -80,12 +80,6 @@ export const createRequestEncoder = (
       Effect.mapError(validationClientError),
     );
 };
-
-// TODO https://github.com/Effect-TS/schema/pull/357
-export const isSchema = (
-  input: unknown,
-): input is Schema.Schema<unknown, unknown> =>
-  isObject(input) && "ast" in input;
 
 export const getSchemaPropertySignatures = (schema: AnySchema) => {
   let ast = schema.ast;
