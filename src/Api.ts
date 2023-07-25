@@ -76,9 +76,7 @@ const createSchemasFromInput = <I extends InputEndpointSchemas>({
     },
   }) as CreateEndpointSchemasFromInput<I>;
 
-const tupleOrder = Order.tuple(Order.string, Order.boolean) as Order.Order<
-  readonly [string, boolean]
->; // TODO check on @effect/data why the type is not readonly
+const tupleOrder = Order.tuple(Order.string, Order.boolean);
 const tupleEquivalence = Equivalence.tuple(
   Equivalence.string,
   Equivalence.boolean,
