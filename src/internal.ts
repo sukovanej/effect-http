@@ -1,5 +1,4 @@
 import { pipe } from "@effect/data/Function";
-import { isObject } from "@effect/data/Predicate";
 import * as Effect from "@effect/io/Effect";
 import { ParseError } from "@effect/schema/ParseResult";
 import * as Schema from "@effect/schema/Schema";
