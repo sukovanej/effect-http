@@ -1,5 +1,12 @@
 # effect-http
 
+## 0.21.1
+
+### Patch Changes
+
+- d84944e: Update /schema dependencies.
+- d301880: Update /data.
+
 ## 0.21.0
 
 ### Minor Changes
