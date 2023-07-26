@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.21.2
+
+### Patch Changes
+
+- 5bcd82c: Update dependencies.
+
 ## 0.21.1
 
 ### Patch Changes
