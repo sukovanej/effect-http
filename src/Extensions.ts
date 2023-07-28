@@ -11,6 +11,7 @@ import * as Option from "@effect/data/Option";
 import { isString } from "@effect/data/Predicate";
 import * as Effect from "@effect/io/Effect";
 import * as FiberRef from "@effect/io/FiberRef";
+import type * as Logger from "@effect/io/Logger";
 import * as Metric from "@effect/io/Metric";
 
 import {
@@ -138,7 +139,7 @@ export const uuidLogAnnotationExtension = (
       Effect.flatMap((uuid) =>
         FiberRef.update(
           FiberRef.currentLogAnnotations,
-          HashMap.set<string, string>(logAnnotationKey, uuid),
+          HashMap.set<string, Logger.AnnotationValue>(logAnnotationKey, uuid),
         ),
       ),
     ),
