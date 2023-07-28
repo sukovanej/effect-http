@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.22.0
+
+### Minor Changes
+
+- 9e5bc29: Update /data, /io and /schema.
+
 ## 0.21.2
 
 ### Patch Changes
