@@ -1,4 +1,5 @@
 import * as Context from "@effect/data/Context";
+import * as Either from "@effect/data/Either";
 import { pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
 import * as Schema from "@effect/schema/Schema";
@@ -29,7 +30,7 @@ test("testing query", async () => {
     runTestEffect,
   );
 
-  expect(await response.json()).toEqual("13");
+  expect(response).toEqual("13");
 });
 
 test("testing failure", async () => {
@@ -48,14 +49,21 @@ test("testing failure", async () => {
 
   const response = await pipe(
     Http.testingClient(server).hello({ query: { input: 12 } }),
+    Effect.either,
     runTestEffect,
   );
 
-  expect(await response.json()).toEqual({
-    error: "NotFoundError",
-    details: "oh oh",
-  });
-  expect(response.status).toEqual(404);
+  expect(response).toEqual(
+    Either.left(
+      Http.httpClientError(
+        {
+          error: "NotFoundError",
+          details: "oh oh",
+        },
+        404,
+      ),
+    ),
+  );
 });
 
 test("testing with dependencies", async () => {
@@ -85,7 +93,7 @@ test("testing with dependencies", async () => {
     runTestEffect,
   );
 
-  expect(await response.json()).toEqual("14");
+  expect(response).toEqual("14");
 });
 
 test("testing params", async () => {
@@ -110,5 +118,50 @@ test("testing params", async () => {
     runTestEffect,
   );
 
-  expect(await response.json()).toEqual("13");
+  expect(response).toEqual("13");
+});
+
+test("testing multiple responses", async () => {
+  const api = pipe(
+    Http.api(),
+    Http.get("hello", "/hello", {
+      response: [
+        {
+          content: Schema.number,
+          status: 200,
+        },
+        {
+          status: 201,
+        },
+      ],
+      request: {
+        query: Schema.struct({ input: Schema.NumberFromString }),
+      },
+    }),
+  );
+
+  const server = pipe(
+    api,
+    Http.server,
+    Http.handle("hello", ({ query, ResponseUtil }) =>
+      Effect.succeed(
+        query.input === 1
+          ? ResponseUtil.response200({ content: 69 })
+          : ResponseUtil.response201({}),
+      ),
+    ),
+  );
+
+  const client = Http.testingClient(server);
+
+  const [response1, response2] = await pipe(
+    Effect.all([
+      client.hello({ query: { input: 1 } }),
+      client.hello({ query: { input: 2 } }),
+    ] as const),
+    runTestEffect,
+  );
+
+  expect(response1).toMatchObject({ content: 69, status: 200 });
+  expect(response2).toMatchObject({ status: 201 });
 });

@@ -68,7 +68,7 @@ export const validationClientError = (
  */
 export interface HttpClientError {
   _tag: "HttpClientError";
-  statusCode: number;
+  status: number;
   error: unknown;
 }
 
@@ -78,12 +78,8 @@ export interface HttpClientError {
  */
 export const httpClientError = (
   error: unknown,
-  statusCode: number,
-): HttpClientError => ({
-  _tag: "HttpClientError",
-  statusCode,
-  error,
-});
+  status: number,
+): HttpClientError => ({ _tag: "HttpClientError", status, error });
 
 /**
  * @category models
