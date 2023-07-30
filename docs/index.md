@@ -368,7 +368,7 @@ test("test /hello endpoint", async () => {
     client.hello({ query: { input: 12 } }),
   );
 
-  expect(await response.json()).toEqual("13");
+  expect(response).toEqual("13");
 });
 ```
 

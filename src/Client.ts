@@ -6,7 +6,6 @@
  * @since 1.0.0
  */
 import { identity, pipe } from "@effect/data/Function";
-import { isString } from "@effect/data/Predicate";
 import * as Effect from "@effect/io/Effect";
 import type { ParseError } from "@effect/schema/ParseResult";
 import * as Schema from "@effect/schema/Schema";
@@ -31,6 +30,7 @@ import type {
 import {
   createRequestEncoder,
   createResponseSchema,
+  getResponseContent,
   isArray,
 } from "effect-http/internal";
 
@@ -93,27 +93,9 @@ const makeHttpCall = (
       return fetch(url, options);
     }),
     Effect.bindTo("response"),
-    Effect.bind("json", ({ response }) =>
-      Effect.tryPromise(async () => {
-        const contentLength = response.headers.get("Content-Length");
-
-        if (contentLength && parseInt(contentLength, 10) === 0) {
-          return Promise.resolve(undefined);
-        }
-
-        const contentType = response.headers.get("Content-Type");
-        const isJson =
-          isString(contentType) && contentType.startsWith("application/json");
-
-        if (isJson) {
-          return await response.json();
-        } else {
-          return await response.text();
-        }
-      }),
-    ),
-    Effect.map(({ response, json }) => ({
-      content: json,
+    Effect.bind("content", ({ response }) => getResponseContent(response)),
+    Effect.map(({ response, content }) => ({
+      content,
       status: response.status,
       headers: Object.fromEntries(response.headers.entries()),
     })),
@@ -153,7 +135,7 @@ const constructPath = (
 };
 
 /** @internal */
-const createResponseParser = (
+export const createResponseParser = (
   responseSchema: EndpointSchemas["response"],
 ): ((
   response: Response,

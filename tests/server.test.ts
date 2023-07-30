@@ -99,7 +99,7 @@ test("human-readable error response", async () => {
   expect(result).toEqual(
     Either.left({
       _tag: "HttpClientError",
-      statusCode: 404,
+      status: 404,
       error: {
         error: "NotFoundError",
         details: "Didnt find it",
@@ -168,7 +168,7 @@ test.each(Http.API_ERROR_TAGS as Http.ApiError["_tag"][])(
 
     expect(result).toMatchObject(
       Either.left({
-        statusCode: Http.API_STATUS_CODES[errorTag],
+        status: Http.API_STATUS_CODES[errorTag],
       }),
     );
   },

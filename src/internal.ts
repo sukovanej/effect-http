@@ -1,4 +1,5 @@
 import { pipe } from "@effect/data/Function";
+import { isString } from "@effect/data/Predicate";
 import * as Effect from "@effect/io/Effect";
 import { ParseError } from "@effect/schema/ParseResult";
 import * as Schema from "@effect/schema/Schema";
@@ -80,6 +81,7 @@ export const createRequestEncoder = (
     );
 };
 
+/** @internal */
 export const getSchemaPropertySignatures = (schema: AnySchema) => {
   let ast = schema.ast;
 
@@ -93,3 +95,23 @@ export const getSchemaPropertySignatures = (schema: AnySchema) => {
 
   return ast.propertySignatures;
 };
+
+/** @internal */
+export const getResponseContent = (response: Response) =>
+  Effect.tryPromise(async () => {
+    const contentLength = response.headers.get("Content-Length");
+
+    if (contentLength && parseInt(contentLength, 10) === 0) {
+      return Promise.resolve(undefined);
+    }
+
+    const contentType = response.headers.get("Content-Type");
+    const isJson =
+      isString(contentType) && contentType.startsWith("application/json");
+
+    if (isJson) {
+      return (await response.json()) as Promise<unknown>;
+    } else {
+      return await response.text();
+    }
+  });

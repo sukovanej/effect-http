@@ -8,13 +8,23 @@ import * as Effect from "@effect/io/Effect";
 import type * as Schema from "@effect/schema/Schema";
 
 import type { Api } from "effect-http/Api";
+import {
+  ClientFunctionResponse,
+  createResponseParser,
+} from "effect-http/Client";
 import { buildServer } from "effect-http/Server";
 import type {
   EndpointSchemasTo,
   SelectEndpointById,
   ServerBuilder,
 } from "effect-http/ServerBuilder";
-import { createRequestEncoder } from "effect-http/internal";
+import {
+  createRequestEncoder,
+  getResponseContent,
+  isArray,
+} from "effect-http/internal";
+
+import { httpClientError } from "./ClientError";
 
 /**
  * Create a testing client for the `Server`. It generates a similar interface
@@ -39,6 +49,7 @@ export const testingClient = <R, A extends Api>(
   return server.api.endpoints.reduce(
     (client, { id, method, path, schemas }) => {
       const parseInputs = createRequestEncoder(schemas.request);
+      const parseResponse = createResponseParser(schemas.response);
 
       const handler = server.handlers.find(
         ({ endpoint }) => endpoint.id === id,
@@ -54,23 +65,45 @@ export const testingClient = <R, A extends Api>(
         return pipe(
           parseInputs(args),
           Effect.tap(() => Effect.logTrace(`${method} ${path}`)),
-          Effect.flatMap(({ body, query, params, headers }) => {
-            const pathStr = Object.entries(params ?? {}).reduce(
-              (path, [key, value]) => path.replace(`:${key}`, value as any),
-              path,
-            );
+          Effect.flatMap(({ body, query, params, headers }) =>
+            Effect.gen(function* (_) {
+              const pathStr = Object.entries(params ?? {}).reduce(
+                (path, [key, value]) => path.replace(`:${key}`, value as any),
+                path,
+              );
 
-            const url = new URL(`http://localhost${pathStr}`);
+              const url = new URL(`http://localhost${pathStr}`);
 
-            Object.entries(query ?? {}).forEach(([name, value]) =>
-              url.searchParams.set(name, value as any),
-            );
+              Object.entries(query ?? {}).forEach(([name, value]) =>
+                url.searchParams.set(name, value as any),
+              );
 
-            const init = { body, headers, method };
-            const request = new Request(url, init);
+              const init = { body, headers, method };
+              const request = new Request(url, init);
 
-            return handler.fn(request);
-          }),
+              const response = yield* _(handler.fn(request));
+
+              const content = yield* _(getResponseContent(response));
+              const responseHeaders = Object.fromEntries(
+                response.headers.entries(),
+              );
+              const status = response.status;
+
+              if (status < 200 || status >= 300) {
+                return yield* _(Effect.fail(httpClientError(content, status)));
+              }
+
+              const parsedResponse = yield* _(
+                parseResponse({ content, headers: responseHeaders, status }),
+              );
+
+              if (isArray(schemas.response)) {
+                return parsedResponse;
+              }
+
+              return parsedResponse.content;
+            }),
+          ),
           Effect.annotateLogs("clientOperationId", id),
         );
       };
@@ -89,13 +122,16 @@ export type TestingClient<R, A extends Api> = A extends Api<infer Es>
         R,
         MakeHeadersOptionIfAllPartial<
           EndpointSchemasTo<SelectEndpointById<Es, Id>["schemas"]>["request"]
+        >,
+        ClientFunctionResponse<
+          SelectEndpointById<Es, Id>["schemas"]["response"]
         >
       >;
     }>
   : never;
 
 /** @ignore */
-type TestClientFunction<R, I> = Record<string, never> extends I
+type TestClientFunction<R, I, Response> = Record<string, never> extends I
   ? (input?: I) => Effect.Effect<R, unknown, Response>
   : (input: I) => Effect.Effect<R, unknown, Response>;
 

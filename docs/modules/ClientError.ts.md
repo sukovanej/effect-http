@@ -35,7 +35,7 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-export declare const httpClientError: (error: unknown, statusCode: number) => HttpClientError
+export declare const httpClientError: (error: unknown, status: number) => HttpClientError
 ```
 
 Added in v1.0.0
@@ -89,7 +89,7 @@ Added in v1.0.0
 ```ts
 export interface HttpClientError {
   _tag: 'HttpClientError'
-  statusCode: number
+  status: number
   error: unknown
 }
 ```
