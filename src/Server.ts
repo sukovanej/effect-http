@@ -10,7 +10,6 @@ import { isRecord, isString } from "@effect/data/Predicate";
 import * as Effect from "@effect/io/Effect";
 import { ParseError } from "@effect/schema/ParseResult";
 import * as Schema from "@effect/schema/Schema";
-
 import { Api, Endpoint, EndpointSchemas } from "effect-http/Api";
 import type {
   AfterHandlerExtension,

@@ -1,8 +1,5 @@
-import { pipe } from "@effect/data/Function";
-import * as Option from "@effect/data/Option";
-import * as Effect from "@effect/io/Effect";
 import * as Schema from "@effect/schema/Schema";
-
+import { Effect, Option, pipe } from "effect";
 import * as Http from "effect-http";
 
 const Response = Schema.struct({

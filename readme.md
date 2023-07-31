@@ -37,18 +37,17 @@ breaking changes and the internals and the public API are still evolving and cha
 - [Extensions](#extensions)
 - [Compatibility](#compatibility)
 
-Install using
+Install together with `effect` using
 
 ```bash
-pnpm add effect-http
+pnpm add effect effect-http
 ```
 
 Bootstrap a simple API specification.
 
 ```typescript
-import { pipe } from "@effect/data/Function";
-import * as Effect from "@effect/io/Effect";
 import * as Schema from "@effect/schema/Schema";
+import { Effect, pipe } from "effect";
 
 import * as Http from "effect-http";
 
@@ -116,8 +115,8 @@ They are specified in the input schemas object (3rd argument of `Http.get`, `Htt
 #### Example
 
 ```typescript
-import { pipe } from "@effect/data/Function";
 import * as Schema from "@effect/schema/Schema";
+import { pipe } from "effect";
 
 import * as Http from "effect-http";
 
@@ -145,8 +144,8 @@ In the following example the last `:another` path parameter can be
 ommited on the client side.
 
 ```typescript
-import { pipe } from "@effect/data/Function";
 import * as Schema from "@effect/schema/Schema";
+import { pipe } from "effect";
 
 import * as Http from "effect-http";
 
@@ -442,10 +441,8 @@ Let's see it in action and implement the mentioned user management API. The
 API will look as follows.
 
 ```typescript
-import * as Context from "@effect/data/Context";
-import { pipe } from "@effect/data/Function";
-import * as Effect from "@effect/io/Effect";
 import * as Schema from "@effect/schema/Schema";
+import { Context, Effect, pipe } from "effect";
 
 import * as Http from "effect-http";
 
@@ -565,9 +562,8 @@ This enables separability of concers for big APIs and provides information for
 generation of tags for the OpenAPI specification.
 
 ```typescript
-import { pipe } from "@effect/data/Function";
-import * as Effect from "@effect/io/Effect";
 import * as Schema from "@effect/schema/Schema";
+import { Effect, pipe } from "effect";
 
 import * as Http from "effect-http";
 
@@ -648,9 +644,8 @@ app.listen(3000, () => console.log("Listening on 3000"));
 Now, we'll create an `effect-http` api and server.
 
 ```typescript
-import { pipe } from "@effect/data/Function";
-import * as Effect from "@effect/io/Effect";
 import * as Schema from "@effect/schema/Schema";
+import { Effect, pipe } from "effect";
 
 import * as Http from "effect-http";
 
@@ -722,9 +717,8 @@ the `Input` type helper which accepts a type of the `Api` and operation
 id type and produces type covering query, params and body schema type.
 
 ```typescript
-import { pipe } from "@effect/data/Function";
-import * as Effect from "@effect/io/Effect";
 import * as Schema from "@effect/schema/Schema";
+import { Effect, pipe } from "effect";
 
 import * as Http from "effect-http";
 
@@ -782,8 +776,8 @@ For an operation-level description, call the API endpoint method (`Http.get`,
 desired description.
 
 ```ts
-import { pipe } from "@effect/data/Function";
 import * as Schema from "@effect/schema/Schema";
+import { pipe } from "effect";
 
 import * as Http from "effect-http";
 
@@ -842,9 +836,8 @@ helpful in the following and probably many more cases.
 Use `Http.exampleServer` combinator to generate a `Server` from `Api`.
 
 ```typescript
-import { pipe } from "@effect/data/Function";
-import * as Effect from "@effect/io/Effect";
 import * as Schema from "@effect/schema/Schema";
+import { Effect, pipe } from "effect";
 
 import * as Http from "effect-http";
 
@@ -873,8 +866,8 @@ with `/get-value` endpoint returning a number. We can model such
 API as follows.
 
 ```typescript
-import { pipe } from "@effect/data/Function";
 import * as Schema from "@effect/schema/Schema";
+import { pipe } from "effect";
 
 import * as Http from "effect-http";
 
@@ -916,9 +909,8 @@ for all requests. Common header will be applied only if the given
 endpoint declares it in its schema.
 
 ```typescript
-import { pipe } from "@effect/data/Function";
-import * as Effect from "@effect/io/Effect";
 import * as Schema from "@effect/schema/Schema";
+import { Effect, pipe } from "effect";
 
 import * as Http from "effect-http";
 
@@ -986,10 +978,8 @@ and `endpoint-calls-metric` extensions are used. Collected metrics
 are accesible as raw data through the _/metrics_ endpoint.
 
 ```ts
-import { pipe } from "@effect/data/Function";
-import * as Effect from "@effect/io/Effect";
-import * as Metric from "@effect/io/Metric";
 import * as Schema from "@effect/schema/Schema";
+import { Effect, Metric, pipe } from "effect";
 
 import * as Http from "effect-http";
 

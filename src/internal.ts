@@ -3,7 +3,6 @@ import { isString } from "@effect/data/Predicate";
 import * as Effect from "@effect/io/Effect";
 import { ParseError } from "@effect/schema/ParseResult";
 import * as Schema from "@effect/schema/Schema";
-
 import { Endpoint, IgnoredSchemaId } from "effect-http/Api";
 import { validationClientError } from "effect-http/ClientError";
 import {

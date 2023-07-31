@@ -1,14 +1,15 @@
-import * as Context from "@effect/data/Context";
-import * as Duration from "@effect/data/Duration";
-import { pipe } from "@effect/data/Function";
-import * as RA from "@effect/data/ReadonlyArray";
-import * as Effect from "@effect/io/Effect";
-import * as Logger from "@effect/io/Logger";
-import * as LogLevel from "@effect/io/Logger/Level";
-import * as Request from "@effect/io/Request";
-import * as RequestResolver from "@effect/io/RequestResolver";
 import * as Schema from "@effect/schema/Schema";
-
+import {
+  Context,
+  Duration,
+  Effect,
+  Logger,
+  LoggerLevel,
+  ReadonlyArray,
+  Request,
+  RequestResolver,
+  pipe,
+} from "effect";
 import * as Http from "effect-http";
 
 import { FileNotFoundError, readFile } from "./_utils";
@@ -45,7 +46,9 @@ const server = pipe(
   Http.handle("getValue", () =>
     Effect.flatMap(GetValueCache, (getValueCache) =>
       pipe(
-        Effect.all(RA.replicate(requestMyValue, 10), { concurrency: 10 }),
+        Effect.all(ReadonlyArray.replicate(requestMyValue, 10), {
+          concurrency: 10,
+        }),
         Effect.mapError(() => Http.notFoundError("File not found")),
         Effect.withRequestCache(getValueCache),
         Effect.withRequestCaching(true),
@@ -58,7 +61,7 @@ const server = pipe(
 pipe(
   server,
   Http.listen({ port: 3000 }),
-  Logger.withMinimumLogLevel(LogLevel.All),
+  Logger.withMinimumLogLevel(LoggerLevel.All),
   Effect.provideServiceEffect(
     GetValueCache,
     Request.makeCache({ capacity: 100, timeToLive: Duration.seconds(5) }),

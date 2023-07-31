@@ -1,10 +1,5 @@
-import * as Context from "@effect/data/Context";
-import { pipe } from "@effect/data/Function";
-import * as RA from "@effect/data/ReadonlyArray";
-import * as Effect from "@effect/io/Effect";
-import * as Ref from "@effect/io/Ref";
 import * as Schema from "@effect/schema/Schema";
-
+import { Context, Effect, ReadonlyArray, Ref, pipe } from "effect";
 import * as Http from "effect-http";
 
 interface Clients {
@@ -32,12 +27,12 @@ const clients = {
       Effect.map(([usages, timestamp]) =>
         pipe(
           usages,
-          RA.filter(
+          ReadonlyArray.filter(
             (usage) =>
               usage.clientId === clientId &&
               usage.timestamp > timestamp - RATE_WINDOW,
           ),
-          RA.length,
+          ReadonlyArray.length,
           (usagesPerWindow) => ALLOWED_USAGES_PER_WINDOW - usagesPerWindow,
         ),
       ),

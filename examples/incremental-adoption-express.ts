@@ -1,11 +1,7 @@
 import express from "express";
 
-import { pipe } from "@effect/data/Function";
-import * as Effect from "@effect/io/Effect";
-import * as Logger from "@effect/io/Logger";
-import * as LogLevel from "@effect/io/Logger/Level";
 import * as Schema from "@effect/schema/Schema";
-
+import { Effect, Logger, LoggerLevel, pipe } from "effect";
 import * as Http from "effect-http";
 
 const legacyApp = express();
@@ -35,6 +31,6 @@ pipe(
     return app;
   }),
   Effect.flatMap(Http.listenExpress()),
-  Effect.provideSomeLayer(Logger.minimumLogLevel(LogLevel.All)),
+  Effect.provideSomeLayer(Logger.minimumLogLevel(LoggerLevel.All)),
   Effect.runPromise,
 );

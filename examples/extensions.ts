@@ -1,8 +1,5 @@
-import { pipe } from "@effect/data/Function";
-import * as Effect from "@effect/io/Effect";
-import * as Metric from "@effect/io/Metric";
 import * as Schema from "@effect/schema/Schema";
-
+import { Effect, Metric, pipe } from "effect";
 import * as Http from "effect-http";
 
 import { setDebugLogger } from "./_utils";

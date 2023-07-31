@@ -1,7 +1,4 @@
-import { pipe } from "@effect/data/Function";
-import * as RA from "@effect/data/ReadonlyArray";
-import * as Effect from "@effect/io/Effect";
-
+import { Effect, ReadonlyArray, pipe } from "effect";
 import * as Http from "effect-http";
 
 import { api } from "../examples/headers";
@@ -17,7 +14,7 @@ pipe(
       client.hello({ body: { value: 1 }, headers: { "x-client-id": "abc" } }),
       Effect.flatMap((r) => Effect.logInfo(`Success ${r}`)),
       Effect.catchAll((e) => Effect.logInfo(`Error ${JSON.stringify(e)}`)),
-      RA.replicate(1000000),
+      ReadonlyArray.replicate(1000000),
     ),
   ),
   Effect.runPromise,
