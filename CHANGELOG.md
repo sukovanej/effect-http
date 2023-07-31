@@ -1,5 +1,12 @@
 # effect-http
 
+## 0.23.0
+
+### Minor Changes
+
+- 68749c9: Testing client returns type-safe response object.
+- e21ef69: Update /io and /schema.
+
 ## 0.22.0
 
 ### Minor Changes
