@@ -6,7 +6,6 @@ import { pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
 import * as Logger from "@effect/io/Logger";
 import * as Scope from "@effect/io/Scope";
-
 import * as Http from "effect-http";
 
 const testServerUrl = <R, A extends Http.Api>(

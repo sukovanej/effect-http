@@ -49,6 +49,7 @@
     "@typescript-eslint/eslint-plugin": "^6.2.1",
     "@typescript-eslint/parser": "^6.2.1",
     "@vitest/coverage-c8": "^0.33.0",
+    "effect": "2.0.0-next.23",
     "effect-log": "^0.9.0",
     "eslint": "^8.46.0",
     "prettier": "^3.0.0",

@@ -1,13 +1,14 @@
-import * as Context from "@effect/data/Context";
-import * as Either from "@effect/data/Either";
-import { pipe } from "@effect/data/Function";
-import * as Option from "@effect/data/Option";
-import * as RA from "@effect/data/ReadonlyArray";
-import * as Config from "@effect/io/Config";
-import * as ConfigError from "@effect/io/Config/Error";
-import * as Effect from "@effect/io/Effect";
 import * as Schema from "@effect/schema/Schema";
-
+import {
+  Config,
+  ConfigError,
+  Context,
+  Effect,
+  Either,
+  Option,
+  ReadonlyArray,
+  pipe,
+} from "effect";
 import * as Http from "effect-http";
 
 export const CredentialsConfig = Config.mapOrFail(
@@ -54,13 +55,13 @@ const server = pipe(
       pipe(
         Effect.map(
           CredentialsService,
-          RA.groupBy(({ user }) => user),
+          ReadonlyArray.groupBy(({ user }) => user),
         ),
         Effect.flatMap((creds) =>
           pipe(
             Option.fromNullable(creds[inputCredentials.user]),
             Option.flatMap(
-              RA.findFirst(
+              ReadonlyArray.findFirst(
                 (credentials) =>
                   credentials.password === inputCredentials.password,
               ),

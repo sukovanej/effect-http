@@ -1,6 +1,5 @@
 import { pipe } from "@effect/data/Function";
 import * as Schema from "@effect/schema/Schema";
-
 import * as Http from "effect-http";
 
 test("response helpers", () => {

@@ -3,7 +3,6 @@ import * as Either from "@effect/data/Either";
 import { pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
 import * as Schema from "@effect/schema/Schema";
-
 import * as Http from "effect-http";
 
 import { runTestEffect } from "./utils";

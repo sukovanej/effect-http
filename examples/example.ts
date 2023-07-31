@@ -1,9 +1,5 @@
-import * as Context from "@effect/data/Context";
-import { pipe } from "@effect/data/Function";
-import * as Effect from "@effect/io/Effect";
-import * as Layer from "@effect/io/Layer";
 import * as Schema from "@effect/schema/Schema";
-
+import { Context, Effect, Layer, pipe } from "effect";
 import * as Http from "effect-http";
 
 // Schemas

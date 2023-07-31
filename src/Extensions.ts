@@ -13,7 +13,6 @@ import * as Effect from "@effect/io/Effect";
 import * as FiberRef from "@effect/io/FiberRef";
 import type * as Logger from "@effect/io/Logger";
 import * as Metric from "@effect/io/Metric";
-
 import {
   type ApiError,
   isApiError,

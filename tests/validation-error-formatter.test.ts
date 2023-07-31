@@ -1,7 +1,6 @@
 import * as Either from "@effect/data/Either";
 import { identity, pipe } from "@effect/data/Function";
 import * as Schema from "@effect/schema/Schema";
-
 import { defaultValidationErrorFormatterServer } from "effect-http/ValidationErrorFormatter";
 
 const expectError = <E>(self: Either.Either<E, unknown>): E =>

@@ -5,7 +5,6 @@
  */
 import type * as Effect from "@effect/io/Effect";
 import type * as Schema from "@effect/schema/Schema";
-
 import type {
   Api,
   Endpoint,

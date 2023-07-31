@@ -16,7 +16,6 @@ import * as HashSet from "@effect/data/HashSet";
 import * as Order from "@effect/data/Order";
 import * as RA from "@effect/data/ReadonlyArray";
 import * as Schema from "@effect/schema/Schema";
-
 import {
   AnySchema,
   getSchemaPropertySignatures,

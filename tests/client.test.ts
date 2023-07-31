@@ -8,7 +8,6 @@ import * as Effect from "@effect/io/Effect";
 import * as Exit from "@effect/io/Exit";
 import * as Fiber from "@effect/io/Fiber";
 import * as Schema from "@effect/schema/Schema";
-
 import * as Http from "effect-http";
 
 import { runTestEffect, testServer } from "./utils";

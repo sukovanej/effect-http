@@ -7,7 +7,6 @@ import * as OpenApi from "schema-openapi";
 
 import { pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
-
 import { type Api } from "effect-http/Api";
 import type {
   Client,

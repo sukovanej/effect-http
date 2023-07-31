@@ -17,7 +17,6 @@ import { isError, isFunction, isString } from "@effect/data/Predicate";
 import * as Effect from "@effect/io/Effect";
 import * as Runtime from "@effect/io/Runtime";
 import * as Scope from "@effect/io/Scope";
-
 import { openApi } from "effect-http/OpenApi";
 import { type ServerHandler, buildServer } from "effect-http/Server";
 import { ServerBuilder } from "effect-http/ServerBuilder";

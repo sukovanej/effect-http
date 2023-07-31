@@ -9,7 +9,6 @@ import { identity, pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
 import type { ParseError } from "@effect/schema/ParseResult";
 import * as Schema from "@effect/schema/Schema";
-
 import type {
   Api,
   Endpoint,

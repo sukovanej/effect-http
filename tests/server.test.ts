@@ -9,7 +9,6 @@ import * as RA from "@effect/data/ReadonlyArray";
 import * as Effect from "@effect/io/Effect";
 import * as Layer from "@effect/io/Layer";
 import * as Schema from "@effect/schema/Schema";
-
 import * as Http from "effect-http";
 
 import { runTestEffect, testExpress, testServer } from "./utils";

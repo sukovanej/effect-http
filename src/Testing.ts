@@ -6,7 +6,6 @@
 import { pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
 import type * as Schema from "@effect/schema/Schema";
-
 import type { Api } from "effect-http/Api";
 import {
   ClientFunctionResponse,

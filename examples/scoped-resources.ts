@@ -1,8 +1,5 @@
-import * as Context from "@effect/data/Context";
-import { pipe } from "@effect/data/Function";
-import * as Effect from "@effect/io/Effect";
 import * as Schema from "@effect/schema/Schema";
-
+import { Context, Effect, pipe } from "effect";
 import * as Http from "effect-http";
 
 interface Resource {
