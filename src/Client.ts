@@ -71,7 +71,7 @@ const makeHttpCall = (
   query: Record<string, string>,
 ) =>
   pipe(
-    Effect.tryPromiseInterrupt((signal) => {
+    Effect.tryPromise((signal) => {
       const url = new URL(baseUrl);
       url.pathname = path;
 
