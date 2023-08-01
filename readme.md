@@ -938,7 +938,8 @@ _(This is a complete standalone code example)_
 
 ## Extensions
 
-> :warning: The extension API is very experimental.
+> [!warning]
+> The extension API is very experimental.
 
 Extensions allow the `Server` to be extended using effects that
 are applied for all requests. The extension API is primarly
