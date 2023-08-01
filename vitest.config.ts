@@ -5,9 +5,6 @@ export default defineConfig({
   test: {
     globals: true,
     setupFiles: "./tests/setupTests.ts",
-    coverage: {
-      provider: "c8",
-    },
   },
   resolve: {
     alias: {

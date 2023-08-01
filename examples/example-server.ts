@@ -1,5 +1,5 @@
-import { pipe, Effect } from "effect";
 import * as Schema from "@effect/schema/Schema";
+import { Effect, pipe } from "effect";
 import * as Http from "effect-http";
 
 const responseSchema = Schema.struct({ name: Schema.string });
