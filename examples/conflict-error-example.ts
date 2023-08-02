@@ -19,16 +19,16 @@ interface UserRepository {
   store: (user: string) => Effect.Effect<never, never, void>;
 }
 
-const UserRepositoryService = Context.Tag<UserRepository>();
+const UserRepository = Context.Tag<UserRepository>();
 
-const mockUserRepository = {
+const mockUserRepository = UserRepository.of({
   existsByName: () => Effect.succeed(true),
   store: () => Effect.unit,
-} satisfies UserRepository;
+});
 
 const handleStoreUser = ({ body }: Http.Input<Api, "storeUser">) =>
   pipe(
-    Effect.flatMap(UserRepositoryService, (userRepository) =>
+    Effect.flatMap(UserRepository, (userRepository) =>
       userRepository.existsByName(body.name),
     ),
     Effect.filterOrFail(
@@ -36,7 +36,7 @@ const handleStoreUser = ({ body }: Http.Input<Api, "storeUser">) =>
       () => Http.conflictError(`User "${body.name}" already exists.`),
     ),
     Effect.flatMap(() =>
-      Effect.flatMap(UserRepositoryService, (repository) =>
+      Effect.flatMap(UserRepository, (repository) =>
         repository.store(body.name),
       ),
     ),
@@ -53,6 +53,6 @@ const server = pipe(
 pipe(
   server,
   Http.listen({ port: 3000 }),
-  Effect.provideService(UserRepositoryService, mockUserRepository),
+  Effect.provideService(UserRepository, mockUserRepository),
   Effect.runPromise,
 );
