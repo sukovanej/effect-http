@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.23.1
+
+### Patch Changes
+
+- 5e4f71c: Fix client usage in browser. Express related libraries will load lazily. This is rather a quick fix preceding a proper solution.
+
 ## 0.23.0
 
 ### Minor Changes
