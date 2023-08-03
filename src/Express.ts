@@ -6,11 +6,10 @@
  * @since 1.0.0
  */
 import { once } from "events";
-import _express from "express";
-import http from "http";
+import type _express from "express";
+import type http from "http";
 import type { AddressInfo } from "net";
 import { Readable } from "stream";
-import swaggerUi from "swagger-ui-express";
 
 import { pipe } from "@effect/data/Function";
 import { isError, isFunction, isString } from "@effect/data/Predicate";
@@ -19,7 +18,7 @@ import * as Runtime from "@effect/io/Runtime";
 import * as Scope from "@effect/io/Scope";
 import { openApi } from "effect-http/OpenApi";
 import { type ServerHandler, buildServer } from "effect-http/Server";
-import { ServerBuilder } from "effect-http/ServerBuilder";
+import type { ServerBuilder } from "effect-http/ServerBuilder";
 import { internalServerError, notFoundError } from "effect-http/ServerError";
 
 /**
@@ -52,7 +51,9 @@ export const express =
       Effect.gen(function* ($) {
         const runtime = yield* $(Effect.runtime<R>());
 
-        const app = _express();
+        const _express = yield* $(Effect.promise(() => import("express")));
+
+        const app = _express.default();
 
         for (const handler of server.handlers) {
           const method = handler.endpoint.method;
@@ -61,6 +62,10 @@ export const express =
           const router = _express.Router()[method](path, endpoint);
           app.use(router);
         }
+
+        const swaggerUi = yield* $(
+          Effect.promise(() => import("swagger-ui-express")),
+        );
 
         if (finalOptions.openapiEnabled) {
           app.use(

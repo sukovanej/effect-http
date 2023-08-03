@@ -5,6 +5,7 @@
   "homepage": "https://sukovanej.github.io/effect-http",
   "types": "./dist/index.d.ts",
   "main": "./dist/index.js",
+  "sideEffects": false,
   "exports": {
     ".": {
       "require": "./dist/index.js",
