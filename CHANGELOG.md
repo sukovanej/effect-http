@@ -1,5 +1,15 @@
 # effect-http
 
+## 0.24.0
+
+### Minor Changes
+
+- 95c82c9: Update /io and /schema.
+
+### Patch Changes
+
+- 95c82c9: ESM fix by @vecerek
+
 ## 0.23.1
 
 ### Patch Changes
