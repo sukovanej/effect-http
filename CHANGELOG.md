@@ -1,5 +1,12 @@
 # effect-http
 
+## 0.24.2
+
+### Patch Changes
+
+- 05185c2: Fix exports.
+- 122d536: Add readme to dist.
+
 ## 0.24.1
 
 ### Patch Changes
