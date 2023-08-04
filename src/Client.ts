@@ -79,12 +79,14 @@ const makeHttpCall = (
       );
 
       const contentType =
-        body !== undefined ? { "Content-Type": "application/json" } : undefined;
+        body !== undefined && !(body instanceof FormData)
+          ? { "Content-Type": "application/json" }
+          : undefined;
 
       const options: RequestInit = {
         method: method.toUpperCase() as any,
         headers: { ...headers, ...contentType },
-        body: JSON.stringify(body),
+        body: body instanceof FormData ? body : JSON.stringify(body),
         keepalive: false,
         signal,
       };

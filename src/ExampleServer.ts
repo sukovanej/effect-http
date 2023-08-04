@@ -44,8 +44,10 @@ const createExampleHandler = ({ schemas }: Endpoint) => {
   return () =>
     pipe(
       OpenApi.randomExample(responseSchema),
-      Effect.mapError(() =>
-        internalServerError("Sorry, I don't have any example response"),
+      Effect.mapError((error) =>
+        internalServerError(
+          `Sorry, I don't have any example response. ${JSON.stringify(error)}`,
+        ),
       ),
     );
 };
