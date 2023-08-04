@@ -11,6 +11,7 @@ import {
   ClientFunctionResponse,
   createResponseParser,
 } from "effect-http/Client";
+import { httpClientError } from "effect-http/ClientError";
 import { buildServer } from "effect-http/Server";
 import type {
   EndpointSchemasTo,
@@ -22,8 +23,6 @@ import {
   getResponseContent,
   isArray,
 } from "effect-http/internal";
-
-import { httpClientError } from "effect-http/ClientError";
 
 /**
  * Create a testing client for the `Server`. It generates a similar interface
