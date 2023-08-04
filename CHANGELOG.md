@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.25.0
+
+### Minor Changes
+
+- 2d710d7: Support `FormData` on the client side.
+
 ## 0.24.2
 
 ### Patch Changes
