@@ -29,7 +29,7 @@
     }
   },
   "scripts": {
-    "build": "tsup && cp package.json dist/",
+    "build": "tsup && cp package.json dist/ && cp readme.md dist/",
     "post-build": "mv dist/*.cjs . && mkdir -p internal && mv dist/internal/*.cjs ./internal/",
     "watch": "tsc -w -p tsconfig.json",
     "format": "prettier -w src tests examples",
