@@ -23,7 +23,7 @@ import {
   isArray,
 } from "effect-http/internal";
 
-import { httpClientError } from "./ClientError";
+import { httpClientError } from "effect-http/ClientError";
 
 /**
  * Create a testing client for the `Server`. It generates a similar interface
