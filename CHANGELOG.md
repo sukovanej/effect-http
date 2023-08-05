@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.26.0
+
+### Minor Changes
+
+- db02159: Change /io, /data and /schema to peer dependencies.
+
 ## 0.25.0
 
 ### Minor Changes
