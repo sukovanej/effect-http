@@ -2,7 +2,7 @@ import * as Schema from "@effect/schema/Schema";
 import { Effect, Metric, pipe } from "effect";
 import * as Http from "effect-http";
 
-import { setDebugLogger } from "./_utils";
+import { debugLogger } from "./_utils";
 
 const api = pipe(
   Http.api({ title: "Users API" }),
@@ -28,6 +28,6 @@ const server = pipe(
 pipe(
   server,
   Http.listen({ port: 3000 }),
-  Effect.provideSomeLayer(setDebugLogger),
+  Effect.provideSomeLayer(debugLogger),
   Effect.runPromise,
 );
