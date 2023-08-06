@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.26.1
+
+### Patch Changes
+
+- df37219: Update schema-openapi.
+
 ## 0.26.0
 
 ### Minor Changes
