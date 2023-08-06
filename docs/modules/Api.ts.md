@@ -179,7 +179,7 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-export interface Api<E extends Endpoint[] = Endpoint[]> {
+export interface Api<E extends Endpoint[] = Endpoint[]> extends Pipeable.Pipeable {
   endpoints: E
   options: {
     title: string
@@ -195,7 +195,7 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-export interface ApiGroup<E extends Endpoint[] = Endpoint[]> {
+export interface ApiGroup<E extends Endpoint[] = Endpoint[]> extends Pipeable.Pipeable {
   endpoints: E
   groupName: string
 }

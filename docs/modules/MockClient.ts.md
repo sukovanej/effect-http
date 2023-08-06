@@ -31,8 +31,9 @@ Derive mock client implementation from the `Api`
 
 ```ts
 export declare const mockClient: <A extends Api<Endpoint[]>, H extends Record<string, unknown>>(
+  api: A,
   option?: Partial<MockClientOptions<A> & ClientOptions<H>> | undefined
-) => (api: A) => Client<A, H>
+) => Client<A, H>
 ```
 
 Added in v1.0.0

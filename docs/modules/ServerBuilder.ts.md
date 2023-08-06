@@ -142,7 +142,7 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-export interface ServerBuilder<R, Es extends Endpoint[] = Endpoint[], A extends Api = Api> {
+export interface ServerBuilder<R, Es extends Endpoint[] = Endpoint[], A extends Api = Api> extends Pipeable.Pipeable {
   unimplementedEndpoints: Es
   handlers: ServerBuilderHandler<R>[]
   extensions: ServerExtension<R, A['endpoints']>[]
