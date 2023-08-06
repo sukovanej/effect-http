@@ -40,6 +40,8 @@ Added in v1.0.0
   - [EndpointOptions (interface)](#endpointoptions-interface)
   - [EndpointSchemas (interface)](#endpointschemas-interface)
   - [InputEndpointSchemas (interface)](#inputendpointschemas-interface)
+- [schemas](#schemas)
+  - [FormData](#formdata)
 
 ---
 
@@ -262,6 +264,20 @@ export interface InputEndpointSchemas {
     headers?: AnySchema
   }
 }
+```
+
+Added in v1.0.0
+
+# schemas
+
+## FormData
+
+FormData schema
+
+**Signature**
+
+```ts
+export declare const FormData: Schema.Schema<any, any>
 ```
 
 Added in v1.0.0
