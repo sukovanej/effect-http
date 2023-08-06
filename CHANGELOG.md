@@ -1,5 +1,17 @@
 # effect-http
 
+## 0.27.0
+
+### Minor Changes
+
+- 09af1a2: Make `mockClient` data-first.
+
+### Patch Changes
+
+- 5528872: Handle `FormData` on the server.
+- 9e9a9b3: Implement `Pipeable` for `Api` and `ServerBuilder`.
+- d964b02: Move `FormData` schema to `Api` module.
+
 ## 0.26.1
 
 ### Patch Changes
