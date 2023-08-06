@@ -119,6 +119,8 @@ const buildHandler =
             if (contentLength > 0) {
               if (contentTypeHeader?.startsWith("application/json")) {
                 return request.json();
+              } else if (contentTypeHeader?.startsWith("multipart/form-data")) {
+                return request.formData();
               } else {
                 return request.text();
               }
