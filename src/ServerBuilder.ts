@@ -3,6 +3,7 @@
  *
  * @since 1.0.0
  */
+import * as Pipeable from "@effect/data/Pipeable";
 import type * as Effect from "@effect/io/Effect";
 import type * as Schema from "@effect/schema/Schema";
 import type {
@@ -28,7 +29,7 @@ export interface ServerBuilder<
   R,
   Es extends Endpoint[] = Endpoint[],
   A extends Api = Api,
-> {
+> extends Pipeable.Pipeable {
   unimplementedEndpoints: Es;
   handlers: ServerBuilderHandler<R>[];
   extensions: ServerExtension<R, A["endpoints"]>[];
@@ -75,6 +76,10 @@ export const server = <A extends Api>(api: A): ApiToServer<A> =>
 
     handlers: [],
     extensions: defaultExtensions,
+    pipe() {
+      // eslint-disable-next-line prefer-rest-params
+      return Pipeable.pipeArguments(this, arguments);
+    },
   }) as any;
 
 /**
