@@ -14,6 +14,7 @@ import * as Equivalence from "@effect/data/Equivalence";
 import { pipe } from "@effect/data/Function";
 import * as HashSet from "@effect/data/HashSet";
 import * as Order from "@effect/data/Order";
+import * as Pipeable from "@effect/data/Pipeable";
 import * as RA from "@effect/data/ReadonlyArray";
 import * as Schema from "@effect/schema/Schema";
 import {
@@ -187,7 +188,8 @@ export interface Endpoint {
  * @category models
  * @since 1.0.0
  */
-export interface Api<E extends Endpoint[] = Endpoint[]> {
+export interface Api<E extends Endpoint[] = Endpoint[]>
+  extends Pipeable.Pipeable {
   endpoints: E;
   options: {
     title: string;
@@ -199,7 +201,8 @@ export interface Api<E extends Endpoint[] = Endpoint[]> {
  * @category models
  * @since 1.0.0
  */
-export interface ApiGroup<E extends Endpoint[] = Endpoint[]> {
+export interface ApiGroup<E extends Endpoint[] = Endpoint[]>
+  extends Pipeable.Pipeable {
   endpoints: E;
   groupName: string;
 }
@@ -245,6 +248,10 @@ export const api = (options?: Partial<Api["options"]>): Api<[]> => ({
     ...options,
   },
   endpoints: [],
+  pipe() {
+    // eslint-disable-next-line prefer-rest-params
+    return Pipeable.pipeArguments(this, arguments);
+  },
 });
 
 /**
@@ -322,6 +329,10 @@ export const options = endpoint("options");
 export const apiGroup = (groupName: string): ApiGroup<[]> => ({
   endpoints: [],
   groupName,
+  pipe() {
+    // eslint-disable-next-line prefer-rest-params
+    return Pipeable.pipeArguments(this, arguments);
+  },
 });
 
 /**
