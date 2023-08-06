@@ -20,4 +20,3 @@ export * from "effect-http/MockClient";
 export * from "effect-http/Testing";
 export * from "effect-http/Extensions";
 export * from "effect-http/Utils";
-export * from "effect-http/Schemas";
