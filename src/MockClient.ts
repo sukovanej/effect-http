@@ -34,33 +34,31 @@ export type MockClientOptions<A extends Api> = {
  * @category constructors
  * @since 1.0.0
  */
-export const mockClient =
-  <A extends Api, H extends Record<string, unknown>>(
-    option?: Partial<MockClientOptions<A> & ClientOptions<H>>,
-  ) =>
-  (api: A): Client<A, H> =>
-    api.endpoints.reduce(
-      (client, { id, schemas }) => {
-        const parseInputs = createRequestEncoder(schemas.request);
-        const responseSchema = createResponseSchema(schemas.response);
+export const mockClient = <A extends Api, H extends Record<string, unknown>>(
+  api: A,
+  option?: Partial<MockClientOptions<A> & ClientOptions<H>>,
+): Client<A, H> =>
+  api.endpoints.reduce(
+    (client, { id, schemas }) => {
+      const parseInputs = createRequestEncoder(schemas.request);
+      const responseSchema = createResponseSchema(schemas.response);
 
-        const customResponses = option?.responses;
-        const customResponse =
-          customResponses &&
-          customResponses[id as A["endpoints"][number]["id"]];
+      const customResponses = option?.responses;
+      const customResponse =
+        customResponses && customResponses[id as A["endpoints"][number]["id"]];
 
-        const fn = (args: any) => {
-          return pipe(
-            parseInputs(args),
-            Effect.flatMap(() =>
-              customResponse !== undefined
-                ? Effect.succeed(customResponse)
-                : OpenApi.randomExample(responseSchema),
-            ),
-          );
-        };
+      const fn = (args: any) => {
+        return pipe(
+          parseInputs(args),
+          Effect.flatMap(() =>
+            customResponse !== undefined
+              ? Effect.succeed(customResponse)
+              : OpenApi.randomExample(responseSchema),
+          ),
+        );
+      };
 
-        return { ...client, [id]: fn };
-      },
-      {} as Client<A, H>,
-    );
+      return { ...client, [id]: fn };
+    },
+    {} as Client<A, H>,
+  );

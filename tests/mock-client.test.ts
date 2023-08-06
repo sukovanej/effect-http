@@ -10,14 +10,14 @@ const api = pipe(
 );
 
 test("random example", async () => {
-  const client = pipe(api, Http.mockClient());
+  const client = Http.mockClient(api);
   const response = await runTestEffect(client.getValue({}));
 
   expect(typeof response).toEqual("number");
 });
 
 test("custom response", async () => {
-  const client = pipe(api, Http.mockClient({ responses: { getValue: 12 } }));
+  const client = Http.mockClient(api, { responses: { getValue: 12 } });
   const response = await runTestEffect(client.getValue({}));
 
   expect(response).toEqual(12);
