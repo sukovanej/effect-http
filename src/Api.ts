@@ -349,6 +349,21 @@ export const addGroup =
     };
   };
 
+const _FormData = Schema.instanceOf(FormData, {
+  jsonSchema: { type: "string" },
+  description: "Multipart form data",
+});
+
+export {
+  /**
+   * FormData schema
+   *
+   * @category schemas
+   * @since 1.0.0
+   */
+  _FormData as FormData,
+};
+
 // Internal type helpers
 
 /** @ignore */
