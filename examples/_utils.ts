@@ -22,7 +22,7 @@ export const readFile = (filename: string) =>
     }),
   );
 
-export const setDebugLogger = pipe(
-  Logger.replace(Logger.defaultLogger, Log.pretty),
+export const debugLogger = pipe(
+  Log.setPrettyLogger(),
   Layer.merge(Logger.minimumLogLevel(LoggerLevel.All)),
 );

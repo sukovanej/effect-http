@@ -3,17 +3,14 @@ import {
   Context,
   Duration,
   Effect,
-  Logger,
-  LoggerLevel,
   ReadonlyArray,
   Resource,
   Schedule,
   pipe,
 } from "effect";
 import * as Http from "effect-http";
-import * as Log from "effect-log";
 
-import { FileNotFoundError, readFile } from "./_utils";
+import { FileNotFoundError, debugLogger, readFile } from "./_utils";
 
 const MyValue = Context.Tag<Resource.Resource<FileNotFoundError, string>>();
 
@@ -48,8 +45,7 @@ pipe(
       Schedule.fixed(Duration.seconds(5)),
     ),
   ),
-  Logger.withMinimumLogLevel(LoggerLevel.All),
-  Effect.provideSomeLayer(Logger.replace(Logger.defaultLogger, Log.pretty)),
   Effect.scoped,
+  Effect.provideSomeLayer(debugLogger),
   Effect.runPromise,
 );

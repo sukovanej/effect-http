@@ -58,7 +58,7 @@
     "@typescript-eslint/eslint-plugin": "^6.2.1",
     "@typescript-eslint/parser": "^6.2.1",
     "effect": "2.0.0-next.24",
-    "effect-log": "^0.11.0",
+    "effect-log": "^0.12.1",
     "eslint": "^8.46.0",
     "prettier": "^3.0.1",
     "tsup": "^7.2.0",
