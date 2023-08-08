@@ -68,8 +68,9 @@ export const createRequestEncoder = (
   const encodeBody = Schema.encode(getSchema(requestSchemas.body));
   const encodeHeaders = Schema.encode(getSchema(requestSchemas.headers));
 
-  return (args: any) =>
-    pipe(
+  return (_args: any) => {
+    const args = _args ?? {};
+    return pipe(
       Effect.all({
         query: parse(args["query"], encodeQuery, invalidQueryError),
         params: parse(args["params"], encodeParams, invalidParamsError),
@@ -78,6 +79,7 @@ export const createRequestEncoder = (
       }),
       Effect.mapError(validationClientError),
     );
+  };
 };
 
 /** @internal */
