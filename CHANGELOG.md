@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.27.1
+
+### Patch Changes
+
+- 4adc5f9: Update schema-openapi.
+
 ## 0.27.0
 
 ### Minor Changes
