@@ -2596,7 +2596,7 @@ packages:
       foreground-child: 3.1.1
       jackspeak: 2.2.3
       minimatch: 9.0.3
-      minipass: 7.0.2
+      minipass: 7.0.3
       path-scurry: 1.10.1
     dev: true
 
@@ -3392,8 +3392,8 @@ packages:
     resolution: {integrity: sha512-2yyAR8qBkN3YuheJanUpWC5U3bb5osDywNB8RzDVlDwDHbocAJveqqj1u8+SVD7jkWT4yvsHCpWqqWqAxb0zCA==}
     dev: true
 
-  /minipass@7.0.2:
-    resolution: {integrity: sha512-eL79dXrE1q9dBbDCLg7xfn/vl7MS4F1gvJAgjJrQli/jbQWdUttuVawphqpffoIYfRdq78LHx6GP4bU/EQ2ATA==}
+  /minipass@7.0.3:
+    resolution: {integrity: sha512-LhbbwCfz3vsb12j/WkWQPZfKTsgqIe1Nf/ti1pKjYESGLHIVjWU96G9/ljLH4F9mWNVhlQOm0VySdAWzf05dpg==}
     engines: {node: '>=16 || 14 >=14.17'}
     dev: true
 
@@ -3658,7 +3658,7 @@ packages:
     engines: {node: '>=16 || 14 >=14.17'}
     dependencies:
       lru-cache: 10.0.1
-      minipass: 7.0.2
+      minipass: 7.0.3
     dev: true
 
   /path-to-regexp@0.1.7:
