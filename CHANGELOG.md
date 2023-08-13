@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.27.2
+
+### Patch Changes
+
+- edb5531: Update dependencies.
+
 ## 0.27.1
 
 ### Patch Changes
