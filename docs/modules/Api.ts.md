@@ -122,12 +122,7 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-export declare const options: <const Id extends string, const I extends InputEndpointSchemas>(
-  id: Id,
-  path: string,
-  schemas: I,
-  options?: EndpointOptions | undefined
-) => <A extends Api<Endpoint[]> | ApiGroup<Endpoint[]>>(api: A) => AddEndpoint<A, Id, I>
+export declare const options: EndpointSetter
 ```
 
 Added in v1.0.0

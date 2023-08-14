@@ -318,7 +318,7 @@ export {
  * @category methods
  * @since 1.0.0
  */
-export const options = endpoint("options");
+export const options: EndpointSetter = endpoint("options");
 
 /**
  * Create new API group with a given name
