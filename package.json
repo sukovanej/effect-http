@@ -46,28 +46,28 @@
   "license": "MIT",
   "devDependencies": {
     "@changesets/cli": "^2.26.2",
-    "@effect/data": "^0.17.1",
+    "@effect/data": "^0.17.2",
     "@effect/docgen": "^0.1.3",
-    "@effect/io": "^0.38.0",
+    "@effect/io": "^0.38.1",
     "@effect/schema": "^0.33.1",
     "@trivago/prettier-plugin-sort-imports": "^4.2.0",
     "@types/express": "^4.17.17",
-    "@types/node": "^20.4.10",
+    "@types/node": "^20.5.0",
     "@types/swagger-ui-express": "^4.1.3",
-    "@typescript-eslint/eslint-plugin": "^6.3.0",
-    "@typescript-eslint/parser": "^6.3.0",
-    "effect": "2.0.0-next.24",
+    "@typescript-eslint/eslint-plugin": "^6.4.0",
+    "@typescript-eslint/parser": "^6.4.0",
+    "effect": "2.0.0-next.25",
     "effect-log": "^0.12.1",
     "eslint": "^8.47.0",
-    "prettier": "^3.0.1",
+    "prettier": "^3.0.2",
     "tsup": "^7.2.0",
     "tsx": "^3.12.7",
     "typescript": "^5.1.6",
-    "vitest": "^0.34.1"
+    "vitest": "^0.34.2"
   },
   "dependencies": {
     "express": "^4.18.2",
-    "schema-openapi": "^0.12.3",
+    "schema-openapi": "^0.12.4",
     "swagger-ui-express": "^5.0.0"
   },
   "peerDependencies": {
