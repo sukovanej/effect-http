@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.27.3
+
+### Patch Changes
+
+- 295d6d6: Update schema-openapi.
+
 ## 0.27.2
 
 ### Patch Changes
