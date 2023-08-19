@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.27.4
+
+### Patch Changes
+
+- ab622b0: Update schema-openapi - fixes example server with constrained numbers in schemas.
+
 ## 0.27.3
 
 ### Patch Changes
