@@ -6,7 +6,7 @@
 import * as Either from "@effect/data/Either";
 import { pipe } from "@effect/data/Function";
 import * as Option from "@effect/data/Option";
-import { isRecord, isString } from "@effect/data/Predicate";
+import * as Predicate from "@effect/data/Predicate";
 import * as Effect from "@effect/io/Effect";
 import { ParseError } from "@effect/schema/ParseResult";
 import * as Schema from "@effect/schema/Schema";
@@ -211,13 +211,13 @@ const formatError = (error: unknown) => {
 
     if (isParseError(innerError)) {
       return formatValidationError(innerError);
-    } else if (isString(innerError)) {
+    } else if (Predicate.isString(innerError)) {
       return Effect.succeed(innerError);
     }
   }
 
-  if (isRecord(error) && "error" in error) {
-    if (isString(error.error)) {
+  if (Predicate.isRecord(error) && "error" in error) {
+    if (Predicate.isString(error.error)) {
       return Effect.succeed(error.error);
     }
 

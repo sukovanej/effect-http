@@ -1,5 +1,5 @@
 import { pipe } from "@effect/data/Function";
-import { isString } from "@effect/data/Predicate";
+import * as Predicate from "@effect/data/Predicate";
 import * as Effect from "@effect/io/Effect";
 import { ParseError } from "@effect/schema/ParseResult";
 import * as Schema from "@effect/schema/Schema";
@@ -108,7 +108,8 @@ export const getResponseContent = (response: Response) =>
 
     const contentType = response.headers.get("Content-Type");
     const isJson =
-      isString(contentType) && contentType.startsWith("application/json");
+      Predicate.isString(contentType) &&
+      contentType.startsWith("application/json");
 
     if (isJson) {
       return (await response.json()) as Promise<unknown>;

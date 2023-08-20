@@ -12,7 +12,7 @@ import type { AddressInfo } from "net";
 import { Readable } from "stream";
 
 import { pipe } from "@effect/data/Function";
-import { isError, isFunction, isString } from "@effect/data/Predicate";
+import * as Predicate from "@effect/data/Predicate";
 import * as Effect from "@effect/io/Effect";
 import * as Runtime from "@effect/io/Runtime";
 import * as Scope from "@effect/io/Scope";
@@ -152,7 +152,7 @@ export const listenExpress =
 
             if (address === null) {
               cb(Effect.fail(new Error("Could not obtain an address")));
-            } else if (isString(address)) {
+            } else if (Predicate.isString(address)) {
               cb(
                 Effect.fail(
                   new Error(`Unexpected obtained address: ${address}`),
@@ -228,7 +228,7 @@ export const DEFAULT_OPTIONS = {
 
 /** @internal */
 const errorToLog = (error: unknown): string => {
-  if (isError(error)) {
+  if (Predicate.isError(error)) {
     return error.stack || error.message;
   }
 
@@ -286,7 +286,7 @@ const toEndpoint = (handler: ServerHandler, runtime: Runtime.Runtime<any>) => {
               response.body instanceof Readable
                 ? response.body
                 : response.body instanceof ReadableStream &&
-                  isFunction(Readable.fromWeb)
+                  Predicate.isFunction(Readable.fromWeb)
                 ? Readable.fromWeb(response.body as any)
                 : response.body
                 ? Readable.from(response.body as any)
