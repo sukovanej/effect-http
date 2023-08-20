@@ -13,12 +13,12 @@
   "license": "ISC",
   "dependencies": {
     "@effect/schema": "^0.33.1",
-    "effect": "2.0.0-next.24",
-    "effect-http": "^0.27.1",
+    "effect": "2.0.0-next.27",
+    "effect-http": "^0.27.4",
     "effect-log": "^0.12.1"
   },
   "devDependencies": {
-    "prettier": "^3.0.1",
+    "prettier": "^3.0.2",
     "tsx": "^3.12.7",
     "typescript": "^5.1.6"
   }
