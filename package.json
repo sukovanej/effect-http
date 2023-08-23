@@ -31,7 +31,7 @@
   "scripts": {
     "build": "tsup && cp package.json dist/ && cp readme.md dist/",
     "watch": "tsc -w -p tsconfig.json",
-    "format": "prettier -w src tests examples",
+    "format": "prettier -w ./**/*.{ts,js}",
     "format:check": "pnpm format --check",
     "eslint": "eslint .",
     "lint": "pnpm format:check && pnpm eslint && tsc --noEmit",
