@@ -10,7 +10,7 @@ dependencies:
     version: 4.18.2
   schema-openapi:
     specifier: ^0.12.5
-    version: 0.12.5(@effect/data@0.17.5)(@effect/io@0.38.2)(@effect/schema@0.33.1)
+    version: 0.12.5(@effect/data@0.17.6)(@effect/io@0.38.2)(@effect/schema@0.33.2)
   swagger-ui-express:
     specifier: ^5.0.0
     version: 5.0.0(express@4.18.2)
@@ -20,17 +20,17 @@ devDependencies:
     specifier: ^2.26.2
     version: 2.26.2
   '@effect/data':
-    specifier: ^0.17.5
-    version: 0.17.5
+    specifier: ^0.17.6
+    version: 0.17.6
   '@effect/docgen':
     specifier: ^0.1.3
-    version: 0.1.3(@types/node@20.5.1)(typescript@5.1.6)
+    version: 0.1.3(@types/node@20.5.3)(typescript@5.1.6)
   '@effect/io':
     specifier: ^0.38.2
-    version: 0.38.2(@effect/data@0.17.5)
+    version: 0.38.2(@effect/data@0.17.6)
   '@effect/schema':
-    specifier: ^0.33.1
-    version: 0.33.1(@effect/data@0.17.5)(@effect/io@0.38.2)
+    specifier: ^0.33.2
+    version: 0.33.2(@effect/data@0.17.6)(@effect/io@0.38.2)
   '@trivago/prettier-plugin-sort-imports':
     specifier: ^4.2.0
     version: 4.2.0(prettier@3.0.2)
@@ -38,8 +38,8 @@ devDependencies:
     specifier: ^4.17.17
     version: 4.17.17
   '@types/node':
-    specifier: ^20.5.1
-    version: 20.5.1
+    specifier: ^20.5.3
+    version: 20.5.3
   '@types/swagger-ui-express':
     specifier: ^4.1.3
     version: 4.1.3
@@ -50,11 +50,11 @@ devDependencies:
     specifier: ^6.4.1
     version: 6.4.1(eslint@8.47.0)(typescript@5.1.6)
   effect:
-    specifier: 2.0.0-next.27
-    version: 2.0.0-next.27(@effect/data@0.17.5)(@effect/io@0.38.2)(@effect/match@0.33.0)(@effect/stm@0.22.0)(@effect/stream@0.34.0)
+    specifier: 2.0.0-next.29
+    version: 2.0.0-next.29(@effect/data@0.17.6)(@effect/io@0.38.2)(@effect/match@0.34.0)(@effect/stm@0.22.0)(@effect/stream@0.34.0)
   effect-log:
     specifier: ^0.12.1
-    version: 0.12.1(@effect/data@0.17.5)(@effect/io@0.38.2)
+    version: 0.12.1(@effect/data@0.17.6)(@effect/io@0.38.2)
   eslint:
     specifier: ^8.47.0
     version: 8.47.0
@@ -394,10 +394,10 @@ packages:
       '@jridgewell/trace-mapping': 0.3.9
     dev: true
 
-  /@effect/data@0.17.5:
-    resolution: {integrity: sha512-D6hYM+IReoM6YR8okIS5dygcUDdXR+De3O2b8SHwenE0PRQrGnZ9O6kJFeqkkX6pIZwEWBnb1l9SKOrw7auI4A==}
+  /@effect/data@0.17.6:
+    resolution: {integrity: sha512-/vwz7Jh05eS0qY8kczR/YyJd18d0C+PMtUkAealh4f6gwvhABLGCnktNJTcq/+UHxY0Cbv18r5uaJ4+7PPC+WQ==}
 
-  /@effect/docgen@0.1.3(@types/node@20.5.1)(typescript@5.1.6):
+  /@effect/docgen@0.1.3(@types/node@20.5.3)(typescript@5.1.6):
     resolution: {integrity: sha512-pP9DN+c+a2Cux1LE48m6O1XO902k7uqW/T/iz7Oddh2dAS1ayRsNdpRKOk+2xv8gLvCFeMR9zYs52jaWG+EaxQ==}
     engines: {node: '>=16.17.1'}
     hasBin: true
@@ -411,7 +411,7 @@ packages:
       prettier: 2.8.8
       rimraf: 5.0.1
       ts-morph: 19.0.0
-      ts-node: 10.9.1(@types/node@20.5.1)(typescript@5.1.6)
+      ts-node: 10.9.1(@types/node@20.5.3)(typescript@5.1.6)
       typescript: 5.1.6
     transitivePeerDependencies:
       - '@swc/core'
@@ -419,49 +419,49 @@ packages:
       - '@types/node'
     dev: true
 
-  /@effect/io@0.38.2(@effect/data@0.17.5):
+  /@effect/io@0.38.2(@effect/data@0.17.6):
     resolution: {integrity: sha512-rnAXFo9BDLbY7DgQE1e8uP/sEniyVCsB7gNs+yXPu0XK9s4kaGinH6XgwYRDBuu7Fu1tQ1yd7JoAdEb7yutNRg==}
     peerDependencies:
       '@effect/data': ^0.17.1
     dependencies:
-      '@effect/data': 0.17.5
+      '@effect/data': 0.17.6
 
-  /@effect/match@0.33.0(@effect/data@0.17.5):
-    resolution: {integrity: sha512-xAxhWTEcLgtUZC8+II0DmOhcYP+8oR2GdVZMFitQVzXRKCIqXnevrUX1BZnZWjds8YcMWswrCVQ5hhlsnK/lCQ==}
+  /@effect/match@0.34.0(@effect/data@0.17.6):
+    resolution: {integrity: sha512-3fPqDT81rOU+83s84dx7Dh8pMtBq6BE+FGxq5U6FB48IeUdr35jayeuIXe6ZGQC6YorM3GJny6XYO5gOy0AAow==}
     peerDependencies:
       '@effect/data': ^0.17.1
     dependencies:
-      '@effect/data': 0.17.5
+      '@effect/data': 0.17.6
     dev: true
 
-  /@effect/schema@0.33.1(@effect/data@0.17.5)(@effect/io@0.38.2):
-    resolution: {integrity: sha512-h+fQInui4q3we8fegAygL0Cs5B2DD/+oC3JWthOh8eLcbKkbYM9smCD/PsHuyQ+BaeWiSP5JdvREGlP4Sg+Ysw==}
+  /@effect/schema@0.33.2(@effect/data@0.17.6)(@effect/io@0.38.2):
+    resolution: {integrity: sha512-GfV4kXAs4tkx09bGD6J4RDqVN+xea4UP0I05r1wloox6j0eYgXYaSKAXAZ7qBKVywkba3cDUDZhc9nplAD8TAA==}
     peerDependencies:
       '@effect/data': ^0.17.1
       '@effect/io': ^0.38.0
     dependencies:
-      '@effect/data': 0.17.5
-      '@effect/io': 0.38.2(@effect/data@0.17.5)
+      '@effect/data': 0.17.6
+      '@effect/io': 0.38.2(@effect/data@0.17.6)
       fast-check: 3.12.0
 
-  /@effect/stm@0.22.0(@effect/data@0.17.5)(@effect/io@0.38.2):
+  /@effect/stm@0.22.0(@effect/data@0.17.6)(@effect/io@0.38.2):
     resolution: {integrity: sha512-K+v05Iveg9h//xZbo/JekZE4mHln8QA7dpfl84L3VKQlUfiAZOiN4ABTyb41Ly+n+YywSSbeTdbOya0ccxx/rQ==}
     peerDependencies:
       '@effect/data': ^0.17.1
       '@effect/io': ^0.38.0
     dependencies:
-      '@effect/data': 0.17.5
-      '@effect/io': 0.38.2(@effect/data@0.17.5)
+      '@effect/data': 0.17.6
+      '@effect/io': 0.38.2(@effect/data@0.17.6)
     dev: true
 
-  /@effect/stream@0.34.0(@effect/data@0.17.5)(@effect/io@0.38.2):
+  /@effect/stream@0.34.0(@effect/data@0.17.6)(@effect/io@0.38.2):
     resolution: {integrity: sha512-8eDDQ0JG+ctsstLH/Qo4ojBkcEIFtqpEsWZS6leAwY9gXVmEG54PMWXZiX6dTchgQXKmSnLkEh36leAq4piawQ==}
     peerDependencies:
       '@effect/data': ^0.17.1
       '@effect/io': ^0.38.0
     dependencies:
-      '@effect/data': 0.17.5
-      '@effect/io': 0.38.2(@effect/data@0.17.5)
+      '@effect/data': 0.17.6
+      '@effect/io': 0.38.2(@effect/data@0.17.6)
     dev: true
 
   /@esbuild-kit/cjs-loader@2.4.2:
@@ -891,8 +891,8 @@ packages:
       eslint-visitor-keys: 3.4.3
     dev: true
 
-  /@eslint-community/regexpp@4.6.2:
-    resolution: {integrity: sha512-pPTNuaAG3QMH+buKyBIGJs3g/S5y0caxw0ygM3YyE6yJFySwiGGSzA+mM3KJ8QQvzeLh3blwgSonkFjgQdxzMw==}
+  /@eslint-community/regexpp@4.7.0:
+    resolution: {integrity: sha512-+HencqxU7CFJnQb7IKtuNBqS6Yx3Tz4kOL8BJXo+JyeiBm5MEX6pO8onXDkjrkCRlfYXS1Axro15ZjVFe9YgsA==}
     engines: {node: ^12.0.0 || ^14.0.0 || >=16.0.0}
     dev: true
 
@@ -1095,7 +1095,7 @@ packages:
     resolution: {integrity: sha512-ALYone6pm6QmwZoAgeyNksccT9Q4AWZQ6PvfwR37GT6r6FWUPguq6sUmNGSMV2Wr761oQoBxwGGa6DR5o1DC9g==}
     dependencies:
       '@types/connect': 3.4.35
-      '@types/node': 20.5.1
+      '@types/node': 20.5.3
     dev: true
 
   /@types/chai-subset@1.3.3:
@@ -1111,13 +1111,13 @@ packages:
   /@types/connect@3.4.35:
     resolution: {integrity: sha512-cdeYyv4KWoEgpBISTxWvqYsVy444DOqehiF3fM3ne10AmJ62RSyNkUnxMJXHQWRQQX2eR94m5y1IZyDwBjV9FQ==}
     dependencies:
-      '@types/node': 20.5.1
+      '@types/node': 20.5.3
     dev: true
 
-  /@types/express-serve-static-core@4.17.35:
-    resolution: {integrity: sha512-wALWQwrgiB2AWTT91CB62b6Yt0sNHpznUXeZEcnPU3DRdlDIz74x8Qg1UUYKSVFi+va5vKOLYRBI1bRKiLLKIg==}
+  /@types/express-serve-static-core@4.17.36:
+    resolution: {integrity: sha512-zbivROJ0ZqLAtMzgzIUC4oNqDG9iF0lSsAqpOD9kbs5xcIM3dTiyuHvBc7R8MtWBp3AAWGaovJa+wzWPjLYW7Q==}
     dependencies:
-      '@types/node': 20.5.1
+      '@types/node': 20.5.3
       '@types/qs': 6.9.7
       '@types/range-parser': 1.2.4
       '@types/send': 0.17.1
@@ -1127,7 +1127,7 @@ packages:
     resolution: {integrity: sha512-Q4FmmuLGBG58btUnfS1c1r/NQdlp3DMfGDGig8WhfpA2YRUtEkxAjkZb0yvplJGYdF1fsQ81iMDcH24sSCNC/Q==}
     dependencies:
       '@types/body-parser': 1.19.2
-      '@types/express-serve-static-core': 4.17.35
+      '@types/express-serve-static-core': 4.17.36
       '@types/qs': 6.9.7
       '@types/serve-static': 1.15.2
     dev: true
@@ -1162,8 +1162,8 @@ packages:
     resolution: {integrity: sha512-J8xLz7q2OFulZ2cyGTLE1TbbZcjpno7FaN6zdJNrgAdrJ+DZzh/uFR6YrTb4C+nXakvud8Q4+rbhoIWlYQbUFQ==}
     dev: true
 
-  /@types/node@20.5.1:
-    resolution: {integrity: sha512-4tT2UrL5LBqDwoed9wZ6N3umC4Yhz3W3FloMmiiG4JwmUJWpie0c7lcnUNd4gtMKuDEO4wRVS8B6Xa0uMRsMKg==}
+  /@types/node@20.5.3:
+    resolution: {integrity: sha512-ITI7rbWczR8a/S6qjAW7DMqxqFMjjTo61qZVWJ1ubPvbIQsL5D/TvwjYEalM8Kthpe3hTzOGrF2TGbAu2uyqeA==}
     dev: true
 
   /@types/normalize-package-data@2.4.1:
@@ -1186,7 +1186,7 @@ packages:
     resolution: {integrity: sha512-Cwo8LE/0rnvX7kIIa3QHCkcuF21c05Ayb0ZfxPiv0W8VRiZiNW/WuRupHKpqqGVGf7SUA44QSOUKaEd9lIrd/Q==}
     dependencies:
       '@types/mime': 1.3.2
-      '@types/node': 20.5.1
+      '@types/node': 20.5.3
     dev: true
 
   /@types/serve-static@1.15.2:
@@ -1194,7 +1194,7 @@ packages:
     dependencies:
       '@types/http-errors': 2.0.1
       '@types/mime': 3.0.1
-      '@types/node': 20.5.1
+      '@types/node': 20.5.3
     dev: true
 
   /@types/swagger-ui-express@4.1.3:
@@ -1215,7 +1215,7 @@ packages:
       typescript:
         optional: true
     dependencies:
-      '@eslint-community/regexpp': 4.6.2
+      '@eslint-community/regexpp': 4.7.0
       '@typescript-eslint/parser': 6.4.1(eslint@8.47.0)(typescript@5.1.6)
       '@typescript-eslint/scope-manager': 6.4.1
       '@typescript-eslint/type-utils': 6.4.1(eslint@8.47.0)(typescript@5.1.6)
@@ -1955,30 +1955,30 @@ packages:
     resolution: {integrity: sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==}
     dev: false
 
-  /effect-log@0.12.1(@effect/data@0.17.5)(@effect/io@0.38.2):
+  /effect-log@0.12.1(@effect/data@0.17.6)(@effect/io@0.38.2):
     resolution: {integrity: sha512-qbEn65oSZfj3mhAOra4PtuFmEA9nrpTZwXfv3E90ngGOAkw7+CY73i46m4FgsqPHuVhYiaRAvnqY4AaksIy1SQ==}
     peerDependencies:
       '@effect/data': ^0.17.1
       '@effect/io': ^0.38.0
     dependencies:
-      '@effect/data': 0.17.5
-      '@effect/io': 0.38.2(@effect/data@0.17.5)
+      '@effect/data': 0.17.6
+      '@effect/io': 0.38.2(@effect/data@0.17.6)
     dev: true
 
-  /effect@2.0.0-next.27(@effect/data@0.17.5)(@effect/io@0.38.2)(@effect/match@0.33.0)(@effect/stm@0.22.0)(@effect/stream@0.34.0):
-    resolution: {integrity: sha512-Z2hcIn7eTcBIC0m12JYvZlhymp6zFm8APaQvlr3scuU3pVcIugNCkl/LdSU790QM5jKCpDsoDle9FFZOD+EjFA==}
+  /effect@2.0.0-next.29(@effect/data@0.17.6)(@effect/io@0.38.2)(@effect/match@0.34.0)(@effect/stm@0.22.0)(@effect/stream@0.34.0):
+    resolution: {integrity: sha512-CgQRDXcaGVBJUS7816vOwIP9CPRKXYBZMOP4ifJ4UdDLs1t/+EE4FSjiaHHjOCqIU7pRyCi2QZYuDjAT3OgFaw==}
     peerDependencies:
-      '@effect/data': ^0.17.1
+      '@effect/data': ^0.17.6
       '@effect/io': ^0.38.2
-      '@effect/match': ^0.33.0
+      '@effect/match': ^0.34.0
       '@effect/stm': ^0.22.0
       '@effect/stream': ^0.34.0
     dependencies:
-      '@effect/data': 0.17.5
-      '@effect/io': 0.38.2(@effect/data@0.17.5)
-      '@effect/match': 0.33.0(@effect/data@0.17.5)
-      '@effect/stm': 0.22.0(@effect/data@0.17.5)(@effect/io@0.38.2)
-      '@effect/stream': 0.34.0(@effect/data@0.17.5)(@effect/io@0.38.2)
+      '@effect/data': 0.17.6
+      '@effect/io': 0.38.2(@effect/data@0.17.6)
+      '@effect/match': 0.34.0(@effect/data@0.17.6)
+      '@effect/stm': 0.22.0(@effect/data@0.17.6)(@effect/io@0.38.2)
+      '@effect/stream': 0.34.0(@effect/data@0.17.6)(@effect/io@0.38.2)
     dev: true
 
   /emoji-regex@8.0.0:
@@ -2175,7 +2175,7 @@ packages:
     hasBin: true
     dependencies:
       '@eslint-community/eslint-utils': 4.4.0(eslint@8.47.0)
-      '@eslint-community/regexpp': 4.6.2
+      '@eslint-community/regexpp': 4.7.0
       '@eslint/eslintrc': 2.1.2
       '@eslint/js': 8.47.0
       '@humanwhocodes/config-array': 0.11.10
@@ -3974,8 +3974,8 @@ packages:
       glob: 10.3.3
     dev: true
 
-  /rollup@3.28.0:
-    resolution: {integrity: sha512-d7zhvo1OUY2SXSM6pfNjgD5+d0Nz87CUp4mt8l/GgVP3oBsPwzNvSzyu1me6BSG9JIgWNTVcafIXBIyM8yQ3yw==}
+  /rollup@3.28.1:
+    resolution: {integrity: sha512-R9OMQmIHJm9znrU3m3cpE8uhN0fGdXiawME7aZIpQqvpS/85+Vt1Hq1/yVIcYfOmaQiHjvXkQAoJukvLpau6Yw==}
     engines: {node: '>=14.18.0', npm: '>=8.0.0'}
     hasBin: true
     optionalDependencies:
@@ -4017,16 +4017,16 @@ packages:
   /safer-buffer@2.1.2:
     resolution: {integrity: sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==}
 
-  /schema-openapi@0.12.5(@effect/data@0.17.5)(@effect/io@0.38.2)(@effect/schema@0.33.1):
+  /schema-openapi@0.12.5(@effect/data@0.17.6)(@effect/io@0.38.2)(@effect/schema@0.33.2):
     resolution: {integrity: sha512-QU5FdKjFW2/JwiESS8FfP9CjFu6FSmDFZpqEZ0reaqtOmc01J+U0xbS7XRIxf+vIfHHPOjUvwqoIaBnnoXyscQ==}
     peerDependencies:
       '@effect/data': ^0.17.1
       '@effect/io': ^0.38.0
       '@effect/schema': ^0.33.0
     dependencies:
-      '@effect/data': 0.17.5
-      '@effect/io': 0.38.2(@effect/data@0.17.5)
-      '@effect/schema': 0.33.1(@effect/data@0.17.5)(@effect/io@0.38.2)
+      '@effect/data': 0.17.6
+      '@effect/io': 0.38.2(@effect/data@0.17.6)
+      '@effect/schema': 0.33.2(@effect/data@0.17.6)(@effect/io@0.38.2)
     dev: false
 
   /semver@5.7.2:
@@ -4223,8 +4223,8 @@ packages:
     engines: {node: '>= 0.8'}
     dev: false
 
-  /std-env@3.4.2:
-    resolution: {integrity: sha512-Cw6eJDX9AxEEL0g5pYj8Zx9KXtDf60rxwS2ze0HBanS0aKhj1sBlzcsmg+R0qYy8byFa854/yR2X5ZmBSClVmg==}
+  /std-env@3.4.3:
+    resolution: {integrity: sha512-f9aPhy8fYBuMN+sNfakZV18U39PbalgjXG3lLB9WkaYTxijru61wb57V9wxxNthXM5Sd88ETBWi29qLAsHO52Q==}
     dev: true
 
   /stream-transform@2.1.3:
@@ -4491,7 +4491,7 @@ packages:
       code-block-writer: 12.0.0
     dev: true
 
-  /ts-node@10.9.1(@types/node@20.5.1)(typescript@5.1.6):
+  /ts-node@10.9.1(@types/node@20.5.3)(typescript@5.1.6):
     resolution: {integrity: sha512-NtVysVPkxxrwFGUUxGYhfux8k78pQB3JqYBXlLRZgdGUqTO5wU/UyHop5p70iEbGhB7q5KmiZiU0Y3KlJrScEw==}
     hasBin: true
     peerDependencies:
@@ -4510,7 +4510,7 @@ packages:
       '@tsconfig/node12': 1.0.11
       '@tsconfig/node14': 1.0.3
       '@tsconfig/node16': 1.0.4
-      '@types/node': 20.5.1
+      '@types/node': 20.5.3
       acorn: 8.10.0
       acorn-walk: 8.2.0
       arg: 4.1.3
@@ -4548,7 +4548,7 @@ packages:
       joycon: 3.1.1
       postcss-load-config: 4.0.1
       resolve-from: 5.0.0
-      rollup: 3.28.0
+      rollup: 3.28.1
       source-map: 0.8.0-beta.0
       sucrase: 3.34.0
       tree-kill: 1.2.2
@@ -4730,7 +4730,7 @@ packages:
     engines: {node: '>= 0.8'}
     dev: false
 
-  /vite-node@0.34.2(@types/node@20.5.1):
+  /vite-node@0.34.2(@types/node@20.5.3):
     resolution: {integrity: sha512-JtW249Zm3FB+F7pQfH56uWSdlltCo1IOkZW5oHBzeQo0iX4jtC7o1t9aILMGd9kVekXBP2lfJBEQt9rBh07ebA==}
     engines: {node: '>=v14.18.0'}
     hasBin: true
@@ -4740,7 +4740,7 @@ packages:
       mlly: 1.4.0
       pathe: 1.1.1
       picocolors: 1.0.0
-      vite: 4.4.9(@types/node@20.5.1)
+      vite: 4.4.9(@types/node@20.5.3)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -4752,7 +4752,7 @@ packages:
       - terser
     dev: true
 
-  /vite@4.4.9(@types/node@20.5.1):
+  /vite@4.4.9(@types/node@20.5.3):
     resolution: {integrity: sha512-2mbUn2LlUmNASWwSCNSJ/EG2HuSRTnVNaydp6vMCm5VIqJsjMfbIWtbH2kDuwUVW5mMUKKZvGPX/rqeqVvv1XA==}
     engines: {node: ^14.18.0 || >=16.0.0}
     hasBin: true
@@ -4780,10 +4780,10 @@ packages:
       terser:
         optional: true
     dependencies:
-      '@types/node': 20.5.1
+      '@types/node': 20.5.3
       esbuild: 0.18.20
       postcss: 8.4.28
-      rollup: 3.28.0
+      rollup: 3.28.1
     optionalDependencies:
       fsevents: 2.3.3
     dev: true
@@ -4821,7 +4821,7 @@ packages:
     dependencies:
       '@types/chai': 4.3.5
       '@types/chai-subset': 1.3.3
-      '@types/node': 20.5.1
+      '@types/node': 20.5.3
       '@vitest/expect': 0.34.2
       '@vitest/runner': 0.34.2
       '@vitest/snapshot': 0.34.2
@@ -4836,12 +4836,12 @@ packages:
       magic-string: 0.30.3
       pathe: 1.1.1
       picocolors: 1.0.0
-      std-env: 3.4.2
+      std-env: 3.4.3
       strip-literal: 1.3.0
       tinybench: 2.5.0
       tinypool: 0.7.0
-      vite: 4.4.9(@types/node@20.5.1)
-      vite-node: 0.34.2(@types/node@20.5.1)
+      vite: 4.4.9(@types/node@20.5.3)
+      vite-node: 0.34.2(@types/node@20.5.3)
       why-is-node-running: 2.2.2
     transitivePeerDependencies:
       - less

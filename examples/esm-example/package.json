@@ -12,8 +12,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@effect/schema": "^0.33.1",
-    "effect": "2.0.0-next.27",
+    "@effect/schema": "^0.33.2",
+    "effect": "2.0.0-next.29",
     "effect-http": "^0.27.4",
     "effect-log": "^0.12.1"
   },
