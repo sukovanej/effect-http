@@ -76,7 +76,20 @@ export const testingClient = <R, A extends Api>(
                 url.searchParams.set(name, value as any),
               );
 
-              const init = { body, headers, method };
+              const _body =
+                body !== undefined ? JSON.stringify(body) : undefined;
+              const contentLength = _body && _body.length;
+              const contentType = _body && "application/json";
+
+              const init = {
+                body: _body,
+                headers: {
+                  ...headers,
+                  ...(contentLength && { "content-length": contentLength }),
+                  ...(contentType && { "content-type": contentType }),
+                },
+                method,
+              };
               const request = new Request(url, init);
 
               const response = yield* _(handler.fn(request));
