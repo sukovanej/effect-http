@@ -120,6 +120,31 @@ test("testing params", async () => {
   expect(response).toEqual("13");
 });
 
+test("testing body", async () => {
+    const api = pipe(
+        Http.api(),
+        Http.post("hello", "/hello", {
+            response: Schema.string,
+            request: {
+                body: Schema.struct({ input: Schema.NumberFromString }),
+            },
+        }),
+    );
+
+    const server = pipe(
+        api,
+        Http.server,
+        Http.handle("hello", ({ body }) => Effect.succeed(`${body.input + 1}`)),
+    );
+
+    const response = await pipe(
+        Http.testingClient(server).hello({ body: { input: 12 } }),
+        runTestEffect,
+    );
+
+    expect(response).toEqual("13");
+});
+
 test("testing multiple responses", async () => {
   const api = pipe(
     Http.api(),
