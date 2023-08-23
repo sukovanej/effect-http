@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.27.5
+
+### Patch Changes
+
+- 43bab8a: Fix testing client - set content-\* headers if body is provided.
+
 ## 0.27.4
 
 ### Patch Changes
