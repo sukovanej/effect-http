@@ -31,6 +31,9 @@ export interface ExpressOptions {
 
   /** Which path should be the OpenAPI UI exposed on. */
   openapiPath: string;
+
+  /** Expose raw openapi.json */
+  rawOpenapiJsonEnabled: true;
 }
 
 /**
@@ -67,12 +70,18 @@ export const express =
           Effect.promise(() => import("swagger-ui-express")),
         );
 
+        const openapi = openApi(server.api);
+
         if (finalOptions.openapiEnabled) {
           app.use(
             finalOptions.openapiPath,
             swaggerUi.serve,
-            swaggerUi.setup(openApi(server.api)),
+            swaggerUi.setup(openapi),
           );
+        }
+
+        if (finalOptions.rawOpenapiJsonEnabled) {
+          app.get("/openapi.json", (_, res) => res.json(openapi));
         }
 
         // 404
@@ -224,6 +233,7 @@ export const listenExpress =
 export const DEFAULT_OPTIONS = {
   openapiEnabled: true,
   openapiPath: "/docs",
+  rawOpenapiJsonEnabled: true,
 } satisfies ExpressOptions;
 
 /** @internal */
