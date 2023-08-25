@@ -83,6 +83,9 @@ export interface ExpressOptions {
 
   /** Which path should be the OpenAPI UI exposed on. */
   openapiPath: string
+
+  /** Expose raw openapi.json */
+  rawOpenapiJsonEnabled: true
 }
 ```
 
