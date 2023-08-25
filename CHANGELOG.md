@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.28.0
+
+### Minor Changes
+
+- f56d5a9: Expose `/openapi.json`.
+
 ## 0.27.5
 
 ### Patch Changes
