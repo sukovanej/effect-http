@@ -3,8 +3,8 @@ import {
   Context,
   Duration,
   Effect,
+  LogLevel,
   Logger,
-  LoggerLevel,
   ReadonlyArray,
   Request,
   RequestResolver,
@@ -61,7 +61,7 @@ const server = pipe(
 pipe(
   server,
   Http.listen({ port: 3000 }),
-  Logger.withMinimumLogLevel(LoggerLevel.All),
+  Logger.withMinimumLogLevel(LogLevel.All),
   Effect.provideServiceEffect(
     GetValueCache,
     Request.makeCache({ capacity: 100, timeToLive: Duration.seconds(5) }),
