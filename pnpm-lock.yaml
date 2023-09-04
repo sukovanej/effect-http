@@ -10,7 +10,7 @@ dependencies:
     version: 4.18.2
   schema-openapi:
     specifier: ^0.13.0
-    version: 0.13.0(@effect/data@0.18.3)(@effect/io@0.39.0)(@effect/schema@0.34.0)
+    version: 0.13.0(@effect/data@0.18.3)(@effect/io@0.39.1)(@effect/schema@0.34.0)
   swagger-ui-express:
     specifier: ^5.0.0
     version: 5.0.0(express@4.18.2)
@@ -26,11 +26,11 @@ devDependencies:
     specifier: ^0.1.4
     version: 0.1.4(@types/node@20.5.9)(typescript@5.2.2)
   '@effect/io':
-    specifier: ^0.39.0
-    version: 0.39.0(@effect/data@0.18.3)
+    specifier: ^0.39.1
+    version: 0.39.1(@effect/data@0.18.3)
   '@effect/schema':
     specifier: ^0.34.0
-    version: 0.34.0(@effect/data@0.18.3)(@effect/io@0.39.0)
+    version: 0.34.0(@effect/data@0.18.3)(@effect/io@0.39.1)
   '@trivago/prettier-plugin-sort-imports':
     specifier: ^4.2.0
     version: 4.2.0(prettier@3.0.3)
@@ -51,10 +51,10 @@ devDependencies:
     version: 6.5.0(eslint@8.48.0)(typescript@5.2.2)
   effect:
     specifier: 2.0.0-next.30
-    version: 2.0.0-next.30(@effect/data@0.18.3)(@effect/io@0.39.0)(@effect/match@0.35.1)(@effect/stm@0.23.0)(@effect/stream@0.35.1)
+    version: 2.0.0-next.30(@effect/data@0.18.3)(@effect/io@0.39.1)(@effect/match@0.35.1)(@effect/stm@0.23.0)(@effect/stream@0.35.1)
   effect-log:
     specifier: ^0.13.0
-    version: 0.13.0(@effect/data@0.18.3)(@effect/io@0.39.0)
+    version: 0.13.0(@effect/data@0.18.3)(@effect/io@0.39.1)
   eslint:
     specifier: ^8.48.0
     version: 8.48.0
@@ -419,8 +419,8 @@ packages:
       - '@types/node'
     dev: true
 
-  /@effect/io@0.39.0(@effect/data@0.18.3):
-    resolution: {integrity: sha512-9rlW1Pvn6ww1eaxPCg5+PeRlzYA7AfUJwiduPSMfXwgvqdR24gBGCoGgaD8aSKeOE1V1xhgOUNqbaf/oGsmbtQ==}
+  /@effect/io@0.39.1(@effect/data@0.18.3):
+    resolution: {integrity: sha512-ISBX1EYsWdVBMOV3ZmEVtbMW8FyVwmK6K47rx8ztOjMBKS5tfhB4W8iRjyycObvvlolfpIcZuAAPrCW5Tty+4Q==}
     peerDependencies:
       '@effect/data': ^0.18.0
     dependencies:
@@ -434,34 +434,34 @@ packages:
       '@effect/data': 0.18.3
     dev: true
 
-  /@effect/schema@0.34.0(@effect/data@0.18.3)(@effect/io@0.39.0):
+  /@effect/schema@0.34.0(@effect/data@0.18.3)(@effect/io@0.39.1):
     resolution: {integrity: sha512-7BdriGSWYj+f9jVqIq6PyfLoPztV05RW1Sj+mdKX3gAwqqIM7MBwkM0kTaLYKAFbGXTE9AK83uG2SSfzMigqTA==}
     peerDependencies:
       '@effect/data': ^0.18.3
       '@effect/io': ^0.39.0
     dependencies:
       '@effect/data': 0.18.3
-      '@effect/io': 0.39.0(@effect/data@0.18.3)
-      fast-check: 3.12.0
+      '@effect/io': 0.39.1(@effect/data@0.18.3)
+      fast-check: 3.12.1
 
-  /@effect/stm@0.23.0(@effect/data@0.18.3)(@effect/io@0.39.0):
+  /@effect/stm@0.23.0(@effect/data@0.18.3)(@effect/io@0.39.1):
     resolution: {integrity: sha512-c8pXK5mN9ZCFwPvxNJRzxAWwwSWjkdxs1FlCh1mdyXSah0uSD+lkuvEKrcpJCJroMmMBPrxKJv5ascfzTbBE9A==}
     peerDependencies:
       '@effect/data': ^0.18.3
       '@effect/io': ^0.39.0
     dependencies:
       '@effect/data': 0.18.3
-      '@effect/io': 0.39.0(@effect/data@0.18.3)
+      '@effect/io': 0.39.1(@effect/data@0.18.3)
     dev: true
 
-  /@effect/stream@0.35.1(@effect/data@0.18.3)(@effect/io@0.39.0):
+  /@effect/stream@0.35.1(@effect/data@0.18.3)(@effect/io@0.39.1):
     resolution: {integrity: sha512-MPtZdEZ3U2vtQTg+jXm6Xg5i0p4wO+BC4KtXqV93KIajk7sLfjlLlRf7GqlUPZgMH+jSoOAPARjM+G3UsNhMvg==}
     peerDependencies:
       '@effect/data': ^0.18.3
       '@effect/io': ^0.39.0
     dependencies:
       '@effect/data': 0.18.3
-      '@effect/io': 0.39.0(@effect/data@0.18.3)
+      '@effect/io': 0.39.1(@effect/data@0.18.3)
     dev: true
 
   /@esbuild-kit/cjs-loader@2.4.2:
@@ -1757,17 +1757,17 @@ packages:
     resolution: {integrity: sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==}
     dev: false
 
-  /effect-log@0.13.0(@effect/data@0.18.3)(@effect/io@0.39.0):
+  /effect-log@0.13.0(@effect/data@0.18.3)(@effect/io@0.39.1):
     resolution: {integrity: sha512-KXymUckpE8qiZzyWK9T2YjVHwPBih/ZQNojKv57MNzWIY9NVr21kYaOzOx5A7e5vY96B2LTu1lT/c+WgVxjETA==}
     peerDependencies:
       '@effect/data': ^0.18.3
       '@effect/io': ^0.39.0
     dependencies:
       '@effect/data': 0.18.3
-      '@effect/io': 0.39.0(@effect/data@0.18.3)
+      '@effect/io': 0.39.1(@effect/data@0.18.3)
     dev: true
 
-  /effect@2.0.0-next.30(@effect/data@0.18.3)(@effect/io@0.39.0)(@effect/match@0.35.1)(@effect/stm@0.23.0)(@effect/stream@0.35.1):
+  /effect@2.0.0-next.30(@effect/data@0.18.3)(@effect/io@0.39.1)(@effect/match@0.35.1)(@effect/stm@0.23.0)(@effect/stream@0.35.1):
     resolution: {integrity: sha512-7mCheLiy6x33e4qXLSFpQ9TCpj/+gPhPjLtBY9HODzH0sQw3B4sBUytoKWd+7DnRJRU7sdJbpPZnfDz+M1g3fw==}
     peerDependencies:
       '@effect/data': ^0.18.3
@@ -1777,10 +1777,10 @@ packages:
       '@effect/stream': ^0.35.1
     dependencies:
       '@effect/data': 0.18.3
-      '@effect/io': 0.39.0(@effect/data@0.18.3)
+      '@effect/io': 0.39.1(@effect/data@0.18.3)
       '@effect/match': 0.35.1(@effect/data@0.18.3)
-      '@effect/stm': 0.23.0(@effect/data@0.18.3)(@effect/io@0.39.0)
-      '@effect/stream': 0.35.1(@effect/data@0.18.3)(@effect/io@0.39.0)
+      '@effect/stm': 0.23.0(@effect/data@0.18.3)(@effect/io@0.39.1)
+      '@effect/stream': 0.35.1(@effect/data@0.18.3)(@effect/io@0.39.1)
     dev: true
 
   /emoji-regex@8.0.0:
@@ -2112,8 +2112,8 @@ packages:
       tmp: 0.0.33
     dev: true
 
-  /fast-check@3.12.0:
-    resolution: {integrity: sha512-SqahE9mlL3+lhjJ39joMLwcj6F+24hfZdf/tchlNO8sHcTdrUUdA5P/ZbSFZM9Xpzs36XaneGwE0FWepm/zyOA==}
+  /fast-check@3.12.1:
+    resolution: {integrity: sha512-aRN6WrO+q3TZV8CjXnpebx9bTHrpYIOVi6v3ttxciZiWqS739yy8b1oVx+qNEyV1b8RdVjlp/+miTY6yAp90HA==}
     engines: {node: '>=8.0.0'}
     dependencies:
       pure-rand: 6.0.2
@@ -2364,7 +2364,7 @@ packages:
     hasBin: true
     dependencies:
       foreground-child: 3.1.1
-      jackspeak: 2.3.1
+      jackspeak: 2.3.3
       minimatch: 9.0.3
       minipass: 7.0.3
       path-scurry: 1.10.1
@@ -2802,8 +2802,8 @@ packages:
     engines: {node: '>=0.10.0'}
     dev: true
 
-  /jackspeak@2.3.1:
-    resolution: {integrity: sha512-4iSY3Bh1Htv+kLhiiZunUhQ+OYXIn0ze3ulq8JeWrFKmhPAJSySV2+kdtRh2pGcCeF0s6oR8Oc+pYZynJj4t8A==}
+  /jackspeak@2.3.3:
+    resolution: {integrity: sha512-R2bUw+kVZFS/h1AZqBKrSgDmdmjApzgY0AlCPumopFiAlbUxE2gf+SCuBzQ0cP5hHmUmFYF5yw55T97Th5Kstg==}
     engines: {node: '>=14'}
     dependencies:
       '@isaacs/cliui': 8.0.2
@@ -3800,7 +3800,7 @@ packages:
   /safer-buffer@2.1.2:
     resolution: {integrity: sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==}
 
-  /schema-openapi@0.13.0(@effect/data@0.18.3)(@effect/io@0.39.0)(@effect/schema@0.34.0):
+  /schema-openapi@0.13.0(@effect/data@0.18.3)(@effect/io@0.39.1)(@effect/schema@0.34.0):
     resolution: {integrity: sha512-gBhw/grSOr0A8JpmO34WurVuHuF6MCpnnfHLocgeaTt6hfQ9qp1rZOj+noWn6ZjpaBGiObmZljSS2qqjyAfN8w==}
     peerDependencies:
       '@effect/data': ^0.18.3
@@ -3808,8 +3808,8 @@ packages:
       '@effect/schema': ^0.34.0
     dependencies:
       '@effect/data': 0.18.3
-      '@effect/io': 0.39.0(@effect/data@0.18.3)
-      '@effect/schema': 0.34.0(@effect/data@0.18.3)(@effect/io@0.39.0)
+      '@effect/io': 0.39.1(@effect/data@0.18.3)
+      '@effect/schema': 0.34.0(@effect/data@0.18.3)(@effect/io@0.39.1)
     dev: false
 
   /semver@5.7.2:
@@ -4150,8 +4150,8 @@ packages:
     engines: {node: '>= 0.4'}
     dev: true
 
-  /swagger-ui-dist@5.4.2:
-    resolution: {integrity: sha512-vT5QxP/NOr9m4gLZl+SpavWI3M9Fdh30+Sdw9rEtZbkqNmNNEPhjXas2xTD9rsJYYdLzAiMfwXvtooWH3xbLJA==}
+  /swagger-ui-dist@5.5.0:
+    resolution: {integrity: sha512-SWmqC/kwBgFK8MOBzakKPVrbYVRC2oyZOawkp3VGi8S6Kfvvv2C8MjBmX4McmWn88csguZsj4ktHDQvfUwP0tw==}
     dev: false
 
   /swagger-ui-express@5.0.0(express@4.18.2):
@@ -4161,7 +4161,7 @@ packages:
       express: '>=4.0.0 || >=5.0.0-beta'
     dependencies:
       express: 4.18.2
-      swagger-ui-dist: 5.4.2
+      swagger-ui-dist: 5.5.0
     dev: false
 
   /term-size@2.2.1:
