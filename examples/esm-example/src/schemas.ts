@@ -10,15 +10,15 @@ export const Item = Schema.struct({
   createdAt: Schema.Date,
   updatedAt: Schema.optionFromNullable(Schema.Date),
 });
-export type Item = Schema.To<typeof Item>;
+export type Item = Schema.Schema.To<typeof Item>;
 
 export const Items = Schema.array(Item);
-export type Items = Schema.To<typeof Items>;
+export type Items = Schema.Schema.To<typeof Items>;
 
 export const CreateItemRequest = Item.pipe(
   Schema.omit("id", "createdAt", "updatedAt"),
 );
-export type CreateItemRequest = Schema.To<typeof CreateItemRequest>;
+export type CreateItemRequest = Schema.Schema.To<typeof CreateItemRequest>;
 
 export const CreateItemResponse = Item.pipe(Schema.pick("id", "createdAt"));
 
@@ -27,4 +27,4 @@ export const GetItemsQuery = Item.pipe(
   Schema.extend(Schema.struct({ id: IntegerFromString })),
   Schema.partial,
 );
-export type GetItemsQuery = Schema.To<typeof GetItemsQuery>;
+export type GetItemsQuery = Schema.Schema.To<typeof GetItemsQuery>;
