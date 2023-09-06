@@ -72,7 +72,7 @@
   },
   "peerDependencies": {
     "@effect/data": "^0.18.4",
-    "@effect/io": "^0.40.1",
+    "@effect/io": "^0.40.0",
     "@effect/schema": "^0.35.0"
   }
 }
