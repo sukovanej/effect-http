@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.30.0
+
+### Minor Changes
+
+- fd69e9c: Update effect dependencies.
+
 ## 0.29.0
 
 ### Minor Changes
