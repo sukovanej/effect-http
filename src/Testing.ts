@@ -4,8 +4,8 @@
  * @since 1.0.0
  */
 import { pipe } from "@effect/data/Function";
+import type * as Types from "@effect/data/Types";
 import * as Effect from "@effect/io/Effect";
-import type * as Schema from "@effect/schema/Schema";
 import type { Api } from "effect-http/Api";
 import {
   ClientFunctionResponse,
@@ -128,7 +128,7 @@ export const testingClient = <R, A extends Api>(
 
 /** @ignore */
 export type TestingClient<R, A extends Api> = A extends Api<infer Es>
-  ? Schema.Spread<{
+  ? Types.Simplify<{
       [Id in Es[number]["id"]]: TestClientFunction<
         R,
         MakeHeadersOptionIfAllPartial<
@@ -148,7 +148,7 @@ type TestClientFunction<R, I, Response> = Record<string, never> extends I
 
 /** @ignore */
 type MakeHeadersOptionIfAllPartial<I> = I extends { headers: any }
-  ? Schema.Spread<
+  ? Types.Simplify<
       (Record<string, never> extends I["headers"]
         ? { headers?: I["headers"] }
         : Pick<I, "headers">) &

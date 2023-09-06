@@ -6,6 +6,7 @@
  * @since 1.0.0
  */
 import { identity, pipe } from "@effect/data/Function";
+import type * as Types from "@effect/data/Types";
 import * as Effect from "@effect/io/Effect";
 import type { ParseError } from "@effect/schema/ParseResult";
 import * as Schema from "@effect/schema/Schema";
@@ -38,7 +39,7 @@ import {
  * @since 1.0.0
  */
 export type Client<A extends Api, H> = A extends Api<infer Es>
-  ? Schema.Spread<{
+  ? Types.Simplify<{
       [Id in Es[number]["id"]]: ClientFunction<
         Es,
         Id,
@@ -215,7 +216,7 @@ export const client = <
 
 /** @ignore */
 type MakeHeadersOptionIfAllPartial<I> = I extends { headers: any }
-  ? Schema.Spread<
+  ? Types.Simplify<
       (Record<string, never> extends I["headers"]
         ? { headers?: I["headers"] }
         : Pick<I, "headers">) &
@@ -224,9 +225,9 @@ type MakeHeadersOptionIfAllPartial<I> = I extends { headers: any }
   : I;
 
 /** @ignore */
-type DropCommonHeaders<I, CommonHeaders> = Schema.Spread<{
+type DropCommonHeaders<I, CommonHeaders> = Types.Simplify<{
   [K in keyof I]: K extends "headers"
-    ? Schema.Spread<
+    ? Types.Simplify<
         {
           [HK in Extract<keyof I[K], keyof CommonHeaders>]?: I[K][HK];
         } & Pick<I[K], Exclude<keyof I[K], keyof CommonHeaders>>
@@ -236,7 +237,7 @@ type DropCommonHeaders<I, CommonHeaders> = Schema.Spread<{
 
 /** @ignore */
 export type ClientFunctionResponse<S extends Endpoint["schemas"]["response"]> =
-  Schema.Spread<
+  Types.Simplify<
     S extends Schema.Schema<any, infer A>
       ? A
       : S extends readonly ResponseSchemaFull[]

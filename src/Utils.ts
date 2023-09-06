@@ -3,6 +3,7 @@
  *
  * @since 1.0.0
  */
+import type * as Types from "@effect/data/Types";
 import * as Schema from "@effect/schema/Schema";
 import type {
   Api,
@@ -53,7 +54,7 @@ export const responseUtil = <
 // Internal type helpers
 
 /** @ignore */
-export type ResponseUtil<E extends Endpoint> = Schema.Spread<
+export type ResponseUtil<E extends Endpoint> = Types.Simplify<
   NormalizedSchemasByIdToResponseUtils<SchemasByIdFromApi<E>>
 >;
 
@@ -72,7 +73,7 @@ type NormalizedSchemasBydId = {
 type NormalizedSchemasByIdToResponseUtils<M extends NormalizedSchemasBydId> = {
   [Status in M["status"] as `response${Status}`]: (
     data: Extract<M, { status: Status }>["input"],
-  ) => Schema.Spread<
+  ) => Types.Simplify<
     { status: Status } & Extract<M, { status: Status }>["input"]
   >;
 };
@@ -96,6 +97,6 @@ type CreateInput<
     headers: IgnoredSchemaId | AnySchema;
     content: IgnoredSchemaId | AnySchema;
   },
-> = Schema.Spread<{
+> = Types.Simplify<{
   [K in Extract<RequiredFields<S>, "headers" | "content">]: SchemaTo<S[K]>;
 }>;

@@ -16,6 +16,7 @@ import * as HashSet from "@effect/data/HashSet";
 import * as Order from "@effect/data/Order";
 import * as Pipeable from "@effect/data/Pipeable";
 import * as RA from "@effect/data/ReadonlyArray";
+import type * as Types from "@effect/data/Types";
 import * as Schema from "@effect/schema/Schema";
 import {
   AnySchema,
@@ -396,9 +397,9 @@ type AddEndpoint<
   Id extends string,
   Schemas extends InputEndpointSchemas,
 > = A extends Api<infer E>
-  ? Api<[...E, Schema.Spread<CreateEndpointFromInput<Id, Schemas>>]>
+  ? Api<[...E, Types.Simplify<CreateEndpointFromInput<Id, Schemas>>]>
   : A extends ApiGroup<infer E>
-  ? ApiGroup<[...E, Schema.Spread<CreateEndpointFromInput<Id, Schemas>>]>
+  ? ApiGroup<[...E, Types.Simplify<CreateEndpointFromInput<Id, Schemas>>]>
   : never;
 
 /** @ignore */
@@ -428,7 +429,7 @@ type GetOptional<
 
 /** @ignore */
 export type CreateEndpointSchemasFromInput<I extends InputEndpointSchemas> =
-  Schema.Spread<{
+  Types.Simplify<{
     response: ResponseSchemaFromInput<I["response"]>;
     request: {
       query: UndefinedToIgnoredSchema<GetOptional<I["request"], "query">>;
@@ -455,7 +456,7 @@ type UndefinedToIgnoredSchemaLowercased<S extends unknown | undefined> =
     : IgnoredSchemaId;
 
 /** @ignore */
-type LowercaseFields<A extends Record<string, unknown>> = Schema.Spread<{
+type LowercaseFields<A extends Record<string, unknown>> = Types.Simplify<{
   [K in keyof A as K extends string ? Lowercase<K> : never]: A[K];
 }>;
 
