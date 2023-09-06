@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.30.1
+
+### Patch Changes
+
+- a37157e: Fix @effect/io peer dependency version.
+
 ## 0.30.0
 
 ### Minor Changes
