@@ -4,8 +4,8 @@
  * @since 1.0.0
  */
 import * as Pipeable from "@effect/data/Pipeable";
+import type * as Types from "@effect/data/Types";
 import type * as Effect from "@effect/io/Effect";
-import type * as Schema from "@effect/schema/Schema";
 import type {
   Api,
   Endpoint,
@@ -225,7 +225,7 @@ export type RequiredFields<E> = {
 }[keyof E];
 
 /** @ignore */
-export type EndpointSchemasTo<E extends Endpoint["schemas"]> = Schema.Spread<{
+export type EndpointSchemasTo<E extends Endpoint["schemas"]> = Types.Simplify<{
   response: EndpointResponseSchemaTo<E["response"]>;
   request: {
     [K in Extract<keyof E["request"], RequiredFields<E["request"]>>]: SchemaTo<
@@ -236,7 +236,7 @@ export type EndpointSchemasTo<E extends Endpoint["schemas"]> = Schema.Spread<{
 
 /** @ignore */
 export type InputServerBuilderHandler<R, E extends Endpoint> = (
-  input: Schema.Spread<
+  input: Types.Simplify<
     EndpointSchemasTo<E["schemas"]>["request"] & {
       ResponseUtil: ResponseUtil<E>;
     }
@@ -294,12 +294,12 @@ export type EndpointResponseSchemaTo<S> = S extends AnySchema
 
 /** @ignore */
 export type ResponseSchemaFullTo<S extends ResponseSchemaFull> = S extends any
-  ? Schema.Spread<
+  ? Types.Simplify<
       {
         status: S["status"];
       } & {
         [K in Exclude<RequiredFields<S>, "status">]: S[K] extends AnySchema
-          ? Schema.To<S[K]>
+          ? SchemaTo<S[K]>
           : never;
       }
     >

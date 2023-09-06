@@ -25,7 +25,7 @@ describe("struct", () => {
       evaluate({ name: 1 }),
     );
 
-    expect(errors).toEqual("name must be <string>, got 1");
+    expect(errors).toEqual("name must be a string, got 1");
   });
 
   test("simple number", () => {
@@ -34,7 +34,7 @@ describe("struct", () => {
       evaluate({ name: "name", id: "id" }),
     );
 
-    expect(errors).toEqual('id must be <number>, got "id"');
+    expect(errors).toEqual('id must be a number, got "id"');
   });
 
   test("missing", () => {
@@ -58,7 +58,7 @@ describe("struct", () => {
       }),
     );
 
-    expect(errors).toEqual('users.[1].value must be <string>, got {"x":1}');
+    expect(errors).toEqual('users.[1].value must be a string, got {"x":1}');
   });
 
   test("union", () => {
