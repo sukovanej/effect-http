@@ -10,7 +10,7 @@ dependencies:
     version: 4.18.2
   schema-openapi:
     specifier: ^0.14.0
-    version: 0.14.0(@effect/data@0.18.5)(@effect/io@0.40.0)(@effect/schema@0.35.0)
+    version: 0.14.0(@effect/data@0.18.5)(@effect/io@0.40.1)(@effect/schema@0.35.0)
   swagger-ui-express:
     specifier: ^5.0.0
     version: 5.0.0(express@4.18.2)
@@ -26,11 +26,11 @@ devDependencies:
     specifier: ^0.1.5
     version: 0.1.5(@types/node@20.6.0)(typescript@5.2.2)
   '@effect/io':
-    specifier: ^0.40.0
-    version: 0.40.0(@effect/data@0.18.5)
+    specifier: ^0.40.1
+    version: 0.40.1(@effect/data@0.18.5)
   '@effect/schema':
     specifier: ^0.35.0
-    version: 0.35.0(@effect/data@0.18.5)(@effect/io@0.40.0)
+    version: 0.35.0(@effect/data@0.18.5)(@effect/io@0.40.1)
   '@trivago/prettier-plugin-sort-imports':
     specifier: ^4.2.0
     version: 4.2.0(prettier@3.0.3)
@@ -51,10 +51,10 @@ devDependencies:
     version: 6.6.0(eslint@8.49.0)(typescript@5.2.2)
   effect:
     specifier: 2.0.0-next.31
-    version: 2.0.0-next.31(@effect/data@0.18.5)(@effect/io@0.40.0)(@effect/match@0.35.2)(@effect/stm@0.24.0)(@effect/stream@0.36.0)
+    version: 2.0.0-next.31(@effect/data@0.18.5)(@effect/io@0.40.1)(@effect/match@0.35.2)(@effect/stm@0.24.0)(@effect/stream@0.36.0)
   effect-log:
-    specifier: ^0.14.0
-    version: 0.14.0(@effect/data@0.18.5)(@effect/io@0.40.0)
+    specifier: ^0.14.1
+    version: 0.14.1(@effect/data@0.18.5)(@effect/io@0.40.1)
   eslint:
     specifier: ^8.49.0
     version: 8.49.0
@@ -420,10 +420,10 @@ packages:
       - '@types/node'
     dev: true
 
-  /@effect/io@0.40.0(@effect/data@0.18.5):
-    resolution: {integrity: sha512-S9qkhFBgjq7TBg3E3CjWOU5/Q8zkynz7wfs0DSIspDPDPJ2rBko+ZCGl1dLzOspVOMX0g4EK4W6vDvW6ogL2Bg==}
+  /@effect/io@0.40.1(@effect/data@0.18.5):
+    resolution: {integrity: sha512-OeMK7JonvW/D6Z377cOsuCSHUbsO9ZkmAIDmzQ1Qffx8+h5yUXRm0htmPwKkxtCHZr2QxyZfSBzxSzrGU7asXQ==}
     peerDependencies:
-      '@effect/data': ^0.18.0
+      '@effect/data': ^0.18.5
     dependencies:
       '@effect/data': 0.18.5
 
@@ -435,34 +435,34 @@ packages:
       '@effect/data': 0.18.5
     dev: true
 
-  /@effect/schema@0.35.0(@effect/data@0.18.5)(@effect/io@0.40.0):
+  /@effect/schema@0.35.0(@effect/data@0.18.5)(@effect/io@0.40.1):
     resolution: {integrity: sha512-NRlBGW/L1z9mi9M2U1YudD5rMOHm/IvIsL7CT2r8d2oDKuM4iY+R/43IV5lfi458nwtDBn60StzG9t5SPHwL3w==}
     peerDependencies:
       '@effect/data': ^0.18.3
       '@effect/io': ^0.40.0
     dependencies:
       '@effect/data': 0.18.5
-      '@effect/io': 0.40.0(@effect/data@0.18.5)
+      '@effect/io': 0.40.1(@effect/data@0.18.5)
       fast-check: 3.13.0
 
-  /@effect/stm@0.24.0(@effect/data@0.18.5)(@effect/io@0.40.0):
+  /@effect/stm@0.24.0(@effect/data@0.18.5)(@effect/io@0.40.1):
     resolution: {integrity: sha512-6L4zhy2lvkxn3jMG7dvZ4lKOmxSvaNBpkIT/ZOS6mad+B5/r8G3bKFe0C70aHwpQkxORd9LVmFr/f5MXLKZtfQ==}
     peerDependencies:
       '@effect/data': ^0.18.3
       '@effect/io': ^0.40.0
     dependencies:
       '@effect/data': 0.18.5
-      '@effect/io': 0.40.0(@effect/data@0.18.5)
+      '@effect/io': 0.40.1(@effect/data@0.18.5)
     dev: true
 
-  /@effect/stream@0.36.0(@effect/data@0.18.5)(@effect/io@0.40.0):
+  /@effect/stream@0.36.0(@effect/data@0.18.5)(@effect/io@0.40.1):
     resolution: {integrity: sha512-vAMQ3kumsAXAiAwtuzJEOeII2bAB9rNY1NLYOqpgvXVWTUIYQf/wy4QbbcLXLuoMUUi7zS/JDVmC8jbPscfLNg==}
     peerDependencies:
       '@effect/data': ^0.18.3
       '@effect/io': ^0.40.0
     dependencies:
       '@effect/data': 0.18.5
-      '@effect/io': 0.40.0(@effect/data@0.18.5)
+      '@effect/io': 0.40.1(@effect/data@0.18.5)
     dev: true
 
   /@esbuild-kit/cjs-loader@2.4.2:
@@ -1759,17 +1759,17 @@ packages:
     resolution: {integrity: sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==}
     dev: false
 
-  /effect-log@0.14.0(@effect/data@0.18.5)(@effect/io@0.40.0):
-    resolution: {integrity: sha512-/IKT6MHBWmnAZ5U3dQjBADXUVJPYqhqsGLlGI10HJIiRfE9nx3c91wetqRX9NmfU2QdfkZ+8WWVLferm/2o3Mw==}
+  /effect-log@0.14.1(@effect/data@0.18.5)(@effect/io@0.40.1):
+    resolution: {integrity: sha512-9ToGt89B6m8FUJwsCoXCKfCB2gocESxEokL9GKbHQZPyQcj2X0m4ErBOgAL2YZIGfR+G+x8DHQ5OmURblXqOMA==}
     peerDependencies:
-      '@effect/data': ^0.18.4
-      '@effect/io': ^0.40.0
+      '@effect/data': ^0.18.5
+      '@effect/io': ^0.40.1
     dependencies:
       '@effect/data': 0.18.5
-      '@effect/io': 0.40.0(@effect/data@0.18.5)
+      '@effect/io': 0.40.1(@effect/data@0.18.5)
     dev: true
 
-  /effect@2.0.0-next.31(@effect/data@0.18.5)(@effect/io@0.40.0)(@effect/match@0.35.2)(@effect/stm@0.24.0)(@effect/stream@0.36.0):
+  /effect@2.0.0-next.31(@effect/data@0.18.5)(@effect/io@0.40.1)(@effect/match@0.35.2)(@effect/stm@0.24.0)(@effect/stream@0.36.0):
     resolution: {integrity: sha512-08bGtfQbd9e25AZvOavquEifcGEWn4f46ucJ2cgB97PsmlTa/+SrD81apLfeE+47meawnfwabSboYP/HFKZByA==}
     peerDependencies:
       '@effect/data': ^0.18.4
@@ -1779,10 +1779,10 @@ packages:
       '@effect/stream': ^0.36.0
     dependencies:
       '@effect/data': 0.18.5
-      '@effect/io': 0.40.0(@effect/data@0.18.5)
+      '@effect/io': 0.40.1(@effect/data@0.18.5)
       '@effect/match': 0.35.2(@effect/data@0.18.5)
-      '@effect/stm': 0.24.0(@effect/data@0.18.5)(@effect/io@0.40.0)
-      '@effect/stream': 0.36.0(@effect/data@0.18.5)(@effect/io@0.40.0)
+      '@effect/stm': 0.24.0(@effect/data@0.18.5)(@effect/io@0.40.1)
+      '@effect/stream': 0.36.0(@effect/data@0.18.5)(@effect/io@0.40.1)
     dev: true
 
   /emoji-regex@8.0.0:
@@ -3802,7 +3802,7 @@ packages:
   /safer-buffer@2.1.2:
     resolution: {integrity: sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==}
 
-  /schema-openapi@0.14.0(@effect/data@0.18.5)(@effect/io@0.40.0)(@effect/schema@0.35.0):
+  /schema-openapi@0.14.0(@effect/data@0.18.5)(@effect/io@0.40.1)(@effect/schema@0.35.0):
     resolution: {integrity: sha512-XZbo+2RhlYxR3LjKWTm/QqLqKya0am/+vasd0RzI9/ACDofc2v+vT3YfPiYQtBnHTeUBhHKRqoH+mliRB+sNYQ==}
     peerDependencies:
       '@effect/data': ^0.18.4
@@ -3810,8 +3810,8 @@ packages:
       '@effect/schema': ^0.35.0
     dependencies:
       '@effect/data': 0.18.5
-      '@effect/io': 0.40.0(@effect/data@0.18.5)
-      '@effect/schema': 0.35.0(@effect/data@0.18.5)(@effect/io@0.40.0)
+      '@effect/io': 0.40.1(@effect/data@0.18.5)
+      '@effect/schema': 0.35.0(@effect/data@0.18.5)(@effect/io@0.40.1)
     dev: false
 
   /semver@5.7.2:

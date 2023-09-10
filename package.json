@@ -48,7 +48,7 @@
     "@changesets/cli": "^2.26.2",
     "@effect/data": "^0.18.5",
     "@effect/docgen": "^0.1.5",
-    "@effect/io": "^0.40.0",
+    "@effect/io": "^0.40.1",
     "@effect/schema": "^0.35.0",
     "@trivago/prettier-plugin-sort-imports": "^4.2.0",
     "@types/express": "^4.17.17",
@@ -57,7 +57,7 @@
     "@typescript-eslint/eslint-plugin": "^6.6.0",
     "@typescript-eslint/parser": "^6.6.0",
     "effect": "2.0.0-next.31",
-    "effect-log": "^0.14.0",
+    "effect-log": "^0.14.1",
     "eslint": "^8.49.0",
     "prettier": "^3.0.3",
     "tsup": "^7.2.0",
@@ -72,7 +72,7 @@
   },
   "peerDependencies": {
     "@effect/data": "^0.18.5",
-    "@effect/io": "^0.40.0",
+    "@effect/io": "^0.40.1",
     "@effect/schema": "^0.35.0"
   }
 }
