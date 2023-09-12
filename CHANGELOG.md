@@ -1,5 +1,12 @@
 # effect-http
 
+## 0.30.2
+
+### Patch Changes
+
+- 13a9a09: Update dependencies.
+- 59d75db: Update /data and /io.
+
 ## 0.30.1
 
 ### Patch Changes
