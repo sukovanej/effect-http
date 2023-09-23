@@ -5,11 +5,8 @@
  *
  * @since 1.0.0
  */
-import { identity, pipe } from "@effect/data/Function";
-import type * as Types from "@effect/data/Types";
-import * as Effect from "@effect/io/Effect";
-import type { ParseError } from "@effect/schema/ParseResult";
-import * as Schema from "@effect/schema/Schema";
+import { ParseResult, Schema } from "@effect/schema";
+import { Effect, type Types, identity, pipe } from "effect";
 import type {
   Api,
   Endpoint,
@@ -32,7 +29,7 @@ import {
   createResponseSchema,
   getResponseContent,
   isArray,
-} from "effect-http/internal";
+} from "effect-http/internal/utils";
 
 /**
  * @category models
@@ -143,7 +140,7 @@ export const createResponseParser = (
   response: Response,
 ) => Effect.Effect<
   never,
-  ParseError,
+  ParseResult.ParseError,
   { status: number; headers: unknown; content: unknown }
 >) => {
   const parseContent = Schema.parse(createResponseSchema(responseSchema));

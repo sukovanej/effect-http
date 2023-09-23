@@ -5,14 +5,17 @@
  */
 import * as crypto from "crypto";
 
-import { identity, pipe } from "@effect/data/Function";
-import * as HashMap from "@effect/data/HashMap";
-import * as Option from "@effect/data/Option";
-import * as Predicate from "@effect/data/Predicate";
-import * as Effect from "@effect/io/Effect";
-import * as FiberRef from "@effect/io/FiberRef";
-import type * as Logger from "@effect/io/Logger";
-import * as Metric from "@effect/io/Metric";
+import {
+  Effect,
+  FiberRef,
+  HashMap,
+  type Logger,
+  Metric,
+  Option,
+  Predicate,
+  identity,
+  pipe,
+} from "effect";
 import {
   type ApiError,
   isApiError,

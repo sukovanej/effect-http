@@ -2,10 +2,7 @@ import express from "express";
 import http, { Server } from "http";
 import { AddressInfo, Socket } from "net";
 
-import { pipe } from "@effect/data/Function";
-import * as Effect from "@effect/io/Effect";
-import * as Logger from "@effect/io/Logger";
-import * as Scope from "@effect/io/Scope";
+import { Effect, Logger, Scope, pipe } from "effect";
 import * as Http from "effect-http";
 
 const testServerUrl = <R, A extends Http.Api>(
@@ -50,7 +47,7 @@ const testServerUrl = <R, A extends Http.Api>(
         ),
       ),
     ),
-    Effect.map(([client]) => client),
+    Effect.map(([url]) => url),
   );
 
 export const testServer = <
@@ -126,7 +123,18 @@ const logger = Logger.none;
 export const runTestEffect = <E, A>(self: Effect.Effect<Scope.Scope, E, A>) =>
   pipe(
     self,
-    Effect.provideSomeLayer(Logger.replace(Logger.defaultLogger, logger)),
+    Effect.provide(Logger.replace(Logger.defaultLogger, logger)),
     Effect.scoped,
+    Effect.runPromise,
+  );
+
+export const runTestEffectEither = <E, A>(
+  self: Effect.Effect<Scope.Scope, E, A>,
+) =>
+  pipe(
+    self,
+    Effect.provide(Logger.replace(Logger.defaultLogger, logger)),
+    Effect.scoped,
+    Effect.either,
     Effect.runPromise,
   );

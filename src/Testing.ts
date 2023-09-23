@@ -3,9 +3,7 @@
  *
  * @since 1.0.0
  */
-import { pipe } from "@effect/data/Function";
-import type * as Types from "@effect/data/Types";
-import * as Effect from "@effect/io/Effect";
+import { Effect, type Types, pipe } from "effect";
 import type { Api } from "effect-http/Api";
 import {
   ClientFunctionResponse,
@@ -22,7 +20,7 @@ import {
   createRequestEncoder,
   getResponseContent,
   isArray,
-} from "effect-http/internal";
+} from "effect-http/internal/utils";
 
 /**
  * Create a testing client for the `Server`. It generates a similar interface

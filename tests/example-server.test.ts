@@ -1,5 +1,4 @@
-import { pipe } from "@effect/data/Function";
-import * as Effect from "@effect/io/Effect";
+import { Effect, pipe } from "effect";
 import * as Http from "effect-http";
 
 import { simpleApi1 } from "./example-apis";

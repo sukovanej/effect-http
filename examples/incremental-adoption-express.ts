@@ -31,6 +31,6 @@ pipe(
     return app;
   }),
   Effect.flatMap(Http.listenExpress()),
-  Effect.provideSomeLayer(Logger.minimumLogLevel(LogLevel.All)),
+  Effect.provide(Logger.minimumLogLevel(LogLevel.All)),
   Effect.runPromise,
 );

@@ -1,5 +1,5 @@
 {
-  "exclude": ["src/internal.ts"],
+  "exclude": ["src/internal/**/*.ts"],
   "parseCompilerOptions": {
     "noEmit": true,
     "strict": true,

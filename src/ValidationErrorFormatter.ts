@@ -4,15 +4,17 @@
  *
  * @since 1.0.0
  */
-import * as Context from "@effect/data/Context";
-import { pipe } from "@effect/data/Function";
-import * as Option from "@effect/data/Option";
-import * as Predicate from "@effect/data/Predicate";
-import * as RA from "@effect/data/ReadonlyArray";
-import * as Effect from "@effect/io/Effect";
-import * as Layer from "@effect/io/Layer";
-import * as AST from "@effect/schema/AST";
+import { AST } from "@effect/schema";
 import { ParseError, ParseErrors } from "@effect/schema/ParseResult";
+import {
+  Context,
+  Effect,
+  Layer,
+  Option,
+  Predicate,
+  ReadonlyArray,
+  pipe,
+} from "effect";
 
 /**
  * @category models
@@ -61,7 +63,7 @@ export const defaultValidationErrorFormatterServer: ValidationErrorFormatter = (
 const allEqualUpToExpected = (
   errors: readonly ValidationError[],
 ): errors is readonly ValidationErrorUnexpected[] =>
-  RA.reduce(errors, true, () => true);
+  ReadonlyArray.reduce(errors, true, () => true);
 
 /** @internal */
 const stringifyError = (error: ValidationError) => {

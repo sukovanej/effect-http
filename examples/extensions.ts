@@ -28,6 +28,6 @@ const server = pipe(
 pipe(
   server,
   Http.listen({ port: 3000 }),
-  Effect.provideSomeLayer(debugLogger),
+  Effect.provide(debugLogger),
   Effect.runPromise,
 );

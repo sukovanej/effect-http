@@ -5,16 +5,15 @@
  */
 import * as OpenApi from "schema-openapi";
 
-import { pipe } from "@effect/data/Function";
-import * as Effect from "@effect/io/Effect";
+import { Effect, pipe } from "effect";
 import { type Api } from "effect-http/Api";
 import type {
   Client,
   ClientFunctionResponse,
   ClientOptions,
 } from "effect-http/Client";
-import { createRequestEncoder } from "effect-http/internal";
-import { createResponseSchema } from "effect-http/internal";
+import { createRequestEncoder } from "effect-http/internal/utils";
+import { createResponseSchema } from "effect-http/internal/utils";
 
 /**
  * @category models

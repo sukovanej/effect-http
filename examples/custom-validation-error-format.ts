@@ -20,8 +20,6 @@ const myValidationErrorFormatter: Http.ValidationErrorFormatter = (error) =>
 pipe(
   server,
   Http.listen({ port: 3000 }),
-  Effect.provideSomeLayer(
-    Http.setValidationErrorFormatter(myValidationErrorFormatter),
-  ),
+  Effect.provide(Http.setValidationErrorFormatter(myValidationErrorFormatter)),
   Effect.runPromise,
 );

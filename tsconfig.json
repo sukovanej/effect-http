@@ -19,7 +19,8 @@
       "effect-http/*": [
         "./src/*"
       ]
-    }
+    },
+    "isolatedModules": true
   },
   "include": [
     "src",

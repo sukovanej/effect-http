@@ -3,8 +3,8 @@
  *
  * @since 1.0.0
  */
-import type * as Types from "@effect/data/Types";
-import * as Schema from "@effect/schema/Schema";
+import { Schema } from "@effect/schema";
+import { type Types } from "effect";
 import type {
   Api,
   Endpoint,
@@ -13,7 +13,7 @@ import type {
   ResponseSchemaFull,
 } from "effect-http/Api";
 import { RequiredFields } from "effect-http/ServerBuilder";
-import { AnySchema, SchemaTo, isArray } from "effect-http/internal";
+import { AnySchema, SchemaTo, isArray } from "effect-http/internal/utils";
 
 /**
  * Derive utility object with methods enabling type-safe response object creation.

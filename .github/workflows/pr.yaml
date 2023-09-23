@@ -14,8 +14,8 @@ jobs:
     strategy:
       matrix:
         node-version: 
-          - '18.17.1'
-          - '20.5.1'
+          - '18.18.0'
+          - '20.7.0'
 
     steps:
       - uses: actions/checkout@v4
@@ -47,4 +47,3 @@ jobs:
         env:
           NODE_OPTIONS: --experimental-fetch
       - run: pnpm lint
-      - run: cd examples/esm-example && pnpm install && pnpm build

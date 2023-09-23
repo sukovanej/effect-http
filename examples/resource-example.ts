@@ -46,6 +46,6 @@ pipe(
     ),
   ),
   Effect.scoped,
-  Effect.provideSomeLayer(debugLogger),
+  Effect.provide(debugLogger),
   Effect.runPromise,
 );
