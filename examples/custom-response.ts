@@ -1,4 +1,4 @@
-import * as Schema from "@effect/schema/Schema";
+import { Schema } from "@effect/schema";
 import { Effect, pipe } from "effect";
 import * as Http from "effect-http";
 

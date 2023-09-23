@@ -13,7 +13,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18.17.1]
+        node-version: [20.7.0]
 
     steps:
       - uses: actions/checkout@v4
@@ -54,4 +54,3 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - run: cd examples/esm-example && pnpm install && pnpm build

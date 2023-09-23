@@ -1,5 +1,5 @@
-import { pipe } from "@effect/data/Function";
-import * as Schema from "@effect/schema/Schema";
+import { Schema } from "@effect/schema";
+import { pipe } from "effect";
 import * as Http from "effect-http";
 
 export const simpleApi1 = pipe(

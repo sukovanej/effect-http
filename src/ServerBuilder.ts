@@ -3,9 +3,7 @@
  *
  * @since 1.0.0
  */
-import * as Pipeable from "@effect/data/Pipeable";
-import type * as Types from "@effect/data/Types";
-import type * as Effect from "@effect/io/Effect";
+import { type Effect, Pipeable, type Types } from "effect";
 import type {
   Api,
   Endpoint,
@@ -19,7 +17,7 @@ import {
 } from "effect-http/Extensions";
 import type { ApiError } from "effect-http/ServerError";
 import type { ResponseUtil } from "effect-http/Utils";
-import type { AnySchema, SchemaTo } from "effect-http/internal";
+import type { AnySchema, SchemaTo } from "effect-http/internal/utils";
 
 /**
  * @category models

@@ -1,8 +1,5 @@
-import * as Context from "@effect/data/Context";
-import * as Either from "@effect/data/Either";
-import { pipe } from "@effect/data/Function";
-import * as Effect from "@effect/io/Effect";
-import * as Schema from "@effect/schema/Schema";
+import { Schema } from "@effect/schema";
+import { Context, Effect, Either, pipe } from "effect";
 import * as Http from "effect-http";
 
 import { runTestEffect } from "./utils";

@@ -1,6 +1,6 @@
 ---
 title: Utils.ts
-nav_order: 14
+nav_order: 15
 parent: Modules
 ---
 
@@ -31,7 +31,7 @@ Derive utility object with methods enabling type-safe response object creation.
 export declare const responseUtil: <A extends Api<Endpoint[]>, Id extends A['endpoints'][number]['id']>(
   api: A,
   id: Id
-) => Schema.Spread<
+) => Types.Simplify<
   NormalizedSchemasByIdToResponseUtils<SchemasByIdFromApi<Extract<A['endpoints'][number], { id: Id }>>>
 >
 ```

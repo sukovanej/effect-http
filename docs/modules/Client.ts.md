@@ -50,7 +50,7 @@ Added in v1.0.0
 
 ```ts
 export type Client<A extends Api, H> = A extends Api<infer Es>
-  ? Schema.Spread<{
+  ? Types.Simplify<{
       [Id in Es[number]['id']]: ClientFunction<
         Es,
         Id,

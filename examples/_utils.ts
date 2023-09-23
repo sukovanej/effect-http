@@ -1,7 +1,7 @@
 import fs from "fs";
 
 import { Data, Effect, Layer, LogLevel, Logger, pipe } from "effect";
-import * as Log from "effect-log";
+import { Log } from "effect-log";
 
 export interface FileNotFoundError extends Data.Case {
   readonly _tag: "FileNotFoundError";

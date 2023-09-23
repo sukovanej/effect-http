@@ -1,13 +1,7 @@
 import { vi } from "vitest";
 
-import * as Duration from "@effect/data/Duration";
-import * as Either from "@effect/data/Either";
-import { pipe } from "@effect/data/Function";
-import * as Cause from "@effect/io/Cause";
-import * as Effect from "@effect/io/Effect";
-import * as Exit from "@effect/io/Exit";
-import * as Fiber from "@effect/io/Fiber";
-import * as Schema from "@effect/schema/Schema";
+import { Schema } from "@effect/schema";
+import { Cause, Duration, Effect, Either, Exit, Fiber, pipe } from "effect";
 import * as Http from "effect-http";
 
 import { runTestEffect, testServer } from "./utils";

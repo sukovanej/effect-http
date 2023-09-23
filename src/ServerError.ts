@@ -3,7 +3,7 @@
  *
  * @since 1.0.0
  */
-import * as Predicate from "@effect/data/Predicate";
+import { Predicate } from "effect";
 
 /** @internal */
 const checkByTag =

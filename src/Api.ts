@@ -10,19 +10,21 @@
  */
 import type * as OpenApi from "schema-openapi";
 
-import * as Equivalence from "@effect/data/Equivalence";
-import { pipe } from "@effect/data/Function";
-import * as HashSet from "@effect/data/HashSet";
-import * as Order from "@effect/data/Order";
-import * as Pipeable from "@effect/data/Pipeable";
-import * as RA from "@effect/data/ReadonlyArray";
-import type * as Types from "@effect/data/Types";
-import * as Schema from "@effect/schema/Schema";
+import { Schema } from "@effect/schema";
+import {
+  Equivalence,
+  HashSet,
+  Order,
+  Pipeable,
+  ReadonlyArray,
+  Types,
+  pipe,
+} from "effect";
 import {
   AnySchema,
   getSchemaPropertySignatures,
   isArray,
-} from "effect-http/internal";
+} from "effect-http/internal/utils";
 
 /** Headers are case-insensitive, internally we deal with them as lowercase
  *  because that's how express deal with them.
@@ -82,7 +84,7 @@ const tupleEquivalence = Equivalence.tuple(
   Equivalence.string,
   Equivalence.boolean,
 );
-const arrayOfTupleEquals = RA.getEquivalence(tupleEquivalence);
+const arrayOfTupleEquals = ReadonlyArray.getEquivalence(tupleEquivalence);
 
 const checkPathPatternMatchesSchema = (
   id: string,
@@ -91,21 +93,21 @@ const checkPathPatternMatchesSchema = (
 ) => {
   const fromSchema = pipe(
     schema === undefined ? [] : getSchemaPropertySignatures(schema),
-    RA.fromIterable,
-    RA.map((ps) => [ps.name as string, ps.isOptional] as const),
-    RA.sort(tupleOrder),
+    ReadonlyArray.fromIterable,
+    ReadonlyArray.map((ps) => [ps.name as string, ps.isOptional] as const),
+    ReadonlyArray.sort(tupleOrder),
   );
 
   const fromPath = pipe(
     path.matchAll(/:(\w+)[?]?/g),
-    RA.fromIterable,
-    RA.map(([name]) => {
+    ReadonlyArray.fromIterable,
+    ReadonlyArray.map(([name]) => {
       if (name.endsWith("?")) {
         return [name.slice(1, -1), true] as const;
       }
       return [name.slice(1), false] as const;
     }),
-    RA.sort(tupleOrder),
+    ReadonlyArray.sort(tupleOrder),
   );
 
   const matched = arrayOfTupleEquals(fromPath, fromSchema);

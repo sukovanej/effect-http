@@ -1,8 +1,5 @@
-import { pipe } from "@effect/data/Function";
-import * as Predicate from "@effect/data/Predicate";
-import * as Effect from "@effect/io/Effect";
-import { ParseError } from "@effect/schema/ParseResult";
-import * as Schema from "@effect/schema/Schema";
+import { ParseResult, Schema } from "@effect/schema";
+import { Effect, Option, Predicate, pipe } from "effect";
 import { Endpoint, IgnoredSchemaId } from "effect-http/Api";
 import { validationClientError } from "effect-http/ClientError";
 import {
@@ -17,6 +14,10 @@ export const getSchema = <A = AnySchema>(
   input: AnySchema | IgnoredSchemaId,
   defaultSchema: AnySchema | A = Schema.unknown,
 ) => (input == IgnoredSchemaId ? defaultSchema : input);
+
+/** @internal */
+export const getSchemaOption = (input: AnySchema | IgnoredSchemaId) =>
+  input == IgnoredSchemaId ? Option.none() : Option.some(input);
 
 /** @internal */
 export const isArray = (input: unknown): input is readonly any[] =>
@@ -51,7 +52,7 @@ export const createResponseSchema = (
 /** @internal */
 const parse = <A, E>(
   a: A,
-  encode: (i: unknown) => Effect.Effect<never, ParseError, any>,
+  encode: (i: unknown) => Effect.Effect<never, ParseResult.ParseError, any>,
   onError: (error: unknown) => E,
 ) =>
   pipe(

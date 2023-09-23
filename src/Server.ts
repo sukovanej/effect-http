@@ -3,13 +3,8 @@
  *
  * @since 1.0.0
  */
-import * as Either from "@effect/data/Either";
-import { pipe } from "@effect/data/Function";
-import * as Option from "@effect/data/Option";
-import * as Predicate from "@effect/data/Predicate";
-import * as Effect from "@effect/io/Effect";
-import { ParseError } from "@effect/schema/ParseResult";
-import * as Schema from "@effect/schema/Schema";
+import { ParseResult, Schema } from "@effect/schema";
+import { Effect, Either, Option, Predicate, pipe } from "effect";
 import { Api, Endpoint, EndpointSchemas } from "effect-http/Api";
 import type {
   AfterHandlerExtension,
@@ -43,7 +38,7 @@ import {
   formatValidationError,
   isParseError,
 } from "effect-http/ValidationErrorFormatter";
-import { getSchema, isArray } from "effect-http/internal";
+import { getSchema, isArray } from "effect-http/internal/utils";
 
 /** @ignore */
 export interface ServerHandler<R = any> {
@@ -300,7 +295,7 @@ const createResponseEncoder = (
   a: unknown,
 ) => Effect.Effect<
   never,
-  ParseError,
+  ParseResult.ParseError,
   { status: number; headers: Headers | undefined; content: unknown }
 >) => {
   if (Schema.isSchema(responseSchema)) {

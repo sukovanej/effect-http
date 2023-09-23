@@ -97,6 +97,6 @@ pipe(
   server,
   Http.listen({ port: 4000 }),
   Effect.flatMap(() => pipe(client.callStanda({ body: { zdar: "zdar" } }))),
-  Effect.provideLayer(dummyStuff),
+  Effect.provide(dummyStuff),
   Effect.runPromise,
 );

@@ -5,13 +5,11 @@
  */
 import * as OpenApi from "schema-openapi";
 
-import { identity, pipe } from "@effect/data/Function";
-import * as Option from "@effect/data/Option";
-import * as AST from "@effect/schema/AST";
-import * as Schema from "@effect/schema/Schema";
+import { AST, Schema } from "@effect/schema";
+import { Option, identity, pipe } from "effect";
 import type { Api } from "effect-http/Api";
 import { IgnoredSchemaId } from "effect-http/Api";
-import { isArray } from "effect-http/internal";
+import { isArray } from "effect-http/internal/utils";
 
 /**
  * Generate OpenApi specification for the Api.

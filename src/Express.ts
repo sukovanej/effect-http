@@ -11,11 +11,7 @@ import type http from "http";
 import type { AddressInfo } from "net";
 import { Readable } from "stream";
 
-import { pipe } from "@effect/data/Function";
-import * as Predicate from "@effect/data/Predicate";
-import * as Effect from "@effect/io/Effect";
-import * as Runtime from "@effect/io/Runtime";
-import * as Scope from "@effect/io/Scope";
+import { Effect, Predicate, Runtime, Scope, pipe } from "effect";
 import { openApi } from "effect-http/OpenApi";
 import { type ServerHandler, buildServer } from "effect-http/Server";
 import type { ServerBuilder } from "effect-http/ServerBuilder";
