@@ -1,5 +1,15 @@
 # effect-http
 
+## 0.31.0
+
+### Minor Changes
+
+- 9a4387d: Update effect.
+
+### Patch Changes
+
+- 9a4387d: Introduce `@effect/platform` Router derivation.
+
 ## 0.30.2
 
 ### Patch Changes
