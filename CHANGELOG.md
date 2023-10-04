@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.31.1
+
+### Patch Changes
+
+- 7f57b7d: Update @effect/platform-node.
+
 ## 0.31.0
 
 ### Minor Changes
