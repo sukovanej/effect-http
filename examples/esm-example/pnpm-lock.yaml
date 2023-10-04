@@ -12,8 +12,8 @@ dependencies:
     specifier: 2.0.0-next.44
     version: 2.0.0-next.44
   effect-http:
-    specifier: ^0.31.0
-    version: 0.31.0(@effect/schema@0.39.2)(effect@2.0.0-next.44)
+    specifier: ^0.31.1
+    version: 0.31.1(@effect/schema@0.39.2)(effect@2.0.0-next.44)
   effect-log:
     specifier: ^0.18.1
     version: 0.18.1(effect@2.0.0-next.44)
@@ -365,8 +365,8 @@ packages:
     resolution: {integrity: sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==}
     dev: false
 
-  /effect-http@0.31.0(@effect/schema@0.39.2)(effect@2.0.0-next.44):
-    resolution: {integrity: sha512-INipnfraEU6lo8+PMHa+w4cqL8MdNUSbeF8RqrV457H9NdYllC0/U+EaoQKm9mNWxtNCeOGMeFzkqV2RZupZEw==}
+  /effect-http@0.31.1(@effect/schema@0.39.2)(effect@2.0.0-next.44):
+    resolution: {integrity: sha512-AXszeJp88RhiHymX+OHPcQyOSAIacwfQO9OKhKEq/6vjV/3iKq1kLq8JdYssXsDavHZADEdoDPTmCrCqP6saYQ==}
     peerDependencies:
       '@effect/schema': ^0.39.2
       effect: 2.0.0-next.44
