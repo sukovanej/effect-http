@@ -14,7 +14,7 @@
   "dependencies": {
     "@effect/schema": "^0.39.2",
     "effect": "2.0.0-next.44",
-    "effect-http": "^0.31.0",
+    "effect-http": "^0.31.1",
     "effect-log": "^0.18.1"
   },
   "devDependencies": {
