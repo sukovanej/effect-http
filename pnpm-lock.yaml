@@ -6,17 +6,17 @@ settings:
 
 dependencies:
   '@effect/platform':
-    specifier: ^0.18.7
-    version: 0.18.7(@effect/schema@0.39.2)(effect@2.0.0-next.44)
+    specifier: ^0.19.0
+    version: 0.19.0(@effect/schema@0.40.1)(effect@2.0.0-next.45)
   '@effect/platform-node':
-    specifier: ^0.19.9
-    version: 0.19.9(@effect/schema@0.39.2)(effect@2.0.0-next.44)
+    specifier: ^0.20.1
+    version: 0.20.1(@effect/schema@0.40.1)(effect@2.0.0-next.45)
   express:
     specifier: ^4.18.2
     version: 4.18.2
   schema-openapi:
-    specifier: ^0.15.5
-    version: 0.15.5(@effect/schema@0.39.2)(effect@2.0.0-next.44)
+    specifier: ^0.15.6
+    version: 0.15.6(@effect/schema@0.40.1)(effect@2.0.0-next.45)
   swagger-ui-express:
     specifier: ^5.0.0
     version: 5.0.0(express@4.18.2)
@@ -29,8 +29,8 @@ devDependencies:
     specifier: ^0.1.8
     version: 0.1.8(@types/node@20.8.2)(typescript@5.2.2)
   '@effect/schema':
-    specifier: ^0.39.2
-    version: 0.39.2(effect@2.0.0-next.44)
+    specifier: ^0.40.1
+    version: 0.40.1(effect@2.0.0-next.45)(fast-check@3.13.1)
   '@trivago/prettier-plugin-sort-imports':
     specifier: ^4.2.0
     version: 4.2.0(prettier@3.0.3)
@@ -50,11 +50,11 @@ devDependencies:
     specifier: ^6.7.4
     version: 6.7.4(eslint@8.50.0)(typescript@5.2.2)
   effect:
-    specifier: 2.0.0-next.44
-    version: 2.0.0-next.44
+    specifier: 2.0.0-next.45
+    version: 2.0.0-next.45
   effect-log:
-    specifier: ^0.18.1
-    version: 0.18.1(effect@2.0.0-next.44)
+    specifier: ^0.18.2
+    version: 0.18.2(effect@2.0.0-next.45)
   eslint:
     specifier: ^8.50.0
     version: 8.50.0
@@ -417,38 +417,39 @@ packages:
       - '@types/node'
     dev: true
 
-  /@effect/platform-node@0.19.9(@effect/schema@0.39.2)(effect@2.0.0-next.44):
-    resolution: {integrity: sha512-poTLAwDVhhvqJeSEkOj4kjZ6TDyI5pp9T4zDsnqUXJysVdi5OzSV5piUp8oru7unFAGS29cenZz7SbSTsl2QiA==}
+  /@effect/platform-node@0.20.1(@effect/schema@0.40.1)(effect@2.0.0-next.45):
+    resolution: {integrity: sha512-mx4iexVQ5rY/con9JpOMhop0hI6tzGrvzUf0H+fMpKh1v5g7qj9tVD2BR1VIWueFGUb6Kwc4xWVbhVNaWStxpA==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
-      effect: ^2.0.0-next.44
+      effect: ^2.0.0-next.45
     dependencies:
-      '@effect/platform': 0.18.7(@effect/schema@0.39.2)(effect@2.0.0-next.44)
+      '@effect/platform': 0.19.0(@effect/schema@0.40.1)(effect@2.0.0-next.45)
       busboy: 1.6.0
-      effect: 2.0.0-next.44
+      effect: 2.0.0-next.45
       mime: 3.0.0
     transitivePeerDependencies:
       - '@effect/schema'
     dev: false
 
-  /@effect/platform@0.18.7(@effect/schema@0.39.2)(effect@2.0.0-next.44):
-    resolution: {integrity: sha512-MYobjt8BsZmDce3hS1DL8bzS+jb68tvwGuVQBCTxV3IL3XXSmjEJAhyoL+YWv0/hb9jXZbm/Man2Z4Hq4bskww==}
+  /@effect/platform@0.19.0(@effect/schema@0.40.1)(effect@2.0.0-next.45):
+    resolution: {integrity: sha512-aqyHVIgBEquxA17debtp6TX1McJiZZxnjN4LWR+KyVXmoJfIPiHpdefsIHNQ4G28swNHDT3yPqcZ9hy3Olt/kA==}
     peerDependencies:
-      '@effect/schema': ^0.39.1
-      effect: ^2.0.0-next.42
+      '@effect/schema': ^0.40.0
+      effect: ^2.0.0-next.45
     dependencies:
-      '@effect/schema': 0.39.2(effect@2.0.0-next.44)
-      effect: 2.0.0-next.44
+      '@effect/schema': 0.40.1(effect@2.0.0-next.45)(fast-check@3.13.1)
+      effect: 2.0.0-next.45
       find-my-way: 7.6.2
       path-browserify: 1.0.1
     dev: false
 
-  /@effect/schema@0.39.2(effect@2.0.0-next.44):
-    resolution: {integrity: sha512-UolykyRtrg+JHflZBfHK2p+w8IgP8u6kSkTq9VIggure12/2CFvlib9vphw4fJCN8cRd3gZo4LevU4FfS+ZLxw==}
+  /@effect/schema@0.40.1(effect@2.0.0-next.45)(fast-check@3.13.1):
+    resolution: {integrity: sha512-oB+PpYrsF7noEIx3Kwm/J/GROWIOs7OgzH0Vi0uagibmkJNr8mcphOGF0rIMVYQi/x35SMREjo/YMiAXtRacUw==}
     peerDependencies:
-      effect: ^2.0.0-next.39
+      effect: ^2.0.0-next.45
+      fast-check: ^3.13.1
     dependencies:
-      effect: 2.0.0-next.44
+      effect: 2.0.0-next.45
       fast-check: 3.13.1
 
   /@esbuild/android-arm64@0.18.20:
@@ -1743,16 +1744,16 @@ packages:
     resolution: {integrity: sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==}
     dev: false
 
-  /effect-log@0.18.1(effect@2.0.0-next.44):
-    resolution: {integrity: sha512-1iBkja4rPTA6NRydt9UqiEev51T7TSQX0R/K84wWSgdjgp76+B+XIDeZPZOfa+jBDGMZVNnHskewyE+qDdi84g==}
+  /effect-log@0.18.2(effect@2.0.0-next.45):
+    resolution: {integrity: sha512-ax9PFNSDu5ZetnHXoUDhaTcv/wrO7P/yzi9LAxKBw5vzTxVB2GJkFoAsRvGNHXZQxSesXHeeA0pg3SydunK8HQ==}
     peerDependencies:
-      effect: 2.0.0-next.44
+      effect: 2.0.0-next.45
     dependencies:
-      effect: 2.0.0-next.44
+      effect: 2.0.0-next.45
     dev: true
 
-  /effect@2.0.0-next.44:
-    resolution: {integrity: sha512-0oBnoqWW5u1b0AhmDiGZ/TX8La697YcCrTacEBU7v+gKZeH+bbVJwPEqesGagot0sErBrvyE0H9h7Si4lHhkuA==}
+  /effect@2.0.0-next.45:
+    resolution: {integrity: sha512-cSapc9midRXsOJUx8o9lIzTPJW2NSviQ1jjHlSZM8UJbteLLqcb02ung+4pLjGyouP2AMQlgo02F7b2MvTWxcQ==}
 
   /emoji-regex@8.0.0:
     resolution: {integrity: sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A==}
@@ -3803,14 +3804,14 @@ packages:
   /safer-buffer@2.1.2:
     resolution: {integrity: sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==}
 
-  /schema-openapi@0.15.5(@effect/schema@0.39.2)(effect@2.0.0-next.44):
-    resolution: {integrity: sha512-U3BWKqj/r13ghqd9GbEtFs/Oj1YlzyNuOWkt2t7HUoBmLQkNpu2UuParvu6OXiIaA72S16ZNxSO+HhqrZyhSvg==}
+  /schema-openapi@0.15.6(@effect/schema@0.40.1)(effect@2.0.0-next.45):
+    resolution: {integrity: sha512-avrmKG0jIQk8c96fQwpG1FrmKA56e0oieAX6QNx9yBJakohB4UEuJuawFL9vdua/Tpxqc/qZKMWKS1efS33o4g==}
     peerDependencies:
-      '@effect/schema': ^0.39.2
-      effect: 2.0.0-next.44
+      '@effect/schema': ^0.40.1
+      effect: 2.0.0-next.45
     dependencies:
-      '@effect/schema': 0.39.2(effect@2.0.0-next.44)
-      effect: 2.0.0-next.44
+      '@effect/schema': 0.40.1(effect@2.0.0-next.45)(fast-check@3.13.1)
+      effect: 2.0.0-next.45
     dev: false
 
   /semver@5.7.2:
@@ -4551,7 +4552,7 @@ packages:
       mlly: 1.4.2
       pathe: 1.1.1
       picocolors: 1.0.0
-      vite: 4.4.10(@types/node@20.8.2)
+      vite: 4.4.11(@types/node@20.8.2)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -4563,8 +4564,8 @@ packages:
       - terser
     dev: true
 
-  /vite@4.4.10(@types/node@20.8.2):
-    resolution: {integrity: sha512-TzIjiqx9BEXF8yzYdF2NTf1kFFbjMjUSV0LFZ3HyHoI3SGSPLnnFUKiIQtL3gl2AjHvMrprOvQ3amzaHgQlAxw==}
+  /vite@4.4.11(@types/node@20.8.2):
+    resolution: {integrity: sha512-ksNZJlkcU9b0lBwAGZGGaZHCMqHsc8OpgtoYhsQ4/I2v5cnpmmmqe5pM4nv/4Hn6G/2GhTdj0DhZh2e+Er1q5A==}
     engines: {node: ^14.18.0 || >=16.0.0}
     hasBin: true
     peerDependencies:
@@ -4651,7 +4652,7 @@ packages:
       strip-literal: 1.3.0
       tinybench: 2.5.1
       tinypool: 0.7.0
-      vite: 4.4.10(@types/node@20.8.2)
+      vite: 4.4.11(@types/node@20.8.2)
       vite-node: 0.34.6(@types/node@20.8.2)
       why-is-node-running: 2.2.2
     transitivePeerDependencies:
