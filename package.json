@@ -47,7 +47,7 @@
   "devDependencies": {
     "@changesets/cli": "^2.26.2",
     "@effect/docgen": "^0.1.8",
-    "@effect/schema": "^0.40.1",
+    "@effect/schema": "^0.40.2",
     "@trivago/prettier-plugin-sort-imports": "^4.2.0",
     "@types/express": "^4.17.18",
     "@types/node": "^20.8.2",
@@ -71,7 +71,7 @@
     "swagger-ui-express": "^5.0.0"
   },
   "peerDependencies": {
-    "@effect/schema": "^0.40.1",
+    "@effect/schema": "^0.40.2",
     "effect": "2.0.0-next.45"
   }
 }
