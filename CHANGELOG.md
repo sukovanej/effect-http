@@ -1,5 +1,12 @@
 # effect-http
 
+## 0.31.2
+
+### Patch Changes
+
+- 28ed55b: Update effect dependencies.
+- ecca038: Update @effect/schema.
+
 ## 0.31.1
 
 ### Patch Changes
