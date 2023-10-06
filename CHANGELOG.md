@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.31.3
+
+### Patch Changes
+
+- 42731e2: Update effect.
+
 ## 0.31.2
 
 ### Patch Changes
