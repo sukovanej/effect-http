@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.31.4
+
+### Patch Changes
+
+- 5b6d151: Update effect.
+
 ## 0.31.3
 
 ### Patch Changes
