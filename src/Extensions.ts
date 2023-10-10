@@ -9,7 +9,6 @@ import {
   Effect,
   FiberRef,
   HashMap,
-  type Logger,
   Metric,
   Option,
   Predicate,
@@ -141,7 +140,7 @@ export const uuidLogAnnotationExtension = (
       Effect.flatMap((uuid) =>
         FiberRef.update(
           FiberRef.currentLogAnnotations,
-          HashMap.set<string, Logger.AnnotationValue>(logAnnotationKey, uuid),
+          HashMap.set<string, unknown>(logAnnotationKey, uuid),
         ),
       ),
     ),
