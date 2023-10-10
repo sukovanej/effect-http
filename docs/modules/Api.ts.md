@@ -272,7 +272,7 @@ FormData schema
 **Signature**
 
 ```ts
-export declare const FormData: Schema.Schema<any, any>
+export declare const FormData: Schema.Schema<FormData, FormData>
 ```
 
 Added in v1.0.0
