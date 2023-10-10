@@ -141,7 +141,7 @@ Added in v1.0.0
 
 ## From "effect-http/Router"
 
-Re-exports all named exports from the "effect-http/Router" module as "HttpRouter".
+Re-exports all named exports from the "effect-http/Router" module as `HttpRouter`.
 
 **Signature**
 
