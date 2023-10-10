@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.32.0
+
+### Minor Changes
+
+- 3211930: Update effect.
+
 ## 0.31.4
 
 ### Patch Changes
