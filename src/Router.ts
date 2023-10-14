@@ -8,7 +8,7 @@ import * as Router from "@effect/platform/Http/Router";
 import * as ServerRequest from "@effect/platform/Http/ServerRequest";
 import * as ServerResponse from "@effect/platform/Http/ServerResponse";
 import { Effect, Types, pipe } from "effect";
-import { Api, Endpoint } from "effect-http/Api";
+import * as Api from "effect-http/Api";
 import {
   EndpointResponseSchemaTo,
   EndpointSchemasTo,
@@ -19,7 +19,7 @@ import { ResponseUtil, responseUtil } from "effect-http/Utils";
 import * as ServerRequestParser from "effect-http/internal/serverRequestParser";
 import * as ServerResponseEncoder from "effect-http/internal/serverResponseEncoder";
 
-type InputFn<En extends Endpoint, R> = (
+type InputFn<En extends Api.Endpoint, R> = (
   input: Types.Simplify<
     EndpointSchemasTo<En["schemas"]>["request"] & {
       ResponseUtil: ResponseUtil<En>;
@@ -34,7 +34,11 @@ type InputFn<En extends Endpoint, R> = (
 /**
  * @since 1.0.0
  */
-export const make: <A extends Api, Id extends A["endpoints"][number]["id"], R>(
+export const make: <
+  A extends Api.Api,
+  Id extends A["endpoints"][number]["id"],
+  R,
+>(
   id: Id,
   fn: InputFn<SelectEndpointById<A["endpoints"], Id>, R>,
 ) => (api: A) => Router.Route<R, never> = (id, fn) => (api) => {

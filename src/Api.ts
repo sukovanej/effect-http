@@ -493,3 +493,20 @@ export interface InputResponseSchemaFull {
   content?: AnySchema;
   headers?: AnySchema;
 }
+
+export const getEndpoint = <
+  A extends Api,
+  Id extends A["endpoints"][number]["id"],
+>(
+  api: A,
+  id: Id,
+) => {
+  const endpoint = api.endpoints.find(({ id: _id }) => _id === id);
+
+  // This operation is type-safe and non-existing ids are forbidden
+  if (endpoint === undefined) {
+    throw new Error(`Operation id ${id} not found`);
+  }
+
+  return endpoint;
+};

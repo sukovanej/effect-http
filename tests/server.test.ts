@@ -64,9 +64,7 @@ test("validation error", async () => {
     runTestEffect,
   );
 
-  expect(result).toMatchObject(
-    Either.left(Http.validationClientError({ _tag: "InvalidQueryError" })),
-  );
+  expect(result).toMatchObject(Either.left({ _tag: "QueryEncodeError" }));
 });
 
 test("human-readable error response", async () => {
@@ -170,13 +168,12 @@ test("Custom headers and status", async () => {
   const server = pipe(
     exampleApiGetCustomResponseWithHeaders,
     Http.server,
-    Http.handle("hello", ({ ResponseUtil }) =>
-      Effect.succeed(
-        ResponseUtil.response201({
-          content: { value: "test" },
-          headers: { "my-header": "hello" },
-        }),
-      ),
+    Http.handle("hello", () =>
+      Effect.succeed({
+        content: { value: "test" },
+        headers: { "my-header": "hello" },
+        status: 201,
+      } as const),
     ),
     Http.exhaustive,
   );
@@ -184,6 +181,7 @@ test("Custom headers and status", async () => {
   const result = await pipe(
     testServer(server),
     Effect.flatMap((client) =>
+      // TODO: this header is not necessary, it is provided intentionally?
       client.hello({ headers: { "x-client-id": "abc" } }),
     ),
     runTestEffect,
@@ -340,16 +338,17 @@ describe("type safe responses", () => {
 
     const server = pipe(
       Http.server(api),
-      Http.handle("hello", ({ query: { value }, ResponseUtil }) => {
+      Http.handle("hello", ({ query: { value } }) => {
         const response =
           value == 12
-            ? ResponseUtil.response200({
+            ? {
                 content: 12,
                 headers: { "x-another-200": 12 },
-              })
+                status: 200 as const,
+              }
             : value == 13
-            ? ResponseUtil.response201({ content: 13 })
-            : ResponseUtil.response204({ headers: { "x-another": 13 } });
+            ? { content: 13, status: 201 as const }
+            : { headers: { "x-another": 13 }, status: 204 as const };
 
         return Effect.succeed(response);
       }),
@@ -532,16 +531,15 @@ test("single full response", async () => {
 
   const server = pipe(
     Http.server(api),
-    Http.handle("hello", ({ ResponseUtil }) =>
-      Effect.succeed(
-        ResponseUtil.response200({
-          content: 12,
-          headers: { "my-header": "test" },
-        }),
-      ),
+    Http.handle("hello", () =>
+      Effect.succeed({
+        content: 12,
+        headers: { "my-header": "test" },
+        status: 200 as const,
+      }),
     ),
-    Http.handle("another", ({ ResponseUtil }) =>
-      Effect.succeed(ResponseUtil.response200({ content: 12 })),
+    Http.handle("another", () =>
+      Effect.succeed({ content: 12, status: 200 as const }),
     ),
   );
 

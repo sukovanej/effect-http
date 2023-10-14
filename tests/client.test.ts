@@ -153,15 +153,13 @@ test("missing headers", async () => {
   );
 
   const result = await pipe(
-    testServer(server, { headers: { "another-header": "str" } }),
+    testServer(server),
     // @ts-expect-error
     Effect.flatMap((client) => Effect.either(client.getUser())),
     runTestEffect,
   );
 
-  expect(result).toMatchObject(
-    Either.left(Http.validationClientError({ _tag: "InvalidHeadersError" })),
-  );
+  expect(result).toMatchObject(Either.left({ _tag: "HeadersEncodeError" }));
 });
 
 test("common headers", async () => {
