@@ -3,6 +3,10 @@
  *
  * @since 1.0.0
  */
+import { ParseResult } from "@effect/schema";
+import { Data } from "effect";
+
+import { formatParseError } from "./internal/formatParseError";
 
 /**
  * @category models
@@ -82,6 +86,30 @@ export const httpClientError = (
 ): HttpClientError => ({ _tag: "HttpClientError", status, error });
 
 /**
+ * @category errors
+ * @since 1.0.0
+ */
+export class HeadersEncodeError extends Data.TaggedError("HeadersEncodeError")<{
+  message: string;
+}> {
+  static fromParseError(error: ParseResult.ParseError) {
+    return new HeadersEncodeError({ message: formatParseError(error) });
+  }
+}
+
+/**
+ * @category errors
+ * @since 1.0.0
+ */
+export class QueryEncodeError extends Data.TaggedError("QueryEncodeError")<{
+  message: string;
+}> {
+  static fromParseError(error: ParseResult.ParseError) {
+    return new QueryEncodeError({ message: formatParseError(error) });
+  }
+}
+
+/**
  * @category models
  * @since 1.0.0
  */
@@ -89,4 +117,6 @@ export type ClientError =
   | InvalidUrlClientError
   | HttpClientError
   | ValidationClientError
-  | UnexpectedClientError;
+  | UnexpectedClientError
+  | HeadersEncodeError
+  | QueryEncodeError;

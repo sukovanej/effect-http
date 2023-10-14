@@ -1,3 +1,4 @@
+import { Method } from "@effect/platform/Http/Method";
 import { ParseResult, Schema } from "@effect/schema";
 import { Effect, Option, Predicate, pipe } from "effect";
 import { Endpoint, IgnoredSchemaId } from "effect-http/Api";
@@ -8,6 +9,7 @@ import {
   invalidParamsError,
   invalidQueryError,
 } from "effect-http/ServerError";
+import { OpenAPISpecMethodName } from "schema-openapi";
 
 /** @internal */
 export const getSchema = <A = AnySchema>(
@@ -118,3 +120,13 @@ export const getResponseContent = (response: Response) =>
       return await response.text();
     }
   });
+
+/** @internal */
+export const convertMethod = (method: OpenAPISpecMethodName): Method => {
+  // TODO: probably remove from schema-openapi
+  if (method === 'trace') {
+    throw new Error('trace method is not supported by @effect/platform');
+  }
+
+  return method.toUpperCase() as Method;
+}

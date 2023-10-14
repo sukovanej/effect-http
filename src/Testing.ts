@@ -3,12 +3,10 @@
  *
  * @since 1.0.0
  */
+import { ParseResult, Schema } from "@effect/schema";
 import { Effect, type Types, pipe } from "effect";
-import type { Api } from "effect-http/Api";
-import {
-  ClientFunctionResponse,
-  createResponseParser,
-} from "effect-http/Client";
+import type { Api, EndpointSchemas } from "effect-http/Api";
+import { ClientFunctionResponse } from "effect-http/Client";
 import { httpClientError } from "effect-http/ClientError";
 import { buildServer } from "effect-http/Server";
 import type {
@@ -18,6 +16,7 @@ import type {
 } from "effect-http/ServerBuilder";
 import {
   createRequestEncoder,
+  createResponseSchema,
   getResponseContent,
   isArray,
 } from "effect-http/internal/utils";
@@ -120,6 +119,38 @@ export const testingClient = <R, A extends Api>(
     },
     {} as TestingClient<R, A>,
   );
+};
+
+/** @ignore */
+type Response = {
+  status: number;
+  content: unknown;
+  headers: Record<string, string>;
+};
+
+/** @internal */
+export const createResponseParser = (
+  responseSchema: EndpointSchemas["response"],
+): ((
+  response: Response,
+) => Effect.Effect<
+  never,
+  ParseResult.ParseError,
+  { status: number; headers: unknown; content: unknown }
+>) => {
+  const parseContent = Schema.parse(createResponseSchema(responseSchema));
+  const isFullResponse = isArray(responseSchema);
+
+  return (response: Response) => {
+    if (isFullResponse) {
+      return parseContent(response);
+    }
+
+    return pipe(
+      parseContent(response.content),
+      Effect.map((content) => ({ ...response, content })),
+    );
+  };
 };
 
 // Internal type helpers
