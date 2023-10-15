@@ -1,5 +1,12 @@
 # effect-http
 
+## 0.32.1
+
+### Patch Changes
+
+- 757bd90: Update dependencies.
+- bce4f7e: Refactor: rewrite client using @effect/platform.
+
 ## 0.32.0
 
 ### Minor Changes
