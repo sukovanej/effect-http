@@ -7,16 +7,16 @@ settings:
 dependencies:
   '@effect/platform':
     specifier: ^0.22.0
-    version: 0.22.0(@effect/schema@0.43.1)(effect@2.0.0-next.48)
+    version: 0.22.0(@effect/schema@0.43.2)(effect@2.0.0-next.48)
   '@effect/platform-node':
     specifier: ^0.23.1
-    version: 0.23.1(@effect/schema@0.43.1)(effect@2.0.0-next.48)
+    version: 0.23.1(@effect/schema@0.43.2)(effect@2.0.0-next.48)
   express:
     specifier: ^4.18.2
     version: 4.18.2
   schema-openapi:
     specifier: ^0.16.1
-    version: 0.16.1(@effect/schema@0.43.1)(effect@2.0.0-next.48)
+    version: 0.16.1(@effect/schema@0.43.2)(effect@2.0.0-next.48)
   swagger-ui-express:
     specifier: ^5.0.0
     version: 5.0.0(express@4.18.2)
@@ -29,8 +29,8 @@ devDependencies:
     specifier: ^0.2.0
     version: 0.2.0(@types/node@20.8.6)(typescript@5.2.2)
   '@effect/schema':
-    specifier: ^0.43.1
-    version: 0.43.1(effect@2.0.0-next.48)(fast-check@3.13.1)
+    specifier: ^0.43.2
+    version: 0.43.2(effect@2.0.0-next.48)(fast-check@3.13.1)
   '@trivago/prettier-plugin-sort-imports':
     specifier: ^4.2.0
     version: 4.2.0(prettier@3.0.3)
@@ -416,13 +416,13 @@ packages:
       - '@types/node'
     dev: true
 
-  /@effect/platform-node@0.23.1(@effect/schema@0.43.1)(effect@2.0.0-next.48):
+  /@effect/platform-node@0.23.1(@effect/schema@0.43.2)(effect@2.0.0-next.48):
     resolution: {integrity: sha512-OTgni3gaPP3ignCsxXBnye9fzeQpkJCyL9wwVCZV8vlk3e68rhCdRC2lgPONzawT1iQ1lolylXpbP6e6MV/2ug==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
       effect: 2.0.0-next.48
     dependencies:
-      '@effect/platform': 0.22.0(@effect/schema@0.43.1)(effect@2.0.0-next.48)
+      '@effect/platform': 0.22.0(@effect/schema@0.43.2)(effect@2.0.0-next.48)
       busboy: 1.6.0
       effect: 2.0.0-next.48
       mime: 3.0.0
@@ -430,20 +430,20 @@ packages:
       - '@effect/schema'
     dev: false
 
-  /@effect/platform@0.22.0(@effect/schema@0.43.1)(effect@2.0.0-next.48):
+  /@effect/platform@0.22.0(@effect/schema@0.43.2)(effect@2.0.0-next.48):
     resolution: {integrity: sha512-+pzFvk7SahtDioOcJWO+ODjCmD5ZPvkkuRet/EeTyx2WNaGhP6II+NQlBS56mJnR5aRMMfBuyjiGIZ77GNjQpg==}
     peerDependencies:
       '@effect/schema': ^0.43.0
       effect: 2.0.0-next.48
     dependencies:
-      '@effect/schema': 0.43.1(effect@2.0.0-next.48)(fast-check@3.13.1)
+      '@effect/schema': 0.43.2(effect@2.0.0-next.48)(fast-check@3.13.1)
       effect: 2.0.0-next.48
       find-my-way: 7.7.0
       path-browserify: 1.0.1
     dev: false
 
-  /@effect/schema@0.43.1(effect@2.0.0-next.48)(fast-check@3.13.1):
-    resolution: {integrity: sha512-2IMfeLJiRqryAqNliSl3Tjr6mC98KkBPOmR9HtgAbo09L4GolpWOMKo6XsALlYLnCNmLur67FGyuOW+bDEDxUw==}
+  /@effect/schema@0.43.2(effect@2.0.0-next.48)(fast-check@3.13.1):
+    resolution: {integrity: sha512-xXmRYsL/ykbrMeP+7HYx3O2xAfaa64VJQiPW+ml8xbP2QDAZbOO1uedSqHkIMK3Xzh49KLR4JprR1vGPf4EZ9A==}
     peerDependencies:
       effect: 2.0.0-next.48
       fast-check: ^3.13.1
@@ -1811,7 +1811,7 @@ packages:
       is-string: 1.0.7
       is-typed-array: 1.1.12
       is-weakref: 1.0.2
-      object-inspect: 1.12.3
+      object-inspect: 1.13.0
       object-keys: 1.1.1
       object.assign: 4.1.4
       regexp.prototype.flags: 1.5.1
@@ -3261,8 +3261,8 @@ packages:
     engines: {node: '>=0.10.0'}
     dev: true
 
-  /object-inspect@1.12.3:
-    resolution: {integrity: sha512-geUvdk7c+eizMNUDkRpW1wJwgfOiOeHbxBR/hLXK1aT6zmVSO0jsQcs7fj6MGw89jC/cjGfLcNOrtMYtGqm81g==}
+  /object-inspect@1.13.0:
+    resolution: {integrity: sha512-HQ4J+ic8hKrgIt3mqk6cVOVrW2ozL4KdvHlqpBv9vDYWx9ysAgENAdvy4FoGF+KFdhR7nQTNm5J0ctAeOwn+3g==}
 
   /object-keys@1.1.1:
     resolution: {integrity: sha512-NuAESUOUMrlIXOfHKzD6bpPu3tYt3xvjNdRIQ+FeT0lNb4K8WR70CaDxhuNguS2XG+GjkyMwOzsN5ZktImfhLA==}
@@ -3797,13 +3797,13 @@ packages:
   /safer-buffer@2.1.2:
     resolution: {integrity: sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==}
 
-  /schema-openapi@0.16.1(@effect/schema@0.43.1)(effect@2.0.0-next.48):
+  /schema-openapi@0.16.1(@effect/schema@0.43.2)(effect@2.0.0-next.48):
     resolution: {integrity: sha512-6YuZvClVXWrDtsNgEcpgmZQ2jxZmbqsBX9fi87lXLsyLAEQvXByo+lbIcE41StTyKr8gbnyywUAOkMS4u3ke4w==}
     peerDependencies:
       '@effect/schema': ^0.43.0
       effect: 2.0.0-next.48
     dependencies:
-      '@effect/schema': 0.43.1(effect@2.0.0-next.48)(fast-check@3.13.1)
+      '@effect/schema': 0.43.2(effect@2.0.0-next.48)(fast-check@3.13.1)
       effect: 2.0.0-next.48
     dev: false
 
@@ -3906,7 +3906,7 @@ packages:
     dependencies:
       call-bind: 1.0.2
       get-intrinsic: 1.2.1
-      object-inspect: 1.12.3
+      object-inspect: 1.13.0
 
   /siginfo@2.0.0:
     resolution: {integrity: sha512-ybx0WO1/8bSBLEWXZvEd7gMW3Sn3JFlW3TvX1nREbDLRNQNaeNN8WK0meBwPdAaOI7TtRRRJn/Es1zhrrCHu7g==}
