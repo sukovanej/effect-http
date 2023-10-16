@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.32.2
+
+### Patch Changes
+
+- 7e4546b: Update @effect/platform.
+
 ## 0.32.1
 
 ### Patch Changes
