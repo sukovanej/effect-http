@@ -1,15 +1,10 @@
+import { OpenAPISpecMethodName } from "schema-openapi";
+
 import { Method } from "@effect/platform/Http/Method";
 import { ParseResult, Schema } from "@effect/schema";
 import { Effect, Option, Predicate, pipe } from "effect";
 import { Endpoint, IgnoredSchemaId } from "effect-http/Api";
-import { validationClientError } from "effect-http/ClientError";
-import {
-  invalidBodyError,
-  invalidHeadersError,
-  invalidParamsError,
-  invalidQueryError,
-} from "effect-http/ServerError";
-import { OpenAPISpecMethodName } from "schema-openapi";
+import * as ClientError from "effect-http/ClientError";
 
 /** @internal */
 export const getSchema = <A = AnySchema>(
@@ -55,7 +50,7 @@ export const createResponseSchema = (
 const parse = <A, E>(
   a: A,
   encode: (i: unknown) => Effect.Effect<never, ParseResult.ParseError, any>,
-  onError: (error: unknown) => E,
+  onError: (error: ParseResult.ParseError) => E,
 ) =>
   pipe(
     a === IgnoredSchemaId ? Effect.succeed(a) : encode(a),
@@ -73,15 +68,28 @@ export const createRequestEncoder = (
 
   return (_args: any) => {
     const args = _args ?? {};
-    return pipe(
-      Effect.all({
-        query: parse(args["query"], encodeQuery, invalidQueryError),
-        params: parse(args["params"], encodeParams, invalidParamsError),
-        body: parse(args["body"], encodeBody, invalidBodyError),
-        headers: parse(args["headers"], encodeHeaders, invalidHeadersError),
-      }),
-      Effect.mapError(validationClientError),
-    );
+    return Effect.all({
+      query: parse(
+        args["query"],
+        encodeQuery,
+        ClientError.RequestEncodeError.fromParseError("query"),
+      ),
+      params: parse(
+        args["params"],
+        encodeParams,
+        ClientError.RequestEncodeError.fromParseError("params"),
+      ),
+      body: parse(
+        args["body"],
+        encodeBody,
+        ClientError.RequestEncodeError.fromParseError("body"),
+      ),
+      headers: parse(
+        args["headers"],
+        encodeHeaders,
+        ClientError.RequestEncodeError.fromParseError("headers"),
+      ),
+    });
   };
 };
 
@@ -124,9 +132,9 @@ export const getResponseContent = (response: Response) =>
 /** @internal */
 export const convertMethod = (method: OpenAPISpecMethodName): Method => {
   // TODO: probably remove from schema-openapi
-  if (method === 'trace') {
-    throw new Error('trace method is not supported by @effect/platform');
+  if (method === "trace") {
+    throw new Error("trace method is not supported by @effect/platform");
   }
 
   return method.toUpperCase() as Method;
-}
+};

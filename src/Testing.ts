@@ -7,7 +7,7 @@ import { ParseResult, Schema } from "@effect/schema";
 import { Effect, type Types, pipe } from "effect";
 import type { Api, EndpointSchemas } from "effect-http/Api";
 import { ClientFunctionResponse } from "effect-http/Client";
-import { httpClientError } from "effect-http/ClientError";
+import * as ClientError from "effect-http/ClientError";
 import { buildServer } from "effect-http/Server";
 import type {
   EndpointSchemasTo,
@@ -98,7 +98,11 @@ export const testingClient = <R, A extends Api>(
               const status = response.status;
 
               if (status < 200 || status >= 300) {
-                return yield* _(Effect.fail(httpClientError(content, status)));
+                return yield* _(
+                  Effect.fail(
+                    ClientError.HttpClientError.create(content, status),
+                  ),
+                );
               }
 
               const parsedResponse = yield* _(

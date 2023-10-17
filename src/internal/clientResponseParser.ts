@@ -3,7 +3,6 @@ import { Schema } from "@effect/schema";
 import { Effect, Unify } from "effect";
 import * as Api from "effect-http/Api";
 import * as ClientError from "effect-http/ClientError";
-import { formatParseError } from "effect-http/internal/formatParseError";
 import { AnySchema, isArray } from "effect-http/internal/utils";
 
 interface ClientResponseParser {
@@ -34,7 +33,9 @@ const handleUnsucessful = Unify.unify(
       return response.json.pipe(
         Effect.orElseSucceed(() => "No body provided"),
         Effect.flatMap((error) =>
-          Effect.fail(ClientError.httpClientError(error, response.status)),
+          Effect.fail(
+            ClientError.HttpClientError.create(error, response.status),
+          ),
         ),
       );
     }
@@ -51,13 +52,13 @@ const fromSchema = (schema: AnySchema): ClientResponseParser => {
 
       const json = yield* _(
         response.json,
-        Effect.mapError((error) => ClientError.unexpectedClientError(error)),
+        Effect.mapError(ClientError.ResponseError.fromResponseError),
       );
 
       return yield* _(
         parse(json),
-        Effect.mapError((error) =>
-          ClientError.validationClientError(formatParseError(error)),
+        Effect.mapError(
+          ClientError.ResponseValidationError.fromParseError("body"),
         ),
       );
     }),
@@ -88,13 +89,21 @@ const fromResponseSchemaFullArray = (
 
       const schemas = statusToSchema[response.status];
 
+      const contextSchema = schemas.content;
+
       const content =
-        schemas.content === Api.IgnoredSchemaId
+        contextSchema === Api.IgnoredSchemaId
           ? undefined
           : yield* _(
-              response,
-              HttpClient.response.schemaBodyJson(schemas.content),
-              Effect.mapError(ClientError.validationClientError),
+              response.json,
+              Effect.mapError(ClientError.ResponseError.fromResponseError),
+              Effect.flatMap((json) =>
+                Schema.parse(contextSchema)(json).pipe(
+                  Effect.mapError(
+                    ClientError.ResponseValidationError.fromParseError("body"),
+                  ),
+                ),
+              ),
             );
 
       const headers =
@@ -103,7 +112,9 @@ const fromResponseSchemaFullArray = (
           : yield* _(
               response.headers,
               Schema.parse(schemas.headers),
-              Effect.mapError(ClientError.validationClientError),
+              Effect.mapError(
+                ClientError.ResponseValidationError.fromParseError("headers"),
+              ),
             );
 
       return { status: response.status, content, headers };

@@ -3,97 +3,29 @@
  *
  * @since 1.0.0
  */
+import { HttpClient } from "@effect/platform";
 import { ParseResult } from "@effect/schema";
 import { Data } from "effect";
 
 import { formatParseError } from "./internal/formatParseError";
 
-/**
- * @category models
- * @since 1.0.0
- */
-export interface InvalidUrlClientError {
-  _tag: "InvalidUrlClientError";
-  error: unknown;
-}
-
-/**
- * @category constructors
- * @since 1.0.0
- */
-export const invalidUrlError = (error: unknown): InvalidUrlClientError => ({
-  _tag: "InvalidUrlClientError",
-  error,
-});
-
-/**
- * @category models
- * @since 1.0.0
- */
-export interface UnexpectedClientError {
-  _tag: "UnexpectedClientError";
-  error: unknown;
-}
-
-/**
- * @category constructors
- * @since 1.0.0
- */
-export const unexpectedClientError = (
-  error: unknown,
-): UnexpectedClientError => ({
-  _tag: "UnexpectedClientError",
-  error,
-});
-
-/**
- * @category models
- * @since 1.0.0
- */
-export interface ValidationClientError {
-  _tag: "ValidationClientError";
-  error: unknown;
-}
-
-/**
- * @category constructors
- * @since 1.0.0
- */
-export const validationClientError = (
-  error: unknown,
-): ValidationClientError => ({
-  _tag: "ValidationClientError",
-  error,
-});
-
-/**
- * @category models
- * @since 1.0.0
- */
-export interface HttpClientError {
-  _tag: "HttpClientError";
-  status: number;
-  error: unknown;
-}
-
-/**
- * @category constructors
- * @since 1.0.0
- */
-export const httpClientError = (
-  error: unknown,
-  status: number,
-): HttpClientError => ({ _tag: "HttpClientError", status, error });
+type RequestLocation = "body" | "query" | "params" | "headers";
 
 /**
  * @category errors
  * @since 1.0.0
  */
-export class HeadersEncodeError extends Data.TaggedError("HeadersEncodeError")<{
+export class HttpClientError extends Data.TaggedError("HttpClientError")<{
   message: string;
+  error: unknown;
+  status: number;
 }> {
-  static fromParseError(error: ParseResult.ParseError) {
-    return new HeadersEncodeError({ message: formatParseError(error) });
+  static create(error: unknown, status: number) {
+    return new HttpClientError({
+      message: `Http error with status code ${status}.`,
+      error,
+      status,
+    });
   }
 }
 
@@ -101,11 +33,57 @@ export class HeadersEncodeError extends Data.TaggedError("HeadersEncodeError")<{
  * @category errors
  * @since 1.0.0
  */
-export class QueryEncodeError extends Data.TaggedError("QueryEncodeError")<{
+export class RequestEncodeError extends Data.TaggedError("RequestEncodeError")<{
   message: string;
+  error: ParseResult.ParseError;
+  location: RequestLocation;
 }> {
-  static fromParseError(error: ParseResult.ParseError) {
-    return new QueryEncodeError({ message: formatParseError(error) });
+  static fromParseError(location: RequestLocation) {
+    return (error: ParseResult.ParseError) =>
+      new RequestEncodeError({
+        message: `Failed to encode ${location}. ${formatParseError(error)}`,
+        error,
+        location,
+      });
+  }
+}
+
+/**
+ * @category errors
+ * @since 1.0.0
+ */
+export class ResponseValidationError extends Data.TaggedError(
+  "ResponseValidationError",
+)<{
+  message: string;
+  error: ParseResult.ParseError;
+  location: RequestLocation;
+}> {
+  static fromParseError(location: RequestLocation) {
+    return (error: ParseResult.ParseError) =>
+      new ResponseValidationError({
+        message: `Failed to validate response ${location}. ${formatParseError(
+          error,
+        )}`,
+        error,
+        location,
+      });
+  }
+}
+
+/**
+ * @category errors
+ * @since 1.0.0
+ */
+export class ResponseError extends Data.TaggedError("ResponseError")<{
+  message: string;
+  error: HttpClient.error.ResponseError;
+}> {
+  static fromResponseError(error: HttpClient.error.ResponseError) {
+    return new ResponseError({
+      message: `Invalid response: ${error.reason}`,
+      error,
+    });
   }
 }
 
@@ -114,9 +92,7 @@ export class QueryEncodeError extends Data.TaggedError("QueryEncodeError")<{
  * @since 1.0.0
  */
 export type ClientError =
-  | InvalidUrlClientError
   | HttpClientError
-  | ValidationClientError
-  | UnexpectedClientError
-  | HeadersEncodeError
-  | QueryEncodeError;
+  | ResponseValidationError
+  | RequestEncodeError
+  | ResponseError;
