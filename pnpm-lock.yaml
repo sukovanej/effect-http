@@ -6,17 +6,17 @@ settings:
 
 dependencies:
   '@effect/platform':
-    specifier: ^0.22.1
-    version: 0.22.1(@effect/schema@0.43.2)(effect@2.0.0-next.48)
+    specifier: ^0.23.0
+    version: 0.23.0(@effect/schema@0.44.0)(effect@2.0.0-next.49)
   '@effect/platform-node':
-    specifier: ^0.23.2
-    version: 0.23.2(@effect/schema@0.43.2)(effect@2.0.0-next.48)
+    specifier: ^0.24.0
+    version: 0.24.0(@effect/schema@0.44.0)(effect@2.0.0-next.49)
   express:
     specifier: ^4.18.2
     version: 4.18.2
   schema-openapi:
-    specifier: ^0.16.1
-    version: 0.16.1(@effect/schema@0.43.2)(effect@2.0.0-next.48)
+    specifier: ^0.17.0
+    version: 0.17.0(@effect/schema@0.44.0)(effect@2.0.0-next.49)
   swagger-ui-express:
     specifier: ^5.0.0
     version: 5.0.0(express@4.18.2)
@@ -29,8 +29,8 @@ devDependencies:
     specifier: ^0.2.0
     version: 0.2.0(@types/node@20.8.6)(typescript@5.2.2)
   '@effect/schema':
-    specifier: ^0.43.2
-    version: 0.43.2(effect@2.0.0-next.48)(fast-check@3.13.1)
+    specifier: ^0.44.0
+    version: 0.44.0(effect@2.0.0-next.49)(fast-check@3.13.1)
   '@trivago/prettier-plugin-sort-imports':
     specifier: ^4.2.0
     version: 4.2.0(prettier@3.0.3)
@@ -50,11 +50,11 @@ devDependencies:
     specifier: ^6.8.0
     version: 6.8.0(eslint@8.51.0)(typescript@5.2.2)
   effect:
-    specifier: 2.0.0-next.48
-    version: 2.0.0-next.48
+    specifier: 2.0.0-next.49
+    version: 2.0.0-next.49
   effect-log:
-    specifier: ^0.19.0
-    version: 0.19.0(effect@2.0.0-next.48)
+    specifier: ^0.20.0
+    version: 0.20.0(effect@2.0.0-next.49)
   eslint:
     specifier: ^8.51.0
     version: 8.51.0
@@ -416,39 +416,39 @@ packages:
       - '@types/node'
     dev: true
 
-  /@effect/platform-node@0.23.2(@effect/schema@0.43.2)(effect@2.0.0-next.48):
-    resolution: {integrity: sha512-TbaytA1gcSsZh91JNxNkav7uOpwI4sMOPn8WECqm9WSAIr6Pbydi/LXTja6/AudZDY5NGajTPy4E5cINowWpGg==}
+  /@effect/platform-node@0.24.0(@effect/schema@0.44.0)(effect@2.0.0-next.49):
+    resolution: {integrity: sha512-lWHyCibGyRha1kRmvmZnAzLsH6SrXk2OW2ysrsOcycZ4dYiQ3UFxGlWrFqcrN9tG3XYsGpK8f+Km0V9fx/bYkw==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
-      effect: 2.0.0-next.48
+      effect: 2.0.0-next.49
     dependencies:
-      '@effect/platform': 0.22.1(@effect/schema@0.43.2)(effect@2.0.0-next.48)
+      '@effect/platform': 0.23.0(@effect/schema@0.44.0)(effect@2.0.0-next.49)
       busboy: 1.6.0
-      effect: 2.0.0-next.48
+      effect: 2.0.0-next.49
       mime: 3.0.0
     transitivePeerDependencies:
       - '@effect/schema'
     dev: false
 
-  /@effect/platform@0.22.1(@effect/schema@0.43.2)(effect@2.0.0-next.48):
-    resolution: {integrity: sha512-zBuT9za6Wtmltl05bfN18P9ExqJ/gqjHARe/L8V9zEtzLVT0/YHKRgXtFWFKoXvbW/zRsDMXd2RP8ZTxhYO3LQ==}
+  /@effect/platform@0.23.0(@effect/schema@0.44.0)(effect@2.0.0-next.49):
+    resolution: {integrity: sha512-cFJLhiVTa5QdwAGuI4efm3wrjgplprFOWqmAGeRv4JSk1RAdbEhGKO0PuAyP6P8tvg9FScQbREFeiq5lns6XTQ==}
     peerDependencies:
-      '@effect/schema': ^0.43.0
-      effect: 2.0.0-next.48
+      '@effect/schema': ^0.44.0
+      effect: 2.0.0-next.49
     dependencies:
-      '@effect/schema': 0.43.2(effect@2.0.0-next.48)(fast-check@3.13.1)
-      effect: 2.0.0-next.48
+      '@effect/schema': 0.44.0(effect@2.0.0-next.49)(fast-check@3.13.1)
+      effect: 2.0.0-next.49
       find-my-way: 7.7.0
       path-browserify: 1.0.1
     dev: false
 
-  /@effect/schema@0.43.2(effect@2.0.0-next.48)(fast-check@3.13.1):
-    resolution: {integrity: sha512-xXmRYsL/ykbrMeP+7HYx3O2xAfaa64VJQiPW+ml8xbP2QDAZbOO1uedSqHkIMK3Xzh49KLR4JprR1vGPf4EZ9A==}
+  /@effect/schema@0.44.0(effect@2.0.0-next.49)(fast-check@3.13.1):
+    resolution: {integrity: sha512-sUQrGJEtn4tRv6OChdfIPMWhOwSaOivrEksGQYxQ7OpKpXASoeNDBZK++Pb8wI25VREBvBPttXw7racsbvAfXA==}
     peerDependencies:
-      effect: 2.0.0-next.48
+      effect: 2.0.0-next.49
       fast-check: ^3.13.1
     dependencies:
-      effect: 2.0.0-next.48
+      effect: 2.0.0-next.49
       fast-check: 3.13.1
 
   /@esbuild/android-arm64@0.18.20:
@@ -1745,16 +1745,16 @@ packages:
     resolution: {integrity: sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==}
     dev: false
 
-  /effect-log@0.19.0(effect@2.0.0-next.48):
-    resolution: {integrity: sha512-Yfbe/qnh6sCxqKKRW7juACMn0JTi8gCiIgVu9DrfTFuJ/fVNNfnH8RV6Zmv94wDQJcDcE16pfDOoGn9CTXli4Q==}
+  /effect-log@0.20.0(effect@2.0.0-next.49):
+    resolution: {integrity: sha512-JVxlVtA0ryNQM+QKmXZaIfxLHaM+UmSAOkC5KS+W+Qi2p5GdGFEcZWx36gjxJyIkRpUSnqlE/AasiZSz6znWzQ==}
     peerDependencies:
-      effect: 2.0.0-next.48
+      effect: 2.0.0-next.49
     dependencies:
-      effect: 2.0.0-next.48
+      effect: 2.0.0-next.49
     dev: true
 
-  /effect@2.0.0-next.48:
-    resolution: {integrity: sha512-vwMIl39m8fMBeXoGIdSwMi2lrg7NltyrGMK0N/liGDl7G9LXvERKOCipNcobSIGO0V7hjaXEWgL6W/KEWEww+g==}
+  /effect@2.0.0-next.49:
+    resolution: {integrity: sha512-FiOQ2Khm2REPQOkxkRPyTVyfPCUNecDopz1ZOKzZrZyCAzDqWiFYvdPwX/nYQrXY77/DBGcaLEsQ4/1BpG1bAg==}
 
   /emoji-regex@8.0.0:
     resolution: {integrity: sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A==}
@@ -3797,14 +3797,14 @@ packages:
   /safer-buffer@2.1.2:
     resolution: {integrity: sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==}
 
-  /schema-openapi@0.16.1(@effect/schema@0.43.2)(effect@2.0.0-next.48):
-    resolution: {integrity: sha512-6YuZvClVXWrDtsNgEcpgmZQ2jxZmbqsBX9fi87lXLsyLAEQvXByo+lbIcE41StTyKr8gbnyywUAOkMS4u3ke4w==}
+  /schema-openapi@0.17.0(@effect/schema@0.44.0)(effect@2.0.0-next.49):
+    resolution: {integrity: sha512-WssaAqAqxoxmlS6TWfyvOrzqcA3KI2yyCBnnVXWG2hjfyv+cl8+UkgL1HzpndBZUmeADsT6GUZg/U6GouCDDQA==}
     peerDependencies:
-      '@effect/schema': ^0.43.0
-      effect: 2.0.0-next.48
+      '@effect/schema': ^0.44.0
+      effect: 2.0.0-next.49
     dependencies:
-      '@effect/schema': 0.43.2(effect@2.0.0-next.48)(fast-check@3.13.1)
-      effect: 2.0.0-next.48
+      '@effect/schema': 0.44.0(effect@2.0.0-next.49)(fast-check@3.13.1)
+      effect: 2.0.0-next.49
     dev: false
 
   /semver@5.7.2:
