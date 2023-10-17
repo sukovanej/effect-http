@@ -39,6 +39,10 @@ export interface ClientOptions<H extends Record<string, unknown>> {
 /** @internal */
 const httpClient = HttpClient.client.fetch();
 
+/**
+ * @category constructors
+ * @since 1.0.0
+ */
 export const endpointClient = <
   A extends Api.Api,
   Id extends A["endpoints"][number]["id"],

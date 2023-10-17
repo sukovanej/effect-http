@@ -42,6 +42,8 @@ Added in v1.0.0
   - [InputEndpointSchemas (interface)](#inputendpointschemas-interface)
 - [schemas](#schemas)
   - [FormData](#formdata)
+- [utils](#utils)
+  - [getEndpoint](#getendpoint)
 
 ---
 
@@ -273,6 +275,21 @@ FormData schema
 
 ```ts
 export declare const FormData: Schema.Schema<FormData, FormData>
+```
+
+Added in v1.0.0
+
+# utils
+
+## getEndpoint
+
+**Signature**
+
+```ts
+export declare const getEndpoint: <A extends Api<Endpoint[]>, Id extends A['endpoints'][number]['id']>(
+  api: A,
+  id: Id
+) => Endpoint
 ```
 
 Added in v1.0.0

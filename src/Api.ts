@@ -494,6 +494,10 @@ export interface InputResponseSchemaFull {
   headers?: AnySchema;
 }
 
+/**
+ * @category utils
+ * @since 1.0.0
+ */
 export const getEndpoint = <
   A extends Api,
   Id extends A["endpoints"][number]["id"],

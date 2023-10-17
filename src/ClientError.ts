@@ -8,6 +8,7 @@ import { ParseResult } from "@effect/schema";
 import { Data } from "effect";
 import { formatParseError } from "effect-http/internal/formatParseError";
 
+/** @ignore */
 type RequestLocation = "body" | "query" | "params" | "headers";
 
 /**
@@ -19,6 +20,10 @@ export class HttpClientError extends Data.TaggedError("HttpClientError")<{
   error: unknown;
   status: number;
 }> {
+  /**
+   * @category errors
+   * @since 1.0.0
+   */
   static create(error: unknown, status: number) {
     return new HttpClientError({
       message: `Http error with status code ${status}.`,
@@ -37,6 +42,10 @@ export class RequestEncodeError extends Data.TaggedError("RequestEncodeError")<{
   error: ParseResult.ParseError;
   location: RequestLocation;
 }> {
+  /**
+   * @category errors
+   * @since 1.0.0
+   */
   static fromParseError(location: RequestLocation) {
     return (error: ParseResult.ParseError) =>
       new RequestEncodeError({
@@ -58,6 +67,10 @@ export class ResponseValidationError extends Data.TaggedError(
   error: ParseResult.ParseError;
   location: RequestLocation;
 }> {
+  /**
+   * @category errors
+   * @since 1.0.0
+   */
   static fromParseError(location: RequestLocation) {
     return (error: ParseResult.ParseError) =>
       new ResponseValidationError({
@@ -78,6 +91,10 @@ export class ResponseError extends Data.TaggedError("ResponseError")<{
   message: string;
   error: HttpClient.error.ResponseError;
 }> {
+  /**
+   * @category errors
+   * @since 1.0.0
+   */
   static fromResponseError(error: HttpClient.error.ResponseError) {
     return new ResponseError({
       message: `Invalid response: ${error.reason}`,
