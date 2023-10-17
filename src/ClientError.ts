@@ -6,8 +6,7 @@
 import { HttpClient } from "@effect/platform";
 import { ParseResult } from "@effect/schema";
 import { Data } from "effect";
-
-import { formatParseError } from "./internal/formatParseError";
+import { formatParseError } from "effect-http/internal/formatParseError";
 
 type RequestLocation = "body" | "query" | "params" | "headers";
 
