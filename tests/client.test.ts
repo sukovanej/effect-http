@@ -159,7 +159,9 @@ test("missing headers", async () => {
     runTestEffect,
   );
 
-  expect(result).toMatchObject(Either.left({ _tag: "HeadersEncodeError" }));
+  expect(result).toMatchObject(
+    Either.left({ _tag: "RequestEncodeError", location: "headers" }),
+  );
 });
 
 test("common headers", async () => {

@@ -64,7 +64,9 @@ test("validation error", async () => {
     runTestEffect,
   );
 
-  expect(result).toMatchObject(Either.left({ _tag: "QueryEncodeError" }));
+  expect(result).toMatchObject(
+    Either.left({ _tag: "RequestEncodeError", location: "query" }),
+  );
 });
 
 test("human-readable error response", async () => {
@@ -81,7 +83,7 @@ test("human-readable error response", async () => {
     runTestEffect,
   );
 
-  expect(result).toEqual(
+  expect(result).toMatchObject(
     Either.left({
       _tag: "HttpClientError",
       status: 404,
@@ -287,7 +289,7 @@ test("failing after handler extension", async () => {
 
   expect(result).toEqual(
     Either.left(
-      Http.httpClientError(
+      Http.HttpClientError.create(
         { error: "UnauthorizedError", details: "sorry bro" },
         401,
       ),

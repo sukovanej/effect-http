@@ -51,7 +51,7 @@ test("testing failure", async () => {
 
   expect(response).toEqual(
     Either.left(
-      Http.httpClientError(
+      Http.HttpClientError.create(
         {
           error: "NotFoundError",
           details: "oh oh",

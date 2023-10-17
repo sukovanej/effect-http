@@ -58,7 +58,7 @@ test("basic auth", async () => {
 
   expect(result).toEqual([
     Either.left(
-      Http.httpClientError(
+      Http.HttpClientError.create(
         { error: "UnauthorizedError", details: "wrong credentials" },
         401,
       ),
