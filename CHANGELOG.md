@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.33.1
+
+### Patch Changes
+
+- e545f0c: Fix import.
+
 ## 0.33.0
 
 ### Minor Changes
