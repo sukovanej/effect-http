@@ -14,14 +14,23 @@ import {
 import * as Http from "effect-http";
 
 import {
+  exampleApiFullResponse,
   exampleApiGet,
   exampleApiGetCustomResponseWithHeaders,
   exampleApiGetHeaders,
   exampleApiGetOptionalField,
-  exampleApiGetQueryParameter,
   exampleApiGetStringResponse,
+  exampleApiMultipleResponses,
+  exampleApiOptional,
+  exampleApiOptionalParams,
+  exampleApiPutResponse,
 } from "./examples";
-import { runTestEffect, testExpress, testServer } from "./utils";
+import {
+  runTestEffect,
+  runTestEffectEither,
+  testExpress,
+  testServer,
+} from "./utils";
 
 const Service1 = Context.Tag<number>();
 const Service2 = Context.Tag<string>();
@@ -51,24 +60,6 @@ test("layers", async () => {
   expect(response).toEqual(13);
 });
 
-// TODO: this is actually not testing the server because the error occurs
-// on the client side
-test("validation error", async () => {
-  const server = Http.exampleServer(exampleApiGetQueryParameter);
-
-  const result = await pipe(
-    testServer(server),
-    Effect.flatMap((client) =>
-      Effect.either(client.hello({ query: { country: "abc" } })),
-    ),
-    runTestEffect,
-  );
-
-  expect(result).toMatchObject(
-    Either.left({ _tag: "RequestEncodeError", location: "query" }),
-  );
-});
-
 test("human-readable error response", async () => {
   const server = exampleApiGetStringResponse.pipe(
     Http.server,
@@ -79,8 +70,8 @@ test("human-readable error response", async () => {
 
   const result = await pipe(
     testServer(server),
-    Effect.flatMap((client) => Effect.either(client.hello({}))),
-    runTestEffect,
+    Effect.flatMap((client) => client.hello({})),
+    runTestEffectEither,
   );
 
   expect(result).toMatchObject(
@@ -123,15 +114,8 @@ test("headers", async () => {
 test.each(Http.API_ERROR_TAGS as Http.ApiError["_tag"][])(
   "status codes",
   async (errorTag) => {
-    const api = pipe(
-      Http.api(),
-      Http.get("hello", "/hello", {
-        response: Schema.struct({ clientIdHash: Schema.string }),
-      }),
-    );
-
     const server = pipe(
-      Http.server(api),
+      Http.server(exampleApiGetStringResponse),
       Http.handle("hello", () =>
         Effect.fail({ _tag: errorTag, error: "failure" }),
       ),
@@ -152,14 +136,8 @@ test.each(Http.API_ERROR_TAGS as Http.ApiError["_tag"][])(
 );
 
 test("Attempt to add a non-existing operation should fail as a safe guard", () => {
-  const api = pipe(
-    Http.api(),
-    Http.put("myOperation", "/my-operation", { response: Schema.string }),
-  );
-
   expect(() =>
-    pipe(
-      Http.server(api),
+    Http.server(exampleApiPutResponse).pipe(
       // @ts-expect-error
       Http.handle("nonExistingOperation", () => ""),
     ),
@@ -167,8 +145,7 @@ test("Attempt to add a non-existing operation should fail as a safe guard", () =
 });
 
 test("Custom headers and status", async () => {
-  const server = pipe(
-    exampleApiGetCustomResponseWithHeaders,
+  const server = exampleApiGetCustomResponseWithHeaders.pipe(
     Http.server,
     Http.handle("hello", () =>
       Effect.succeed({
@@ -260,18 +237,9 @@ test("Response containing optional field", async () => {
   ]);
 });
 
-const helloApi = pipe(
-  Http.api(),
-  Http.get("hello", "/hello", {
-    response: Schema.string,
-  }),
-);
-
 test("failing after handler extension", async () => {
-  const server = pipe(
-    helloApi,
-    Http.server,
-    Http.handle("hello", () => Effect.succeed("test")),
+  const server = Http.server(exampleApiGetStringResponse).pipe(
+    Http.handle("hello", () => Effect.succeed(1)),
     Http.addExtension(
       Http.beforeHandlerExtension("test", () =>
         Effect.fail(Http.unauthorizedError("sorry bro")),
@@ -310,36 +278,7 @@ describe("type safe responses", () => {
   });
 
   test("example", async () => {
-    const api = pipe(
-      Http.api(),
-      Http.post("hello", "/hello", {
-        response: [
-          {
-            status: 201,
-            content: Schema.number,
-          },
-          {
-            status: 200,
-            content: Schema.number,
-            headers: Schema.struct({
-              "X-Another-200": Schema.NumberFromString,
-            }),
-          },
-          {
-            status: 204,
-            headers: Schema.struct({ "X-Another": Schema.NumberFromString }),
-          },
-        ],
-        request: {
-          query: Schema.struct({
-            value: Schema.NumberFromString,
-          }),
-        },
-      }),
-    );
-
-    const server = pipe(
-      Http.server(api),
+    const server = Http.server(exampleApiMultipleResponses).pipe(
       Http.handle("hello", ({ query: { value } }) => {
         const response =
           value == 12
@@ -377,44 +316,8 @@ describe("type safe responses", () => {
 });
 
 test("optional headers / query / params fields", async () => {
-  const api = pipe(
-    Http.api(),
-    Http.post("hello", "/hello/:value/another/:another?", {
-      response: Schema.struct({
-        query: Schema.struct({
-          value: Schema.number,
-          another: Schema.optional(Schema.string),
-        }),
-        params: Schema.struct({
-          value: Schema.number,
-          another: Schema.optional(Schema.string),
-        }),
-        headers: Schema.struct({
-          value: Schema.number,
-          another: Schema.optional(Schema.string),
-          hello: Schema.optional(Schema.string),
-        }),
-      }),
-      request: {
-        query: Schema.struct({
-          value: Schema.NumberFromString,
-          another: Schema.optional(Schema.string),
-        }),
-        params: Schema.struct({
-          value: Schema.NumberFromString,
-          another: Schema.optional(Schema.string),
-        }),
-        headers: Schema.struct({
-          value: Schema.NumberFromString,
-          another: Schema.optional(Schema.string),
-          hello: Schema.optional(Schema.string),
-        }),
-      },
-    }),
-  );
-
   const server = pipe(
-    Http.server(api),
+    Http.server(exampleApiOptional),
     Http.handle("hello", ({ query, params, headers }) =>
       Effect.succeed({ query, params, headers }),
     ),
@@ -472,26 +375,8 @@ test.each([
 });
 
 test("optional parameters", async () => {
-  const api = pipe(
-    Http.api(),
-    Http.post("hello", "/hello/:value/another/:another?", {
-      response: Schema.struct({
-        params: Schema.struct({
-          value: Schema.number,
-          another: Schema.optional(Schema.string),
-        }),
-      }),
-      request: {
-        params: Schema.struct({
-          value: Schema.NumberFromString,
-          another: Schema.optional(Schema.string),
-        }),
-      },
-    }),
-  );
-
   const server = pipe(
-    Http.server(api),
+    Http.server(exampleApiOptionalParams),
     Http.handle("hello", ({ params }) => Effect.succeed({ params })),
   );
 
@@ -512,27 +397,8 @@ test("optional parameters", async () => {
 });
 
 test("single full response", async () => {
-  const api = pipe(
-    Http.api(),
-    Http.post("hello", "/hello", {
-      response: {
-        status: 200,
-        content: Schema.number,
-        headers: Schema.struct({
-          "My-Header": Schema.string,
-        }),
-      },
-    }),
-    Http.post("another", "/another", {
-      response: {
-        status: 200,
-        content: Schema.number,
-      },
-    }),
-  );
-
   const server = pipe(
-    Http.server(api),
+    Http.server(exampleApiFullResponse),
     Http.handle("hello", () =>
       Effect.succeed({
         content: 12,

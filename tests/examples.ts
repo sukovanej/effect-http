@@ -118,3 +118,113 @@ export const exampleApiParams = Http.api().pipe(
     },
   }),
 );
+
+// Example PUT
+
+export const exampleApiPutResponse = Http.api().pipe(
+  Http.put("myOperation", "/my-operation", { response: Schema.string }),
+);
+
+// Example POST, multiple responses
+export const exampleApiMultipleResponses = Http.api().pipe(
+  Http.post("hello", "/hello", {
+    response: [
+      {
+        status: 201,
+        content: Schema.number,
+      },
+      {
+        status: 200,
+        content: Schema.number,
+        headers: Schema.struct({
+          "X-Another-200": Schema.NumberFromString,
+        }),
+      },
+      {
+        status: 204,
+        headers: Schema.struct({ "X-Another": Schema.NumberFromString }),
+      },
+    ],
+    request: {
+      query: Schema.struct({
+        value: Schema.NumberFromString,
+      }),
+    },
+  }),
+);
+
+// Example POST, all request locations optional
+
+export const exampleApiOptional = Http.api().pipe(
+  Http.post("hello", "/hello/:value/another/:another?", {
+    response: Schema.struct({
+      query: Schema.struct({
+        value: Schema.number,
+        another: Schema.optional(Schema.string),
+      }),
+      params: Schema.struct({
+        value: Schema.number,
+        another: Schema.optional(Schema.string),
+      }),
+      headers: Schema.struct({
+        value: Schema.number,
+        another: Schema.optional(Schema.string),
+        hello: Schema.optional(Schema.string),
+      }),
+    }),
+    request: {
+      query: Schema.struct({
+        value: Schema.NumberFromString,
+        another: Schema.optional(Schema.string),
+      }),
+      params: Schema.struct({
+        value: Schema.NumberFromString,
+        another: Schema.optional(Schema.string),
+      }),
+      headers: Schema.struct({
+        value: Schema.NumberFromString,
+        another: Schema.optional(Schema.string),
+        hello: Schema.optional(Schema.string),
+      }),
+    },
+  }),
+);
+
+// Example POST, optional params
+
+export const exampleApiOptionalParams = Http.api().pipe(
+  Http.post("hello", "/hello/:value/another/:another?", {
+    response: Schema.struct({
+      params: Schema.struct({
+        value: Schema.number,
+        another: Schema.optional(Schema.string),
+      }),
+    }),
+    request: {
+      params: Schema.struct({
+        value: Schema.NumberFromString,
+        another: Schema.optional(Schema.string),
+      }),
+    },
+  }),
+);
+
+// Example POSTs, full response
+
+export const exampleApiFullResponse = Http.api().pipe(
+  Http.post("hello", "/hello", {
+    response: {
+      status: 200,
+      content: Schema.number,
+      headers: Schema.struct({
+        "My-Header": Schema.string,
+      }),
+    },
+  }),
+  Http.post("another", "/another", {
+    response: {
+      status: 200,
+      content: Schema.number,
+    },
+  }),
+);
