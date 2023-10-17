@@ -1,5 +1,12 @@
 # effect-http
 
+## 0.33.0
+
+### Minor Changes
+
+- 325f0a4: Update effect.
+- a65a9b2: Refactor client errors.
+
 ## 0.32.2
 
 ### Patch Changes
