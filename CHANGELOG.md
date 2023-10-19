@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.34.0
+
+### Minor Changes
+
+- 12bfe12: Update effect.
+
 ## 0.33.1
 
 ### Patch Changes
