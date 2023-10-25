@@ -1031,7 +1031,4 @@ const server = pipe(
 
 ## Compatibility
 
-This library is tested against
-
-- nodejs 18.17.0
-- nodejs 20.5.0
+This library is tested against nodejs 20.9.0.
