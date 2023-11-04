@@ -79,7 +79,7 @@ const createBodyEncoder = (endpoint: Endpoint) => {
 
   return (body: unknown) => {
     return encode(body).pipe(
-      Effect.mapError(ClientError.RequestEncodeError.fromParseError('body')),
+      Effect.mapError(ClientError.RequestEncodeError.fromParseError("body")),
     );
   };
 };
@@ -100,7 +100,7 @@ const createQueryEncoder = (endpoint: Endpoint) => {
 
   return (query: unknown) => {
     return encode(query).pipe(
-      Effect.mapError(ClientError.RequestEncodeError.fromParseError('query')),
+      Effect.mapError(ClientError.RequestEncodeError.fromParseError("query")),
     );
   };
 };
@@ -121,7 +121,7 @@ const createHeadersEncoder = (endpoint: Endpoint, commonHeaders: unknown) => {
     }
 
     return (encode ?? Effect.succeed)({ ...commonHeaders, ...headers }).pipe(
-      Effect.mapError(ClientError.RequestEncodeError.fromParseError('headers')),
+      Effect.mapError(ClientError.RequestEncodeError.fromParseError("headers")),
     );
   };
 };
@@ -137,7 +137,7 @@ const createParamsEncoder = (endpoint: Endpoint) => {
 
   return (params: unknown) => {
     return encode(params).pipe(
-      Effect.mapError(ClientError.RequestEncodeError.fromParseError('params')),
+      Effect.mapError(ClientError.RequestEncodeError.fromParseError("params")),
     );
   };
 };

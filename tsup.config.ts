@@ -8,5 +8,5 @@ export default defineConfig({
   format: ["esm", "cjs"],
   entry: ["src/**/*.ts"],
   tsconfig: "tsconfig.build.json",
-  clean: true
+  clean: true,
 });
