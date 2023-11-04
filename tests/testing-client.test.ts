@@ -1,5 +1,5 @@
 import { Schema } from "@effect/schema";
-import { Context, Effect, Either, pipe } from "effect";
+import { Context, Effect, Either, Predicate, pipe } from "effect";
 import * as Http from "effect-http";
 
 import { runTestEffect } from "./utils";
@@ -185,4 +185,45 @@ test("testing body", async () => {
   );
 
   expect(response).toEqual("13");
+});
+
+test("form data", async () => {
+  const api = pipe(
+    Http.api(),
+    Http.post("upload", "/upload", {
+      request: {
+        body: Http.FormData,
+      },
+      response: Schema.string,
+    }),
+  );
+
+  const server = pipe(
+    Http.server(api),
+    Http.handle("upload", ({ body }) => {
+      const file = body.get("file");
+
+      if (file === null) {
+        return Effect.fail(Http.invalidBodyError('Expected "file"'));
+      }
+
+      if (Predicate.isString(file)) {
+        return Effect.fail(Http.invalidBodyError("Expected file"));
+      }
+
+      return Effect.promise(() => file.text());
+    }),
+  );
+
+  const testClient = Http.testingClient(server);
+
+  const formData = new FormData();
+  formData.append("file", new Blob(["my file content"]));
+
+  const response = await pipe(
+    testClient.upload({ body: formData }),
+    runTestEffect,
+  );
+
+  expect(response).toEqual("my file content");
 });

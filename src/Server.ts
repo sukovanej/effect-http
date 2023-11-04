@@ -106,12 +106,12 @@ const buildHandler =
       const contentLengthHeader = request.headers.get("content-length");
       const contentTypeHeader = request.headers.get("content-type");
       const contentLength =
-        contentLengthHeader === null ? 0 : parseInt(contentLengthHeader);
+        contentLengthHeader === null ? null : parseInt(contentLengthHeader);
 
       return pipe(
         Effect.tryPromise({
           try: () => {
-            if (contentLength > 0) {
+            if (contentLength == null || contentLength > 0) {
               if (contentTypeHeader?.startsWith("application/json")) {
                 return request.json();
               } else if (contentTypeHeader?.startsWith("multipart/form-data")) {
