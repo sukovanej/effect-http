@@ -4,7 +4,7 @@
  * @since 1.0.0
  */
 import { ParseResult, Schema } from "@effect/schema";
-import { Effect, type Types, pipe } from "effect";
+import { Effect, Match, Predicate, type Types, pipe } from "effect";
 import type { Api, EndpointSchemas } from "effect-http/Api";
 import { ClientFunctionResponse } from "effect-http/Client";
 import * as ClientError from "effect-http/ClientError";
@@ -73,16 +73,20 @@ export const testingClient = <R, A extends Api>(
                 url.searchParams.set(name, value as any),
               );
 
-              const _body =
-                body !== undefined ? JSON.stringify(body) : undefined;
-              const contentLength = _body && _body.length;
-              const contentType = _body && "application/json";
+              const _body = Match.value(body).pipe(
+                Match.when(Match.instanceOf(FormData), (fd) => fd),
+                Match.when(Match.undefined, () => undefined),
+                Match.orElse(JSON.stringify),
+              );
+
+              const contentType = Predicate.isString(_body)
+                ? "application/json"
+                : undefined;
 
               const init = {
                 body: _body,
                 headers: {
                   ...headers,
-                  ...(contentLength && { "content-length": contentLength }),
                   ...(contentType && { "content-type": contentType }),
                 },
                 method,
