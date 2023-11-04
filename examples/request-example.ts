@@ -21,7 +21,7 @@ const GetValue = Request.tagged<GetValue>("GetValue");
 
 const GetValueCache = Context.Tag<Request.Cache>();
 
-const GetValueResolver = RequestResolver.fromFunctionEffect((_: GetValue) =>
+const GetValueResolver = RequestResolver.fromEffect((_: GetValue) =>
   pipe(
     readFile("test-file"),
     Effect.tap(() => Effect.logDebug("Value read from file")),
