@@ -1,5 +1,15 @@
 # effect-http
 
+## 0.36.0
+
+### Minor Changes
+
+- 8d4255b: Update effect.
+
+### Patch Changes
+
+- d0a5e94: Fix: testing client works with form data.
+
 ## 0.35.1
 
 ### Patch Changes
