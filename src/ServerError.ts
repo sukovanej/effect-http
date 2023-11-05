@@ -518,8 +518,8 @@ export const isApiError = (error: unknown): error is ApiError =>
   Predicate.isRecord(error) &&
   "error" in error &&
   "_tag" in error &&
-  Predicate.isString(error._tag) &&
-  API_ERROR_TAGS.includes(error._tag);
+  Predicate.isString(error["_tag"]) &&
+  API_ERROR_TAGS.includes(error["_tag"]);
 
 /**
  * @category models

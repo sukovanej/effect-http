@@ -33,10 +33,10 @@ export const create = (
     Effect.gen(function* (_) {
       const _input = (input || {}) as Record<string, unknown>;
 
-      const body = yield* _(encodeBody(_input.body));
-      const query = yield* _(encodeQuery(_input.query));
-      const params = yield* _(encodeParams(_input.params));
-      const headers = yield* _(encodeHeaders(_input.headers));
+      const body = yield* _(encodeBody(_input['body']));
+      const query = yield* _(encodeQuery(_input['query']));
+      const params = yield* _(encodeParams(_input['params']));
+      const headers = yield* _(encodeHeaders(_input['headers']));
 
       const path = constructPath(params || {}, endpoint.path);
       const url = new URL(path, baseUrl);

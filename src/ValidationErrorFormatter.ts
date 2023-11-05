@@ -114,7 +114,10 @@ const formatParseErrors = (errors: ParseErrors): readonly ValidationError[] => {
       {
         _tag: "Unexpected",
         expected: [formatAST(errors.expected)],
-        message: Option.getOrUndefined(errors.message),
+        ...errors.message.pipe(
+          Option.map((message) => ({ message })),
+          Option.getOrUndefined,
+        ),
         received: errors.actual,
         position: [],
       },
