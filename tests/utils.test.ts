@@ -1,6 +1,7 @@
 import { Schema } from "@effect/schema";
 import { pipe } from "effect";
 import * as Http from "effect-http";
+import * as Api from "effect-http/Api";
 
 test("response helpers", () => {
   const api = pipe(
@@ -52,10 +53,16 @@ test("response helpers", () => {
     }),
   );
 
-  const DoStuffResponseUtil = Http.responseUtil(api, "doSutff");
-  const HelloResponseUtil = Http.responseUtil(api, "hello");
-  const CreateSomethingResponseUtil = Http.responseUtil(api, "createSomething");
-  const AnotherResponseUtil = Http.responseUtil(api, "another");
+  const DoStuffResponseUtil = Http.responseUtil(
+    Api.getEndpoint(api, "doSutff"),
+  );
+  const HelloResponseUtil = Http.responseUtil(Api.getEndpoint(api, "hello"));
+  const CreateSomethingResponseUtil = Http.responseUtil(
+    Api.getEndpoint(api, "createSomething"),
+  );
+  const AnotherResponseUtil = Http.responseUtil(
+    Api.getEndpoint(api, "another"),
+  );
 
   expect(
     HelloResponseUtil.response204({ headers: { "x-another": 12 } }),

@@ -1,6 +1,7 @@
 import * as Schema from "@effect/schema/Schema";
 import { Effect, pipe } from "effect";
 import * as Http from "effect-http";
+import * as Api from "effect-http";
 
 const api = pipe(
   Http.api(),
@@ -45,7 +46,7 @@ const server = pipe(
   ),
 );
 
-const HelloResponseUtil = Http.responseUtil(api, "hello");
+const HelloResponseUtil = Http.responseUtil(Api.getEndpoint(api, "hello"));
 const response200 = HelloResponseUtil.response200({
   headers: { "my-header": 12 },
   content: 12,

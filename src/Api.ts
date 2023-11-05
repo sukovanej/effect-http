@@ -504,7 +504,7 @@ export const getEndpoint = <
 >(
   api: A,
   id: Id,
-) => {
+): Extract<A["endpoints"][number], { id: Id }> => {
   const endpoint = api.endpoints.find(({ id: _id }) => _id === id);
 
   // This operation is type-safe and non-existing ids are forbidden
@@ -512,5 +512,5 @@ export const getEndpoint = <
     throw new Error(`Operation id ${id} not found`);
   }
 
-  return endpoint;
+  return endpoint as any;
 };
