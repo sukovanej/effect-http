@@ -74,7 +74,7 @@ const buildHandler =
 
     const getRequestParams = createParamsMatcher(path);
 
-    const _responseUtil = responseUtil(serverBuilder.api, handler.endpoint.id);
+    const _responseUtil = responseUtil(handler.endpoint);
 
     const enhancedFn: ServerHandler["fn"] = (request) => {
       const url = new URL(request.url);

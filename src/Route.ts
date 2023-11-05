@@ -15,45 +15,30 @@ import {
   SelectEndpointById,
 } from "effect-http/ServerBuilder";
 import * as ServerError from "effect-http/ServerError";
-import { ResponseUtil, responseUtil } from "effect-http/Utils";
 import * as ServerRequestParser from "effect-http/internal/serverRequestParser";
 import * as ServerResponseEncoder from "effect-http/internal/serverResponseEncoder";
 
-type InputFn<En extends Api.Endpoint, R> = (
-  input: Types.Simplify<
-    EndpointSchemasTo<En["schemas"]>["request"] & {
-      ResponseUtil: ResponseUtil<En>;
-    }
-  >,
-) => Effect.Effect<
-  R,
-  ServerError.ApiError,
-  EndpointResponseSchemaTo<En["schemas"]["response"]>
->;
-
 /**
+ * @category models
  * @since 1.0.0
  */
-export const make: <
-  A extends Api.Api,
-  Id extends A["endpoints"][number]["id"],
-  R,
->(
-  id: Id,
-  fn: InputFn<SelectEndpointById<A["endpoints"], Id>, R>,
-) => (api: A) => Router.Route<R, never> = (id, fn) => (api) => {
-  const endpoint = api.endpoints.find(({ id: _id }) => _id === id);
+export type HandlerFunction<En extends Api.Endpoint, R, E> = (
+  input: Types.Simplify<EndpointSchemasTo<En["schemas"]>["request"]>,
+) => Effect.Effect<R, E, EndpointResponseSchemaTo<En["schemas"]["response"]>>;
 
-  if (endpoint === undefined) {
-    throw new Error(`Operation id ${id} not found`);
-  }
-
+/**
+ * @category constructors
+ * @since 1.0.0
+ */
+export const fromEndpoint: <Endpoint extends Api.Endpoint, R, E>(
+  fn: HandlerFunction<Endpoint, R, E>,
+) => (
+  endpoint: Endpoint,
+) => Router.Route<R, Exclude<E, ServerError.ApiError>> = (fn) => (endpoint) => {
   const responseEncoder = ServerResponseEncoder.create(
     endpoint.schemas.response,
   );
   const requestParser = ServerRequestParser.create(endpoint);
-
-  const ResponseUtil = responseUtil(api, id);
 
   return Router.makeRoute(
     endpoint.method.toUpperCase() as Method.Method,
@@ -61,7 +46,6 @@ export const make: <
     pipe(
       ServerRequest.ServerRequest,
       Effect.flatMap(requestParser.parseRequest),
-      Effect.let("ResponseUtil", () => ResponseUtil),
       Effect.flatMap((input: any) => fn(input)),
       Effect.flatMap(responseEncoder.encodeResponse),
       Effect.catchTags({
@@ -83,3 +67,35 @@ export const make: <
     ),
   );
 };
+
+/**
+ * @category constructors
+ * @since 1.0.0
+ */
+export const make: <
+  A extends Api.Api,
+  Id extends A["endpoints"][number]["id"],
+  R,
+  E,
+>(
+  id: Id,
+  fn: HandlerFunction<SelectEndpointById<A["endpoints"], Id>, R, E>,
+) => (api: A) => Router.Route<R, Exclude<E, ServerError.ApiError>> =
+  (id, fn) => (api) => {
+    const endpoint = Api.getEndpoint(api, id);
+
+    if (endpoint === undefined) {
+      throw new Error(`Operation id ${id} not found`);
+    }
+
+    return fromEndpoint(fn)(endpoint);
+  };
+
+/** @internal */
+export const addRoute = <R1, R2, E1, E2>(
+  router: Router.Router<R1, E1>,
+  route: Router.Route<R2, E2>,
+): Router.Router<
+  Exclude<R1 | R2, Router.RouteContext | ServerRequest.ServerRequest>,
+  E1 | E2
+> => Router.concat(Router.fromIterable([route]))(router) as any;

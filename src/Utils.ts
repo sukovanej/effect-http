@@ -5,13 +5,7 @@
  */
 import { Schema } from "@effect/schema";
 import { type Types } from "effect";
-import type {
-  Api,
-  Endpoint,
-  EndpointSchemas,
-  IgnoredSchemaId,
-  ResponseSchemaFull,
-} from "effect-http/Api";
+import type * as Api from "effect-http/Api";
 import { RequiredFields } from "effect-http/ServerBuilder";
 import { AnySchema, SchemaTo, isArray } from "effect-http/internal/utils";
 
@@ -20,19 +14,9 @@ import { AnySchema, SchemaTo, isArray } from "effect-http/internal/utils";
  *
  * @since 1.0.0
  */
-export const responseUtil = <
-  A extends Api,
-  Id extends A["endpoints"][number]["id"],
->(
-  api: A,
-  id: Id,
-): ResponseUtil<Extract<A["endpoints"][number], { id: Id }>> => {
-  const endpoint = api.endpoints.find((e) => e.id === id);
-
-  if (endpoint === undefined) {
-    throw new Error(`Endpoint ${id} not found`);
-  }
-
+export const responseUtil = <E extends Api.Endpoint>(
+  endpoint: E,
+): ResponseUtil<E> => {
   const responseSchema = endpoint.schemas.response;
 
   if (Schema.isSchema(responseSchema)) {
@@ -54,12 +38,12 @@ export const responseUtil = <
 // Internal type helpers
 
 /** @ignore */
-export type ResponseUtil<E extends Endpoint> = Types.Simplify<
+export type ResponseUtil<E extends Api.Endpoint> = Types.Simplify<
   NormalizedSchemasByIdToResponseUtils<SchemasByIdFromApi<E>>
 >;
 
 /** @ignore */
-type SchemasByIdFromApi<E extends Endpoint> = E extends any
+type SchemasByIdFromApi<E extends Api.Endpoint> = E extends any
   ? NormalizeSchemas<E["schemas"]["response"]>
   : never;
 
@@ -79,23 +63,22 @@ type NormalizedSchemasByIdToResponseUtils<M extends NormalizedSchemasBydId> = {
 };
 
 /** @ignore */
-type NormalizeSchemas<S extends EndpointSchemas["response"]> =
-  S extends readonly ResponseSchemaFull[]
+type NormalizeSchemas<S extends Api.EndpointSchemas["response"]> =
+  S extends readonly Api.ResponseSchemaFull[]
     ? NormalizeResponseSchemaFull<S[number]>
-    : S extends ResponseSchemaFull
+    : S extends Api.ResponseSchemaFull
     ? NormalizeResponseSchemaFull<S>
     : never;
 
 /** @ignore */
-type NormalizeResponseSchemaFull<S extends ResponseSchemaFull> = S extends any
-  ? { status: S["status"]; input: CreateInput<S> }
-  : never;
+type NormalizeResponseSchemaFull<S extends Api.ResponseSchemaFull> =
+  S extends any ? { status: S["status"]; input: CreateInput<S> } : never;
 
 /** @ignore */
 type CreateInput<
   S extends {
-    headers: IgnoredSchemaId | AnySchema;
-    content: IgnoredSchemaId | AnySchema;
+    headers: Api.IgnoredSchemaId | AnySchema;
+    content: Api.IgnoredSchemaId | AnySchema;
   },
 > = Types.Simplify<{
   [K in Extract<RequiredFields<S>, "headers" | "content">]: SchemaTo<S[K]>;

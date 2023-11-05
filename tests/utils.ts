@@ -1,9 +1,16 @@
 import express from "express";
-import http, { Server } from "http";
+import { createServer } from "http";
+import http from "http";
 import { AddressInfo, Socket } from "net";
 
-import { Effect, Logger, Scope, pipe } from "effect";
+import * as Server from "@effect/platform-node/Http/Server";
+import * as Client from "@effect/platform/Http/Client";
+import * as ClientRequest from "@effect/platform/Http/ClientRequest";
+import * as ClientResponse from "@effect/platform/Http/ClientResponse";
+import * as HttpServer from "@effect/platform/HttpServer";
+import { Effect, Layer, Logger, Scope, Unify, pipe } from "effect";
 import * as Http from "effect-http";
+import { apply } from "effect/Function";
 
 const testServerUrl = <R, A extends Http.Api>(
   serverBuilder: Http.ServerBuilder<R, [], A>,
@@ -70,7 +77,7 @@ export const testExpress =
   ): Effect.Effect<
     Scope.Scope,
     unknown,
-    [Http.Client<Http.Api<Es>, Record<string, never>>, Server]
+    [Http.Client<Http.Api<Es>, Record<string, never>>, http.Server]
   > =>
     pipe(
       Effect.asyncEffect<
@@ -138,3 +145,69 @@ export const runTestEffectEither = <E, A>(
     Effect.either,
     Effect.runPromise,
   );
+
+const serverUrl = Effect.flatMap(Server.Server, (server) => {
+  const address = server.address;
+
+  if (address._tag === "UnixAddress") {
+    return Effect.die("Unexpected UnixAddress");
+  }
+
+  return Effect.succeed(new URL(`http://localhost:${address.port}`));
+});
+
+const client = Effect.gen(function* (_) {
+  const defaultClient = yield* _(Client.Client);
+  const url = yield* _(serverUrl);
+
+  return defaultClient.pipe(
+    Client.mapRequest(ClientRequest.prependUrl(url.toString())),
+  );
+});
+
+export const testRouter: {
+  <E1>(
+    router: HttpServer.router.Router<never, E1>,
+    request: ClientRequest.ClientRequest,
+  ): Effect.Effect<never, never, ClientResponse.ClientResponse>;
+  <E1>(
+    router: HttpServer.router.Router<never, E1>,
+    request: readonly ClientRequest.ClientRequest[],
+  ): Effect.Effect<never, never, readonly ClientResponse.ClientResponse[]>;
+} = <E1>(
+  router: HttpServer.router.Router<never, E1>,
+  request: ClientRequest.ClientRequest | readonly ClientRequest.ClientRequest[],
+) => {
+  const ServerLive = pipe(
+    Server.layer(() => createServer(), {
+      port: undefined,
+    }),
+    Layer.merge(Client.layer),
+  );
+
+  const serve = Server.serve(router).pipe(Effect.scoped);
+  const runTest = Unify.unify(
+    Array.isArray(request)
+      ? Effect.flatMap(client, (client) =>
+          Effect.forEach(
+            request as readonly ClientRequest.ClientRequest[],
+            (r) => client(r),
+          ),
+        )
+      : Effect.flatMap(client, apply(request as ClientRequest.ClientRequest)),
+  );
+
+  return serve.pipe(
+    Effect.tapErrorCause(Effect.logError),
+    Effect.scoped,
+    Effect.fork,
+    Effect.flatMap((fiber) =>
+      Effect.acquireRelease(
+        runTest.pipe(Effect.tapErrorCause(Effect.logError)),
+        () => Effect.interruptWith(fiber.id()).pipe(Effect.ignoreLogged),
+      ),
+    ),
+    Effect.provide(ServerLive),
+    Effect.scoped,
+  ) as any;
+};
