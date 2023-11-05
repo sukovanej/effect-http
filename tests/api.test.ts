@@ -88,7 +88,7 @@ test.each([
         Http.api(),
         Http.get("hello", path, {
           response: Schema.string,
-          request: { params: schema },
+          request: { ...(schema && { params: schema }) },
         }),
       );
 

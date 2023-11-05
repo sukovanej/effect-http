@@ -100,7 +100,7 @@ const exampleRouteParams = exampleApiParams.pipe(
   HttpRouter.make("hello", ({ params }) => Effect.succeed(params.value)),
 );
 
-describe.skip("examples", () => {
+describe("examples", () => {
   test("get", async () => {
     const route = exampleApiGet.pipe(
       HttpRouter.make("getValue", () => Effect.succeed(12)),
@@ -204,7 +204,7 @@ describe.skip("examples", () => {
   });
 });
 
-describe.skip("error reporting", () => {
+describe("error reporting", () => {
   test("missing query parameter", async () => {
     const response = await testRoute(
       exampleRouteGetQueryParameter,

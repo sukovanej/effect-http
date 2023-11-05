@@ -138,7 +138,10 @@ const buildHandler =
             encodeResponse(response),
             Effect.map(
               ({ content, status, headers }) =>
-                new Response(JSON.stringify(content), { status, headers }),
+                new Response(JSON.stringify(content), {
+                  status,
+                  ...(headers && { headers }),
+                }),
             ),
             Effect.mapError(ServerError.invalidResponseError),
           ),
@@ -202,11 +205,11 @@ const formatError = (error: unknown) => {
   }
 
   if (Predicate.isRecord(error) && "error" in error) {
-    if (Predicate.isString(error.error)) {
-      return Effect.succeed(error.error);
+    if (Predicate.isString(error["error"])) {
+      return Effect.succeed(error["error"]);
     }
 
-    return Effect.succeed(JSON.stringify(error.error));
+    return Effect.succeed(JSON.stringify(error["error"]));
   }
 
   return Effect.succeed(JSON.stringify(error));

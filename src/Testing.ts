@@ -84,7 +84,7 @@ export const testingClient = <R, A extends Api>(
                 : undefined;
 
               const init = {
-                body: _body,
+                ...(_body && { body: _body }),
                 headers: {
                   ...headers,
                   ...(contentType && { "content-type": contentType }),
