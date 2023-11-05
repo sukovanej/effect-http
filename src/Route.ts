@@ -14,7 +14,7 @@ import {
   EndpointSchemasTo,
   SelectEndpointById,
 } from "effect-http/ServerBuilder";
-import { ApiError } from "effect-http/ServerError";
+import * as ServerError from "effect-http/ServerError";
 import { ResponseUtil, responseUtil } from "effect-http/Utils";
 import * as ServerRequestParser from "effect-http/internal/serverRequestParser";
 import * as ServerResponseEncoder from "effect-http/internal/serverResponseEncoder";
@@ -27,7 +27,7 @@ type InputFn<En extends Api.Endpoint, R> = (
   >,
 ) => Effect.Effect<
   R,
-  ApiError,
+  ServerError.ApiError,
   EndpointResponseSchemaTo<En["schemas"]["response"]>
 >;
 

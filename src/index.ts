@@ -80,8 +80,4 @@ export * from "effect-http/Utils";
 /**
  * @since 1.0.0
  */
-export * as HttpRouter from "effect-http/Router";
-
-/**
- * @since 1.0.0
- */
+export * as Route from "effect-http/Route";

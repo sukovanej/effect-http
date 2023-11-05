@@ -6,13 +6,13 @@ import * as ClientRequest from "@effect/platform/Http/ClientRequest";
 import * as HttpServer from "@effect/platform/HttpServer";
 import { Effect, Layer, Option, pipe } from "effect";
 import {
-  HttpRouter,
   invalidBodyError,
   invalidHeadersError,
   invalidParamsError,
   invalidQueryError,
   invalidResponseError,
 } from "effect-http";
+import * as Route from "effect-http/Route";
 import { apply } from "effect/Function";
 
 import {
@@ -83,27 +83,25 @@ const testRouter = <E1>(
 };
 
 const exampleRouteGetQueryParameter = exampleApiGetQueryParameter.pipe(
-  HttpRouter.make("hello", ({ query }) => Effect.succeed(query.country)),
+  Route.make("hello", ({ query }) => Effect.succeed(query.country)),
 );
 
 const exampleRouteRequestBody = exampleApiRequestBody.pipe(
-  HttpRouter.make("hello", ({ body }) => Effect.succeed(body.foo)),
+  Route.make("hello", ({ body }) => Effect.succeed(body.foo)),
 );
 
 const exampleRouteRequestHeaders = exampleApiRequestHeaders.pipe(
-  HttpRouter.make("hello", ({ headers }) =>
-    Effect.succeed(headers["x-header"]),
-  ),
+  Route.make("hello", ({ headers }) => Effect.succeed(headers["x-header"])),
 );
 
 const exampleRouteParams = exampleApiParams.pipe(
-  HttpRouter.make("hello", ({ params }) => Effect.succeed(params.value)),
+  Route.make("hello", ({ params }) => Effect.succeed(params.value)),
 );
 
 describe("examples", () => {
   test("get", async () => {
     const route = exampleApiGet.pipe(
-      HttpRouter.make("getValue", () => Effect.succeed(12)),
+      Route.make("getValue", () => Effect.succeed(12)),
     );
 
     const response = await testRoute(route, ClientRequest.get("get-value"));
@@ -114,9 +112,7 @@ describe("examples", () => {
 
   test("post, optional body field", async () => {
     const route = exampleApiPostNullableField.pipe(
-      HttpRouter.make("test", () =>
-        Effect.succeed({ value: Option.some("test") }),
-      ),
+      Route.make("test", () => Effect.succeed({ value: Option.some("test") })),
     );
 
     const response = await testRoute(route, ClientRequest.post("test"));
@@ -139,7 +135,7 @@ describe("examples", () => {
 
   test("get, custom headers and status", async () => {
     const route = exampleApiGetCustomResponseWithHeaders.pipe(
-      HttpRouter.make("hello", () =>
+      Route.make("hello", () =>
         Effect.succeed({
           status: 201,
           headers: { "my-header": "hello" },
@@ -160,7 +156,7 @@ describe("examples", () => {
 
   test("get, optional field", async () => {
     const route = exampleApiGetOptionalField.pipe(
-      HttpRouter.make("hello", ({ query }) =>
+      Route.make("hello", ({ query }) =>
         Effect.succeed({
           foo: query.value === "on" ? Option.some("hello") : Option.none(),
         }),
@@ -297,7 +293,7 @@ describe("error reporting", () => {
 
   test("invalid response", async () => {
     const exampleRouteInvalid = exampleApiParams.pipe(
-      HttpRouter.make("hello", () => Effect.succeed(1 as unknown as string)),
+      Route.make("hello", () => Effect.succeed(1 as unknown as string)),
     );
 
     const response = await testRoute(
