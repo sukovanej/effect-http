@@ -8,10 +8,7 @@ import {
   IgnoredSchemaId,
   ResponseSchemaFull,
 } from "effect-http/Api";
-import {
-  InvalidResponseError,
-  invalidResponseError,
-} from "effect-http/ServerError";
+import * as ServerError from "effect-http/ServerError";
 import { formatParseError } from "effect-http/internal/formatParseError";
 import { AnySchema, isArray } from "effect-http/internal/utils";
 
@@ -20,7 +17,7 @@ interface ServerResponseEncoder {
     input: unknown,
   ) => Effect.Effect<
     never,
-    InvalidResponseError,
+    ServerError.InvalidResponseError,
     ServerResponse.ServerResponse
   >;
 }
@@ -45,7 +42,7 @@ const fromSchema = (schema: AnySchema): ServerResponseEncoder => {
   const parse = Schema.encode(schema);
   return make((body) =>
     parse(body).pipe(
-      Effect.mapError((error) => invalidResponseError(formatParseError(error))),
+      Effect.mapError((error) => ServerError.invalidResponseError(formatParseError(error))),
       Effect.flatMap((json) =>
         ServerResponse.json(json).pipe(Effect.mapError(convertBodyError)),
       ),
@@ -119,7 +116,7 @@ const createHeadersSetter = (schema: ResponseSchemaFull) => {
 
       return parseHeaders(input.headers).pipe(
         Effect.mapError((error) =>
-          invalidResponseError({
+          ServerError.invalidResponseError({
             error: "Invalid response headers",
             details: error,
           }),
@@ -142,9 +139,9 @@ const parseFullResponseInput = Schema.parse(FullResponseInput);
 
 const convertBodyError = (error: Body.BodyError) => {
   if (error.reason._tag === "JsonError") {
-    return invalidResponseError("Invalid response JSON");
+    return ServerError.invalidResponseError("Invalid response JSON");
   } else if (error.reason._tag === "SchemaError") {
-    return invalidResponseError({
+    return ServerError.invalidResponseError({
       error: "Invalid response",
       details: error.reason.error,
     });

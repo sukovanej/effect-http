@@ -3,13 +3,7 @@ import * as Schema from "@effect/schema/Schema";
 import { Effect } from "effect";
 import { Endpoint, IgnoredSchemaId } from "effect-http/Api";
 import { createParamsMatcher } from "effect-http/Server";
-import {
-  ApiClientError,
-  invalidBodyError,
-  invalidHeadersError,
-  invalidParamsError,
-  invalidQueryError,
-} from "effect-http/ServerError";
+import * as ServerError from "effect-http/ServerError";
 import { formatParseError } from "effect-http/internal/formatParseError";
 
 interface ServerRequestParser {
@@ -17,7 +11,7 @@ interface ServerRequestParser {
     input: ServerRequest.ServerRequest,
   ) => Effect.Effect<
     never,
-    ApiClientError,
+    ServerError.ApiClientError,
     { query: any; params: any; body: any; headers: any }
   >;
 }
@@ -55,14 +49,14 @@ const createBodyParser = (endpoint: Endpoint) => {
     request.json.pipe(
       Effect.mapError((error) => {
         if (error.reason === "Transport") {
-          return invalidBodyError("Unexpect request JSON body error");
+          return ServerError.invalidBodyError("Unexpect request JSON body error");
         }
 
-        return invalidBodyError("invalid JSON");
+        return ServerError.invalidBodyError("invalid JSON");
       }),
       Effect.flatMap((request) =>
         parse(request).pipe(
-          Effect.mapError((error) => invalidBodyError(formatParseError(error))),
+          Effect.mapError((error) => ServerError.invalidBodyError(formatParseError(error))),
         ),
       ),
     );
@@ -86,7 +80,7 @@ const createQueryParser = (endpoint: Endpoint) => {
         {},
       ),
     ).pipe(
-      Effect.mapError((error) => invalidQueryError(formatParseError(error))),
+      Effect.mapError((error) => ServerError.invalidQueryError(formatParseError(error))),
     );
   };
 };
@@ -102,7 +96,7 @@ const createHeadersParser = (endpoint: Endpoint) => {
 
   return (request: ServerRequest.ServerRequest) =>
     parse(request.headers).pipe(
-      Effect.mapError((error) => invalidHeadersError(formatParseError(error))),
+      Effect.mapError((error) => ServerError.invalidHeadersError(formatParseError(error))),
     );
 };
 
@@ -121,7 +115,7 @@ const createParamsParser = (endpoint: Endpoint) => {
     const url = new URL(request.url, "http://localhost");
     const params = getRequestParams(url);
     return parse(params).pipe(
-      Effect.mapError((error) => invalidParamsError(formatParseError(error))),
+      Effect.mapError((error) => ServerError.invalidParamsError(formatParseError(error))),
     );
   };
 };

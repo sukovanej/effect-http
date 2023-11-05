@@ -16,23 +16,7 @@ import type {
   ServerBuilderHandler,
   ServerExtension,
 } from "effect-http/ServerBuilder";
-import {
-  API_STATUS_CODES,
-  ApiError,
-  internalServerError,
-  invalidBodyError,
-  invalidHeadersError,
-  invalidParamsError,
-  invalidQueryError,
-  invalidResponseError,
-  isApiError,
-  isConflictError,
-  isInvalidBodyError,
-  isInvalidHeadersError,
-  isInvalidParamsError,
-  isInvalidQueryError,
-  isInvalidResponseError,
-} from "effect-http/ServerError";
+import * as ServerError from "effect-http/ServerError";
 import { responseUtil } from "effect-http/Utils";
 import {
   formatValidationError,
@@ -42,7 +26,7 @@ import { getSchema, isArray } from "effect-http/internal/utils";
 
 /** @ignore */
 export interface ServerHandler<R = any> {
-  fn: (request: Request) => Effect.Effect<R, ApiError, Response>;
+  fn: (request: Request) => Effect.Effect<R, ServerError.ApiError, Response>;
   endpoint: Endpoint;
 }
 
@@ -123,21 +107,27 @@ const buildHandler =
             return Promise.resolve(undefined);
           },
           catch: (err) =>
-            internalServerError(
+            ServerError.internalServerError(
               `Cannot get request JSON, ${err}, ${request.body}`,
             ),
         }),
         Effect.flatMap((body) =>
           Effect.all({
-            query: Effect.mapError(parseQuery(query), invalidQueryError),
+            query: Effect.mapError(
+              parseQuery(query),
+              ServerError.invalidQueryError,
+            ),
             params: Effect.mapError(
               parseParams(getRequestParams(url)),
-              invalidParamsError,
+              ServerError.invalidParamsError,
             ),
-            body: Effect.mapError(parseBody(body), invalidBodyError),
+            body: Effect.mapError(
+              parseBody(body),
+              ServerError.invalidBodyError,
+            ),
             headers: Effect.mapError(
               parseHeaders(headers),
-              invalidHeadersError,
+              ServerError.invalidHeadersError,
             ),
             ResponseUtil: Effect.succeed(_responseUtil),
           }),
@@ -150,7 +140,7 @@ const buildHandler =
               ({ content, status, headers }) =>
                 new Response(JSON.stringify(content), { status, headers }),
             ),
-            Effect.mapError(invalidResponseError),
+            Effect.mapError(ServerError.invalidResponseError),
           ),
         ),
       );
@@ -194,12 +184,12 @@ export const createParamsMatcher = (path: string) => {
 /** @internal */
 const formatError = (error: unknown) => {
   const isValidationError =
-    isInvalidQueryError(error) ||
-    isInvalidBodyError(error) ||
-    isInvalidResponseError(error) ||
-    isInvalidParamsError(error) ||
-    isInvalidHeadersError(error) ||
-    isConflictError(error);
+    ServerError.isInvalidQueryError(error) ||
+    ServerError.isInvalidBodyError(error) ||
+    ServerError.isInvalidResponseError(error) ||
+    ServerError.isInvalidParamsError(error) ||
+    ServerError.isInvalidHeadersError(error) ||
+    ServerError.isConflictError(error);
 
   if (isValidationError) {
     const innerError = error.error;
@@ -225,12 +215,16 @@ const formatError = (error: unknown) => {
 /** @internal */
 export const convertErrorToResponse = (error: unknown) =>
   Effect.map(formatError(error), (details) => {
-    const tag = isApiError(error) ? error._tag : "InternalServerError";
+    const tag = ServerError.isApiError(error)
+      ? error._tag
+      : "InternalServerError";
     const body = JSON.stringify({ error: tag, details });
 
     return new Response(body, {
-      status: Object.keys(API_STATUS_CODES).includes(tag)
-        ? API_STATUS_CODES[tag as keyof typeof API_STATUS_CODES]
+      status: Object.keys(ServerError.API_STATUS_CODES).includes(tag)
+        ? ServerError.API_STATUS_CODES[
+            tag as keyof typeof ServerError.API_STATUS_CODES
+          ]
         : 500,
       headers: new Headers({ "Content-Type": "application/json" }),
     });
