@@ -1,11 +1,11 @@
 import { Schema } from "@effect/schema";
 import { pipe } from "effect";
-import * as Http from "effect-http";
+import { Api, OpenApi } from "effect-http";
 
 test("description", () => {
   const api = pipe(
-    Http.api(),
-    Http.put(
+    Api.api(),
+    Api.put(
       "myOperation",
       "/my-operation",
       { response: Schema.string },
@@ -13,7 +13,7 @@ test("description", () => {
     ),
   );
 
-  const openApi = Http.openApi(api);
+  const openApi = OpenApi.openApi(api);
 
   expect(openApi.paths["/my-operation"].put?.description).toEqual(
     "my description",

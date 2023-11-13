@@ -1,15 +1,6 @@
-import * as Schema from "@effect/schema/Schema";
-import {
-  Config,
-  ConfigError,
-  Context,
-  Effect,
-  Either,
-  Option,
-  ReadonlyArray,
-  pipe,
-} from "effect";
-import * as Http from "effect-http";
+import { Schema } from "@effect/schema";
+import { Config, ConfigError, Effect, Either, pipe } from "effect";
+import { Api, NodeServer, RouterBuilder } from "effect-http";
 
 export const CredentialsConfig = Config.mapOrFail(
   Config.string(),
@@ -37,51 +28,51 @@ export const ArrayOfCredentialsConfig = pipe(
   (credentialsConfig) => Config.array(credentialsConfig, "CREDENTIALS"),
 );
 
-const CredentialsService = Context.Tag<readonly Http.BasicAuthCredentials[]>();
+// const CredentialsService = Context.Tag<readonly Http.BasicAuthCredentials[]>();
 
 const api = pipe(
-  Http.api({ title: "Users API" }),
-  Http.get("getUser", "/user", {
+  Api.api({ title: "Users API" }),
+  Api.get("getUser", "/user", {
     response: Schema.string,
   }),
 );
 
-const server = pipe(
-  api,
-  Http.server,
-  Http.handle("getUser", () => Effect.succeed("hello world")),
-  Http.addExtension(
-    Http.basicAuthExtension((inputCredentials) =>
-      pipe(
-        Effect.map(
-          CredentialsService,
-          ReadonlyArray.groupBy(({ user }) => user),
-        ),
-        Effect.flatMap((creds) =>
-          pipe(
-            Option.fromNullable(creds[inputCredentials.user]),
-            Option.flatMap(
-              ReadonlyArray.findFirst(
-                (credentials) =>
-                  credentials.password === inputCredentials.password,
-              ),
-            ),
-          ),
-        ),
-        Effect.mapError(() => "Incorrect user or password"),
-      ),
-    ),
-  ),
-  Http.exhaustive,
+const app = pipe(
+  RouterBuilder.make(api),
+  RouterBuilder.handle("getUser", () => Effect.succeed("hello world")),
+  // TODO
+  //RouterBuilder.addExtension(
+  //  Http.basicAuthExtension((inputCredentials) =>
+  //    pipe(
+  //      Effect.map(
+  //        CredentialsService,
+  //        ReadonlyArray.groupBy(({ user }) => user),
+  //      ),
+  //      Effect.flatMap((creds) =>
+  //        pipe(
+  //          Option.fromNullable(creds[inputCredentials.user]),
+  //          Option.flatMap(
+  //            ReadonlyArray.findFirst(
+  //              (credentials) =>
+  //                credentials.password === inputCredentials.password,
+  //            ),
+  //          ),
+  //        ),
+  //      ),
+  //      Effect.mapError(() => "Incorrect user or password"),
+  //    ),
+  //  ),
+  //),
+  RouterBuilder.build,
 );
 
 pipe(
-  server,
-  Http.listen({ port: 3000 }),
-  Effect.provideServiceEffect(
-    CredentialsService,
-    Effect.config(ArrayOfCredentialsConfig),
-  ),
+  app,
+  NodeServer.listen({ port: 3000 }),
+  //Effect.provideServiceEffect(
+  //  CredentialsService,
+  //  Effect.config(ArrayOfCredentialsConfig),
+  //),
   Effect.runPromise,
 );
 

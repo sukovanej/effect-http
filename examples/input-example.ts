@@ -1,10 +1,10 @@
-import * as Schema from "@effect/schema/Schema";
+import { Schema } from "@effect/schema";
 import { Effect, pipe } from "effect";
-import * as Http from "effect-http";
+import { Api, NodeServer, RouterBuilder, ServerError } from "effect-http";
 
 const api = pipe(
-  Http.api({ title: "My api" }),
-  Http.get("stuff", "/stuff", {
+  Api.api({ title: "My api" }),
+  Api.get("stuff", "/stuff", {
     response: Schema.string,
     request: {
       query: Schema.struct({ value: Schema.string }),
@@ -12,20 +12,15 @@ const api = pipe(
   }),
 );
 
-type Api = typeof api;
-
-// Notice query has type { readonly value: string; }
-const handleStuff = ({ query }: Http.Input<Api, "stuff">) =>
-  pipe(
-    Effect.fail(Http.notFoundError("I didnt find it")),
-    Effect.tap(() => Effect.log(`Received ${query.value}`)),
-  );
-
-const server = pipe(
-  api,
-  Http.server,
-  Http.handle("stuff", handleStuff),
-  Http.exhaustive,
+const app = pipe(
+  RouterBuilder.make(api),
+  RouterBuilder.handle("stuff", ({ query }) =>
+    pipe(
+      Effect.fail(ServerError.notFoundError("I didnt find it")),
+      Effect.tap(() => Effect.log(`Received ${query.value}`)),
+    ),
+  ),
+  RouterBuilder.build,
 );
 
-pipe(server, Http.listen({ port: 3000 }), Effect.runPromise);
+pipe(app, NodeServer.listen({ port: 3000 }), Effect.runPromise);

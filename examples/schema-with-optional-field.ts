@@ -1,6 +1,6 @@
 import * as Schema from "@effect/schema/Schema";
 import { Effect, Option, pipe } from "effect";
-import * as Http from "effect-http";
+import { Api, NodeServer, RouterBuilder } from "effect-http";
 
 const Response = Schema.struct({
   foo: Schema.optional(Schema.string).toOption(),
@@ -8,19 +8,18 @@ const Response = Schema.struct({
 });
 
 const api = pipe(
-  Http.api(),
-  Http.get("hello", "/hello", {
+  Api.api(),
+  Api.get("hello", "/hello", {
     response: Response,
   }),
 );
 
-const server = pipe(
-  api,
-  Http.server,
-  Http.handle("hello", () =>
+const app = pipe(
+  RouterBuilder.make(api),
+  RouterBuilder.handle("hello", () =>
     Effect.succeed({ foo: Option.none(), bar: Option.none() }),
   ),
-  Http.exhaustive,
+  RouterBuilder.build,
 );
 
-pipe(server, Http.listen({ port: 4000 }), Effect.runPromise);
+pipe(app, NodeServer.listen({ port: 4000 }), Effect.runPromise);

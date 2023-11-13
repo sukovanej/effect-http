@@ -1,30 +1,30 @@
-import * as Schema from "@effect/schema/Schema";
+import { Schema } from "@effect/schema";
 import { Effect, Predicate, pipe } from "effect";
-import * as Http from "effect-http";
+import { Api, NodeServer, RouterBuilder, ServerError } from "effect-http";
 
 import { debugLogger } from "./_utils";
 
 const api = pipe(
-  Http.api(),
-  Http.post("upload", "/upload", {
+  Api.api(),
+  Api.post("upload", "/upload", {
     request: {
-      body: Http.FormData,
+      body: Api.FormData,
     },
     response: Schema.string,
   }),
 );
 
-const server = pipe(
-  Http.server(api),
-  Http.handle("upload", ({ body }) => {
+const app = pipe(
+  RouterBuilder.make(api),
+  RouterBuilder.handle("upload", ({ body }) => {
     const file = body.get("file");
 
     if (file === null) {
-      return Effect.fail(Http.invalidBodyError('Expected "file"'));
+      return Effect.fail(ServerError.invalidBodyError('Expected "file"'));
     }
 
     if (Predicate.isString(file)) {
-      return Effect.fail(Http.invalidBodyError("Expected file"));
+      return Effect.fail(ServerError.invalidBodyError("Expected file"));
     }
 
     return pipe(
@@ -32,11 +32,12 @@ const server = pipe(
       Effect.map((content) => `Received file with content: ${content}`),
     );
   }),
+  RouterBuilder.build,
 );
 
 const program = pipe(
-  server,
-  Http.listen({ port: 3000 }),
+  app,
+  NodeServer.listen({ port: 3000 }),
   Effect.provide(debugLogger),
 );
 

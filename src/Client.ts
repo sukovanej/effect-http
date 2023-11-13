@@ -21,7 +21,7 @@ import * as ClientResponseParser from "effect-http/internal/clientResponseParser
  * @category models
  * @since 1.0.0
  */
-export type Client<Endpoints extends Api.Endpoint, H> = {
+export type Client<Endpoints extends Api.Endpoint, H = Record<never, never>> = {
   [Id in Endpoints["id"]]: EndpointClient<Endpoints, Id, H>;
 } & Pipeable.Pipeable;
 

@@ -1,14 +1,15 @@
 import { Effect, pipe } from "effect";
-import * as Http from "effect-http";
+import { ExampleServer, RouterBuilder } from "effect-http";
 
 import { simpleApi1 } from "./example-apis";
-import { runTestEffect, testServer } from "./utils";
+import { runTestEffect, testApp } from "./utils";
 
 test("example server", async () => {
-  const server = Http.exampleServer(simpleApi1);
+  const app = ExampleServer.make(simpleApi1);
 
   await pipe(
-    testServer(server),
+    RouterBuilder.build(app),
+    testApp(simpleApi1),
     Effect.flatMap((client) => client.myOperation({})),
     Effect.map((response) => {
       expect(typeof response).toEqual("string");

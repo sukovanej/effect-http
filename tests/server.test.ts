@@ -1,7 +1,5 @@
-import express from "express";
 import { createHash } from "node:crypto";
 
-import { Schema } from "@effect/schema";
 import {
   Context,
   Effect,
@@ -12,6 +10,7 @@ import {
   pipe,
 } from "effect";
 import * as Http from "effect-http";
+import { Api, RouterBuilder, ServerError } from "effect-http";
 
 import {
   exampleApiFullResponse,
@@ -25,7 +24,7 @@ import {
   exampleApiOptionalParams,
   exampleApiPutResponse,
 } from "./examples";
-import { runTestEffect, testExpress, testServer } from "./utils";
+import { runTestEffect, testApp } from "./utils";
 
 const Service1 = Context.Tag<number>();
 const Service2 = Context.Tag<string>();
@@ -39,14 +38,16 @@ const layer2 = pipe(
 test("layers", async () => {
   const layer = Layer.provide(layer1, layer2);
 
-  const server = exampleApiGet.pipe(
-    Http.server,
-    Http.handle("getValue", () => Effect.map(Service1, (value) => value + 2)),
-    Http.exhaustive,
+  const app = RouterBuilder.make(exampleApiGet).pipe(
+    RouterBuilder.handle("getValue", () =>
+      Effect.map(Service1, (value) => value + 2),
+    ),
+    RouterBuilder.build,
   );
 
   const response = await pipe(
-    testServer(server),
+    app,
+    testApp(exampleApiGet),
     Effect.provide(layer),
     Effect.flatMap((client) => client.getValue({})),
     runTestEffect,
@@ -56,15 +57,16 @@ test("layers", async () => {
 });
 
 test("human-readable error response", async () => {
-  const server = exampleApiGetStringResponse.pipe(
-    Http.server,
-    Http.handle("hello", () =>
-      Effect.fail(Http.notFoundError("Didnt find it")),
+  const app = RouterBuilder.make(exampleApiGetStringResponse).pipe(
+    RouterBuilder.handle("hello", () =>
+      Effect.fail(ServerError.notFoundError("Didnt find it")),
     ),
+    RouterBuilder.build,
   );
 
   const result = await pipe(
-    testServer(server),
+    app,
+    testApp(exampleApiGetStringResponse),
     Effect.flatMap((client) => client.hello({})),
     Effect.flip,
     runTestEffect,
@@ -81,19 +83,19 @@ test("human-readable error response", async () => {
 });
 
 test("headers", async () => {
-  const server = pipe(
-    exampleApiGetHeaders,
-    Http.server,
-    Http.handle("hello", ({ headers: { "x-client-id": apiKey } }) =>
+  const app = pipe(
+    RouterBuilder.make(exampleApiGetHeaders),
+    RouterBuilder.handle("hello", ({ headers: { "x-client-id": apiKey } }) =>
       Effect.succeed({
         clientIdHash: createHash("sha256").update(apiKey).digest("base64"),
       }),
     ),
-    Http.exhaustive,
+    RouterBuilder.build,
   );
 
   const result = await pipe(
-    testServer(server),
+    app,
+    testApp(exampleApiGetHeaders),
     Effect.flatMap((client) =>
       client.hello({ headers: { "x-client-id": "abc" } }),
     ),
@@ -105,25 +107,27 @@ test("headers", async () => {
   });
 });
 
-test.each(Http.API_ERROR_TAGS as Http.ApiError["_tag"][])(
+test.each(ServerError.API_ERROR_TAGS as ServerError.ApiError["_tag"][])(
   "status codes",
   async (errorTag) => {
-    const server = pipe(
-      Http.server(exampleApiGetStringResponse),
-      Http.handle("hello", () =>
+    const app = pipe(
+      RouterBuilder.make(exampleApiGetStringResponse),
+      RouterBuilder.handle("hello", () =>
         Effect.fail({ _tag: errorTag, error: "failure" }),
       ),
+      RouterBuilder.build,
     );
 
     const result = await pipe(
-      testServer(server),
+      app,
+      testApp(exampleApiGetStringResponse),
       Effect.flatMap((client) => Effect.either(client.hello({}))),
       runTestEffect,
     );
 
     expect(result).toMatchObject(
       Either.left({
-        status: Http.API_STATUS_CODES[errorTag],
+        status: ServerError.API_STATUS_CODES[errorTag],
       }),
     );
   },
@@ -131,28 +135,29 @@ test.each(Http.API_ERROR_TAGS as Http.ApiError["_tag"][])(
 
 test("Attempt to add a non-existing operation should fail as a safe guard", () => {
   expect(() =>
-    Http.server(exampleApiPutResponse).pipe(
+    RouterBuilder.make(exampleApiPutResponse).pipe(
       // @ts-expect-error
-      Http.handle("nonExistingOperation", () => ""),
+      RouterBuilder.handle("nonExistingOperation", () => ""),
     ),
   ).toThrowError();
 });
 
 test("Custom headers and status", async () => {
-  const server = exampleApiGetCustomResponseWithHeaders.pipe(
-    Http.server,
-    Http.handle("hello", () =>
+  const app = exampleApiGetCustomResponseWithHeaders.pipe(
+    RouterBuilder.make,
+    RouterBuilder.handle("hello", () =>
       Effect.succeed({
         content: { value: "test" },
         headers: { "my-header": "hello" },
         status: 201,
       } as const),
     ),
-    Http.exhaustive,
+    RouterBuilder.build,
   );
 
   const result = await pipe(
-    testServer(server),
+    app,
+    testApp(exampleApiGetCustomResponseWithHeaders),
     Effect.flatMap((client) =>
       // TODO: this header is not necessary, it is provided intentionally?
       client.hello({ headers: { "x-client-id": "abc" } }),
@@ -167,55 +172,20 @@ test("Custom headers and status", async () => {
   });
 });
 
-test("Express interop example", async () => {
-  const legacyApp = express();
-
-  legacyApp.get("/legacy-endpoint", (_, res) => {
-    res.json({ hello: "world" });
-  });
-
-  const api = pipe(
-    Http.api(),
-    Http.get("newEndpoint", "/new-endpoint", {
-      response: Schema.struct({ hello: Schema.string }),
-    }),
-  );
-
-  const server = pipe(
-    Http.server(api),
-    Http.handle("newEndpoint", () => Effect.succeed({ hello: "new world" })),
-    Http.exhaustive,
-  );
-
-  const result = await pipe(
-    server,
-    Http.express(),
-    Effect.map((app) => {
-      app.use(legacyApp);
-      return app;
-    }),
-    Effect.flatMap(testExpress(api)),
-    Effect.flatMap(([client]) => client.newEndpoint({})),
-    runTestEffect,
-  );
-
-  expect(result).toEqual({ hello: "new world" });
-});
-
 test("Response containing optional field", async () => {
-  const server = pipe(
-    exampleApiGetOptionalField,
-    Http.server,
-    Http.handle("hello", ({ query }) =>
+  const app = pipe(
+    RouterBuilder.make(exampleApiGetOptionalField),
+    RouterBuilder.handle("hello", ({ query }) =>
       Effect.succeed({
         foo: query.value === "on" ? Option.some("hello") : Option.none(),
       }),
     ),
-    Http.exhaustive,
+    RouterBuilder.build,
   );
 
   const result = await pipe(
-    testServer(server),
+    app,
+    testApp(exampleApiGetOptionalField),
     Effect.flatMap((client) =>
       Effect.all([
         client.hello({ query: { value: "on" } }),
@@ -231,40 +201,40 @@ test("Response containing optional field", async () => {
   ]);
 });
 
-test("failing after handler extension", async () => {
-  const server = Http.server(exampleApiGetStringResponse).pipe(
-    Http.handle("hello", () => Effect.succeed(1)),
-    Http.addExtension(
-      Http.beforeHandlerExtension("test", () =>
-        Effect.fail(Http.unauthorizedError("sorry bro")),
-      ),
-    ),
-    Http.exhaustive,
-  );
-
-  const result = await pipe(
-    testServer(server),
-    Effect.flatMap((client) => client.hello({})),
-    Effect.either,
-    runTestEffect,
-  );
-
-  expect(result).toEqual(
-    Either.left(
-      Http.HttpClientError.create(
-        { error: "UnauthorizedError", details: "sorry bro" },
-        401,
-      ),
-    ),
-  );
-});
+// test("failing after handler extension", async () => {
+//   const server = RouterBuilder.make(exampleApiGetStringResponse).pipe(
+//     RouterBuilder.handle("hello", () => Effect.succeed(1)),
+//     RouterBuilder.addExtension(
+//       Http.beforeHandlerExtension("test", () =>
+//         Effect.fail(ServerError.unauthorizedError("sorry bro")),
+//       ),
+//     ),
+//     RouterBuilder.exhaustive,
+//   );
+//
+//   const result = await pipe(
+//     testServer(server),
+//     Effect.flatMap((client) => client.hello({})),
+//     Effect.either,
+//     runTestEffect,
+//   );
+//
+//   expect(result).toEqual(
+//     Either.left(
+//       Http.HttpClientError.create(
+//         { error: "UnauthorizedError", details: "sorry bro" },
+//         401,
+//       ),
+//     ),
+//   );
+// });
 
 describe("type safe responses", () => {
   test("responses must have unique status codes", () => {
     expect(() => {
       pipe(
-        Http.api(),
-        Http.post("hello", "/hello", {
+        Api.api(),
+        Api.post("hello", "/hello", {
           response: [{ status: 201 }, { status: 201 }],
         }),
       );
@@ -272,8 +242,8 @@ describe("type safe responses", () => {
   });
 
   test("example", async () => {
-    const server = Http.server(exampleApiMultipleResponses).pipe(
-      Http.handle("hello", ({ query: { value } }) => {
+    const app = RouterBuilder.make(exampleApiMultipleResponses).pipe(
+      RouterBuilder.handle("hello", ({ query: { value } }) => {
         const response =
           value == 12
             ? {
@@ -287,10 +257,12 @@ describe("type safe responses", () => {
 
         return Effect.succeed(response);
       }),
+      RouterBuilder.build,
     );
 
     const result = await pipe(
-      testServer(server),
+      app,
+      testApp(exampleApiMultipleResponses),
       Effect.flatMap((client) =>
         Effect.all(
           ReadonlyArray.map([12, 13, 14], (value) =>
@@ -310,11 +282,12 @@ describe("type safe responses", () => {
 });
 
 test("optional headers / query / params fields", async () => {
-  const server = pipe(
-    Http.server(exampleApiOptional),
-    Http.handle("hello", ({ query, params, headers }) =>
+  const app = pipe(
+    RouterBuilder.make(exampleApiOptional),
+    RouterBuilder.handle("hello", ({ query, params, headers }) =>
       Effect.succeed({ query, params, headers }),
     ),
+    RouterBuilder.build,
   );
 
   const params = [
@@ -340,7 +313,8 @@ test("optional headers / query / params fields", async () => {
   ] as const;
 
   const result = await pipe(
-    testServer(server),
+    app,
+    testApp(exampleApiOptional),
     Effect.flatMap((client) =>
       Effect.all(ReadonlyArray.map(params, client.hello)),
     ),
@@ -369,9 +343,10 @@ test.each([
 });
 
 test("optional parameters", async () => {
-  const server = pipe(
-    Http.server(exampleApiOptionalParams),
-    Http.handle("hello", ({ params }) => Effect.succeed({ params })),
+  const app = pipe(
+    RouterBuilder.make(exampleApiOptionalParams),
+    RouterBuilder.handle("hello", ({ params }) => Effect.succeed({ params })),
+    RouterBuilder.build,
   );
 
   const params = [
@@ -380,7 +355,8 @@ test("optional parameters", async () => {
   ] as const;
 
   const result = await pipe(
-    testServer(server),
+    app,
+    testApp(exampleApiOptionalParams),
     Effect.flatMap((client) =>
       Effect.all(ReadonlyArray.map(params, client.hello)),
     ),
@@ -391,22 +367,24 @@ test("optional parameters", async () => {
 });
 
 test("single full response", async () => {
-  const server = pipe(
-    Http.server(exampleApiFullResponse),
-    Http.handle("hello", () =>
+  const app = pipe(
+    RouterBuilder.make(exampleApiFullResponse),
+    RouterBuilder.handle("hello", () =>
       Effect.succeed({
         content: 12,
         headers: { "my-header": "test" },
         status: 200 as const,
       }),
     ),
-    Http.handle("another", () =>
+    RouterBuilder.handle("another", () =>
       Effect.succeed({ content: 12, status: 200 as const }),
     ),
+    RouterBuilder.build,
   );
 
   const result = await pipe(
-    testServer(server),
+    app,
+    testApp(exampleApiFullResponse),
     Effect.flatMap((client) => Effect.all([client.hello(), client.another()])),
     runTestEffect,
   );

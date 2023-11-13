@@ -1,13 +1,13 @@
 import { Schema } from "@effect/schema";
 import { pipe } from "effect";
 import * as Http from "effect-http";
-import * as Api from "effect-http/Api";
+import { Api } from "effect-http";
 
 test("response helpers", () => {
   const api = pipe(
-    Http.api(),
-    Http.post("doSutff", "/do-stuff", { response: Schema.string }),
-    Http.post("createSomething", "/create-something", {
+    Api.api(),
+    Api.post("doSutff", "/do-stuff", { response: Schema.string }),
+    Api.post("createSomething", "/create-something", {
       response: [
         {
           status: 201,
@@ -23,7 +23,7 @@ test("response helpers", () => {
         }),
       },
     }),
-    Http.post("hello", "/hello", {
+    Api.post("hello", "/hello", {
       response: [
         {
           status: 201,
@@ -45,7 +45,7 @@ test("response helpers", () => {
         }),
       },
     }),
-    Http.post("another", "/another", {
+    Api.post("another", "/another", {
       response: {
         status: 200,
         content: Schema.string,

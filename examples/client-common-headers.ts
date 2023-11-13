@@ -1,16 +1,16 @@
-import * as Schema from "@effect/schema/Schema";
+import { Schema } from "@effect/schema";
 import { Effect, pipe } from "effect";
-import * as Http from "effect-http";
+import { Api, Client } from "effect-http";
 
 const api = pipe(
-  Http.api(),
-  Http.get("test", "/test", {
+  Api.api(),
+  Api.get("test", "/test", {
     response: Schema.struct({ name: Schema.string }),
     headers: { AUTHORIZATION: Schema.string },
   }),
 );
 
-const client = Http.client(api, new URL("http://my-url"), {
+const client = Client.client(api, new URL("http://my-url"), {
   headers: {
     authorization: "Basic aGVsbG8gcGF0cmlrLCBob3cgYXJlIHlvdSB0b2RheQ==",
   },

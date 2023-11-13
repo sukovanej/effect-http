@@ -3,11 +3,16 @@
  *
  * @since 1.0.0
  */
+import * as App from "@effect/platform/Http/App";
 import * as Router from "@effect/platform/Http/Router";
 import * as ServerRequest from "@effect/platform/Http/ServerRequest";
+import * as ServerResponse from "@effect/platform/Http/ServerResponse";
+import { Effect } from "effect";
 import * as Api from "effect-http/Api";
+import * as OpenApi from "effect-http/OpenApi";
 import * as Route from "effect-http/Route";
 import * as ServerError from "effect-http/ServerError";
+import * as SwaggerRouter from "effect-http/SwaggerRouter";
 import { convertMethod } from "effect-http/internal/utils";
 import * as Pipeable from "effect/Pipeable";
 
@@ -18,6 +23,7 @@ import * as Pipeable from "effect/Pipeable";
 export interface RouterBuilder<R, E, RemainingEndpoints extends Api.Endpoint>
   extends Pipeable.Pipeable {
   remainingEndpoints: readonly RemainingEndpoints[];
+  api: Api.Api;
   router: Router.Router<R, E>;
 }
 
@@ -32,6 +38,7 @@ export const make = <Api extends Api.Api>(
 ): RouterBuilder<never, never, Api["endpoints"][number]> => ({
   remainingEndpoints: api.endpoints,
   router: Router.empty,
+  api,
   pipe() {
     // eslint-disable-next-line prefer-rest-params
     return Pipeable.pipeArguments(this, arguments);
@@ -133,12 +140,29 @@ export const mapRouter =
 /**
  * Handle an endpoint using a raw `Router.Route.Handler`.
  *
- * @category getters
+ * @category destructors
  * @since 1.0.0
  */
 export const getRouter = <R, E>(
   builder: RouterBuilder<R, E, any>,
 ): Router.Router<R, E> => builder.router;
+
+/**
+ * Handle an endpoint using a raw `Router.Route.Handler`.
+ *
+ * @category destructors
+ * @since 1.0.0
+ */
+export const build = <R, E>(
+  builder: RouterBuilder<R, E, any>,
+): App.Default<R | SwaggerRouter.SwaggerFiles, E> => {
+  const swaggerRouter = SwaggerRouter.make(OpenApi.openApi(builder.api));
+  return Router.concat(builder.router, swaggerRouter).pipe(
+    Effect.catchTag("RouteNotFound", () =>
+      ServerResponse.text("Not Found", { status: 404 }),
+    ),
+  );
+};
 
 /** @internal */
 const getRemainingEndpoint = <

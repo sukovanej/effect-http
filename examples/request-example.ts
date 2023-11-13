@@ -10,7 +10,7 @@ import {
   RequestResolver,
   pipe,
 } from "effect";
-import * as Http from "effect-http";
+import { Api, NodeServer, RouterBuilder, ServerError } from "effect-http";
 
 import { FileNotFoundError, readFile } from "./_utils";
 
@@ -37,30 +37,31 @@ const requestMyValue = Effect.flatMap(GetValueCache, (getValueCache) =>
 );
 
 const api = pipe(
-  Http.api(),
-  Http.get("getValue", "/value", { response: Schema.string }),
+  Api.api(),
+  Api.get("getValue", "/value", { response: Schema.string }),
 );
 
-const server = pipe(
-  Http.server(api),
-  Http.handle("getValue", () =>
+const app = pipe(
+  RouterBuilder.make(api),
+  RouterBuilder.handle("getValue", () =>
     Effect.flatMap(GetValueCache, (getValueCache) =>
       pipe(
         Effect.all(ReadonlyArray.replicate(requestMyValue, 10), {
           concurrency: 10,
         }),
-        Effect.mapError(() => Http.notFoundError("File not found")),
+        Effect.mapError(() => ServerError.notFoundError("File not found")),
         Effect.withRequestCache(getValueCache),
         Effect.withRequestCaching(true),
         Effect.map((values) => values.join(", ")),
       ),
     ),
   ),
+  RouterBuilder.build,
 );
 
 pipe(
-  server,
-  Http.listen({ port: 3000 }),
+  app,
+  NodeServer.listen({ port: 3000 }),
   Logger.withMinimumLogLevel(LogLevel.All),
   Effect.provideServiceEffect(
     GetValueCache,

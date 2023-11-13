@@ -78,10 +78,10 @@ export const SwaggerFiles = Context.Tag<SwaggerFiles>();
 export const SwaggerFilesLive = pipe(
   SWAGGER_FILE_NAMES,
   Effect.forEach((path) =>
-    Effect.zip(readSwaggerFile(path), Effect.succeed(path)),
+    Effect.zip(Effect.succeed(path), readSwaggerFile(path)),
   ),
   Effect.tap((files) => {
-    const size = files.reduce((acc, [content, _]) => acc + content.length, 0);
+    const size = files.reduce((acc, [_, content]) => acc + content.length, 0);
     const sizeMb = (size / 1024 / 1024).toFixed(1);
 
     return Effect.logDebug(`Static swagger UI files loaded (${sizeMb}MB)`);
@@ -124,9 +124,6 @@ const serverStaticDocsFile = (filename: string) => {
 const redirect = (location: string) =>
   ServerResponse.empty({ status: 301, headers: { location } });
 
-/** @internal */
-const SWAGGER_INITIALIZER_PATH = "/swagger-initializer.js";
-
 /**
  * @category constructors
  * @since 1.0.0
@@ -146,7 +143,7 @@ export const make = (spec: unknown) => {
     Router.get("/docs", redirect("/docs/index.html")),
     Router.get(openApiJsonPath, pipe(ServerResponse.json(spec), Effect.orDie)),
     Router.get(
-      SWAGGER_INITIALIZER_PATH,
+      `/docs/swagger-initializer.js`,
       ServerResponse.text(swaggerInitialiser, {
         headers: { "content-type": "application/javascript" },
       }),

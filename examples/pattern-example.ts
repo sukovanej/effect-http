@@ -1,10 +1,10 @@
 import * as Schema from "@effect/schema/Schema";
 import { Effect, pipe } from "effect";
-import * as Http from "effect-http";
+import { Api, NodeServer, RouterBuilder } from "effect-http";
 
 const api = pipe(
-  Http.api({ title: "My awesome pets API", version: "1.0.0" }),
-  Http.get("test", "/test", {
+  Api.api({ title: "My awesome pets API", version: "1.0.0" }),
+  Api.get("test", "/test", {
     response: Schema.string,
     request: {
       query: Schema.struct({
@@ -14,10 +14,12 @@ const api = pipe(
   }),
 );
 
-const server = pipe(
-  api,
-  Http.server,
-  Http.handle("test", ({ query }) => Effect.succeed(`test ${query.value}`)),
+const app = pipe(
+  RouterBuilder.make(api),
+  RouterBuilder.handle("test", ({ query }) =>
+    Effect.succeed(`test ${query.value}`),
+  ),
+  RouterBuilder.build,
 );
 
-pipe(server, Http.listen({ port: 4000 }), Effect.runPromise);
+pipe(app, NodeServer.listen({ port: 4000 }), Effect.runPromise);

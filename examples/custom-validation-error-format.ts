@@ -1,25 +1,26 @@
-import * as Schema from "@effect/schema/Schema";
+import { Schema } from "@effect/schema";
 import { Effect, pipe } from "effect";
-import * as Http from "effect-http";
+import { Api, NodeServer, RouterBuilder } from "effect-http";
 
 const api = pipe(
-  Http.api(),
-  Http.get("stuff", "/stuff", { response: Schema.string }),
+  Api.api(),
+  Api.get("stuff", "/stuff", { response: Schema.string }),
 );
 
 const server = pipe(
-  api,
-  Http.server,
-  Http.handle("stuff", () => Effect.succeed("stuff")),
-  Http.exhaustive,
+  RouterBuilder.make(api),
+  RouterBuilder.handle("stuff", () => Effect.succeed("stuff")),
+  RouterBuilder.build,
 );
 
-const myValidationErrorFormatter: Http.ValidationErrorFormatter = (error) =>
-  JSON.stringify(error);
+// TODO
+//const myValidationErrorFormatter: ValidationErrorFormatter = (error) =>
+//  JSON.stringify(error);
 
 pipe(
   server,
-  Http.listen({ port: 3000 }),
-  Effect.provide(Http.setValidationErrorFormatter(myValidationErrorFormatter)),
+  NodeServer.listen({ port: 3000 }),
+  // TODO
+  // Effect.provide(Http.setValidationErrorFormatter(myValidationErrorFormatter)),
   Effect.runPromise,
 );

@@ -1,12 +1,12 @@
 import { Effect, ReadonlyArray, pipe } from "effect";
-import * as Http from "effect-http";
+import { Client } from "effect-http";
 
 import { api } from "../examples/headers";
 
 // Example client triggering the API from `examples/headers.ts`
 // Running the script call the `/hello` endpoint 1000k times
 
-const client = Http.client(api, new URL("http://localhost:3000"));
+const client = Client.client(api, new URL("http://localhost:3000"));
 
 pipe(
   Effect.all(

@@ -1,10 +1,10 @@
 import * as Schema from "@effect/schema/Schema";
 import { Context, Effect, pipe } from "effect";
-import * as Http from "effect-http";
+import { Api, NodeServer, RouterBuilder, ServerError } from "effect-http";
 
 const api = pipe(
-  Http.api({ title: "Users API" }),
-  Http.post("storeUser", "/users", {
+  Api.api({ title: "Users API" }),
+  Api.post("storeUser", "/users", {
     response: Schema.string,
     request: {
       body: Schema.struct({ name: Schema.string }),
@@ -26,33 +26,28 @@ const mockUserRepository = UserRepository.of({
   store: () => Effect.unit,
 });
 
-const handleStoreUser = ({ body }: Http.Input<Api, "storeUser">) =>
-  pipe(
-    Effect.flatMap(UserRepository, (userRepository) =>
-      userRepository.existsByName(body.name),
-    ),
-    Effect.filterOrFail(
-      (alreadyExists) => !alreadyExists,
-      () => Http.conflictError(`User "${body.name}" already exists.`),
-    ),
-    Effect.flatMap(() =>
-      Effect.flatMap(UserRepository, (repository) =>
-        repository.store(body.name),
+const routerBuilder = RouterBuilder.make(api).pipe(
+  RouterBuilder.handle("storeUser", ({ body }) =>
+    pipe(
+      Effect.flatMap(UserRepository, (userRepository) =>
+        userRepository.existsByName(body.name),
       ),
+      Effect.filterOrFail(
+        (alreadyExists) => !alreadyExists,
+        () => ServerError.makeText(409, `User "${body.name}" already exists.`),
+      ),
+      Effect.flatMap(() =>
+        Effect.flatMap(UserRepository, (repository) =>
+          repository.store(body.name),
+        ),
+      ),
+      Effect.map(() => `User "${body.name}" stored.`),
     ),
-    Effect.map(() => `User "${body.name}" stored.`),
-  );
-
-const server = pipe(
-  api,
-  Http.server,
-  Http.handle("storeUser", handleStoreUser),
-  Http.exhaustive,
+  ),
 );
 
-pipe(
-  server,
-  Http.listen({ port: 3000 }),
+RouterBuilder.build(routerBuilder).pipe(
+  NodeServer.listen({ port: 3000 }),
   Effect.provideService(UserRepository, mockUserRepository),
   Effect.runPromise,
 );

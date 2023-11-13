@@ -1,6 +1,6 @@
 import * as Schema from "@effect/schema/Schema";
 import { Context, Effect, Layer, pipe } from "effect";
-import * as Http from "effect-http";
+import { Api, Client, NodeServer, RouterBuilder } from "effect-http";
 
 // Schemas
 
@@ -21,56 +21,34 @@ const dummyStuff = pipe(
   Layer.effect(StuffService),
 );
 
-// Handlers
-
-type Api = typeof api;
-
-const handleMilan = ({ body }: Http.Input<Api, "handleMilan">) =>
-  Effect.map(StuffService, ({ value }) => ({
-    ...body,
-    penisLength: body.penisLength + value,
-  }));
-
-const handleStanda = ({ body }: Http.Input<Api, "standa">) =>
-  Effect.succeed({ ...body, standa: "je borec" });
-
-const handleTest = ({ query: { name } }: Http.Input<Api, "test">) =>
-  Effect.succeed({ name });
-
-const handleLesnek = ({ query }: Http.Input<Api, "getLesnek">) =>
-  pipe(
-    Effect.succeed(`hello ${query.name}`),
-    Effect.tap(() => Effect.logDebug("hello world")),
-  );
-
 // Api
 
 const api = pipe(
-  Http.api({ title: "My awesome pets API", version: "1.0.0" }),
-  Http.get("getMilan", "/milan", { response: Schema.string }),
-  Http.get("getLesnek", "/lesnek", {
+  Api.api({ title: "My awesome pets API", version: "1.0.0" }),
+  Api.get("getMilan", "/milan", { response: Schema.string }),
+  Api.get("getLesnek", "/lesnek", {
     response: Schema.string,
     request: {
       query: lesnekSchema,
     },
   }),
-  Http.get("test", "/test", {
+  Api.get("test", "/test", {
     response: standaSchema,
     request: { query: lesnekSchema },
   }),
-  Http.post("standa", "/standa", {
+  Api.post("standa", "/standa", {
     response: standaSchema,
     request: {
       body: standaSchema,
     },
   }),
-  Http.post("handleMilan", "/petr", {
+  Api.post("handleMilan", "/petr", {
     response: milanSchema,
     request: {
       body: milanSchema,
     },
   }),
-  Http.put("callStanda", "/api/zdar", {
+  Api.put("callStanda", "/api/zdar", {
     response: Schema.string,
     request: {
       body: Schema.struct({ zdar: Schema.literal("zdar") }),
@@ -78,24 +56,35 @@ const api = pipe(
   }),
 );
 
-// Server
-
-const server = pipe(
-  api,
-  Http.server,
-  Http.handle("getMilan", () => Effect.succeed("test")),
-  Http.handle("test", handleTest),
-  Http.handle("handleMilan", handleMilan),
-  Http.handle("standa", handleStanda),
-  Http.handle("getLesnek", handleLesnek),
-  Http.handle("callStanda", () => Effect.succeed("zdar")),
+const app = pipe(
+  RouterBuilder.make(api),
+  RouterBuilder.handle("handleMilan", ({ body }) =>
+    Effect.map(StuffService, ({ value }) => ({
+      ...body,
+      penisLength: body.penisLength + value,
+    })),
+  ),
+  RouterBuilder.handle("getMilan", () => Effect.succeed("test")),
+  RouterBuilder.handle("test", ({ query: { name } }) =>
+    Effect.succeed({ name }),
+  ),
+  RouterBuilder.handle("standa", ({ body }) =>
+    Effect.succeed({ ...body, standa: "je borec" }),
+  ),
+  RouterBuilder.handle("getLesnek", ({ query }) =>
+    pipe(
+      Effect.succeed(`hello ${query.name}`),
+      Effect.tap(() => Effect.logDebug("hello world")),
+    ),
+  ),
+  RouterBuilder.handle("callStanda", () => Effect.succeed("zdar")),
 );
 
-const client = Http.client(api, new URL("http://localhost:4000"));
+const client = Client.client(api, new URL("http://localhost:4000"));
 
 pipe(
-  server,
-  Http.listen({ port: 4000 }),
+  RouterBuilder.build(app),
+  NodeServer.listen({ port: 4000 }),
   Effect.flatMap(() => pipe(client.callStanda({ body: { zdar: "zdar" } }))),
   Effect.provide(dummyStuff),
   Effect.runPromise,

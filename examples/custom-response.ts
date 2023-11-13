@@ -1,10 +1,10 @@
 import { Schema } from "@effect/schema";
 import { Effect, pipe } from "effect";
-import * as Http from "effect-http";
+import { Api, NodeServer, RouterBuilder } from "effect-http";
 
 const api = pipe(
-  Http.api(),
-  Http.get("hello", "/hello", {
+  Api.api(),
+  Api.get("hello", "/hello", {
     response: {
       status: 201,
       headers: Schema.struct({
@@ -15,16 +15,16 @@ const api = pipe(
   }),
 );
 
-const server = pipe(
-  Http.server(api),
-  Http.handle("hello", ({ ResponseUtil }) =>
-    Effect.succeed(
-      ResponseUtil.response201({
-        content: 12,
-        headers: { "x-hello-world": "test" },
-      }),
-    ),
+const app = pipe(
+  RouterBuilder.make(api),
+  RouterBuilder.handle("hello", () =>
+    Effect.succeed({
+      content: 12,
+      headers: { "x-hello-world": "test" },
+      status: 201 as const,
+    }),
   ),
+  RouterBuilder.build,
 );
 
-pipe(server, Http.listen({ port: 3000 }), Effect.runPromise);
+pipe(app, NodeServer.listen({ port: 3000 }), Effect.runPromise);

@@ -8,7 +8,7 @@ import {
   Schedule,
   pipe,
 } from "effect";
-import * as Http from "effect-http";
+import { Api, NodeServer, RouterBuilder, ServerError } from "effect-http";
 
 import { FileNotFoundError, debugLogger, readFile } from "./_utils";
 
@@ -17,24 +17,25 @@ const MyValue = Context.Tag<Resource.Resource<FileNotFoundError, string>>();
 const readMyValue = Effect.flatMap(MyValue, Resource.get);
 
 const api = pipe(
-  Http.api(),
-  Http.get("getValue", "/value", { response: Schema.string }),
+  Api.api(),
+  Api.get("getValue", "/value", { response: Schema.string }),
 );
 
-const server = pipe(
-  Http.server(api),
-  Http.handle("getValue", () =>
+const app = pipe(
+  RouterBuilder.make(api),
+  RouterBuilder.handle("getValue", () =>
     pipe(
       Effect.all(ReadonlyArray.replicate(readMyValue, 10), { concurrency: 10 }),
-      Effect.mapError(() => Http.notFoundError("File not found")),
+      Effect.mapError(() => ServerError.notFoundError("File not found")),
       Effect.map((values) => values.join(", ")),
     ),
   ),
+  RouterBuilder.build,
 );
 
 pipe(
-  server,
-  Http.listen({ port: 3000 }),
+  app,
+  NodeServer.listen({ port: 3000 }),
   Effect.provideServiceEffect(
     MyValue,
     Resource.auto(

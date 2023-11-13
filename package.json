@@ -47,12 +47,11 @@
   "devDependencies": {
     "@changesets/cli": "^2.26.2",
     "@effect/docgen": "^0.3.2",
+    "@effect/platform-node": "^0.29.2",
     "@effect/schema": "^0.47.6",
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",
-    "@types/express": "^4.17.21",
     "@types/node": "^20.9.0",
     "@types/swagger-ui-dist": "^3.30.4",
-    "@types/swagger-ui-express": "^4.1.6",
     "@typescript-eslint/eslint-plugin": "^6.10.0",
     "@typescript-eslint/parser": "^6.10.0",
     "effect": "2.0.0-next.54",
@@ -66,11 +65,8 @@
   },
   "dependencies": {
     "@effect/platform": "^0.28.2",
-    "@effect/platform-node": "^0.29.2",
-    "express": "^4.18.2",
     "schema-openapi": "^0.20.0",
-    "swagger-ui-dist": "^5.9.3",
-    "swagger-ui-express": "^5.0.0"
+    "swagger-ui-dist": "^5.9.3"
   },
   "peerDependencies": {
     "@effect/schema": "^0.47.2",

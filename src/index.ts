@@ -10,11 +10,6 @@
 /**
  * @since 1.0.0
  */
-export * from "effect-http/Api";
-
-/**
- * @since 1.0.0
- */
 export * from "effect-http/Server";
 
 /**
@@ -25,42 +20,12 @@ export * from "effect-http/ServerBuilder";
 /**
  * @since 1.0.0
  */
-export * from "effect-http/ServerError";
-
-/**
- * @since 1.0.0
- */
 export * from "effect-http/ValidationErrorFormatter";
 
 /**
  * @since 1.0.0
  */
-export * from "effect-http/Client";
-
-/**
- * @since 1.0.0
- */
 export * from "effect-http/ClientError";
-
-/**
- * @since 1.0.0
- */
-export * from "effect-http/Express";
-
-/**
- * @since 1.0.0
- */
-export * from "effect-http/ExampleServer";
-
-/**
- * @since 1.0.0
- */
-export * from "effect-http/OpenApi";
-
-/**
- * @since 1.0.0
- */
-export * from "effect-http/MockClient";
 
 /**
  * @since 1.0.0
@@ -80,6 +45,11 @@ export * from "effect-http/Utils";
 /**
  * @since 1.0.0
  */
+export * as Api from "effect-http/Api";
+
+/**
+ * @since 1.0.0
+ */
 export * as Route from "effect-http/Route";
 
 /**
@@ -91,3 +61,33 @@ export * as RouterBuilder from "effect-http/RouterBuilder";
  * @since 1.0.0
  */
 export * as SwaggerRouter from "effect-http/SwaggerRouter";
+
+/**
+ * @since 1.0.0
+ */
+export * as ServerError from "effect-http/ServerError";
+
+/**
+ * @since 1.0.0
+ */
+export * as NodeServer from "effect-http/NodeServer";
+
+/**
+ * @since 1.0.0
+ */
+export * as ExampleServer from "effect-http/ExampleServer";
+
+/**
+ * @since 1.0.0
+ */
+export * as OpenApi from "effect-http/OpenApi";
+
+/**
+ * @since 1.0.0
+ */
+export * as Client from "effect-http/Client";
+
+/**
+ * @since 1.0.0
+ */
+export * as MockClient from "effect-http/MockClient";

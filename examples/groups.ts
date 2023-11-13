@@ -1,35 +1,63 @@
-import * as Schema from "@effect/schema/Schema";
-import { Effect, pipe } from "effect";
-import * as Http from "effect-http";
+import { runMain } from "@effect/platform-node/Runtime";
+import { Schema } from "@effect/schema";
+import { Effect, Fiber, LogLevel, Logger, Schedule, pipe } from "effect";
+import { Api, ExampleServer, NodeServer, RouterBuilder } from "effect-http";
+import { Log } from "effect-log";
 
 const responseSchema = Schema.struct({ name: Schema.string });
 
 const testApi = pipe(
-  Http.apiGroup("test"),
-  Http.get("test", "/test", { response: responseSchema }),
+  Api.apiGroup("test"),
+  Api.get("test", "/test", { response: responseSchema }),
 );
 
 const userApi = pipe(
-  Http.apiGroup("Users"),
-  Http.get("getUser", "/user", { response: responseSchema }),
-  Http.post("storeUser", "/user", { response: responseSchema }),
-  Http.put("updateUser", "/user", { response: responseSchema }),
-  Http.delete("deleteUser", "/user", { response: responseSchema }),
+  Api.apiGroup("Users"),
+  Api.get("getUser", "/user", { response: responseSchema }),
+  Api.post("storeUser", "/user", { response: responseSchema }),
+  Api.put("updateUser", "/user", { response: responseSchema }),
+  Api.delete("deleteUser", "/user", { response: responseSchema }),
 );
 
 const categoriesApi = pipe(
-  Http.apiGroup("Categories"),
-  Http.get("getCategory", "/category", { response: responseSchema }),
-  Http.post("storeCategory", "/category", { response: responseSchema }),
-  Http.put("updateCategory", "/category", { response: responseSchema }),
-  Http.delete("deleteCategory", "/category", { response: responseSchema }),
+  Api.apiGroup("Categories"),
+  Api.get("getCategory", "/category", { response: responseSchema }),
+  Api.post("storeCategory", "/category", { response: responseSchema }),
+  Api.put("updateCategory", "/category", { response: responseSchema }),
+  Api.delete("deleteCategory", "/category", { response: responseSchema }),
 );
 
 const api = pipe(
-  Http.api(),
-  Http.addGroup(testApi),
-  Http.addGroup(userApi),
-  Http.addGroup(categoriesApi),
+  Api.api(),
+  Api.addGroup(testApi),
+  Api.addGroup(userApi),
+  Api.addGroup(categoriesApi),
 );
 
-pipe(api, Http.exampleServer, Http.listen({ port: 3000 }), Effect.runPromise);
+const program = Effect.gen(function* (_) {
+  const server = yield* _(
+    ExampleServer.make(api),
+    RouterBuilder.build,
+    NodeServer.listen({ port: 3000 }),
+    Effect.fork,
+  );
+
+  const fiberChecker = yield* _(
+    Fiber.roots,
+    Effect.flatMap((fibers) => Effect.log(`I see ${fibers.length} fibers`)),
+    Effect.schedule(
+      Schedule.zipLeft(Schedule.repeatForever, Schedule.linear(1000)),
+    ),
+    Effect.forkDaemon,
+  );
+
+  yield* _(Fiber.joinAll([server, fiberChecker]));
+});
+
+pipe(
+  program,
+  Effect.tapErrorCause(Effect.logError),
+  Logger.withMinimumLogLevel(LogLevel.All),
+  Effect.provide(Log.setPrettyLogger()),
+  runMain,
+);

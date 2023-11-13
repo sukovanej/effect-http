@@ -1,12 +1,12 @@
 import { Schema } from "@effect/schema";
 import { Effect, pipe } from "effect";
-import * as Http from "effect-http";
+import { Api, MockClient } from "effect-http";
 
-export const exampleApiGet = Http.api().pipe(
-  Http.get("getValue", "/get-value", { response: Schema.number }),
+export const exampleApiGet = Api.api().pipe(
+  Api.get("getValue", "/get-value", { response: Schema.number }),
 );
 
-const client = Http.mockClient(exampleApiGet);
+const client = MockClient.mockClient(exampleApiGet);
 
 const program = pipe(
   client.getValue({}),

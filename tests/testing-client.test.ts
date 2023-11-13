@@ -1,13 +1,14 @@
 import { Schema } from "@effect/schema";
 import { Context, Effect, Either, Predicate, pipe } from "effect";
 import * as Http from "effect-http";
+import { Api, ServerError } from "effect-http";
 
 import { runTestEffect } from "./utils";
 
 test("testing query", async () => {
   const api = pipe(
-    Http.api(),
-    Http.get("hello", "/hello", {
+    Api.api(),
+    Api.get("hello", "/hello", {
       response: Schema.string,
       request: {
         query: Schema.struct({ input: Schema.NumberFromString }),
@@ -31,8 +32,8 @@ test("testing query", async () => {
 
 test("testing failure", async () => {
   const api = pipe(
-    Http.api(),
-    Http.get("hello", "/hello", {
+    Api.api(),
+    Api.get("hello", "/hello", {
       response: Schema.string,
     }),
   );
@@ -40,7 +41,9 @@ test("testing failure", async () => {
   const server = pipe(
     api,
     Http.server,
-    Http.handle("hello", () => Effect.fail(Http.notFoundError("oh oh"))),
+    Http.handle("hello", () =>
+      Effect.fail(Http.ServerError.notFoundError("oh oh")),
+    ),
   );
 
   const response = await pipe(
@@ -64,8 +67,8 @@ test("testing failure", async () => {
 
 test("testing with dependencies", async () => {
   const api = pipe(
-    Http.api(),
-    Http.get("hello", "/hello", {
+    Api.api(),
+    Api.get("hello", "/hello", {
       response: Schema.string,
       request: {
         query: Schema.struct({ input: Schema.NumberFromString }),
@@ -94,8 +97,8 @@ test("testing with dependencies", async () => {
 
 test("testing params", async () => {
   const api = pipe(
-    Http.api(),
-    Http.get("hello", "/hello/:input", {
+    Api.api(),
+    Api.get("hello", "/hello/:input", {
       response: Schema.string,
       request: {
         params: Schema.struct({ input: Schema.NumberFromString }),
@@ -119,8 +122,8 @@ test("testing params", async () => {
 
 test("testing multiple responses", async () => {
   const api = pipe(
-    Http.api(),
-    Http.get("hello", "/hello", {
+    Api.api(),
+    Api.get("hello", "/hello", {
       response: [
         {
           content: Schema.number,
@@ -164,8 +167,8 @@ test("testing multiple responses", async () => {
 
 test("testing body", async () => {
   const api = pipe(
-    Http.api(),
-    Http.post("hello", "/hello", {
+    Api.api(),
+    Api.post("hello", "/hello", {
       response: Schema.string,
       request: {
         body: Schema.struct({ input: Schema.NumberFromString }),
@@ -189,10 +192,10 @@ test("testing body", async () => {
 
 test("form data", async () => {
   const api = pipe(
-    Http.api(),
-    Http.post("upload", "/upload", {
+    Api.api(),
+    Api.post("upload", "/upload", {
       request: {
-        body: Http.FormData,
+        body: Api.FormData,
       },
       response: Schema.string,
     }),
@@ -204,11 +207,11 @@ test("form data", async () => {
       const file = body.get("file");
 
       if (file === null) {
-        return Effect.fail(Http.invalidBodyError('Expected "file"'));
+        return Effect.fail(ServerError.invalidBodyError('Expected "file"'));
       }
 
       if (Predicate.isString(file)) {
-        return Effect.fail(Http.invalidBodyError("Expected file"));
+        return Effect.fail(ServerError.invalidBodyError("Expected file"));
       }
 
       return Effect.promise(() => file.text());
