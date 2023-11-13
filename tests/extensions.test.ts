@@ -1,9 +1,8 @@
 import { Schema } from "@effect/schema";
 import { Effect, Either, pipe } from "effect";
-import * as Http from "effect-http";
-import { Api, RouterBuilder } from "effect-http";
+import { Api, RouterBuilder, ServerError, Testing } from "effect-http";
 
-import { runTestEffect, testApp } from "./utils";
+import { runTestEffect } from "./utils";
 
 const helloApi = pipe(
   Api.api(),
@@ -40,8 +39,7 @@ test("basic auth", async () => {
   );
 
   const result = await pipe(
-    app,
-    testApp(helloApi),
+    Testing.make(app, helloApi),
     Effect.flatMap((client) =>
       Effect.all(
         [
@@ -59,12 +57,7 @@ test("basic auth", async () => {
   );
 
   expect(result).toEqual([
-    Either.left(
-      Http.HttpClientError.create(
-        { error: "UnauthorizedError", details: "wrong credentials" },
-        401,
-      ),
-    ),
+    Either.left(ServerError.unauthorizedError("wrong credentials")),
     Either.right("test"),
     Either.right("pong"),
   ]);

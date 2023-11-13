@@ -31,6 +31,7 @@ const handleUnsucessful = Unify.unify(
   (response: HttpClient.response.ClientResponse) => {
     if (response.status >= 300) {
       return response.json.pipe(
+        Effect.orElse(() => response.text),
         Effect.orElseSucceed(() => "No body provided"),
         Effect.flatMap((error) =>
           Effect.fail(

@@ -1,21 +1,8 @@
 /**
  * Reexport of all the submodules.
  *
- * ```ts
- * import * as Http from 'effect-http';
- * ```
  * @since 1.0.0
  */
-
-/**
- * @since 1.0.0
- */
-export * from "effect-http/Server";
-
-/**
- * @since 1.0.0
- */
-export * from "effect-http/ServerBuilder";
 
 /**
  * @since 1.0.0
@@ -25,22 +12,7 @@ export * from "effect-http/ValidationErrorFormatter";
 /**
  * @since 1.0.0
  */
-export * from "effect-http/ClientError";
-
-/**
- * @since 1.0.0
- */
-export * from "effect-http/Testing";
-
-/**
- * @since 1.0.0
- */
-export * from "effect-http/Extensions";
-
-/**
- * @since 1.0.0
- */
-export * from "effect-http/Utils";
+export * as ClientError from "effect-http/ClientError";
 
 /**
  * @since 1.0.0
@@ -91,3 +63,8 @@ export * as Client from "effect-http/Client";
  * @since 1.0.0
  */
 export * as MockClient from "effect-http/MockClient";
+
+/**
+ * @since 1.0.0
+ */
+export * as Testing from "effect-http/Testing";

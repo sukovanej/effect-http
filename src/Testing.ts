@@ -3,189 +3,106 @@
  *
  * @since 1.0.0
  */
-import { ParseResult, Schema } from "@effect/schema";
-import { Effect, Match, Predicate, type Types, pipe } from "effect";
-import type * as Api from "effect-http/Api";
-import { ClientFunctionResponse } from "effect-http/Client";
-import * as ClientError from "effect-http/ClientError";
-import { buildServer } from "effect-http/Server";
-import type {
-  EndpointSchemasTo,
-  ServerBuilder,
-} from "effect-http/ServerBuilder";
-import {
-  createRequestEncoder,
-  createResponseSchema,
-  getResponseContent,
-  isArray,
-} from "effect-http/internal/utils";
+import * as PlatformNodeServer from "@effect/platform-node/Http/Server";
+import * as App from "@effect/platform/Http/App";
+import * as Platform from "@effect/platform/Http/Platform";
+import * as Server from "@effect/platform/Http/Server";
+import * as ServerRequest from "@effect/platform/Http/ServerRequest";
+import { Deferred, Scope } from "effect";
+import * as Api from "effect-http/Api";
+import * as Client from "effect-http/Client";
+import * as SwaggerRouter from "effect-http/SwaggerRouter";
+import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 
 /**
- * Create a testing client for the `Server`. It generates a similar interface
- * as the `Http.client` but instead of remote Http calls it performs direct
- * handler invocations and returns a `Response` object.
- *
- * All the validations and `Request` / `Response` conversions are actually
- * triggered, the network part is bypassed.
- *
- * Server dependencies are propagated to the `Effect` context. Thus, if your
- * server implementation involves the usage of services, you need to
- * satisfy the conctract in your tests.
+ * Create a testing client for the `Server`.
  *
  * @category constructors
  * @since 1.0.0
  */
-export const testingClient = <R, A extends Api.Api>(
-  serverBuilder: ServerBuilder<R, never, A>,
-): TestingClient<R, A["endpoints"][number]> => {
-  const server = buildServer(serverBuilder);
+export const make: {
+  <Endpoints extends Api.Endpoint>(
+    api: Api.Api<Endpoints>,
+  ): <R, E>(
+    app: App.Default<R | SwaggerRouter.SwaggerFiles, E>,
+  ) => Effect.Effect<
+    | Scope.Scope
+    | Exclude<
+        Exclude<
+          Exclude<R, ServerRequest.ServerRequest>,
+          PlatformNodeServer.Server | Platform.Platform
+        >,
+        SwaggerRouter.SwaggerFiles
+      >,
+    never,
+    Client.Client<Endpoints>
+  >;
 
-  return server.api.endpoints.reduce(
-    (client, { id, method, path, schemas }) => {
-      const parseInputs = createRequestEncoder(schemas.request);
-      const parseResponse = createResponseParser(schemas.response);
+  <R, E, Endpoints extends Api.Endpoint>(
+    app: App.Default<R | SwaggerRouter.SwaggerFiles, E>,
+    api: Api.Api<Endpoints>,
+  ): Effect.Effect<
+    | Scope.Scope
+    | Exclude<
+        Exclude<
+          Exclude<R, ServerRequest.ServerRequest>,
+          PlatformNodeServer.Server | Platform.Platform
+        >,
+        SwaggerRouter.SwaggerFiles
+      >,
+    never,
+    Client.Client<Endpoints>
+  >;
+} = dual(
+  2,
+  <R, E, Endpoints extends Api.Endpoint>(
+    app: App.Default<R | SwaggerRouter.SwaggerFiles, E>,
+    api: Api.Api<Endpoints>,
+  ): Effect.Effect<
+    | Scope.Scope
+    | Exclude<
+        Exclude<
+          Exclude<R, ServerRequest.ServerRequest>,
+          PlatformNodeServer.Server | Platform.Platform
+        >,
+        SwaggerRouter.SwaggerFiles
+      >,
+    never,
+    Client.Client<Endpoints>
+  > =>
+    Effect.gen(function* (_) {
+      const allocatedUrl = yield* _(Deferred.make<never, string>());
 
-      const handler = server.handlers.find(
-        ({ endpoint }) => endpoint.id === id,
+      const { createServer } = yield* _(Effect.promise(() => import("http")));
+
+      const NodeServerLive = PlatformNodeServer.layer(() => createServer(), {
+        port: undefined,
+      });
+
+      yield* _(
+        serverUrl,
+        Effect.flatMap((url) => Deferred.succeed(allocatedUrl, url)),
+        Effect.flatMap(() => Server.serve(app)),
+        Effect.provide(NodeServerLive),
+        Effect.provide(SwaggerRouter.SwaggerFilesLive),
+        Effect.forkScoped,
       );
 
-      if (handler === undefined) {
-        throw new Error(`Couldn't find server implementation for ${id}`);
-      }
-
-      const fn = (_args: any) => {
-        const args = _args || {};
-
-        return pipe(
-          parseInputs(args),
-          Effect.tap(() => Effect.logTrace(`${method} ${path}`)),
-          Effect.flatMap(({ body, query, params, headers }) =>
-            Effect.gen(function* (_) {
-              const pathStr = Object.entries(params ?? {}).reduce(
-                (path, [key, value]) => path.replace(`:${key}`, value as any),
-                path,
-              );
-
-              const url = new URL(`http://localhost${pathStr}`);
-
-              Object.entries(query ?? {}).forEach(([name, value]) =>
-                url.searchParams.set(name, value as any),
-              );
-
-              const _body = Match.value(body).pipe(
-                Match.when(Match.instanceOf(FormData), (fd) => fd),
-                Match.when(Match.undefined, () => undefined),
-                Match.orElse(JSON.stringify),
-              );
-
-              const contentType = Predicate.isString(_body)
-                ? "application/json"
-                : undefined;
-
-              const init = {
-                ...(_body && { body: _body }),
-                headers: {
-                  ...headers,
-                  ...(contentType && { "content-type": contentType }),
-                },
-                method,
-              };
-              const request = new Request(url, init);
-
-              const response = yield* _(handler.fn(request));
-
-              const content = yield* _(getResponseContent(response));
-              const responseHeaders = Object.fromEntries(
-                response.headers.entries(),
-              );
-              const status = response.status;
-
-              if (status < 200 || status >= 300) {
-                return yield* _(
-                  Effect.fail(
-                    ClientError.HttpClientError.create(content, status),
-                  ),
-                );
-              }
-
-              const parsedResponse = yield* _(
-                parseResponse({ content, headers: responseHeaders, status }),
-              );
-
-              if (isArray(schemas.response)) {
-                return parsedResponse;
-              }
-
-              return parsedResponse.content;
-            }),
-          ),
-          Effect.annotateLogs("clientOperationId", id),
-        );
-      };
-      return { ...client, [id]: fn };
-    },
-    {} as TestingClient<R, A["endpoints"][number]>,
-  );
-};
-
-/** @ignore */
-type Response = {
-  status: number;
-  content: unknown;
-  headers: Record<string, string>;
-};
+      return yield* _(
+        Deferred.await(allocatedUrl),
+        Effect.map((url) => Client.client(api, url)),
+      );
+    }),
+);
 
 /** @internal */
-export const createResponseParser = (
-  responseSchema: Api.EndpointSchemas["response"],
-): ((
-  response: Response,
-) => Effect.Effect<
-  never,
-  ParseResult.ParseError,
-  { status: number; headers: unknown; content: unknown }
->) => {
-  const parseContent = Schema.parse(createResponseSchema(responseSchema));
-  const isFullResponse = isArray(responseSchema);
+const serverUrl = Effect.map(Server.Server, (server) => {
+  const address = server.address;
 
-  return (response: Response) => {
-    if (isFullResponse) {
-      return parseContent(response);
-    }
+  if (address._tag === "UnixAddress") {
+    return address.path;
+  }
 
-    return pipe(
-      parseContent(response.content),
-      Effect.map((content) => ({ ...response, content })),
-    );
-  };
-};
-
-// Internal type helpers
-
-/** @ignore */
-export type TestingClient<R, Endpoints extends Api.Endpoint> = {
-  [Id in Endpoints["id"]]: TestClientFunction<
-    R,
-    MakeHeadersOptionIfAllPartial<
-      EndpointSchemasTo<Extract<Endpoints, { id: Id }>["schemas"]>["request"]
-    >,
-    ClientFunctionResponse<
-      Extract<Endpoints, { id: Id }>["schemas"]["response"]
-    >
-  >;
-};
-
-/** @ignore */
-type TestClientFunction<R, I, Response> = Record<string, never> extends I
-  ? (input?: I) => Effect.Effect<R, unknown, Response>
-  : (input: I) => Effect.Effect<R, unknown, Response>;
-
-/** @ignore */
-type MakeHeadersOptionIfAllPartial<I> = I extends { headers: any }
-  ? Types.Simplify<
-      (Record<string, never> extends I["headers"]
-        ? { headers?: I["headers"] }
-        : Pick<I, "headers">) &
-        Omit<I, "headers">
-    >
-  : I;
+  return `http://localhost:${address.port}`;
+});

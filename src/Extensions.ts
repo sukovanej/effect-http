@@ -11,15 +11,10 @@ import {
   HashMap,
   Metric,
   Option,
-  Predicate,
   identity,
   pipe,
 } from "effect";
-import {
-  type ApiError,
-  isApiError,
-  unauthorizedError,
-} from "effect-http/ServerError";
+import { ServerError } from "effect-http";
 
 /**
  * Effect running before handlers.
@@ -30,7 +25,7 @@ import {
 export interface BeforeHandlerExtension<R> {
   _tag: "BeforeHandlerExtension";
   id: string;
-  fn: (request: Request) => Effect.Effect<R, ApiError, unknown>;
+  fn: (request: Request) => Effect.Effect<R, ServerError.ServerError, unknown>;
 }
 
 /**
@@ -45,7 +40,7 @@ export interface AfterHandlerExtension<R> {
   fn: (
     request: Request,
     response: Response,
-  ) => Effect.Effect<R, ApiError, unknown>;
+  ) => Effect.Effect<R, ServerError.ServerError, unknown>;
 }
 
 /**
@@ -179,18 +174,12 @@ export const errorLogExtension = () =>
 
     return pipe(
       Effect.logError(`${request.method.toUpperCase()} ${path} failed`),
-      isApiError(error)
+      ServerError.isServerError(error)
         ? (eff) =>
-            pipe(
-              eff,
-              Effect.annotateLogs("errorTag", error._tag),
-              Effect.annotateLogs(
-                "error",
-                Predicate.isString(error.error)
-                  ? error.error
-                  : JSON.stringify(error.error),
-              ),
-            )
+            Effect.annotateLogs(eff, {
+              errorTag: error._tag,
+              error: error.json || error.message,
+            })
         : identity,
     );
   });
@@ -219,13 +208,15 @@ export const basicAuthExtension = <R2, _>(
   beforeHandlerExtension("basic-auth", (request) =>
     pipe(
       Option.fromNullable(request.headers.get(headerName)),
-      Effect.mapError(() => unauthorizedError(`Expected header ${headerName}`)),
+      Effect.mapError(() =>
+        ServerError.unauthorizedError(`Expected header ${headerName}`),
+      ),
       Effect.flatMap((authHeader) => {
         const authorizationParts = authHeader.split(" ");
 
         if (authorizationParts.length !== 2) {
           return Effect.fail(
-            unauthorizedError(
+            ServerError.unauthorizedError(
               'Incorrect auhorization scheme. Expected "Basic <credentials>"',
             ),
           );
@@ -233,7 +224,7 @@ export const basicAuthExtension = <R2, _>(
 
         if (authorizationParts[0] !== "Basic") {
           return Effect.fail(
-            unauthorizedError(
+            ServerError.unauthorizedError(
               `Incorrect auhorization type. Expected "Basic", got "${authorizationParts[0]}"`,
             ),
           );
@@ -245,7 +236,7 @@ export const basicAuthExtension = <R2, _>(
 
         if (credentialsParts.length !== 2) {
           return Effect.fail(
-            unauthorizedError(
+            ServerError.unauthorizedError(
               'Incorrect basic auth credentials format. Expected base64 encoded "<user>:<pass>".',
             ),
           );
@@ -257,7 +248,10 @@ export const basicAuthExtension = <R2, _>(
         });
       }),
       Effect.flatMap((credentials) =>
-        Effect.mapError(checkCredentials(credentials), unauthorizedError),
+        Effect.mapError(
+          checkCredentials(credentials),
+          ServerError.unauthorizedError,
+        ),
       ),
     ),
   );

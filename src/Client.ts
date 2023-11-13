@@ -10,10 +10,7 @@ import { Schema } from "@effect/schema";
 import { Effect, Pipeable, type Types, pipe } from "effect";
 import * as Api from "effect-http/Api";
 import type * as ClientError from "effect-http/ClientError";
-import type {
-  EndpointSchemasTo,
-  ResponseSchemaFullTo,
-} from "effect-http/ServerBuilder";
+import type * as Route from "effect-http/Route";
 import * as ClientRequestEncoder from "effect-http/internal/clientRequestEncoder";
 import * as ClientResponseParser from "effect-http/internal/clientResponseParser";
 
@@ -121,9 +118,9 @@ export type ClientFunctionResponse<
   S extends Schema.Schema<any, infer A>
     ? A
     : S extends readonly Api.ResponseSchemaFull[]
-    ? ResponseSchemaFullTo<S[number]>
+    ? Route.ResponseSchemaFullTo<S[number]>
     : S extends Api.ResponseSchemaFull
-    ? ResponseSchemaFullTo<S>
+    ? Route.ResponseSchemaFullTo<S>
     : never
 >;
 
@@ -153,7 +150,9 @@ type EndpointClient<Endpoints extends Api.Endpoint, Id, H> = ClientFunction<
   Id,
   MakeHeadersOptionIfAllPartial<
     DropCommonHeaders<
-      EndpointSchemasTo<Extract<Endpoints, { id: Id }>["schemas"]>["request"],
+      Route.EndpointSchemasTo<
+        Extract<Endpoints, { id: Id }>["schemas"]
+      >["request"],
       H
     >
   >

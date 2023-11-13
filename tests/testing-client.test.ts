@@ -1,7 +1,10 @@
+import { HttpServer } from "@effect/platform";
+import { NodeContext } from "@effect/platform-node";
+import * as Router from "@effect/platform/Http/Router";
 import { Schema } from "@effect/schema";
-import { Context, Effect, Either, Predicate, pipe } from "effect";
-import * as Http from "effect-http";
-import { Api, ServerError } from "effect-http";
+import { Context, Effect, Predicate, pipe } from "effect";
+import { Api, RouterBuilder, ServerError, Testing } from "effect-http";
+import { HttpClientError } from "effect-http/ClientError";
 
 import { runTestEffect } from "./utils";
 
@@ -16,14 +19,17 @@ test("testing query", async () => {
     }),
   );
 
-  const server = pipe(
-    api,
-    Http.server,
-    Http.handle("hello", ({ query }) => Effect.succeed(`${query.input + 1}`)),
+  const app = pipe(
+    RouterBuilder.make(api),
+    RouterBuilder.handle("hello", ({ query }) =>
+      Effect.succeed(`${query.input + 1}`),
+    ),
+    RouterBuilder.build,
   );
 
   const response = await pipe(
-    Http.testingClient(server).hello({ query: { input: 12 } }),
+    Testing.make(app, api),
+    Effect.flatMap((client) => client.hello({ query: { input: 12 } })),
     runTestEffect,
   );
 
@@ -38,31 +44,22 @@ test("testing failure", async () => {
     }),
   );
 
-  const server = pipe(
-    api,
-    Http.server,
-    Http.handle("hello", () =>
-      Effect.fail(Http.ServerError.notFoundError("oh oh")),
+  const app = pipe(
+    RouterBuilder.make(api),
+    RouterBuilder.handle("hello", () =>
+      Effect.fail(ServerError.notFoundError("oh oh")),
     ),
+    RouterBuilder.build,
   );
 
   const response = await pipe(
-    Http.testingClient(server).hello({ query: { input: 12 } }),
-    Effect.either,
+    Testing.make(app, api),
+    Effect.flatMap((client) => client.hello()),
+    Effect.flip,
     runTestEffect,
   );
 
-  expect(response).toEqual(
-    Either.left(
-      Http.HttpClientError.create(
-        {
-          error: "NotFoundError",
-          details: "oh oh",
-        },
-        404,
-      ),
-    ),
-  );
+  expect(response).toEqual(HttpClientError.create("oh oh", 404));
 });
 
 test("testing with dependencies", async () => {
@@ -78,16 +75,18 @@ test("testing with dependencies", async () => {
 
   const MyService = Context.Tag<number>();
 
-  const server = pipe(
-    api,
-    Http.server,
-    Http.handle("hello", ({ query }) =>
+  const app = pipe(
+    RouterBuilder.make(api),
+    RouterBuilder.handle("hello", ({ query }) =>
       Effect.map(MyService, (v) => `${query.input + v}`),
     ),
+    RouterBuilder.mapRouter(Router.provideService(MyService, 2)),
+    RouterBuilder.build,
   );
 
   const response = await pipe(
-    Http.testingClient(server).hello({ query: { input: 12 } }),
+    Testing.make(app, api),
+    Effect.flatMap((client) => client.hello({ query: { input: 12 } })),
     Effect.provideService(MyService, 2),
     runTestEffect,
   );
@@ -106,14 +105,17 @@ test("testing params", async () => {
     }),
   );
 
-  const server = pipe(
-    api,
-    Http.server,
-    Http.handle("hello", ({ params }) => Effect.succeed(`${params.input + 1}`)),
+  const app = pipe(
+    RouterBuilder.make(api),
+    RouterBuilder.handle("hello", ({ params }) =>
+      Effect.succeed(`${params.input + 1}`),
+    ),
+    RouterBuilder.build,
   );
 
   const response = await pipe(
-    Http.testingClient(server).hello({ params: { input: 12 } }),
+    Testing.make(app, api),
+    Effect.flatMap((client) => client.hello({ params: { input: 12 } })),
     runTestEffect,
   );
 
@@ -139,25 +141,26 @@ test("testing multiple responses", async () => {
     }),
   );
 
-  const server = pipe(
-    api,
-    Http.server,
-    Http.handle("hello", ({ query, ResponseUtil }) =>
+  const app = pipe(
+    RouterBuilder.make(api),
+    RouterBuilder.handle("hello", ({ query }) =>
       Effect.succeed(
         query.input === 1
-          ? ResponseUtil.response200({ content: 69 })
-          : ResponseUtil.response201({}),
+          ? { content: 69, status: 200 as const }
+          : { status: 201 as const },
       ),
     ),
+    RouterBuilder.build,
   );
 
-  const client = Http.testingClient(server);
-
   const [response1, response2] = await pipe(
-    Effect.all([
-      client.hello({ query: { input: 1 } }),
-      client.hello({ query: { input: 2 } }),
-    ] as const),
+    Testing.make(app, api),
+    Effect.flatMap((client) =>
+      Effect.all([
+        client.hello({ query: { input: 1 } }),
+        client.hello({ query: { input: 2 } }),
+      ] as const),
+    ),
     runTestEffect,
   );
 
@@ -176,14 +179,17 @@ test("testing body", async () => {
     }),
   );
 
-  const server = pipe(
-    api,
-    Http.server,
-    Http.handle("hello", ({ body }) => Effect.succeed(`${body.input + 1}`)),
+  const app = pipe(
+    RouterBuilder.make(api),
+    RouterBuilder.handle("hello", ({ body }) =>
+      Effect.succeed(`${body.input + 1}`),
+    ),
+    RouterBuilder.build,
   );
 
   const response = await pipe(
-    Http.testingClient(server).hello({ body: { input: 12 } }),
+    Testing.make(app, api),
+    Effect.flatMap((client) => client.hello({ body: { input: 12 } })),
     runTestEffect,
   );
 
@@ -201,30 +207,35 @@ test("form data", async () => {
     }),
   );
 
-  const server = pipe(
-    Http.server(api),
-    Http.handle("upload", ({ body }) => {
-      const file = body.get("file");
+  const app = pipe(
+    RouterBuilder.make(api),
+    RouterBuilder.handle("upload", () =>
+      Effect.gen(function* (_) {
+        const request = yield* _(HttpServer.request.ServerRequest);
+        const body = yield* _(request.formData);
+        const file = body.get("file");
 
-      if (file === null) {
-        return Effect.fail(ServerError.invalidBodyError('Expected "file"'));
-      }
+        if (file === null) {
+          return yield* _(ServerError.invalidBodyError('Expected "file"'));
+        }
 
-      if (Predicate.isString(file)) {
-        return Effect.fail(ServerError.invalidBodyError("Expected file"));
-      }
+        if (Predicate.isString(file)) {
+          return yield* _(ServerError.invalidBodyError("Expected file"));
+        }
 
-      return Effect.promise(() => file.text());
-    }),
+        return yield* _(Effect.promise(() => file.text()));
+      }),
+    ),
+    RouterBuilder.build,
   );
-
-  const testClient = Http.testingClient(server);
 
   const formData = new FormData();
   formData.append("file", new Blob(["my file content"]));
 
   const response = await pipe(
-    testClient.upload({ body: formData }),
+    Testing.make(app, api),
+    Effect.flatMap((client) => client.upload({ body: formData })),
+    Effect.provide(NodeContext.layer),
     runTestEffect,
   );
 

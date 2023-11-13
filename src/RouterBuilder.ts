@@ -121,7 +121,7 @@ export const handle =
   };
 
 /**
- * Handle an endpoint using a raw `Router.Route.Handler`.
+ * Modify the `Router`.
  *
  * @category mapping
  * @since 1.0.0
@@ -132,7 +132,7 @@ export const mapRouter =
   ) =>
   (
     builder: RouterBuilder<R1, E1, RemainingEndpoints>,
-  ): RouterBuilder<R1 | R2, E1 | E2, RemainingEndpoints> => ({
+  ): RouterBuilder<R2, E2, RemainingEndpoints> => ({
     ...builder,
     router: fn(builder.router),
   });
@@ -148,13 +148,26 @@ export const getRouter = <R, E>(
 ): Router.Router<R, E> => builder.router;
 
 /**
- * Handle an endpoint using a raw `Router.Route.Handler`.
+ * Create an `App` instance.
  *
  * @category destructors
  * @since 1.0.0
  */
 export const build = <R, E>(
-  builder: RouterBuilder<R, E, any>,
+  builder: RouterBuilder<R, E, never>,
+): App.Default<R | SwaggerRouter.SwaggerFiles, E> => buildPartial(builder);
+
+/**
+ * Create an `App` instance.
+ *
+ * Warning: this function doesn't enforce all the endpoints are implemented and
+ * a running server might not conform the given Api spec.
+ *
+ * @category destructors
+ * @since 1.0.0
+ */
+export const buildPartial = <R, E, RemainingEndpoints extends Api.Endpoint>(
+  builder: RouterBuilder<R, E, RemainingEndpoints>,
 ): App.Default<R | SwaggerRouter.SwaggerFiles, E> => {
   const swaggerRouter = SwaggerRouter.make(OpenApi.openApi(builder.api));
   return Router.concat(builder.router, swaggerRouter).pipe(

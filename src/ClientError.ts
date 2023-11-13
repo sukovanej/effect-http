@@ -26,7 +26,7 @@ export class HttpClientError extends Data.TaggedError("HttpClientError")<{
    */
   static create(error: unknown, status: number) {
     return new HttpClientError({
-      message: `Http error with status code ${status}.`,
+      message: typeof error === "string" ? error : JSON.stringify(error),
       error,
       status,
     });

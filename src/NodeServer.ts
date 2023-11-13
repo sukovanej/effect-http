@@ -1,9 +1,12 @@
-import * as App from "@effect/platform/Http/App";
+import type * as App from "@effect/platform/Http/App";
+import type * as Platform from "@effect/platform/Http/Platform";
 import * as Server from "@effect/platform/Http/Server";
 import type * as ServeError from "@effect/platform/Http/ServerError";
-import { pipe } from "effect";
+import type * as ServerRequest from "@effect/platform/Http/ServerRequest";
 import * as SwaggerRouter from "effect-http/SwaggerRouter";
 import * as Effect from "effect/Effect";
+import { pipe } from "effect/Function";
+import * as Scope from "effect/Scope";
 
 interface ListenOptions {
   port: number | undefined;
@@ -18,7 +21,13 @@ export const listen =
   <R, E>(
     router: App.Default<R, E>,
   ): Effect.Effect<
-    Exclude<R, SwaggerRouter.SwaggerFiles>,
+    Exclude<
+      Exclude<
+        Exclude<Exclude<R, ServerRequest.ServerRequest>, Scope.Scope>,
+        Server.Server | Platform.Platform
+      >,
+      SwaggerRouter.SwaggerFiles
+    >,
     ServeError.ServeError,
     never
   > =>

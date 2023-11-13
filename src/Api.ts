@@ -362,10 +362,10 @@ export const addGroup =
     };
   };
 
-const _FormData = Schema.instanceOf(FormData, {
-  jsonSchema: { type: "string" },
-  description: "Multipart form data",
-});
+const _FormData = Schema.instanceOf(FormData).pipe(
+  Schema.jsonSchema({ type: "string" }),
+  Schema.description("Multipart form data"),
+);
 
 export {
   /**

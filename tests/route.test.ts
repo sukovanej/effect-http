@@ -15,13 +15,10 @@ import {
 } from "./examples";
 import { runTestEffect, testRouter } from "./utils";
 
-const testRoute = <E1>(
-  route: HttpServer.router.Route<never, E1>,
+const testRoute = <R, E>(
+  route: HttpServer.router.Route<R, E>,
   request: ClientRequest.ClientRequest,
-) =>
-  testRouter(HttpServer.router.fromIterable([route]), request).pipe(
-    runTestEffect,
-  );
+) => testRouter(HttpServer.router.fromIterable([route]), request);
 
 const exampleRouteGetQueryParameter = exampleApiGetQueryParameter.pipe(
   Route.make("hello", ({ query }) => Effect.succeed(query.country)),
@@ -45,7 +42,10 @@ describe("examples", () => {
       Route.make("getValue", () => Effect.succeed(12)),
     );
 
-    const response = await testRoute(route, ClientRequest.get("get-value"));
+    const response = await testRoute(
+      route,
+      ClientRequest.get("/get-value"),
+    ).pipe(runTestEffect);
     const body = await Effect.runPromise(response.json);
 
     expect(body).toEqual(12);
@@ -56,7 +56,9 @@ describe("examples", () => {
       Route.make("test", () => Effect.succeed({ value: Option.some("test") })),
     );
 
-    const response = await testRoute(route, ClientRequest.post("test"));
+    const response = await testRoute(route, ClientRequest.post("/test")).pipe(
+      runTestEffect,
+    );
     const body = await Effect.runPromise(response.json);
 
     expect(body).toEqual({ value: "test" });
@@ -65,10 +67,10 @@ describe("examples", () => {
   test("get, query parameter", async () => {
     const response = await testRoute(
       exampleRouteGetQueryParameter,
-      ClientRequest.get("hello").pipe(
+      ClientRequest.get("/hello").pipe(
         ClientRequest.appendUrlParam("country", "CZ"),
       ),
-    );
+    ).pipe(runTestEffect);
     const body = await Effect.runPromise(response.json);
 
     expect(body).toEqual("CZ");
@@ -85,7 +87,9 @@ describe("examples", () => {
       ),
     );
 
-    const response = await testRoute(route, ClientRequest.get("hello"));
+    const response = await testRoute(route, ClientRequest.get("/hello")).pipe(
+      runTestEffect,
+    );
     const body = await Effect.runPromise(response.json);
 
     expect(response.status).toEqual(201);
@@ -106,10 +110,10 @@ describe("examples", () => {
 
     const response = await testRoute(
       route,
-      ClientRequest.get("hello").pipe(
+      ClientRequest.get("/hello").pipe(
         ClientRequest.setUrlParam("value", "off"),
       ),
-    );
+    ).pipe(runTestEffect);
     const body = await Effect.runPromise(response.json);
 
     expect(response.status).toEqual(200);
@@ -119,10 +123,10 @@ describe("examples", () => {
   test("post, request body", async () => {
     const response = await testRoute(
       exampleRouteRequestBody,
-      ClientRequest.post("hello").pipe(
+      ClientRequest.post("/hello").pipe(
         ClientRequest.unsafeJsonBody({ foo: "hello" }),
       ),
-    );
+    ).pipe(runTestEffect);
 
     const body = await Effect.runPromise(response.json);
 
@@ -132,8 +136,8 @@ describe("examples", () => {
   test("path parameters", async () => {
     const response = await testRoute(
       exampleRouteParams,
-      ClientRequest.post("hello/a"),
-    );
+      ClientRequest.post("/hello/a"),
+    ).pipe(runTestEffect);
 
     const body = await Effect.runPromise(response.json);
 
@@ -145,8 +149,8 @@ describe("error reporting", () => {
   test("missing query parameter", async () => {
     const response = await testRoute(
       exampleRouteGetQueryParameter,
-      ClientRequest.get("hello"),
-    );
+      ClientRequest.get("/hello"),
+    ).pipe(runTestEffect);
 
     expect(response.status).toEqual(400);
     expect(await Effect.runPromise(response.json)).toEqual({
@@ -159,10 +163,10 @@ describe("error reporting", () => {
   test("invalid query parameter", async () => {
     const response = await testRoute(
       exampleRouteGetQueryParameter,
-      ClientRequest.get("hello").pipe(
+      ClientRequest.get("/hello").pipe(
         ClientRequest.setUrlParam("country", "CZE"),
       ),
-    );
+    ).pipe(runTestEffect);
 
     expect(response.status).toEqual(400);
     expect(await Effect.runPromise(response.json)).toEqual({
@@ -176,8 +180,8 @@ describe("error reporting", () => {
   test("invalid JSON body - empty", async () => {
     const response = await testRoute(
       exampleRouteRequestBody,
-      ClientRequest.post("hello"),
-    );
+      ClientRequest.post("/hello"),
+    ).pipe(runTestEffect);
 
     expect(response.status).toEqual(400);
     expect(await Effect.runPromise(response.json)).toEqual({
@@ -190,8 +194,8 @@ describe("error reporting", () => {
   test("invalid JSON body - text", async () => {
     const response = await testRoute(
       exampleRouteRequestBody,
-      ClientRequest.post("hello").pipe(ClientRequest.textBody("value")),
-    );
+      ClientRequest.post("/hello").pipe(ClientRequest.textBody("value")),
+    ).pipe(runTestEffect);
 
     expect(response.status).toEqual(400);
     expect(await Effect.runPromise(response.json)).toEqual({
@@ -204,10 +208,10 @@ describe("error reporting", () => {
   test("invalid JSON body - incorrect schema", async () => {
     const response = await testRoute(
       exampleRouteRequestBody,
-      ClientRequest.post("hello").pipe(
+      ClientRequest.post("/hello").pipe(
         ClientRequest.unsafeJsonBody({ foo: 1 }),
       ),
-    );
+    ).pipe(runTestEffect);
 
     expect(response.status).toEqual(400);
     expect(await Effect.runPromise(response.json)).toEqual({
@@ -220,8 +224,8 @@ describe("error reporting", () => {
   test("invalid header", async () => {
     const response = await testRoute(
       exampleRouteRequestHeaders,
-      ClientRequest.post("hello"),
-    );
+      ClientRequest.post("/hello"),
+    ).pipe(runTestEffect);
 
     expect(response.status).toEqual(400);
     expect(await Effect.runPromise(response.json)).toEqual({
@@ -234,8 +238,8 @@ describe("error reporting", () => {
   test("invalid param", async () => {
     const response = await testRoute(
       exampleRouteParams,
-      ClientRequest.post("hello/c"),
-    );
+      ClientRequest.post("/hello/c"),
+    ).pipe(runTestEffect);
 
     expect(response.status).toEqual(400);
     expect(await Effect.runPromise(response.json)).toEqual({
@@ -252,8 +256,8 @@ describe("error reporting", () => {
 
     const response = await testRoute(
       exampleRouteInvalid,
-      ClientRequest.post("hello/a"),
-    );
+      ClientRequest.post("/hello/a"),
+    ).pipe(runTestEffect);
 
     expect(response.status).toEqual(500);
     expect(await Effect.runPromise(response.json)).toEqual({

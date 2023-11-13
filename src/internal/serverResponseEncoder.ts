@@ -94,7 +94,7 @@ const createHeadersSetter = (schema: Api.ResponseSchemaFull) => {
   const parseHeaders =
     schema.headers === Api.IgnoredSchemaId
       ? undefined
-      : Schema.parse(schema.headers);
+      : Schema.encode(schema.headers);
 
   return (input: FullResponseInput) =>
     (response: ServerResponse.ServerResponse) => {

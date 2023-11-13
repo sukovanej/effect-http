@@ -1,8 +1,7 @@
 import * as ServerRequest from "@effect/platform/Http/ServerRequest";
 import * as Schema from "@effect/schema/Schema";
-import { Effect } from "effect";
-import { Endpoint, IgnoredSchemaId } from "effect-http/Api";
-import { createParamsMatcher } from "effect-http/Server";
+import { Effect, Option, Unify, pipe } from "effect";
+import * as Api from "effect-http/Api";
 import * as ServerError from "effect-http/ServerError";
 import { formatParseError } from "effect-http/internal/formatParseError";
 
@@ -19,13 +18,18 @@ interface ServerRequestParser {
 const createError = (
   location: "query" | "path" | "body" | "headers",
   message: string,
-) => ServerError.makeJson(400, { error: 'Request validation error', location, message });
+) =>
+  ServerError.makeJson(400, {
+    error: "Request validation error",
+    location,
+    message,
+  });
 
 const make = (
   parseRequest: ServerRequestParser["parseRequest"],
 ): ServerRequestParser => ({ parseRequest });
 
-export const create = (endpoint: Endpoint): ServerRequestParser => {
+export const create = (endpoint: Api.Endpoint): ServerRequestParser => {
   const parseBody = createBodyParser(endpoint);
   const parseQuery = createQueryParser(endpoint);
   const parseHeaders = createHeadersParser(endpoint);
@@ -41,17 +45,22 @@ export const create = (endpoint: Endpoint): ServerRequestParser => {
   );
 };
 
-const createBodyParser = (endpoint: Endpoint) => {
+const createBodyParser = (endpoint: Api.Endpoint) => {
   const schema = endpoint.schemas.request.body;
 
-  if (schema == IgnoredSchemaId) {
+  if (schema == Api.IgnoredSchemaId) {
     return () => Effect.succeed(undefined);
   }
 
   const parse = Schema.parse(schema);
 
-  return (request: ServerRequest.ServerRequest) =>
-    request.json.pipe(
+  return Unify.unify((request: ServerRequest.ServerRequest) => {
+    if (schema === Api.FormData) {
+      // TODO
+      return Effect.succeed(undefined);
+    }
+
+    return request.json.pipe(
       Effect.mapError((error) => {
         if (error.reason === "Transport") {
           return createError("body", "Unexpect request JSON body error");
@@ -67,12 +76,13 @@ const createBodyParser = (endpoint: Endpoint) => {
         ),
       ),
     );
+  });
 };
 
-const createQueryParser = (endpoint: Endpoint) => {
+const createQueryParser = (endpoint: Api.Endpoint) => {
   const schema = endpoint.schemas.request.query;
 
-  if (schema == IgnoredSchemaId) {
+  if (schema == Api.IgnoredSchemaId) {
     return () => Effect.succeed(undefined);
   }
 
@@ -92,10 +102,10 @@ const createQueryParser = (endpoint: Endpoint) => {
   };
 };
 
-const createHeadersParser = (endpoint: Endpoint) => {
+const createHeadersParser = (endpoint: Api.Endpoint) => {
   const schema = endpoint.schemas.request.headers;
 
-  if (schema == IgnoredSchemaId) {
+  if (schema == Api.IgnoredSchemaId) {
     return () => Effect.succeed(undefined);
   }
 
@@ -109,10 +119,10 @@ const createHeadersParser = (endpoint: Endpoint) => {
     );
 };
 
-const createParamsParser = (endpoint: Endpoint) => {
+const createParamsParser = (endpoint: Api.Endpoint) => {
   const schema = endpoint.schemas.request.params;
 
-  if (schema == IgnoredSchemaId) {
+  if (schema == Api.IgnoredSchemaId) {
     return () => Effect.succeed(undefined);
   }
 
@@ -125,6 +135,30 @@ const createParamsParser = (endpoint: Endpoint) => {
     const params = getRequestParams(url);
     return parse(params).pipe(
       Effect.mapError((error) => createError("path", formatParseError(error))),
+    );
+  };
+};
+
+export const createParamsMatcher = (path: string) => {
+  // based on https://github.com/kwhitley/itty-router/blob/73148972bf2e205a4969e85672e1c0bfbf249c27/src/itty-router.js
+  const matcher = RegExp(
+    `^${path
+      .replace(/(\/?)\*/g, "($1.*)?")
+      .replace(/\/$/, "")
+      .replace(/:(\w+)(\?)?(\.)?/g, "$2(?<$1>[^/]+)$2$3")
+      .replace(/\.(?=[\w(])/, "\\.")
+      .replace(/\)\.\?\(([^[]+)\[\^/g, "?)\\.?($1(?<=\\.)[^\\.")}/*$`,
+  );
+  return (url: URL): Record<string, string> => {
+    const match = url.pathname.match(matcher);
+    return pipe(
+      Option.fromNullable(match),
+      Option.flatMap(({ groups }) => Option.fromNullable(groups)),
+      Option.map((groups) =>
+        Object.entries(groups).filter(([_, value]) => value !== undefined),
+      ),
+      Option.map(Object.fromEntries),
+      Option.getOrElse(() => ({})),
     );
   };
 };

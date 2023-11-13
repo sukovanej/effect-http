@@ -39,7 +39,7 @@ export const create = (
       const headers = yield* _(encodeHeaders(_input['headers']));
 
       const path = constructPath(params || {}, endpoint.path);
-      const url = new URL(path, baseUrl);
+      const url = new URL(path, new URL(baseUrl));
 
       const request = pipe(
         HttpClient.request.get(url.toString()),
