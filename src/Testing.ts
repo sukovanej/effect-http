@@ -5,13 +5,12 @@
  */
 import { ParseResult, Schema } from "@effect/schema";
 import { Effect, Match, Predicate, type Types, pipe } from "effect";
-import type { Api, EndpointSchemas } from "effect-http/Api";
+import type * as Api from "effect-http/Api";
 import { ClientFunctionResponse } from "effect-http/Client";
 import * as ClientError from "effect-http/ClientError";
 import { buildServer } from "effect-http/Server";
 import type {
   EndpointSchemasTo,
-  SelectEndpointById,
   ServerBuilder,
 } from "effect-http/ServerBuilder";
 import {
@@ -36,9 +35,9 @@ import {
  * @category constructors
  * @since 1.0.0
  */
-export const testingClient = <R, A extends Api>(
-  serverBuilder: ServerBuilder<R, [], A>,
-): TestingClient<R, A> => {
+export const testingClient = <R, A extends Api.Api>(
+  serverBuilder: ServerBuilder<R, never, A>,
+): TestingClient<R, A["endpoints"][number]> => {
   const server = buildServer(serverBuilder);
 
   return server.api.endpoints.reduce(
@@ -125,7 +124,7 @@ export const testingClient = <R, A extends Api>(
       };
       return { ...client, [id]: fn };
     },
-    {} as TestingClient<R, A>,
+    {} as TestingClient<R, A["endpoints"][number]>,
   );
 };
 
@@ -138,7 +137,7 @@ type Response = {
 
 /** @internal */
 export const createResponseParser = (
-  responseSchema: EndpointSchemas["response"],
+  responseSchema: Api.EndpointSchemas["response"],
 ): ((
   response: Response,
 ) => Effect.Effect<
@@ -164,19 +163,17 @@ export const createResponseParser = (
 // Internal type helpers
 
 /** @ignore */
-export type TestingClient<R, A extends Api> = A extends Api<infer Es>
-  ? Types.Simplify<{
-      [Id in Es[number]["id"]]: TestClientFunction<
-        R,
-        MakeHeadersOptionIfAllPartial<
-          EndpointSchemasTo<SelectEndpointById<Es, Id>["schemas"]>["request"]
-        >,
-        ClientFunctionResponse<
-          SelectEndpointById<Es, Id>["schemas"]["response"]
-        >
-      >;
-    }>
-  : never;
+export type TestingClient<R, Endpoints extends Api.Endpoint> = {
+  [Id in Endpoints["id"]]: TestClientFunction<
+    R,
+    MakeHeadersOptionIfAllPartial<
+      EndpointSchemasTo<Extract<Endpoints, { id: Id }>["schemas"]>["request"]
+    >,
+    ClientFunctionResponse<
+      Extract<Endpoints, { id: Id }>["schemas"]["response"]
+    >
+  >;
+};
 
 /** @ignore */
 type TestClientFunction<R, I, Response> = Record<string, never> extends I

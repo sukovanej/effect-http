@@ -40,9 +40,9 @@ Make sure that all the endpoints are implemented
 **Signature**
 
 ```ts
-export declare const exhaustive: <R, A extends Api<Endpoint[]>>(
-  server: ServerBuilder<R, [], A>
-) => ServerBuilder<R, [], A>
+export declare const exhaustive: <R, A extends Api<Endpoint>>(
+  server: ServerBuilder<R, never, A>
+) => ServerBuilder<R, never, A>
 ```
 
 Added in v1.0.0
@@ -55,7 +55,7 @@ Implement handler for the given operation id.
 
 ```ts
 export declare const handle: <
-  S extends ServerBuilder<any, Endpoint[], Api<Endpoint[]>>,
+  S extends ServerBuilder<any, Endpoint, Api<Endpoint>>,
   Id extends ServerUnimplementedIds<S>,
   R
 >(
@@ -75,7 +75,7 @@ Create new unimplemeted `ServerBuilder` from `Api`.
 **Signature**
 
 ```ts
-export declare const server: <A extends Api<Endpoint[]>>(api: A) => ApiToServer<A>
+export declare const server: <A extends Api<Endpoint>>(api: A) => ApiToServer<A>
 ```
 
 Added in v1.0.0
@@ -87,9 +87,9 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-export declare const addExtension: <R, S extends ServerBuilder<any, Endpoint[], Api<Endpoint[]>>>(
+export declare const addExtension: <R, S extends ServerBuilder<any, Endpoint, Api<Endpoint>>>(
   extension: Extension<R>,
-  options?: Partial<ServerExtensionOptions<S['api']['endpoints']>> | undefined
+  options?: Partial<ServerExtensionOptions<S['api']['endpoints'][number]>> | undefined
 ) => (server: S) => AddServerDependency<S, R>
 ```
 
@@ -100,9 +100,9 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-export declare const prependExtension: <R, S extends ServerBuilder<any, Endpoint[], Api<Endpoint[]>>>(
+export declare const prependExtension: <R, S extends ServerBuilder<any, Endpoint, Api<Endpoint>>>(
   extension: Extension<R>,
-  options?: Partial<ServerExtensionOptions<S['api']['endpoints']>> | undefined
+  options?: Partial<ServerExtensionOptions<S['api']['endpoints'][number]>> | undefined
 ) => (server: S) => AddServerDependency<S, R>
 ```
 
@@ -142,10 +142,11 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-export interface ServerBuilder<R, Es extends Endpoint[] = Endpoint[], A extends Api = Api> extends Pipeable.Pipeable {
-  unimplementedEndpoints: Es
+export interface ServerBuilder<R, Endpoints extends Endpoint = Endpoint, A extends Api = Api>
+  extends Pipeable.Pipeable {
+  unimplementedEndpoints: Endpoints[]
   handlers: ServerBuilderHandler<R>[]
-  extensions: ServerExtension<R, A['endpoints']>[]
+  extensions: ServerExtension<R, A['endpoints'][number]>[]
   api: A
 }
 ```
@@ -170,7 +171,7 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-export interface ServerExtension<R, Es extends Endpoint[]> {
+export interface ServerExtension<R, Es extends Endpoint> {
   extension: Extension<R>
   options: ServerExtensionOptions<Es>
 }
@@ -183,9 +184,9 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-export interface ServerExtensionOptions<Es extends Endpoint[]> {
-  skipOperations: Es[number]['id'][]
-  allowOperations: Es[number]['id'][]
+export interface ServerExtensionOptions<Es extends Endpoint> {
+  skipOperations: Es['id'][]
+  allowOperations: Es['id'][]
 }
 ```
 

@@ -35,7 +35,7 @@ Derive client implementation from the `Api`
 
 ```ts
 export declare const client: <
-  A extends Api.Api<Api.Endpoint[]>,
+  A extends Api.Api<Api.Endpoint>,
   H extends Record<string, unknown> = Record<never, never>
 >(
   api: A,
@@ -52,7 +52,7 @@ Added in v1.0.0
 
 ```ts
 export declare const endpointClient: <
-  A extends Api.Api<Api.Endpoint[]>,
+  A extends Api.Api<Api.Endpoint>,
   Id extends A['endpoints'][number]['id'],
   H extends Record<string, unknown>
 >(
@@ -61,7 +61,7 @@ export declare const endpointClient: <
   baseUrl: URL | string,
   options?: ClientOptions<H> | undefined
 ) => ClientFunction<
-  A['endpoints'],
+  A['endpoints'][number],
   Id,
   MakeHeadersOptionIfAllPartial<
     Types.Simplify<{
@@ -129,7 +129,7 @@ Added in v1.0.0
 ```ts
 export type Client<A extends Api.Api, H> = A extends Api.Api<infer Es>
   ? {
-      [Id in Es[number]['id']]: EndpointClient<A, Id, H>
+      [Id in Es['id']]: EndpointClient<A, Id, H>
     } & Pipeable.Pipeable
   : never
 ```

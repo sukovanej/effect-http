@@ -6,12 +6,8 @@
 import * as OpenApi from "schema-openapi";
 
 import { Effect, pipe } from "effect";
-import { type Api } from "effect-http/Api";
-import type {
-  Client,
-  ClientFunctionResponse,
-  ClientOptions,
-} from "effect-http/Client";
+import type * as Api from "effect-http/Api";
+import type * as Client from "effect-http/Client";
 import { createRequestEncoder } from "effect-http/internal/utils";
 import { createResponseSchema } from "effect-http/internal/utils";
 
@@ -19,9 +15,9 @@ import { createResponseSchema } from "effect-http/internal/utils";
  * @category models
  * @since 1.0.0
  */
-export type MockClientOptions<A extends Api> = {
+export type MockClientOptions<A extends Api.Api> = {
   responses: {
-    [Id in A["endpoints"][number]["id"]]: ClientFunctionResponse<
+    [Id in A["endpoints"][number]["id"]]: Client.ClientFunctionResponse<
       Extract<A["endpoints"][number], { id: Id }>["schemas"]["response"]
     >;
   };
@@ -33,10 +29,13 @@ export type MockClientOptions<A extends Api> = {
  * @category constructors
  * @since 1.0.0
  */
-export const mockClient = <A extends Api, H extends Record<string, unknown>>(
+export const mockClient = <
+  A extends Api.Api,
+  H extends Record<string, unknown>,
+>(
   api: A,
-  option?: Partial<MockClientOptions<A> & ClientOptions<H>>,
-): Client<A, H> =>
+  option?: Partial<MockClientOptions<A> & Client.ClientOptions<H>>,
+): Client.Client<A["endpoints"][number], H> =>
   api.endpoints.reduce(
     (client, { id, schemas }) => {
       const parseInputs = createRequestEncoder(schemas.request);
@@ -59,5 +58,5 @@ export const mockClient = <A extends Api, H extends Record<string, unknown>>(
 
       return { ...client, [id]: fn };
     },
-    {} as Client<A, H>,
+    {} as Client.Client<A["endpoints"][number], H>,
   );

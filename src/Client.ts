@@ -13,7 +13,6 @@ import type * as ClientError from "effect-http/ClientError";
 import type {
   EndpointSchemasTo,
   ResponseSchemaFullTo,
-  SelectEndpointById,
 } from "effect-http/ServerBuilder";
 import * as ClientRequestEncoder from "effect-http/internal/clientRequestEncoder";
 import * as ClientResponseParser from "effect-http/internal/clientResponseParser";
@@ -22,11 +21,9 @@ import * as ClientResponseParser from "effect-http/internal/clientResponseParser
  * @category models
  * @since 1.0.0
  */
-export type Client<A extends Api.Api, H> = A extends Api.Api<infer Es>
-  ? {
-      [Id in Es[number]["id"]]: EndpointClient<A, Id, H>;
-    } & Pipeable.Pipeable
-  : never;
+export type Client<Endpoints extends Api.Endpoint, H> = {
+  [Id in Endpoints["id"]]: EndpointClient<Endpoints, Id, H>;
+} & Pipeable.Pipeable;
 
 /**
  * @category models
@@ -44,15 +41,15 @@ const httpClient = HttpClient.client.fetch();
  * @since 1.0.0
  */
 export const endpointClient = <
-  A extends Api.Api,
-  Id extends A["endpoints"][number]["id"],
+  Endpoints extends Api.Endpoint,
+  Id extends Endpoints["id"],
   H extends Record<string, unknown>,
 >(
   id: Id,
-  api: A,
+  api: Api.Api<Endpoints>,
   baseUrl: URL | string,
   options?: ClientOptions<H>,
-): EndpointClient<A, Id, H> => {
+): EndpointClient<Endpoints, Id, H> => {
   const endpoint = Api.getEndpoint(api, id);
   const responseParser = ClientResponseParser.create(endpoint.schemas.response);
   const requestEncoder = ClientRequestEncoder.create(
@@ -77,13 +74,13 @@ export const endpointClient = <
  * @since 1.0.0
  */
 export const client = <
-  A extends Api.Api,
+  Api extends Api.Api,
   H extends Record<string, unknown> = Record<never, never>,
 >(
-  api: A,
+  api: Api,
   baseUrl: string | URL,
   options?: ClientOptions<H>,
-): Client<A, H> =>
+): Client<Api["endpoints"][number], H> =>
   api.endpoints.reduce(
     (client, endpoint) => {
       return {
@@ -91,7 +88,7 @@ export const client = <
         [endpoint.id]: endpointClient(endpoint.id, api, baseUrl, options),
       };
     },
-    {} as Client<A, H>,
+    {} as Client<Api["endpoints"][number], H>,
   );
 
 // Internal type helpers
@@ -131,7 +128,7 @@ export type ClientFunctionResponse<
 >;
 
 /** @ignore */
-type ClientFunction<Es extends Api.Endpoint[], Id, I> = Record<
+type ClientFunction<Es extends Api.Endpoint, Id, I> = Record<
   string,
   never
 > extends I
@@ -140,25 +137,23 @@ type ClientFunction<Es extends Api.Endpoint[], Id, I> = Record<
     ) => Effect.Effect<
       never,
       ClientError.ClientError,
-      ClientFunctionResponse<SelectEndpointById<Es, Id>["schemas"]["response"]>
+      ClientFunctionResponse<Extract<Es, { id: Id }>["schemas"]["response"]>
     >
   : (
       input: I,
     ) => Effect.Effect<
       never,
       ClientError.ClientError,
-      ClientFunctionResponse<SelectEndpointById<Es, Id>["schemas"]["response"]>
+      ClientFunctionResponse<Extract<Es, { id: Id }>["schemas"]["response"]>
     >;
 
 /** @ignore */
-type EndpointClient<A extends Api.Api, Id, H> = ClientFunction<
-  A["endpoints"],
+type EndpointClient<Endpoints extends Api.Endpoint, Id, H> = ClientFunction<
+  Endpoints,
   Id,
   MakeHeadersOptionIfAllPartial<
     DropCommonHeaders<
-      EndpointSchemasTo<
-        SelectEndpointById<A["endpoints"], Id>["schemas"]
-      >["request"],
+      EndpointSchemasTo<Extract<Endpoints, { id: Id }>["schemas"]>["request"],
       H
     >
   >

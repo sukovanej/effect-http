@@ -28,7 +28,9 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-export declare const buildServer: <R, A extends Api<Endpoint[]>>(serverBuilder: ServerBuilder<R, [], A>) => Server<R, A>
+export declare const buildServer: <R, A extends Api<Endpoint>>(
+  serverBuilder: ServerBuilder<R, never, A>
+) => Server<R, A>
 ```
 
 Added in v1.0.0
@@ -43,7 +45,7 @@ Added in v1.0.0
 export interface Server<R, A extends Api = Api> {
   api: A
   handlers: readonly ServerHandler<R>[]
-  extensions: readonly ServerExtension<R, A['endpoints']>[]
+  extensions: readonly ServerExtension<R, A['endpoints'][number]>[]
 }
 ```
 

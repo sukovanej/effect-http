@@ -30,7 +30,7 @@ Derive mock client implementation from the `Api`
 **Signature**
 
 ```ts
-export declare const mockClient: <A extends Api<Endpoint[]>, H extends Record<string, unknown>>(
+export declare const mockClient: <A extends Api<Endpoint>, H extends Record<string, unknown>>(
   api: A,
   option?: Partial<MockClientOptions<A> & ClientOptions<H>> | undefined
 ) => Client<A, H>

@@ -97,7 +97,7 @@ Create a new unimplemeted `RouterBuilder` from an `Api`.
 **Signature**
 
 ```ts
-export declare const make: <Api extends Api.Api<Api.Endpoint[]>>(
+export declare const make: <Api extends Api.Api<Api.Endpoint>>(
   api: Api
 ) => RouterBuilder<never, never, Api['endpoints'][number]>
 ```

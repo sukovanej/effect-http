@@ -41,7 +41,7 @@ export interface ExpressOptions {
 export const express =
   (options?: Partial<ExpressOptions>) =>
   <R>(
-    serverBuilder: ServerBuilder<R, []>,
+    serverBuilder: ServerBuilder<R, never>,
   ): Effect.Effect<R, unknown, _express.Express> => {
     const server = buildServer(serverBuilder);
     const finalOptions = { ...DEFAULT_OPTIONS, ...options };
@@ -127,7 +127,9 @@ export interface ListenOptions extends ExpressOptions {
  */
 export const listen =
   (options?: Partial<ListenOptions>) =>
-  <R>(serverBuilder: ServerBuilder<R, []>): Effect.Effect<R, unknown, void> => {
+  <R>(
+    serverBuilder: ServerBuilder<R, never>,
+  ): Effect.Effect<R, unknown, void> => {
     return pipe(
       serverBuilder,
       express(options),

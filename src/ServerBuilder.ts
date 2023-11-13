@@ -25,12 +25,12 @@ import type { AnySchema, SchemaTo } from "effect-http/internal/utils";
  */
 export interface ServerBuilder<
   R,
-  Es extends Endpoint[] = Endpoint[],
+  Endpoints extends Endpoint = Endpoint,
   A extends Api = Api,
 > extends Pipeable.Pipeable {
-  unimplementedEndpoints: Es;
+  unimplementedEndpoints: Endpoints[];
   handlers: ServerBuilderHandler<R>[];
-  extensions: ServerExtension<R, A["endpoints"]>[];
+  extensions: ServerExtension<R, A["endpoints"][number]>[];
   api: A;
 }
 
@@ -47,7 +47,7 @@ export interface ServerBuilderHandler<R> {
  * @category models
  * @since 1.0.0
  */
-export interface ServerExtension<R, Es extends Endpoint[]> {
+export interface ServerExtension<R, Es extends Endpoint> {
   extension: Extension<R>;
   options: ServerExtensionOptions<Es>;
 }
@@ -56,9 +56,9 @@ export interface ServerExtension<R, Es extends Endpoint[]> {
  * @category models
  * @since 1.0.0
  */
-export interface ServerExtensionOptions<Es extends Endpoint[]> {
-  skipOperations: Es[number]["id"][];
-  allowOperations: Es[number]["id"][];
+export interface ServerExtensionOptions<Es extends Endpoint> {
+  skipOperations: Es["id"][];
+  allowOperations: Es["id"][];
 }
 
 /**
@@ -91,7 +91,7 @@ export const handle =
     id: Id,
     fn: InputServerBuilderHandler<
       R,
-      SelectEndpointById<S["unimplementedEndpoints"], Id>
+      Extract<S["unimplementedEndpoints"][number], { id: Id }>
     >,
   ) =>
   (server: S): AddServerHandle<S, Id, R> => {
@@ -121,8 +121,8 @@ export const handle =
  * @since 1.0.0
  */
 export const exhaustive = <R, A extends Api>(
-  server: ServerBuilder<R, [], A>,
-): ServerBuilder<R, [], A> => server;
+  server: ServerBuilder<R, never, A>,
+): ServerBuilder<R, never, A> => server;
 
 /**
  * Type-helper providing type of a handler input given the type of the
@@ -160,7 +160,7 @@ export type Input<
 export const prependExtension =
   <R, S extends ServerBuilder<any>>(
     extension: Extension<R>,
-    options?: Partial<ServerExtensionOptions<S["api"]["endpoints"]>>,
+    options?: Partial<ServerExtensionOptions<S["api"]["endpoints"][number]>>,
   ) =>
   (server: S): AddServerDependency<S, R> =>
     ({
@@ -178,7 +178,7 @@ export const prependExtension =
 export const addExtension =
   <R, S extends ServerBuilder<any>>(
     extension: Extension<R>,
-    options?: Partial<ServerExtensionOptions<S["api"]["endpoints"]>>,
+    options?: Partial<ServerExtensionOptions<S["api"]["endpoints"][number]>>,
   ) =>
   (server: S): AddServerDependency<S, R> =>
     ({
@@ -192,7 +192,7 @@ export const addExtension =
 // Internals
 
 /** @internal */
-export const createServerExtention = <R, Es extends Endpoint[]>(
+export const createServerExtention = <R, Es extends Endpoint>(
   extension: Extension<R>,
   options?: Partial<ServerExtensionOptions<Es>>,
 ): ServerExtension<R, Es> => ({
@@ -210,12 +210,6 @@ const defaultExtensions = [
 ];
 
 // Internal type helpers
-
-/** @ignore */
-export type SelectEndpointById<Es extends Endpoint[], Id> = Extract<
-  Es[number],
-  { id: Id }
->;
 
 /** @ignore */
 export type RequiredFields<E> = {
@@ -251,16 +245,6 @@ type ApiToServer<A extends Api> = A extends Api<infer Es>
   : never;
 
 /** @ignore */
-type DropEndpoint<Es extends Endpoint[], Id extends string> = Es extends [
-  infer First,
-  ...infer Rest,
-]
-  ? First extends { id: Id }
-    ? Rest
-    : [First, ...(Rest extends Endpoint[] ? DropEndpoint<Rest, Id> : never)]
-  : [];
-
-/** @ignore */
 type ServerUnimplementedIds<S extends ServerBuilder<any>> =
   S["unimplementedEndpoints"][number]["id"];
 
@@ -278,7 +262,7 @@ type AddServerHandle<
   Id extends ServerUnimplementedIds<S>,
   R,
 > = S extends ServerBuilder<infer R0, infer E, infer A>
-  ? ServerBuilder<R0 | R, DropEndpoint<E, Id>, A>
+  ? ServerBuilder<R0 | R, Exclude<E, { id: Id }>, A>
   : never;
 
 /** @ignore */

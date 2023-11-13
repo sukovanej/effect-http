@@ -56,9 +56,9 @@ Merge the Api `Group` with an `Api`
 **Signature**
 
 ```ts
-export declare const addGroup: <E2 extends Endpoint[]>(
+export declare const addGroup: <E2 extends Endpoint>(
   apiGroup: ApiGroup<E2>
-) => <E1 extends Endpoint[]>(api: Api<E1>) => Api<[...E1, ...E2]>
+) => <E1 extends Endpoint>(api: Api<E1>) => Api<E2 | E1>
 ```
 
 Added in v1.0.0
@@ -70,7 +70,7 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-export declare const api: (options?: Partial<Api['options']>) => Api<[]>
+export declare const api: (options?: Partial<Api['options']>) => Api<never>
 ```
 
 Added in v1.0.0
@@ -82,7 +82,7 @@ Create new API group with a given name
 **Signature**
 
 ```ts
-export declare const apiGroup: (groupName: string) => ApiGroup<[]>
+export declare const apiGroup: (groupName: string) => ApiGroup<never>
 ```
 
 Added in v1.0.0
@@ -176,8 +176,8 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-export interface Api<E extends Endpoint[] = Endpoint[]> extends Pipeable.Pipeable {
-  endpoints: E
+export interface Api<E extends Endpoint = Endpoint> extends Pipeable.Pipeable {
+  endpoints: E[]
   options: {
     title: string
     version: string
@@ -192,8 +192,8 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-export interface ApiGroup<E extends Endpoint[] = Endpoint[]> extends Pipeable.Pipeable {
-  endpoints: E
+export interface ApiGroup<E extends Endpoint = Endpoint> extends Pipeable.Pipeable {
+  endpoints: E[]
   groupName: string
 }
 ```
@@ -286,7 +286,7 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-export declare const getEndpoint: <A extends Api<Endpoint[]>, Id extends A['endpoints'][number]['id']>(
+export declare const getEndpoint: <A extends Api<Endpoint>, Id extends A['endpoints'][number]['id']>(
   api: A,
   id: Id
 ) => Extract<A['endpoints'][number], { id: Id }>
