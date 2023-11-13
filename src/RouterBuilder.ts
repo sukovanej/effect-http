@@ -1,3 +1,8 @@
+/**
+ * Build a `Router` satisfying an `Api.Api`.
+ *
+ * @since 1.0.0
+ */
 import * as Router from "@effect/platform/Http/Router";
 import * as ServerRequest from "@effect/platform/Http/ServerRequest";
 import * as Api from "effect-http/Api";
@@ -10,15 +15,10 @@ import * as Pipeable from "effect/Pipeable";
  * @category models
  * @since 1.0.0
  */
-export interface RouterBuilder<
-  R,
-  E,
-  RemainingEndpoints extends Api.Endpoint,
-  Api extends Api.Api,
-> extends Pipeable.Pipeable {
+export interface RouterBuilder<R, E, RemainingEndpoints extends Api.Endpoint>
+  extends Pipeable.Pipeable {
   remainingEndpoints: readonly RemainingEndpoints[];
   router: Router.Router<R, E>;
-  api: Api;
 }
 
 /**
@@ -29,9 +29,8 @@ export interface RouterBuilder<
  */
 export const make = <Api extends Api.Api>(
   api: Api,
-): RouterBuilder<never, never, Api["endpoints"][number], Api> => ({
+): RouterBuilder<never, never, Api["endpoints"][number]> => ({
   remainingEndpoints: api.endpoints,
-  api,
   router: Router.empty,
   pipe() {
     // eslint-disable-next-line prefer-rest-params
@@ -50,19 +49,17 @@ export const handleRaw =
     R2,
     E2,
     RemainingEndpoints extends Api.Endpoint,
-    A extends Api.Api,
     Id extends RemainingEndpoints["id"],
   >(
     id: Id,
     handler: Router.Route.Handler<R2, E2>,
   ) =>
   <R1, E1>(
-    builder: RouterBuilder<R1, E1, RemainingEndpoints, A>,
+    builder: RouterBuilder<R1, E1, RemainingEndpoints>,
   ): RouterBuilder<
     Exclude<R1 | R2, Router.RouteContext | ServerRequest.ServerRequest>,
     E1 | E2,
-    Exclude<RemainingEndpoints, { id: Id }>,
-    A
+    Exclude<RemainingEndpoints, { id: Id }>
   > => {
     const endpoint = getRemainingEndpoint(builder, id);
     const remainingEndpoints = removeRemainingEndpoint(builder, id);
@@ -89,19 +86,17 @@ export const handle =
     R2,
     E2,
     RemainingEndpoints extends Api.Endpoint,
-    A extends Api.Api,
     Id extends RemainingEndpoints["id"],
   >(
     id: Id,
     fn: Route.HandlerFunction<Extract<RemainingEndpoints, { id: Id }>, R2, E2>,
   ) =>
   <R1, E1>(
-    builder: RouterBuilder<R1, E1, RemainingEndpoints, A>,
+    builder: RouterBuilder<R1, E1, RemainingEndpoints>,
   ): RouterBuilder<
     Exclude<R1 | R2, Router.RouteContext | ServerRequest.ServerRequest>,
-    E1 | Exclude<E2, ServerError.ApiError>,
-    Exclude<RemainingEndpoints, { id: Id }>,
-    A
+    E1 | Exclude<E2, ServerError.ServerError>,
+    Exclude<RemainingEndpoints, { id: Id }>
   > => {
     const endpoint = getRemainingEndpoint(builder, id);
     const remainingEndpoints = removeRemainingEndpoint(builder, id);
@@ -125,19 +120,12 @@ export const handle =
  * @since 1.0.0
  */
 export const mapRouter =
-  <
-    R1,
-    R2,
-    E1,
-    E2,
-    RemainingEndpoints extends Api.Endpoint,
-    Api extends Api.Api,
-  >(
+  <R1, R2, E1, E2, RemainingEndpoints extends Api.Endpoint>(
     fn: (router: Router.Router<R1, E1>) => Router.Router<R2, E2>,
   ) =>
   (
-    builder: RouterBuilder<R1, E1, RemainingEndpoints, Api>,
-  ): RouterBuilder<R1 | R2, E1 | E2, RemainingEndpoints, Api> => ({
+    builder: RouterBuilder<R1, E1, RemainingEndpoints>,
+  ): RouterBuilder<R1 | R2, E1 | E2, RemainingEndpoints> => ({
     ...builder,
     router: fn(builder.router),
   });
@@ -149,7 +137,7 @@ export const mapRouter =
  * @since 1.0.0
  */
 export const getRouter = <R, E>(
-  builder: RouterBuilder<R, E, any, any>,
+  builder: RouterBuilder<R, E, any>,
 ): Router.Router<R, E> => builder.router;
 
 /** @internal */
@@ -157,7 +145,7 @@ const getRemainingEndpoint = <
   RemainingEndpoints extends Api.Endpoint,
   Id extends RemainingEndpoints["id"],
 >(
-  builder: RouterBuilder<any, any, RemainingEndpoints, any>,
+  builder: RouterBuilder<any, any, RemainingEndpoints>,
   id: Id,
 ): Extract<RemainingEndpoints, { id: Id }> => {
   const endpoint = builder.remainingEndpoints.find(
@@ -176,7 +164,7 @@ const removeRemainingEndpoint = <
   RemainingEndpoints extends Api.Endpoint,
   Id extends RemainingEndpoints["id"],
 >(
-  builder: RouterBuilder<any, any, RemainingEndpoints, any>,
+  builder: RouterBuilder<any, any, RemainingEndpoints>,
   id: Id,
 ): Exclude<RemainingEndpoints, { id: Id }>[] =>
   builder.remainingEndpoints.filter(

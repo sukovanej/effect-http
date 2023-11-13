@@ -1,7 +1,6 @@
 import * as ClientRequest from "@effect/platform/Http/ClientRequest";
 import { Effect, Option } from "effect";
-import * as Router from "effect-http/Router";
-import * as ServerError from "effect-http/ServerError";
+import * as RouterBuilder from "effect-http/RouterBuilder";
 
 import {
   exampleApiFullResponse,
@@ -17,35 +16,37 @@ import {
 import { runTestEffect, testRouter } from "./utils";
 
 const exampleRouteGetQueryParameter = exampleApiGetQueryParameter.pipe(
-  Router.make,
-  Router.handle("hello", ({ query }) => Effect.succeed(query.country)),
-  Router.getRouter,
+  RouterBuilder.make,
+  RouterBuilder.handle("hello", ({ query }) => Effect.succeed(query.country)),
+  RouterBuilder.getRouter,
 );
 
 const exampleRouteRequestBody = exampleApiRequestBody.pipe(
-  Router.make,
-  Router.handle("hello", ({ body }) => Effect.succeed(body.foo)),
-  Router.getRouter,
+  RouterBuilder.make,
+  RouterBuilder.handle("hello", ({ body }) => Effect.succeed(body.foo)),
+  RouterBuilder.getRouter,
 );
 
 const exampleRouteRequestHeaders = exampleApiRequestHeaders.pipe(
-  Router.make,
-  Router.handle("hello", ({ headers }) => Effect.succeed(headers["x-header"])),
-  Router.getRouter,
+  RouterBuilder.make,
+  RouterBuilder.handle("hello", ({ headers }) =>
+    Effect.succeed(headers["x-header"]),
+  ),
+  RouterBuilder.getRouter,
 );
 
 const exampleRouteParams = exampleApiParams.pipe(
-  Router.make,
-  Router.handle("hello", ({ params }) => Effect.succeed(params.value)),
-  Router.getRouter,
+  RouterBuilder.make,
+  RouterBuilder.handle("hello", ({ params }) => Effect.succeed(params.value)),
+  RouterBuilder.getRouter,
 );
 
 describe("examples", () => {
   test("get", async () => {
     const router = exampleApiGet.pipe(
-      Router.make,
-      Router.handle("getValue", () => Effect.succeed(12)),
-      Router.getRouter,
+      RouterBuilder.make,
+      RouterBuilder.handle("getValue", () => Effect.succeed(12)),
+      RouterBuilder.getRouter,
     );
 
     const response = await testRouter(
@@ -54,16 +55,17 @@ describe("examples", () => {
     ).pipe(runTestEffect);
     const body = await Effect.runPromise(response.json);
 
+    expect(response.status).toEqual(200);
     expect(body).toEqual(12);
   });
 
   test("post, optional body field", async () => {
     const router = exampleApiPostNullableField.pipe(
-      Router.make,
-      Router.handle("test", () =>
+      RouterBuilder.make,
+      RouterBuilder.handle("test", () =>
         Effect.succeed({ value: Option.some("test") }),
       ),
-      Router.getRouter,
+      RouterBuilder.getRouter,
     );
 
     const response = await testRouter(router, ClientRequest.post("test")).pipe(
@@ -71,6 +73,7 @@ describe("examples", () => {
     );
     const body = await Effect.runPromise(response.json);
 
+    expect(response.status).toEqual(200);
     expect(body).toEqual({ value: "test" });
   });
 
@@ -83,20 +86,21 @@ describe("examples", () => {
     ).pipe(runTestEffect);
     const body = await Effect.runPromise(response.json);
 
+    expect(response.status).toEqual(200);
     expect(body).toEqual("CZ");
   });
 
   test("get, custom headers and status", async () => {
     const router = exampleApiGetCustomResponseWithHeaders.pipe(
-      Router.make,
-      Router.handle("hello", () =>
+      RouterBuilder.make,
+      RouterBuilder.handle("hello", () =>
         Effect.succeed({
           status: 201,
           headers: { "my-header": "hello" },
           content: { value: "test" },
         } as const),
       ),
-      Router.getRouter,
+      RouterBuilder.getRouter,
     );
 
     const response = await testRouter(router, ClientRequest.get("hello")).pipe(
@@ -113,13 +117,13 @@ describe("examples", () => {
 
   test("get, optional field", async () => {
     const router = exampleApiGetOptionalField.pipe(
-      Router.make,
-      Router.handle("hello", ({ query }) =>
+      RouterBuilder.make,
+      RouterBuilder.handle("hello", ({ query }) =>
         Effect.succeed({
           foo: query.value === "on" ? Option.some("hello") : Option.none(),
         }),
       ),
-      Router.getRouter,
+      RouterBuilder.getRouter,
     );
 
     const response = await testRouter(
@@ -144,6 +148,7 @@ describe("examples", () => {
 
     const body = await Effect.runPromise(response.json);
 
+    expect(response.status).toEqual(200);
     expect(body).toEqual("hello");
   });
 
@@ -155,6 +160,7 @@ describe("examples", () => {
 
     const body = await Effect.runPromise(response.json);
 
+    expect(response.status).toEqual(200);
     expect(body).toEqual("a");
   });
 });
@@ -167,9 +173,11 @@ describe("error reporting", () => {
     ).pipe(runTestEffect);
 
     expect(response.status).toEqual(400);
-    expect(await Effect.runPromise(response.json)).toEqual(
-      ServerError.invalidQueryError("country is missing"),
-    );
+    expect(await Effect.runPromise(response.json)).toEqual({
+      error: "Request validation error",
+      location: "query",
+      message: "country is missing",
+    });
   });
 
   test("invalid query parameter", async () => {
@@ -181,11 +189,12 @@ describe("error reporting", () => {
     ).pipe(runTestEffect);
 
     expect(response.status).toEqual(400);
-    expect(await Effect.runPromise(response.json)).toEqual(
-      ServerError.invalidQueryError(
+    expect(await Effect.runPromise(response.json)).toEqual({
+      error: "Request validation error",
+      location: "query",
+      message:
         'country must be a string matching the pattern ^[A-Z]{2}$, received "CZE"',
-      ),
-    );
+    });
   });
 
   test("invalid JSON body - empty", async () => {
@@ -195,9 +204,11 @@ describe("error reporting", () => {
     ).pipe(runTestEffect);
 
     expect(response.status).toEqual(400);
-    expect(await Effect.runPromise(response.json)).toEqual(
-      ServerError.invalidBodyError("must be a generic object, received null"),
-    );
+    expect(await Effect.runPromise(response.json)).toEqual({
+      error: "Request validation error",
+      location: "body",
+      message: "must be a generic object, received null",
+    });
   });
 
   test("invalid JSON body - text", async () => {
@@ -207,9 +218,11 @@ describe("error reporting", () => {
     ).pipe(runTestEffect);
 
     expect(response.status).toEqual(400);
-    expect(await Effect.runPromise(response.json)).toEqual(
-      ServerError.invalidBodyError("invalid JSON"),
-    );
+    expect(await Effect.runPromise(response.json)).toEqual({
+      error: "Request validation error",
+      location: "body",
+      message: "Invalid JSON",
+    });
   });
 
   test("invalid JSON body - incorrect schema", async () => {
@@ -221,9 +234,11 @@ describe("error reporting", () => {
     ).pipe(runTestEffect);
 
     expect(response.status).toEqual(400);
-    expect(await Effect.runPromise(response.json)).toEqual(
-      ServerError.invalidBodyError("foo must be string, received 1"),
-    );
+    expect(await Effect.runPromise(response.json)).toEqual({
+      error: "Request validation error",
+      location: "body",
+      message: "foo must be string, received 1",
+    });
   });
 
   test("invalid header", async () => {
@@ -233,9 +248,11 @@ describe("error reporting", () => {
     ).pipe(runTestEffect);
 
     expect(response.status).toEqual(400);
-    expect(await Effect.runPromise(response.json)).toEqual(
-      ServerError.invalidHeadersError("x-header is missing"),
-    );
+    expect(await Effect.runPromise(response.json)).toEqual({
+      error: "Request validation error",
+      location: "headers",
+      message: "x-header is missing",
+    });
   });
 
   test("invalid param", async () => {
@@ -245,16 +262,20 @@ describe("error reporting", () => {
     ).pipe(runTestEffect);
 
     expect(response.status).toEqual(400);
-    expect(await Effect.runPromise(response.json)).toEqual(
-      ServerError.invalidParamsError('value must be "a" or "b", received "c"'),
-    );
+    expect(await Effect.runPromise(response.json)).toEqual({
+      error: "Request validation error",
+      location: "path",
+      message: 'value must be "a" or "b", received "c"',
+    });
   });
 
   test("invalid response", async () => {
     const exampleRouteInvalid = exampleApiParams.pipe(
-      Router.make,
-      Router.handle("hello", () => Effect.succeed(1 as unknown as string)),
-      Router.getRouter,
+      RouterBuilder.make,
+      RouterBuilder.handle("hello", () =>
+        Effect.succeed(1 as unknown as string),
+      ),
+      RouterBuilder.getRouter,
     );
 
     const response = await testRouter(
@@ -263,26 +284,27 @@ describe("error reporting", () => {
     ).pipe(runTestEffect);
 
     expect(response.status).toEqual(500);
-    expect(await Effect.runPromise(response.json)).toEqual(
-      ServerError.invalidResponseError("must be string, received 1"),
-    );
+    expect(await Effect.runPromise(response.json)).toEqual({
+      error: "Invalid response body",
+      message: "must be string, received 1",
+    });
   });
 });
 
 test("single full response", async () => {
   const router = exampleApiFullResponse.pipe(
-    Router.make,
-    Router.handle("hello", () =>
+    RouterBuilder.make,
+    RouterBuilder.handle("hello", () =>
       Effect.succeed({
         content: 12,
         headers: { "my-header": "test" },
         status: 200 as const,
       }),
     ),
-    Router.handle("another", ({}) =>
+    RouterBuilder.handle("another", () =>
       Effect.succeed({ content: 12, status: 200 as const }),
     ),
-    Router.getRouter,
+    RouterBuilder.getRouter,
   );
 
   const result = await testRouter(router, [

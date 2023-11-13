@@ -27,10 +27,12 @@ Added in v1.0.0
   - [From "effect-http/Extensions"](#from-effect-httpextensions)
   - [From "effect-http/MockClient"](#from-effect-httpmockclient)
   - [From "effect-http/OpenApi"](#from-effect-httpopenapi)
-  - [From "effect-http/Router"](#from-effect-httprouter)
+  - [From "effect-http/Route"](#from-effect-httproute)
+  - [From "effect-http/RouterBuilder"](#from-effect-httprouterbuilder)
   - [From "effect-http/Server"](#from-effect-httpserver)
   - [From "effect-http/ServerBuilder"](#from-effect-httpserverbuilder)
   - [From "effect-http/ServerError"](#from-effect-httpservererror)
+  - [From "effect-http/SwaggerRouter"](#from-effect-httpswaggerrouter)
   - [From "effect-http/Testing"](#from-effect-httptesting)
   - [From "effect-http/Utils"](#from-effect-httputils)
   - [From "effect-http/ValidationErrorFormatter"](#from-effect-httpvalidationerrorformatter)
@@ -139,14 +141,26 @@ export * from 'effect-http/OpenApi'
 
 Added in v1.0.0
 
-## From "effect-http/Router"
+## From "effect-http/Route"
 
-Re-exports all named exports from the "effect-http/Router" module as `HttpRouter`.
+Re-exports all named exports from the "effect-http/Route" module as `Route`.
 
 **Signature**
 
 ```ts
-export * as HttpRouter from 'effect-http/Router'
+export * as Route from 'effect-http/Route'
+```
+
+Added in v1.0.0
+
+## From "effect-http/RouterBuilder"
+
+Re-exports all named exports from the "effect-http/RouterBuilder" module as `RouterBuilder`.
+
+**Signature**
+
+```ts
+export * as RouterBuilder from 'effect-http/RouterBuilder'
 ```
 
 Added in v1.0.0
@@ -183,6 +197,18 @@ Re-exports all named exports from the "effect-http/ServerError" module.
 
 ```ts
 export * from 'effect-http/ServerError'
+```
+
+Added in v1.0.0
+
+## From "effect-http/SwaggerRouter"
+
+Re-exports all named exports from the "effect-http/SwaggerRouter" module as `SwaggerRouter`.
+
+**Signature**
+
+```ts
+export * as SwaggerRouter from 'effect-http/SwaggerRouter'
 ```
 
 Added in v1.0.0
