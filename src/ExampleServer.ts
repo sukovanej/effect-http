@@ -24,7 +24,7 @@ import { createResponseSchema } from "effect-http/internal/utils";
  */
 export const exampleServer = <A extends Api>(
   api: A,
-): ServerBuilder<never, [], A> => {
+): ServerBuilder<never, never, A> => {
   const _server = server(api);
 
   return pipe(

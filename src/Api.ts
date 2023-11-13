@@ -191,9 +191,8 @@ export interface Endpoint {
  * @category models
  * @since 1.0.0
  */
-export interface Api<E extends Endpoint[] = Endpoint[]>
-  extends Pipeable.Pipeable {
-  endpoints: E;
+export interface Api<E extends Endpoint = Endpoint> extends Pipeable.Pipeable {
+  endpoints: E[];
   options: {
     title: string;
     version: string;
@@ -204,9 +203,9 @@ export interface Api<E extends Endpoint[] = Endpoint[]>
  * @category models
  * @since 1.0.0
  */
-export interface ApiGroup<E extends Endpoint[] = Endpoint[]>
+export interface ApiGroup<E extends Endpoint = Endpoint>
   extends Pipeable.Pipeable {
-  endpoints: E;
+  endpoints: E[];
   groupName: string;
 }
 
@@ -245,7 +244,7 @@ const DEFAULT_OPTIONS: Api["options"] = {
  * @category constructors
  * @since 1.0.0
  */
-export const api = (options?: Partial<Api["options"]>): Api<[]> => ({
+export const api = (options?: Partial<Api["options"]>): Api<never> => ({
   options: {
     ...DEFAULT_OPTIONS,
     ...options,
@@ -329,7 +328,7 @@ export const options: EndpointSetter = endpoint("options");
  * @category constructors
  * @since 1.0.0
  */
-export const apiGroup = (groupName: string): ApiGroup<[]> => ({
+export const apiGroup = (groupName: string): ApiGroup<never> => ({
   endpoints: [],
   groupName,
   pipe() {
@@ -345,8 +344,8 @@ export const apiGroup = (groupName: string): ApiGroup<[]> => ({
  * @since 1.0.0
  */
 export const addGroup =
-  <E2 extends Endpoint[]>(apiGroup: ApiGroup<E2>) =>
-  <E1 extends Endpoint[]>(api: Api<E1>): Api<[...E1, ...E2]> => {
+  <E2 extends Endpoint>(apiGroup: ApiGroup<E2>) =>
+  <E1 extends Endpoint>(api: Api<E1>): Api<E1 | E2> => {
     const existingIds = HashSet.make(...api.endpoints.map(({ id }) => id));
     const newIds = HashSet.make(...apiGroup.endpoints.map(({ id }) => id));
     const duplicates = HashSet.intersection(existingIds, newIds);
@@ -399,9 +398,9 @@ type AddEndpoint<
   Id extends string,
   Schemas extends InputEndpointSchemas,
 > = A extends Api<infer E>
-  ? Api<[...E, Types.Simplify<CreateEndpointFromInput<Id, Schemas>>]>
+  ? Api<E | Types.Simplify<CreateEndpointFromInput<Id, Schemas>>>
   : A extends ApiGroup<infer E>
-  ? ApiGroup<[...E, Types.Simplify<CreateEndpointFromInput<Id, Schemas>>]>
+  ? ApiGroup<E | Types.Simplify<CreateEndpointFromInput<Id, Schemas>>>
   : never;
 
 /** @ignore */

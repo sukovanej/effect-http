@@ -12,7 +12,6 @@ import * as Api from "effect-http/Api";
 import {
   EndpointResponseSchemaTo,
   EndpointSchemasTo,
-  SelectEndpointById,
 } from "effect-http/ServerBuilder";
 import * as ServerError from "effect-http/ServerError";
 import * as ServerRequestParser from "effect-http/internal/serverRequestParser";
@@ -81,7 +80,7 @@ export const make: <
   E,
 >(
   id: Id,
-  fn: HandlerFunction<SelectEndpointById<A["endpoints"], Id>, R, E>,
+  fn: HandlerFunction<Extract<A["endpoints"][number], { id: Id }>, R, E>,
 ) => (api: A) => Router.Route<R, Exclude<E, ServerError.ServerError>> =
   (id, fn) => (api) => {
     const endpoint = Api.getEndpoint(api, id);

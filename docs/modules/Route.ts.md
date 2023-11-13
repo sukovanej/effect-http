@@ -41,9 +41,9 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-export declare const make: <A extends Api.Api<Api.Endpoint[]>, Id extends A['endpoints'][number]['id'], R, E>(
+export declare const make: <A extends Api.Api<Api.Endpoint>, Id extends A['endpoints'][number]['id'], R, E>(
   id: Id,
-  fn: HandlerFunction<SelectEndpointById<A['endpoints'], Id>, R, E>
+  fn: HandlerFunction<Extract<A['endpoints'][number], { id: Id }>, R, E>
 ) => (api: A) => Router.Route<R, Exclude<E, ServerError.ServerError>>
 ```
 

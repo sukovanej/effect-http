@@ -37,7 +37,7 @@ export interface ServerHandler<R = any> {
 export interface Server<R, A extends Api = Api> {
   api: A;
   handlers: readonly ServerHandler<R>[];
-  extensions: readonly ServerExtension<R, A["endpoints"]>[];
+  extensions: readonly ServerExtension<R, A["endpoints"][number]>[];
 }
 
 /**
@@ -45,7 +45,7 @@ export interface Server<R, A extends Api = Api> {
  * @since 1.0.0
  */
 export const buildServer = <R, A extends Api>(
-  serverBuilder: ServerBuilder<R, [], A>,
+  serverBuilder: ServerBuilder<R, never, A>,
 ): Server<R, A> => {
   if (serverBuilder.unimplementedEndpoints.length !== 0) {
     new Error(`All endpoint must be implemented`);
@@ -235,7 +235,7 @@ export const convertErrorToResponse = (error: unknown) =>
 
 /** @internal */
 const runHandlerFnWithExtensions = (
-  allExtensions: ServerExtension<any, Endpoint[]>[],
+  allExtensions: ServerExtension<any, Endpoint>[],
   endpoint: Endpoint,
   fn: ServerHandler["fn"],
 ) => {

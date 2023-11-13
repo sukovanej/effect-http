@@ -37,8 +37,8 @@ satisfy the conctract in your tests.
 **Signature**
 
 ```ts
-export declare const testingClient: <R, A extends Api<Endpoint[]>>(
-  serverBuilder: ServerBuilder<R, [], A>
+export declare const testingClient: <R, A extends Api<Endpoint>>(
+  serverBuilder: ServerBuilder<R, never, A>
 ) => TestingClient<R, A>
 ```
 
