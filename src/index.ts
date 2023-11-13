@@ -81,3 +81,13 @@ export * from "effect-http/Utils";
  * @since 1.0.0
  */
 export * as Route from "effect-http/Route";
+
+/**
+ * @since 1.0.0
+ */
+export * as RouterBuilder from "effect-http/RouterBuilder";
+
+/**
+ * @since 1.0.0
+ */
+export * as SwaggerRouter from "effect-http/SwaggerRouter";

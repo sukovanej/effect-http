@@ -2,7 +2,6 @@ import * as ClientRequest from "@effect/platform/Http/ClientRequest";
 import * as HttpServer from "@effect/platform/HttpServer";
 import { Effect, Option } from "effect";
 import * as Route from "effect-http/Route";
-import * as ServerError from "effect-http/ServerError";
 
 import {
   exampleApiGet,
@@ -14,14 +13,14 @@ import {
   exampleApiRequestBody,
   exampleApiRequestHeaders,
 } from "./examples";
-import { testRouter } from "./utils";
+import { runTestEffect, testRouter } from "./utils";
 
 const testRoute = <E1>(
   route: HttpServer.router.Route<never, E1>,
   request: ClientRequest.ClientRequest,
 ) =>
   testRouter(HttpServer.router.fromIterable([route]), request).pipe(
-    Effect.runPromise,
+    runTestEffect,
   );
 
 const exampleRouteGetQueryParameter = exampleApiGetQueryParameter.pipe(
@@ -150,9 +149,11 @@ describe("error reporting", () => {
     );
 
     expect(response.status).toEqual(400);
-    expect(await Effect.runPromise(response.json)).toEqual(
-      ServerError.invalidQueryError("country is missing"),
-    );
+    expect(await Effect.runPromise(response.json)).toEqual({
+      error: "Request validation error",
+      location: "query",
+      message: "country is missing",
+    });
   });
 
   test("invalid query parameter", async () => {
@@ -164,11 +165,12 @@ describe("error reporting", () => {
     );
 
     expect(response.status).toEqual(400);
-    expect(await Effect.runPromise(response.json)).toEqual(
-      ServerError.invalidQueryError(
+    expect(await Effect.runPromise(response.json)).toEqual({
+      error: "Request validation error",
+      location: "query",
+      message:
         'country must be a string matching the pattern ^[A-Z]{2}$, received "CZE"',
-      ),
-    );
+    });
   });
 
   test("invalid JSON body - empty", async () => {
@@ -178,9 +180,11 @@ describe("error reporting", () => {
     );
 
     expect(response.status).toEqual(400);
-    expect(await Effect.runPromise(response.json)).toEqual(
-      ServerError.invalidBodyError("must be a generic object, received null"),
-    );
+    expect(await Effect.runPromise(response.json)).toEqual({
+      error: "Request validation error",
+      location: "body",
+      message: "must be a generic object, received null",
+    });
   });
 
   test("invalid JSON body - text", async () => {
@@ -190,9 +194,11 @@ describe("error reporting", () => {
     );
 
     expect(response.status).toEqual(400);
-    expect(await Effect.runPromise(response.json)).toEqual(
-      ServerError.invalidBodyError("invalid JSON"),
-    );
+    expect(await Effect.runPromise(response.json)).toEqual({
+      error: "Request validation error",
+      location: "body",
+      message: "Invalid JSON",
+    });
   });
 
   test("invalid JSON body - incorrect schema", async () => {
@@ -204,9 +210,11 @@ describe("error reporting", () => {
     );
 
     expect(response.status).toEqual(400);
-    expect(await Effect.runPromise(response.json)).toEqual(
-      ServerError.invalidBodyError("foo must be string, received 1"),
-    );
+    expect(await Effect.runPromise(response.json)).toEqual({
+      error: "Request validation error",
+      location: "body",
+      message: "foo must be string, received 1",
+    });
   });
 
   test("invalid header", async () => {
@@ -216,9 +224,11 @@ describe("error reporting", () => {
     );
 
     expect(response.status).toEqual(400);
-    expect(await Effect.runPromise(response.json)).toEqual(
-      ServerError.invalidHeadersError("x-header is missing"),
-    );
+    expect(await Effect.runPromise(response.json)).toEqual({
+      error: "Request validation error",
+      location: "headers",
+      message: "x-header is missing",
+    });
   });
 
   test("invalid param", async () => {
@@ -228,9 +238,11 @@ describe("error reporting", () => {
     );
 
     expect(response.status).toEqual(400);
-    expect(await Effect.runPromise(response.json)).toEqual(
-      ServerError.invalidParamsError('value must be "a" or "b", received "c"'),
-    );
+    expect(await Effect.runPromise(response.json)).toEqual({
+      error: "Request validation error",
+      location: "path",
+      message: 'value must be "a" or "b", received "c"',
+    });
   });
 
   test("invalid response", async () => {
@@ -244,8 +256,9 @@ describe("error reporting", () => {
     );
 
     expect(response.status).toEqual(500);
-    expect(await Effect.runPromise(response.json)).toEqual(
-      ServerError.invalidResponseError("must be string, received 1"),
-    );
+    expect(await Effect.runPromise(response.json)).toEqual({
+      error: "Invalid response body",
+      message: "must be string, received 1",
+    });
   });
 });

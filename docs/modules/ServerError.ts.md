@@ -1,6 +1,6 @@
 ---
 title: ServerError.ts
-nav_order: 13
+nav_order: 14
 parent: Modules
 ---
 
@@ -28,12 +28,18 @@ Added in v1.0.0
   - [invalidParamsError](#invalidparamserror)
   - [invalidQueryError](#invalidqueryerror)
   - [invalidResponseError](#invalidresponseerror)
+  - [make](#make)
+  - [makeJson](#makejson)
+  - [makeText](#maketext)
   - [notFoundError](#notfounderror)
   - [notImplementedError](#notimplementederror)
   - [serviceUnavailableError](#serviceunavailableerror)
   - [tooManyRequestsError](#toomanyrequestserror)
   - [unauthorizedError](#unauthorizederror)
   - [unsupportedMediaTypeError](#unsupportedmediatypeerror)
+- [errors](#errors)
+  - [ServerError (class)](#servererror-class)
+  - [isServerError](#isservererror)
 - [models](#models)
   - [ApiClientError (type alias)](#apiclienterror-type-alias)
   - [ApiError (type alias)](#apierror-type-alias)
@@ -237,6 +243,36 @@ export declare const invalidResponseError: (error: unknown) => InvalidResponseEr
 
 Added in v1.0.0
 
+## make
+
+**Signature**
+
+```ts
+export declare const make: (status: number) => ServerError
+```
+
+Added in v1.0.0
+
+## makeJson
+
+**Signature**
+
+```ts
+export declare const makeJson: (status: number, json: unknown) => ServerError
+```
+
+Added in v1.0.0
+
+## makeText
+
+**Signature**
+
+```ts
+export declare const makeText: (status: number, text: string) => ServerError
+```
+
+Added in v1.0.0
+
 ## notFoundError
 
 404 Not Found - cannot find the requested resource
@@ -305,6 +341,28 @@ Added in v1.0.0
 
 ```ts
 export declare const unsupportedMediaTypeError: (error: unknown) => UnsupportedMediaTypeError
+```
+
+Added in v1.0.0
+
+# errors
+
+## ServerError (class)
+
+**Signature**
+
+```ts
+export declare class ServerError
+```
+
+Added in v1.0.0
+
+## isServerError
+
+**Signature**
+
+```ts
+export declare const isServerError: (error: unknown) => error is ServerError
 ```
 
 Added in v1.0.0

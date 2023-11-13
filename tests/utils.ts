@@ -7,6 +7,7 @@ import * as Server from "@effect/platform-node/Http/Server";
 import * as Client from "@effect/platform/Http/Client";
 import * as ClientRequest from "@effect/platform/Http/ClientRequest";
 import * as ClientResponse from "@effect/platform/Http/ClientResponse";
+import * as Middleware from "@effect/platform/Http/Middleware";
 import * as HttpServer from "@effect/platform/HttpServer";
 import { Effect, Layer, Logger, Scope, Unify, pipe } from "effect";
 import * as Http from "effect-http";
@@ -185,7 +186,9 @@ export const testRouter: {
     Layer.merge(Client.layer),
   );
 
-  const serve = Server.serve(router).pipe(Effect.scoped);
+  const serve = Server.serve(router.pipe(Middleware.logger)).pipe(
+    Effect.scoped,
+  );
   const runTest = Unify.unify(
     Array.isArray(request)
       ? Effect.flatMap(client, (client) =>

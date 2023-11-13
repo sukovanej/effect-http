@@ -1,6 +1,6 @@
 ---
 title: Utils.ts
-nav_order: 15
+nav_order: 17
 parent: Modules
 ---
 
@@ -28,12 +28,9 @@ Derive utility object with methods enabling type-safe response object creation.
 **Signature**
 
 ```ts
-export declare const responseUtil: <A extends Api<Endpoint[]>, Id extends A['endpoints'][number]['id']>(
-  api: A,
-  id: Id
-) => Types.Simplify<
-  NormalizedSchemasByIdToResponseUtils<SchemasByIdFromApi<Extract<A['endpoints'][number], { id: Id }>>>
->
+export declare const responseUtil: <E extends Api.Endpoint>(
+  endpoint: E
+) => Types.Simplify<NormalizedSchemasByIdToResponseUtils<SchemasByIdFromApi<E>>>
 ```
 
 Added in v1.0.0

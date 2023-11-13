@@ -25,12 +25,7 @@ import {
   exampleApiOptionalParams,
   exampleApiPutResponse,
 } from "./examples";
-import {
-  runTestEffect,
-  runTestEffectEither,
-  testExpress,
-  testServer,
-} from "./utils";
+import { runTestEffect, testExpress, testServer } from "./utils";
 
 const Service1 = Context.Tag<number>();
 const Service2 = Context.Tag<string>();
@@ -71,19 +66,18 @@ test("human-readable error response", async () => {
   const result = await pipe(
     testServer(server),
     Effect.flatMap((client) => client.hello({})),
-    runTestEffectEither,
+    Effect.flip,
+    runTestEffect,
   );
 
-  expect(result).toMatchObject(
-    Either.left({
-      _tag: "HttpClientError",
-      status: 404,
-      error: {
-        error: "NotFoundError",
-        details: "Didnt find it",
-      },
-    }),
-  );
+  expect(result).toMatchObject({
+    _tag: "HttpClientError",
+    status: 404,
+    error: {
+      error: "NotFoundError",
+      details: "Didnt find it",
+    },
+  });
 });
 
 test("headers", async () => {

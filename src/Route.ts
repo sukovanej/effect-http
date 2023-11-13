@@ -34,39 +34,41 @@ export const fromEndpoint: <Endpoint extends Api.Endpoint, R, E>(
   fn: HandlerFunction<Endpoint, R, E>,
 ) => (
   endpoint: Endpoint,
-) => Router.Route<R, Exclude<E, ServerError.ApiError>> = (fn) => (endpoint) => {
-  const responseEncoder = ServerResponseEncoder.create(
-    endpoint.schemas.response,
-  );
-  const requestParser = ServerRequestParser.create(endpoint);
+) => Router.Route<R, Exclude<E, ServerError.ServerError>> =
+  <Endpoint extends Api.Endpoint, R, E>(fn: HandlerFunction<Endpoint, R, E>) =>
+  (endpoint) => {
+    const responseEncoder = ServerResponseEncoder.create(
+      endpoint.schemas.response,
+    );
+    const requestParser = ServerRequestParser.create(endpoint);
 
-  return Router.makeRoute(
-    endpoint.method.toUpperCase() as Method.Method,
-    endpoint.path,
-    pipe(
-      ServerRequest.ServerRequest,
-      Effect.flatMap(requestParser.parseRequest),
-      Effect.flatMap((input: any) => fn(input)),
-      Effect.flatMap(responseEncoder.encodeResponse),
-      Effect.catchTags({
-        InvalidQueryError: (error) =>
-          Effect.succeed(ServerResponse.unsafeJson(error, { status: 400 })),
-        InvalidBodyError: (error) =>
-          Effect.succeed(ServerResponse.unsafeJson(error, { status: 400 })),
-        InvalidHeadersError: (error) =>
-          Effect.succeed(ServerResponse.unsafeJson(error, { status: 400 })),
-        InvalidParamsError: (error) =>
-          Effect.succeed(ServerResponse.unsafeJson(error, { status: 400 })),
-        InvalidResponseError: (error) =>
-          Effect.succeed(ServerResponse.unsafeJson(error, { status: 500 })),
-      }),
-      Effect.tapError(Effect.logError),
-      Effect.catchAll((error) =>
-        ServerResponse.unsafeJson(error).pipe(Effect.succeed),
+    return Router.makeRoute(
+      endpoint.method.toUpperCase() as Method.Method,
+      endpoint.path,
+      pipe(
+        ServerRequest.ServerRequest,
+        Effect.flatMap(requestParser.parseRequest),
+        Effect.flatMap((input: any) => fn(input)),
+        Effect.flatMap(responseEncoder.encodeResponse),
+        Effect.catchAll((error) => {
+          if (ServerError.isServerError(error)) {
+            const options = { status: error.status };
+
+            if (error.json !== undefined) {
+              return ServerResponse.unsafeJson(error.json, options);
+            } else if (error.text !== undefined) {
+              return ServerResponse.text(error.text, options);
+            }
+
+            return ServerResponse.empty(options);
+          }
+
+          return Effect.fail(error as Exclude<E, ServerError.ServerError>);
+        }),
+        Effect.tapError(Effect.logError),
       ),
-    ),
-  );
-};
+    );
+  };
 
 /**
  * @category constructors
@@ -80,7 +82,7 @@ export const make: <
 >(
   id: Id,
   fn: HandlerFunction<SelectEndpointById<A["endpoints"], Id>, R, E>,
-) => (api: A) => Router.Route<R, Exclude<E, ServerError.ApiError>> =
+) => (api: A) => Router.Route<R, Exclude<E, ServerError.ServerError>> =
   (id, fn) => (api) => {
     const endpoint = Api.getEndpoint(api, id);
 

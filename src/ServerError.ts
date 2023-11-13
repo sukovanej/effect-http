@@ -3,7 +3,8 @@
  *
  * @since 1.0.0
  */
-import { Predicate } from "effect";
+import * as Data from "effect/Data";
+import * as Predicate from "effect/Predicate";
 
 /** @internal */
 const checkByTag =
@@ -554,3 +555,42 @@ export type ApiServerError =
  * @since 1.0.0
  */
 export type ApiError = ApiClientError | ApiServerError;
+
+/**
+ * @category errors
+ * @since 1.0.0
+ */
+export class ServerError extends Data.TaggedError("ServerError")<{
+  status: number;
+  text?: string;
+  json?: unknown;
+}> {}
+
+/**
+ * @category constructors
+ * @since 1.0.0
+ */
+export const make = (status: number) => new ServerError({ status });
+
+/**
+ * @category constructors
+ * @since 1.0.0
+ */
+export const makeText = (status: number, text: string) =>
+  new ServerError({ status, text });
+
+/**
+ * @category constructors
+ * @since 1.0.0
+ */
+export const makeJson = (status: number, json: unknown) =>
+  new ServerError({ status, json });
+
+/**
+ * @category errors
+ * @since 1.0.0
+ */
+export const isServerError = (error: unknown): error is ServerError =>
+  Predicate.isObject(error) &&
+  "_tag" in error &&
+  error["_tag"] === "ServerError";

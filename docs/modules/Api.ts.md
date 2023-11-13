@@ -289,7 +289,7 @@ Added in v1.0.0
 export declare const getEndpoint: <A extends Api<Endpoint[]>, Id extends A['endpoints'][number]['id']>(
   api: A,
   id: Id
-) => Endpoint
+) => Extract<A['endpoints'][number], { id: Id }>
 ```
 
 Added in v1.0.0

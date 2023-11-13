@@ -3,11 +3,7 @@ import * as Headers from "@effect/platform/Http/Headers";
 import * as ServerResponse from "@effect/platform/Http/ServerResponse";
 import { Schema } from "@effect/schema";
 import { Effect } from "effect";
-import {
-  EndpointSchemas,
-  IgnoredSchemaId,
-  ResponseSchemaFull,
-} from "effect-http/Api";
+import * as Api from "effect-http/Api";
 import * as ServerError from "effect-http/ServerError";
 import { formatParseError } from "effect-http/internal/formatParseError";
 import { AnySchema, isArray } from "effect-http/internal/utils";
@@ -17,17 +13,20 @@ interface ServerResponseEncoder {
     input: unknown,
   ) => Effect.Effect<
     never,
-    ServerError.InvalidResponseError,
+    ServerError.ServerError,
     ServerResponse.ServerResponse
   >;
 }
+
+const createErrorResponse = (error: string, message: string) =>
+  ServerError.makeJson(500, { error, message });
 
 const make = (
   encodeResponse: ServerResponseEncoder["encodeResponse"],
 ): ServerResponseEncoder => ({ encodeResponse });
 
 export const create = (
-  responseSchema: EndpointSchemas["response"],
+  responseSchema: Api.EndpointSchemas["response"],
 ): ServerResponseEncoder => {
   if (Schema.isSchema(responseSchema)) {
     return fromSchema(responseSchema);
@@ -39,23 +38,16 @@ export const create = (
 };
 
 const fromSchema = (schema: AnySchema): ServerResponseEncoder => {
-  const parse = Schema.encode(schema);
-  return make((body) =>
-    parse(body).pipe(
-      Effect.mapError((error) => ServerError.invalidResponseError(formatParseError(error))),
-      Effect.flatMap((json) =>
-        ServerResponse.json(json).pipe(Effect.mapError(convertBodyError)),
-      ),
-    ),
-  );
+  const encode = ServerResponse.schemaJson(schema);
+  return make((body) => Effect.mapError(encode(body), convertBodyError));
 };
 
 const fromResponseSchemaFullArray = (
-  schemas: readonly ResponseSchemaFull[],
+  schemas: readonly Api.ResponseSchemaFull[],
 ): ServerResponseEncoder => {
   const statusToSchema = schemas.reduce(
     (obj, schemas) => ({ ...obj, [schemas.status]: schemas }),
-    {} as Record<number, ResponseSchemaFull>,
+    {} as Record<number, Api.ResponseSchemaFull>,
   );
 
   return make((input: unknown) =>
@@ -76,9 +68,9 @@ const fromResponseSchemaFullArray = (
   );
 };
 
-const createContentSetter = (schema: ResponseSchemaFull) => {
+const createContentSetter = (schema: Api.ResponseSchemaFull) => {
   const setBody =
-    schema.content === IgnoredSchemaId
+    schema.content === Api.IgnoredSchemaId
       ? undefined
       : ServerResponse.schemaJson(schema.content);
 
@@ -98,9 +90,9 @@ const createContentSetter = (schema: ResponseSchemaFull) => {
     };
 };
 
-const createHeadersSetter = (schema: ResponseSchemaFull) => {
+const createHeadersSetter = (schema: Api.ResponseSchemaFull) => {
   const parseHeaders =
-    schema.headers === IgnoredSchemaId
+    schema.headers === Api.IgnoredSchemaId
       ? undefined
       : Schema.parse(schema.headers);
 
@@ -115,14 +107,14 @@ const createHeadersSetter = (schema: ResponseSchemaFull) => {
       }
 
       return parseHeaders(input.headers).pipe(
-        Effect.mapError((error) =>
-          ServerError.invalidResponseError({
-            error: "Invalid response headers",
-            details: error,
-          }),
-        ),
         Effect.map((headers) =>
           response.pipe(ServerResponse.setHeaders(headers as Headers.Input)),
+        ),
+        Effect.mapError((error) =>
+          createErrorResponse(
+            "Invalid response headers",
+            formatParseError(error),
+          ),
         ),
       );
     };
@@ -139,12 +131,15 @@ const parseFullResponseInput = Schema.parse(FullResponseInput);
 
 const convertBodyError = (error: Body.BodyError) => {
   if (error.reason._tag === "JsonError") {
-    return ServerError.invalidResponseError("Invalid response JSON");
+    return createErrorResponse(
+      "Invalid response body",
+      "Invalid response JSON",
+    );
   } else if (error.reason._tag === "SchemaError") {
-    return ServerError.invalidResponseError({
-      error: "Invalid response",
-      details: error.reason.error,
-    });
+    return createErrorResponse(
+      "Invalid response body",
+      formatParseError(error.reason.error),
+    );
   }
 
   throw new Error(`Handling of ${error} not implemented`);
