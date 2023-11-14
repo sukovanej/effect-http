@@ -239,8 +239,8 @@ describe("type safe responses", () => {
                 status: 200 as const,
               }
             : query.value == 13
-            ? { content: 13, status: 201 as const }
-            : { headers: { "x-another": 13 }, status: 204 as const };
+              ? { content: 13, status: 201 as const }
+              : { headers: { "x-another": 13 }, status: 204 as const };
 
         return Effect.succeed(response);
       }),

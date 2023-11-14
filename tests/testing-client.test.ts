@@ -1,5 +1,5 @@
 import { HttpServer } from "@effect/platform";
-import { NodeContext } from "@effect/platform-node";
+import { FileSystem, NodeContext } from "@effect/platform-node";
 import * as Router from "@effect/platform/Http/Router";
 import { Schema } from "@effect/schema";
 import { Context, Effect, Predicate, pipe } from "effect";
@@ -213,7 +213,7 @@ test("form data", async () => {
       Effect.gen(function* (_) {
         const request = yield* _(HttpServer.request.ServerRequest);
         const body = yield* _(request.formData);
-        const file = body.get("file");
+        const file = body["file"];
 
         if (file === null) {
           return yield* _(ServerError.invalidBodyError('Expected "file"'));
@@ -223,7 +223,9 @@ test("form data", async () => {
           return yield* _(ServerError.invalidBodyError("Expected file"));
         }
 
-        return yield* _(Effect.promise(() => file.text()));
+        const fs = yield* _(FileSystem.FileSystem);
+
+        return yield* _(fs.readFileString(file[0].path));
       }),
     ),
     RouterBuilder.build,

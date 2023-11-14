@@ -400,8 +400,8 @@ type AddEndpoint<
 > = A extends Api<infer E>
   ? Api<E | Types.Simplify<CreateEndpointFromInput<Id, Schemas>>>
   : A extends ApiGroup<infer E>
-  ? ApiGroup<E | Types.Simplify<CreateEndpointFromInput<Id, Schemas>>>
-  : never;
+    ? ApiGroup<E | Types.Simplify<CreateEndpointFromInput<Id, Schemas>>>
+    : never;
 
 /** @ignore */
 export const IgnoredSchemaId = Symbol("effect-http/ignore-schema-id");
@@ -414,10 +414,10 @@ type ResponseSchemaFromInput<S extends InputEndpointSchemas["response"]> =
   S extends AnySchema
     ? S
     : S extends readonly InputResponseSchemaFull[]
-    ? ComputeEndpointResponseFull<S>
-    : S extends InputResponseSchemaFull
-    ? ResponseSchemaFullFromInput<S>
-    : never;
+      ? ComputeEndpointResponseFull<S>
+      : S extends InputResponseSchemaFull
+        ? ResponseSchemaFullFromInput<S>
+        : never;
 
 type GetOptional<
   A extends Record<string, unknown> | undefined,

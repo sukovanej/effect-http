@@ -118,10 +118,10 @@ export type ClientFunctionResponse<
   S extends Schema.Schema<any, infer A>
     ? A
     : S extends readonly Api.ResponseSchemaFull[]
-    ? Route.ResponseSchemaFullTo<S[number]>
-    : S extends Api.ResponseSchemaFull
-    ? Route.ResponseSchemaFullTo<S>
-    : never
+      ? Route.ResponseSchemaFullTo<S[number]>
+      : S extends Api.ResponseSchemaFull
+        ? Route.ResponseSchemaFullTo<S>
+        : never
 >;
 
 /** @ignore */
