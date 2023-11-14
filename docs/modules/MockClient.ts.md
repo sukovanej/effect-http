@@ -1,6 +1,6 @@
 ---
 title: MockClient.ts
-nav_order: 8
+nav_order: 7
 parent: Modules
 ---
 
@@ -30,10 +30,10 @@ Derive mock client implementation from the `Api`
 **Signature**
 
 ```ts
-export declare const mockClient: <A extends Api<Endpoint>, H extends Record<string, unknown>>(
-  api: A,
-  option?: Partial<MockClientOptions<A> & ClientOptions<H>> | undefined
-) => Client<A, H>
+export declare const mockClient: <Endpoints extends Api.Endpoint>(
+  api: Api.Api<Endpoints>,
+  option?: Partial<MockClientOptions<Endpoints>> | undefined
+) => Client.Client<Endpoints>
 ```
 
 Added in v1.0.0
@@ -45,11 +45,9 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-export type MockClientOptions<A extends Api> = {
+export type MockClientOptions<Endpoints extends Api.Endpoint> = {
   responses: {
-    [Id in A['endpoints'][number]['id']]: ClientFunctionResponse<
-      Extract<A['endpoints'][number], { id: Id }>['schemas']['response']
-    >
+    [Id in Endpoints["id"]]: Client.ClientFunctionResponse<Extract<Endpoints, { id: Id }>["schemas"]["response"]>
   }
 }
 ```

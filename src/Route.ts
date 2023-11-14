@@ -85,19 +85,8 @@ export const make: <
     return fromEndpoint(fn)(endpoint);
   };
 
-// TODO move somewhere else
-
-/** @internal */
-export const addRoute = <R1, R2, E1, E2>(
-  router: Router.Router<R1, E1>,
-  route: Router.Route<R2, E2>,
-): Router.Router<
-  Exclude<R1 | R2, Router.RouteContext | ServerRequest.ServerRequest>,
-  E1 | E2
-> => Router.concat(Router.fromIterable([route]))(router) as any;
-
 /** @ignore */
-export type EndpointResponseSchemaTo<S> = S extends AnySchema
+type EndpointResponseSchemaTo<S> = S extends AnySchema
   ? SchemaTo<S>
   : S extends readonly Api.ResponseSchemaFull[]
     ? ResponseSchemaFullTo<S[number]>
@@ -119,7 +108,8 @@ export type ResponseSchemaFullTo<S extends Api.ResponseSchemaFull> =
       >
     : never;
 
-export type RequiredFields<E> = {
+/** @ignore */
+type RequiredFields<E> = {
   [K in keyof E]: E[K] extends Api.IgnoredSchemaId ? never : K;
 }[keyof E];
 

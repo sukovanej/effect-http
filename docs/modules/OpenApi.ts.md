@@ -28,7 +28,7 @@ Generate OpenApi specification for the Api.
 **Signature**
 
 ```ts
-export declare const openApi: (api: Api) => OpenApi.OpenAPISpec<OpenApi.OpenAPISchemaType>
+export declare const openApi: (api: Api.Api) => OpenApi.OpenAPISpec<OpenApi.OpenAPISchemaType>
 ```
 
 Added in v1.0.0

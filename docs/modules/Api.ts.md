@@ -70,7 +70,7 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-export declare const api: (options?: Partial<Api['options']>) => Api<never>
+export declare const api: (options?: Partial<Api["options"]>) => Api<never>
 ```
 
 Added in v1.0.0
@@ -286,10 +286,10 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-export declare const getEndpoint: <A extends Api<Endpoint>, Id extends A['endpoints'][number]['id']>(
+export declare const getEndpoint: <A extends Api<Endpoint>, Id extends A["endpoints"][number]["id"]>(
   api: A,
   id: Id
-) => Extract<A['endpoints'][number], { id: Id }>
+) => Extract<A["endpoints"][number], { id: Id }>
 ```
 
 Added in v1.0.0

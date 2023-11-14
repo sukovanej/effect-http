@@ -1,3 +1,8 @@
+/**
+ * Simplified way to run a node server.
+ *
+ * @since 1.0.0
+ */
 import type * as App from "@effect/platform/Http/App";
 import type * as Platform from "@effect/platform/Http/Platform";
 import * as Server from "@effect/platform/Http/Server";
@@ -8,16 +13,25 @@ import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
 import * as Scope from "effect/Scope";
 
-interface ListenOptions {
+
+/**
+ * @category models
+ * @since 1.0.0
+ */
+interface Options {
   port: number | undefined;
 }
 
-const DEFAULT_LISTEN_OPTIONS: ListenOptions = {
+const DEFAULT_LISTEN_OPTIONS: Options = {
   port: undefined,
 };
 
+/**
+ * @category combinators
+ * @since 1.0.0
+ */
 export const listen =
-  (options?: Partial<ListenOptions>) =>
+  (options?: Partial<Options>) =>
   <R, E>(
     router: App.Default<R, E>,
   ): Effect.Effect<

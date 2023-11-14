@@ -1,16 +1,12 @@
 ---
 title: index.ts
-nav_order: 7
+nav_order: 5
 parent: Modules
 ---
 
 ## index overview
 
 Reexport of all the submodules.
-
-```ts
-import * as Http from 'effect-http'
-```
 
 Added in v1.0.0
 
@@ -23,18 +19,15 @@ Added in v1.0.0
   - [From "effect-http/Client"](#from-effect-httpclient)
   - [From "effect-http/ClientError"](#from-effect-httpclienterror)
   - [From "effect-http/ExampleServer"](#from-effect-httpexampleserver)
-  - [From "effect-http/Express"](#from-effect-httpexpress)
-  - [From "effect-http/Extensions"](#from-effect-httpextensions)
+  - [From "effect-http/Middlewares"](#from-effect-httpmiddlewares)
   - [From "effect-http/MockClient"](#from-effect-httpmockclient)
+  - [From "effect-http/NodeServer"](#from-effect-httpnodeserver)
   - [From "effect-http/OpenApi"](#from-effect-httpopenapi)
   - [From "effect-http/Route"](#from-effect-httproute)
   - [From "effect-http/RouterBuilder"](#from-effect-httprouterbuilder)
-  - [From "effect-http/Server"](#from-effect-httpserver)
-  - [From "effect-http/ServerBuilder"](#from-effect-httpserverbuilder)
   - [From "effect-http/ServerError"](#from-effect-httpservererror)
   - [From "effect-http/SwaggerRouter"](#from-effect-httpswaggerrouter)
   - [From "effect-http/Testing"](#from-effect-httptesting)
-  - [From "effect-http/Utils"](#from-effect-httputils)
   - [From "effect-http/ValidationErrorFormatter"](#from-effect-httpvalidationerrorformatter)
 
 ---
@@ -43,100 +36,96 @@ Added in v1.0.0
 
 ## From "effect-http/Api"
 
-Reexport of all the submodules.
-
-```ts
-import * as Http from 'effect-http'
-```
+Re-exports all named exports from the "effect-http/Api" module as `Api`.
 
 **Signature**
 
 ```ts
-export * from 'effect-http/Api'
+export * as Api from "effect-http/Api"
 ```
 
 Added in v1.0.0
 
 ## From "effect-http/Client"
 
-Re-exports all named exports from the "effect-http/Client" module.
+Re-exports all named exports from the "effect-http/Client" module as `Client`.
 
 **Signature**
 
 ```ts
-export * from 'effect-http/Client'
+export * as Client from "effect-http/Client"
 ```
 
 Added in v1.0.0
 
 ## From "effect-http/ClientError"
 
-Re-exports all named exports from the "effect-http/ClientError" module.
+Re-exports all named exports from the "effect-http/ClientError" module as `ClientError`.
 
 **Signature**
 
 ```ts
-export * from 'effect-http/ClientError'
+export * as ClientError from "effect-http/ClientError"
 ```
 
 Added in v1.0.0
 
 ## From "effect-http/ExampleServer"
 
-Re-exports all named exports from the "effect-http/ExampleServer" module.
+Re-exports all named exports from the "effect-http/ExampleServer" module as `ExampleServer`.
 
 **Signature**
 
 ```ts
-export * from 'effect-http/ExampleServer'
+export * as ExampleServer from "effect-http/ExampleServer"
 ```
 
 Added in v1.0.0
 
-## From "effect-http/Express"
+## From "effect-http/Middlewares"
 
-Re-exports all named exports from the "effect-http/Express" module.
-
-**Signature**
-
-```ts
-export * from 'effect-http/Express'
-```
-
-Added in v1.0.0
-
-## From "effect-http/Extensions"
-
-Re-exports all named exports from the "effect-http/Extensions" module.
+Re-exports all named exports from the "effect-http/Middlewares" module as `Middlewares`.
 
 **Signature**
 
 ```ts
-export * from 'effect-http/Extensions'
+export * as Middlewares from "effect-http/Middlewares"
 ```
 
 Added in v1.0.0
 
 ## From "effect-http/MockClient"
 
-Re-exports all named exports from the "effect-http/MockClient" module.
+Re-exports all named exports from the "effect-http/MockClient" module as `MockClient`.
 
 **Signature**
 
 ```ts
-export * from 'effect-http/MockClient'
+export * as MockClient from "effect-http/MockClient"
+```
+
+Added in v1.0.0
+
+## From "effect-http/NodeServer"
+
+Re-exports all named exports from the "effect-http/NodeServer" module as `NodeServer`.
+
+**Signature**
+
+```ts
+export * as NodeServer from "effect-http/NodeServer"
 ```
 
 Added in v1.0.0
 
 ## From "effect-http/OpenApi"
 
-Re-exports all named exports from the "effect-http/OpenApi" module.
+Re-exports all named exports from the "effect-http/OpenApi" module as `OpenApi`.
 
 **Signature**
 
 ```ts
-export * from 'effect-http/OpenApi'
+export * as OpenApi from "effect-http/OpenApi"
 ```
 
 Added in v1.0.0
@@ -148,7 +137,7 @@ Re-exports all named exports from the "effect-http/Route" module as `Route`.
 **Signature**
 
 ```ts
-export * as Route from 'effect-http/Route'
+export * as Route from "effect-http/Route"
 ```
 
 Added in v1.0.0
@@ -160,43 +149,19 @@ Re-exports all named exports from the "effect-http/RouterBuilder" module as `Rou
 **Signature**
 
 ```ts
-export * as RouterBuilder from 'effect-http/RouterBuilder'
-```
-
-Added in v1.0.0
-
-## From "effect-http/Server"
-
-Re-exports all named exports from the "effect-http/Server" module.
-
-**Signature**
-
-```ts
-export * from 'effect-http/Server'
-```
-
-Added in v1.0.0
-
-## From "effect-http/ServerBuilder"
-
-Re-exports all named exports from the "effect-http/ServerBuilder" module.
-
-**Signature**
-
-```ts
-export * from 'effect-http/ServerBuilder'
+export * as RouterBuilder from "effect-http/RouterBuilder"
 ```
 
 Added in v1.0.0
 
 ## From "effect-http/ServerError"
 
-Re-exports all named exports from the "effect-http/ServerError" module.
+Re-exports all named exports from the "effect-http/ServerError" module as `ServerError`.
 
 **Signature**
 
 ```ts
-export * from 'effect-http/ServerError'
+export * as ServerError from "effect-http/ServerError"
 ```
 
 Added in v1.0.0
@@ -208,43 +173,31 @@ Re-exports all named exports from the "effect-http/SwaggerRouter" module as `Swa
 **Signature**
 
 ```ts
-export * as SwaggerRouter from 'effect-http/SwaggerRouter'
+export * as SwaggerRouter from "effect-http/SwaggerRouter"
 ```
 
 Added in v1.0.0
 
 ## From "effect-http/Testing"
 
-Re-exports all named exports from the "effect-http/Testing" module.
+Re-exports all named exports from the "effect-http/Testing" module as `Testing`.
 
 **Signature**
 
 ```ts
-export * from 'effect-http/Testing'
-```
-
-Added in v1.0.0
-
-## From "effect-http/Utils"
-
-Re-exports all named exports from the "effect-http/Utils" module.
-
-**Signature**
-
-```ts
-export * from 'effect-http/Utils'
+export * as Testing from "effect-http/Testing"
 ```
 
 Added in v1.0.0
 
 ## From "effect-http/ValidationErrorFormatter"
 
-Re-exports all named exports from the "effect-http/ValidationErrorFormatter" module.
+Reexport of all the submodules.
 
 **Signature**
 
 ```ts
-export * from 'effect-http/ValidationErrorFormatter'
+export * from "effect-http/ValidationErrorFormatter"
 ```
 
 Added in v1.0.0

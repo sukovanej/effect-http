@@ -7,13 +7,13 @@ import * as App from "@effect/platform/Http/App";
 import * as Router from "@effect/platform/Http/Router";
 import * as ServerRequest from "@effect/platform/Http/ServerRequest";
 import * as ServerResponse from "@effect/platform/Http/ServerResponse";
-import { Effect } from "effect";
 import * as Api from "effect-http/Api";
 import * as OpenApi from "effect-http/OpenApi";
 import * as Route from "effect-http/Route";
 import * as ServerError from "effect-http/ServerError";
 import * as SwaggerRouter from "effect-http/SwaggerRouter";
 import { convertMethod } from "effect-http/internal/utils";
+import * as Effect from "effect/Effect";
 import * as Pipeable from "effect/Pipeable";
 
 /**
@@ -108,10 +108,7 @@ export const handle =
     const endpoint = getRemainingEndpoint(builder, id);
     const remainingEndpoints = removeRemainingEndpoint(builder, id);
 
-    const router = Route.addRoute(
-      builder.router,
-      Route.fromEndpoint(fn)(endpoint),
-    );
+    const router = addRoute(builder.router, Route.fromEndpoint(fn)(endpoint));
 
     return {
       ...builder,
@@ -207,3 +204,12 @@ const removeRemainingEndpoint = <
   builder.remainingEndpoints.filter(
     (endpoint) => endpoint.id !== id,
   ) as Exclude<RemainingEndpoints, { id: Id }>[];
+
+/** @internal */
+export const addRoute = <R1, R2, E1, E2>(
+  router: Router.Router<R1, E1>,
+  route: Router.Route<R2, E2>,
+): Router.Router<
+  Exclude<R1 | R2, Router.RouteContext | ServerRequest.ServerRequest>,
+  E1 | E2
+> => Router.concat(Router.fromIterable([route]))(router) as any;

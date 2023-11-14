@@ -20,20 +20,20 @@ Added in v1.0.0
 <h2 class="text-delta">Table of contents</h2>
 
 - [constructors](#constructors)
-  - [exampleServer](#exampleserver)
+  - [make](#make)
 
 ---
 
 # constructors
 
-## exampleServer
+## make
 
 Generate an example Server implementation.
 
 **Signature**
 
 ```ts
-export declare const exampleServer: <A extends Api<Endpoint>>(api: A) => ServerBuilder<never, never, A>
+export declare const make: <A extends Api.Api<Api.Endpoint>>(api: A) => RouterBuilder.RouterBuilder<never, never, never>
 ```
 
 Added in v1.0.0
