@@ -8,8 +8,7 @@ test("example server", async () => {
   const app = ExampleServer.make(simpleApi1);
 
   await pipe(
-    RouterBuilder.build(app),
-    Testing.make(simpleApi1),
+    Testing.make(RouterBuilder.build(app), simpleApi1),
     Effect.flatMap((client) => client.myOperation({})),
     Effect.map((response) => {
       expect(typeof response).toEqual("string");

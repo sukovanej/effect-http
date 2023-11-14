@@ -6,8 +6,9 @@
  * @since 1.0.0
  */
 import { HttpClient } from "@effect/platform";
+import * as ClientRequest from "@effect/platform/Http/ClientRequest";
 import { Schema } from "@effect/schema";
-import { Effect, Pipeable, type Types, pipe } from "effect";
+import { Effect, Pipeable, type Types, identity, pipe } from "effect";
 import * as Api from "effect-http/Api";
 import type * as ClientError from "effect-http/ClientError";
 import type * as Route from "effect-http/Route";
@@ -35,20 +36,42 @@ export const endpointClient = <
 >(
   id: Id,
   api: Api.Api<Endpoints>,
-  baseUrl: URL | string,
+  options: Partial<Options>,
 ): EndpointClient<Endpoints, Id> => {
   const endpoint = Api.getEndpoint(api, id);
   const responseParser = ClientResponseParser.create(endpoint.schemas.response);
-  const requestEncoder = ClientRequestEncoder.create(baseUrl, endpoint);
+  const requestEncoder = ClientRequestEncoder.create(endpoint);
+
+  let mapRequest = options.mapRequest ?? identity;
+
+  if (options.baseUrl) {
+    const url =
+      typeof options.baseUrl === "string"
+        ? options.baseUrl
+        : options.baseUrl.toString();
+    mapRequest = ClientRequest.prependUrl(url);
+  }
 
   return (args: unknown) =>
     pipe(
       requestEncoder.encodeRequest(args),
+      Effect.map(mapRequest),
       Effect.flatMap(httpClient),
       Effect.flatMap(responseParser.parseResponse),
       Effect.annotateLogs("clientOperationId", endpoint.id),
     ) as any;
 };
+
+/**
+ * @category models
+ * @since 1.0.0
+ */
+export interface Options {
+  mapRequest?: (
+    request: ClientRequest.ClientRequest,
+  ) => ClientRequest.ClientRequest;
+  baseUrl: URL | string;
+}
 
 /**
  * Derive client implementation from the `Api`
@@ -58,14 +81,15 @@ export const endpointClient = <
  */
 export const client = <Endpoints extends Api.Endpoint>(
   api: Api.Api<Endpoints>,
-  baseUrl: string | URL,
+  options?: Partial<Options>,
 ): Client<Endpoints> =>
-  api.endpoints.reduce((client, endpoint) => {
-    return {
+  api.endpoints.reduce(
+    (client, endpoint) => ({
       ...client,
-      [endpoint.id]: endpointClient(endpoint.id, api, baseUrl),
-    };
-  }, {} as Client<Endpoints>);
+      [endpoint.id]: endpointClient(endpoint.id, api, options ?? {}),
+    }),
+    {} as Client<Endpoints>,
+  );
 
 // Internal type helpers
 

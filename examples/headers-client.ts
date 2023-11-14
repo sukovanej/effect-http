@@ -6,7 +6,9 @@ import { api } from "../examples/headers";
 // Example client triggering the API from `examples/headers.ts`
 // Running the script call the `/hello` endpoint 1000k times
 
-const client = Client.client(api, new URL("http://localhost:3000"));
+const client = Client.client(api, {
+  baseUrl: new URL("http://localhost:3000"),
+});
 
 pipe(
   Effect.all(

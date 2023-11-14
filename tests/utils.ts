@@ -11,12 +11,14 @@ import * as Server from "@effect/platform/Http/Server";
 import { Effect, Layer, LogLevel, Logger, Scope, Unify, pipe } from "effect";
 import { apply } from "effect/Function";
 
-const logger = Logger.none;
+const setLogger = Logger.replace(Logger.defaultLogger, Logger.none);
+//import { Log } from "effect-log";
+//const setLogger = Log.setPrettyLogger();
 
 export const runTestEffect = <E, A>(self: Effect.Effect<Scope.Scope, E, A>) =>
   pipe(
     self,
-    Effect.provide(Logger.replace(Logger.defaultLogger, logger)),
+    Effect.provide(setLogger),
     Logger.withMinimumLogLevel(LogLevel.All),
     Effect.scoped,
     Effect.runPromise,

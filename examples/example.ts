@@ -80,7 +80,9 @@ const app = pipe(
   RouterBuilder.handle("callStanda", () => Effect.succeed("zdar")),
 );
 
-const client = Client.client(api, new URL("http://localhost:4000"));
+const client = Client.client(api, {
+  baseUrl: new URL("http://localhost:4000"),
+});
 
 pipe(
   RouterBuilder.build(app),

@@ -3,6 +3,7 @@
  *
  * @since 1.0.0
  */
+import * as ServerResponse from "@effect/platform/Http/ServerResponse";
 import * as Data from "effect/Data";
 import * as Predicate from "effect/Predicate";
 
@@ -14,7 +15,23 @@ export class ServerError extends Data.TaggedError("ServerError")<{
   status: number;
   text?: string;
   json?: unknown;
-}> {}
+}> {
+  /**
+   * @category errors
+   * @since 1.0.0
+   */
+  toServerResponse() {
+    const options = { status: this.status };
+
+    if (this.json !== undefined) {
+      return ServerResponse.unsafeJson(this.json, options);
+    } else if (this.text !== undefined) {
+      return ServerResponse.text(this.text, options);
+    }
+
+    return ServerResponse.empty(options);
+  }
+}
 
 /**
  * @category constructors

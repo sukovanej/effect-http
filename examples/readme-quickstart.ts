@@ -26,7 +26,9 @@ const app = pipe(
   RouterBuilder.build,
 );
 
-const client = Client.client(api, new URL("http://localhost:3000"));
+const client = Client.client(api, {
+  baseUrl: new URL("http://localhost:3000"),
+});
 
 const callServer = pipe(
   client.getUser({ query: { id: 12 } }),

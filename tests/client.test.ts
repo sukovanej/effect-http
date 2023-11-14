@@ -189,11 +189,12 @@ test("supports interruption", async () => {
 });
 
 test("validation error", async () => {
-  const app = ExampleServer.make(exampleApiGetQueryParameter);
+  const app = ExampleServer.make(exampleApiGetQueryParameter).pipe(
+    RouterBuilder.build,
+  );
 
   const result = await pipe(
-    RouterBuilder.build(app),
-    Testing.make(exampleApiGetQueryParameter),
+    Testing.make(app, exampleApiGetQueryParameter),
     Effect.flatMap((client) =>
       Effect.either(client.hello({ query: { country: "abc" } })),
     ),

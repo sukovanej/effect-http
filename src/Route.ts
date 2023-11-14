@@ -6,7 +6,6 @@
 import * as Method from "@effect/platform/Http/Method";
 import * as Router from "@effect/platform/Http/Router";
 import * as ServerRequest from "@effect/platform/Http/ServerRequest";
-import * as ServerResponse from "@effect/platform/Http/ServerResponse";
 import { Effect, Types, pipe } from "effect";
 import * as Api from "effect-http/Api";
 import * as ServerError from "effect-http/ServerError";
@@ -53,15 +52,7 @@ export const fromEndpoint: <Endpoint extends Api.Endpoint, R, E>(
         Effect.flatMap(responseEncoder.encodeResponse),
         Effect.catchAll((error) => {
           if (ServerError.isServerError(error)) {
-            const options = { status: error.status };
-
-            if (error.json !== undefined) {
-              return ServerResponse.unsafeJson(error.json, options);
-            } else if (error.text !== undefined) {
-              return ServerResponse.text(error.text, options);
-            }
-
-            return ServerResponse.empty(options);
+            return error.toServerResponse();
           }
 
           return Effect.fail(error as Exclude<E, ServerError.ServerError>);

@@ -20,7 +20,6 @@ const make = (
 ): ClientRequestEncoder => ({ encodeRequest });
 
 export const create = (
-  baseUrl: string | URL,
   endpoint: Endpoint,
 ): ClientRequestEncoder => {
   const encodeBody = createBodyEncoder(endpoint);
@@ -38,10 +37,9 @@ export const create = (
       const headers = yield* _(encodeHeaders(_input["headers"]));
 
       const path = constructPath(params || {}, endpoint.path);
-      const url = new URL(path, new URL(baseUrl));
 
       const request = pipe(
-        HttpClient.request.get(url.toString()),
+        HttpClient.request.get(path),
         HttpClient.request.setMethod(convertMethod(endpoint.method)),
         body === undefined
           ? identity
