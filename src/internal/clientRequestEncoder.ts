@@ -22,21 +22,20 @@ const make = (
 export const create = (
   baseUrl: string | URL,
   endpoint: Endpoint,
-  commonHeaders: unknown,
 ): ClientRequestEncoder => {
   const encodeBody = createBodyEncoder(endpoint);
   const encodeQuery = createQueryEncoder(endpoint);
-  const encodeHeaders = createHeadersEncoder(endpoint, commonHeaders);
+  const encodeHeaders = createHeadersEncoder(endpoint);
   const encodeParams = createParamsEncoder(endpoint);
 
   return make((input) =>
     Effect.gen(function* (_) {
       const _input = (input || {}) as Record<string, unknown>;
 
-      const body = yield* _(encodeBody(_input['body']));
-      const query = yield* _(encodeQuery(_input['query']));
-      const params = yield* _(encodeParams(_input['params']));
-      const headers = yield* _(encodeHeaders(_input['headers']));
+      const body = yield* _(encodeBody(_input["body"]));
+      const query = yield* _(encodeQuery(_input["query"]));
+      const params = yield* _(encodeParams(_input["params"]));
+      const headers = yield* _(encodeHeaders(_input["headers"]));
 
       const path = constructPath(params || {}, endpoint.path);
       const url = new URL(path, new URL(baseUrl));
@@ -105,13 +104,8 @@ const createQueryEncoder = (endpoint: Endpoint) => {
   };
 };
 
-const createHeadersEncoder = (endpoint: Endpoint, commonHeaders: unknown) => {
+const createHeadersEncoder = (endpoint: Endpoint) => {
   const schema = endpoint.schemas.request.headers;
-
-  // Is checked by the type constract
-  if (!isRecordOrUndefined(commonHeaders)) {
-    throw new Error("Common headers must be a record");
-  }
 
   const encode = schema == IgnoredSchemaId ? undefined : Schema.encode(schema);
 
@@ -120,7 +114,7 @@ const createHeadersEncoder = (endpoint: Endpoint, commonHeaders: unknown) => {
       return Effect.dieMessage("Headers must be a record");
     }
 
-    return (encode ?? Effect.succeed)({ ...commonHeaders, ...headers }).pipe(
+    return (encode ?? Effect.succeed)(headers).pipe(
       Effect.mapError(ClientError.RequestEncodeError.fromParseError("headers")),
     );
   };

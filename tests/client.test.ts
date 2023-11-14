@@ -154,69 +154,6 @@ test("missing headers", async () => {
   );
 });
 
-test("common headers", async () => {
-  const api = pipe(
-    Api.api(),
-    Api.get("getUser", "/user", {
-      response: Schema.struct({ name: Schema.string }),
-      request: {
-        headers: Schema.struct({ "X-MY-HEADER": Schema.NumberFromString }),
-      },
-    }),
-    Api.post("doSomething", "/something", {
-      response: Schema.struct({ name: Schema.string }),
-      request: {
-        headers: Schema.struct({
-          "X-MY-HEADER": Schema.NumberFromString,
-          "ANOTHER-HEADER": Schema.string,
-        }),
-      },
-    }),
-  );
-
-  const app = pipe(
-    RouterBuilder.make(api),
-    RouterBuilder.handle("getUser", ({ headers: { "x-my-header": header } }) =>
-      Effect.succeed({ name: `patrik ${header}` }),
-    ),
-    RouterBuilder.handle(
-      "doSomething",
-      ({ headers: { "x-my-header": header, "another-header": another } }) =>
-        Effect.succeed({ name: `matej ${header} ${another}` }),
-    ),
-    RouterBuilder.build,
-  );
-
-  const result = await pipe(
-    Testing.make(app, api),
-    // TODO
-    //Effect.flatMap((client) =>
-    //  Effect.all([
-    //    client.getUser({ headers: { "x-my-header": 2 } }),
-    //    client.getUser({ headers: {} }),
-    //    client.getUser(),
-    //    client.doSomething({
-    //      headers: { "x-my-header": 2, "another-header": "another" },
-    //    }),
-    //    client.doSomething({
-    //      headers: { "another-header": "another" },
-    //    }),
-    //    client.doSomething(),
-    //  ]),
-    //),
-    runTestEffect,
-  );
-
-  expect(result).toEqual([
-    { name: "patrik 2" },
-    { name: "patrik 1" },
-    { name: "patrik 1" },
-    { name: "matej 2 another" },
-    { name: "matej 1 another" },
-    { name: "matej 1 test" },
-  ]);
-});
-
 test("supports interruption", async () => {
   const api = pipe(
     Api.api(),

@@ -18,17 +18,9 @@ import * as ClientResponseParser from "effect-http/internal/clientResponseParser
  * @category models
  * @since 1.0.0
  */
-export type Client<Endpoints extends Api.Endpoint, H = Record<never, never>> = {
-  [Id in Endpoints["id"]]: EndpointClient<Endpoints, Id, H>;
+export type Client<Endpoints extends Api.Endpoint> = {
+  [Id in Endpoints["id"]]: EndpointClient<Endpoints, Id>;
 } & Pipeable.Pipeable;
-
-/**
- * @category models
- * @since 1.0.0
- */
-export interface ClientOptions<H extends Record<string, unknown>> {
-  headers: H;
-}
 
 /** @internal */
 const httpClient = HttpClient.client.fetch();
@@ -40,20 +32,14 @@ const httpClient = HttpClient.client.fetch();
 export const endpointClient = <
   Endpoints extends Api.Endpoint,
   Id extends Endpoints["id"],
-  H extends Record<string, unknown>,
 >(
   id: Id,
   api: Api.Api<Endpoints>,
   baseUrl: URL | string,
-  options?: ClientOptions<H>,
-): EndpointClient<Endpoints, Id, H> => {
+): EndpointClient<Endpoints, Id> => {
   const endpoint = Api.getEndpoint(api, id);
   const responseParser = ClientResponseParser.create(endpoint.schemas.response);
-  const requestEncoder = ClientRequestEncoder.create(
-    baseUrl,
-    endpoint,
-    options?.headers,
-  );
+  const requestEncoder = ClientRequestEncoder.create(baseUrl, endpoint);
 
   return (args: unknown) =>
     pipe(
@@ -70,23 +56,16 @@ export const endpointClient = <
  * @category constructors
  * @since 1.0.0
  */
-export const client = <
-  Api extends Api.Api,
-  H extends Record<string, unknown> = Record<never, never>,
->(
-  api: Api,
+export const client = <Endpoints extends Api.Endpoint>(
+  api: Api.Api<Endpoints>,
   baseUrl: string | URL,
-  options?: ClientOptions<H>,
-): Client<Api["endpoints"][number], H> =>
-  api.endpoints.reduce(
-    (client, endpoint) => {
-      return {
-        ...client,
-        [endpoint.id]: endpointClient(endpoint.id, api, baseUrl, options),
-      };
-    },
-    {} as Client<Api["endpoints"][number], H>,
-  );
+): Client<Endpoints> =>
+  api.endpoints.reduce((client, endpoint) => {
+    return {
+      ...client,
+      [endpoint.id]: endpointClient(endpoint.id, api, baseUrl),
+    };
+  }, {} as Client<Endpoints>);
 
 // Internal type helpers
 
@@ -99,17 +78,6 @@ type MakeHeadersOptionIfAllPartial<I> = I extends { headers: any }
         Omit<I, "headers">
     >
   : I;
-
-/** @ignore */
-type DropCommonHeaders<I, CommonHeaders> = Types.Simplify<{
-  [K in keyof I]: K extends "headers"
-    ? Types.Simplify<
-        {
-          [HK in Extract<keyof I[K], keyof CommonHeaders>]?: I[K][HK];
-        } & Pick<I[K], Exclude<keyof I[K], keyof CommonHeaders>>
-      >
-    : I[K];
-}>;
 
 /** @ignore */
 export type ClientFunctionResponse<
@@ -145,15 +113,12 @@ type ClientFunction<Es extends Api.Endpoint, Id, I> = Record<
     >;
 
 /** @ignore */
-type EndpointClient<Endpoints extends Api.Endpoint, Id, H> = ClientFunction<
+type EndpointClient<Endpoints extends Api.Endpoint, Id> = ClientFunction<
   Endpoints,
   Id,
   MakeHeadersOptionIfAllPartial<
-    DropCommonHeaders<
-      Route.EndpointSchemasTo<
-        Extract<Endpoints, { id: Id }>["schemas"]
-      >["request"],
-      H
-    >
+    Route.EndpointSchemasTo<
+      Extract<Endpoints, { id: Id }>["schemas"]
+    >["request"]
   >
 >;
