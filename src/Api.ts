@@ -10,28 +10,22 @@
  */
 import type * as OpenApi from "schema-openapi";
 
-import { Schema } from "@effect/schema";
-import {
-  Equivalence,
-  HashSet,
-  Order,
-  Pipeable,
-  ReadonlyArray,
-  Types,
-  pipe,
-} from "effect";
-import {
-  AnySchema,
-  getSchemaPropertySignatures,
-  isArray,
-} from "effect-http/internal/utils";
+import * as Schema from "@effect/schema/Schema";
+import * as utils from "effect-http/internal/utils";
+import * as Equivalence from "effect/Equivalence";
+import { pipe } from "effect/Function";
+import * as HashSet from "effect/HashSet";
+import * as Order from "effect/Order";
+import * as Pipeable from "effect/Pipeable";
+import * as ReadonlyArray from "effect/ReadonlyArray";
+import type * as Types from "effect/Types";
 
 /** Headers are case-insensitive, internally we deal with them as lowercase
  *  because that's how express deal with them.
  *
  *  @internal
  */
-export const fieldsToLowerCase = (s: AnySchema) => {
+export const fieldsToLowerCase = (s: utils.AnySchema) => {
   const ast = s.ast;
 
   if (ast._tag !== "TypeLiteral") {
@@ -68,7 +62,7 @@ const createSchemasFromInput = <I extends InputEndpointSchemas>({
   ({
     response: Schema.isSchema(response)
       ? response
-      : composeResponseSchema(isArray(response) ? response : [response]),
+      : composeResponseSchema(utils.isArray(response) ? response : [response]),
     request: {
       query: request?.query ?? IgnoredSchemaId,
       params: request?.params ?? IgnoredSchemaId,
@@ -95,10 +89,10 @@ const arrayOfTupleEquals = ReadonlyArray.getEquivalence(tupleEquivalence);
 const checkPathPatternMatchesSchema = (
   id: string,
   path: string,
-  schema?: AnySchema,
+  schema?: utils.AnySchema,
 ) => {
   const fromSchema = pipe(
-    schema === undefined ? [] : getSchemaPropertySignatures(schema),
+    schema === undefined ? [] : utils.getSchemaPropertySignatures(schema),
     ReadonlyArray.fromIterable,
     ReadonlyArray.map((ps) => [ps.name as string, ps.isOptional] as const),
     ReadonlyArray.sort(tupleOrder),
@@ -142,7 +136,7 @@ export const endpoint =
     }
 
     if (
-      isArray(schemas.response) &&
+      utils.isArray(schemas.response) &&
       HashSet.size(
         HashSet.make(...schemas.response.map(({ status }) => status)),
       ) !== schemas.response.length
@@ -178,12 +172,15 @@ export const endpoint =
  * @since 1.0.0
  */
 export interface EndpointSchemas {
-  response: AnySchema | ResponseSchemaFull | readonly ResponseSchemaFull[];
+  response:
+    | utils.AnySchema
+    | ResponseSchemaFull
+    | readonly ResponseSchemaFull[];
   request: {
-    query: AnySchema | IgnoredSchemaId;
-    params: AnySchema | IgnoredSchemaId;
-    body: AnySchema | IgnoredSchemaId;
-    headers: AnySchema | IgnoredSchemaId;
+    query: utils.AnySchema | IgnoredSchemaId;
+    params: utils.AnySchema | IgnoredSchemaId;
+    body: utils.AnySchema | IgnoredSchemaId;
+    headers: utils.AnySchema | IgnoredSchemaId;
   };
 }
 
@@ -280,12 +277,12 @@ export interface InputEndpointSchemas {
   response:
     | InputResponseSchemaFull
     | readonly InputResponseSchemaFull[]
-    | AnySchema;
+    | utils.AnySchema;
   request?: {
-    query?: AnySchema;
-    params?: AnySchema;
-    body?: AnySchema;
-    headers?: AnySchema;
+    query?: utils.AnySchema;
+    params?: utils.AnySchema;
+    body?: utils.AnySchema;
+    headers?: utils.AnySchema;
   };
 }
 
@@ -448,7 +445,7 @@ export type IgnoredSchemaId = typeof IgnoredSchemaId;
 
 /** @ignore */
 type ResponseSchemaFromInput<S extends InputEndpointSchemas["response"]> =
-  S extends AnySchema
+  S extends utils.AnySchema
     ? S
     : S extends readonly InputResponseSchemaFull[]
       ? ComputeEndpointResponseFull<S>
@@ -481,7 +478,7 @@ export type CreateEndpointSchemasFromInput<I extends InputEndpointSchemas> =
 
 /** @ignore */
 type UndefinedToIgnoredSchema<S extends unknown | undefined> =
-  S extends AnySchema ? S : IgnoredSchemaId;
+  S extends utils.AnySchema ? S : IgnoredSchemaId;
 
 /** @ignore */
 type UndefinedToIgnoredSchemaLowercased<S extends unknown | undefined> =
@@ -519,15 +516,15 @@ type ResponseSchemaFullFromInput<R extends InputResponseSchemaFull> = {
 /** @ignore */
 export interface ResponseSchemaFull {
   status: number;
-  content: AnySchema | IgnoredSchemaId;
-  headers: AnySchema | IgnoredSchemaId;
+  content: utils.AnySchema | IgnoredSchemaId;
+  headers: utils.AnySchema | IgnoredSchemaId;
 }
 
 /** @ignore */
 export interface InputResponseSchemaFull {
   status: number;
-  content?: AnySchema;
-  headers?: AnySchema;
+  content?: utils.AnySchema;
+  headers?: utils.AnySchema;
 }
 
 /**
