@@ -3,16 +3,15 @@
  *
  * @since 1.0.0
  */
-import * as App from "@effect/platform/Http/App";
+import type * as App from "@effect/platform/Http/App";
 import * as Router from "@effect/platform/Http/Router";
-import * as ServerRequest from "@effect/platform/Http/ServerRequest";
-import * as ServerResponse from "@effect/platform/Http/ServerResponse";
-import * as Api from "effect-http/Api";
+import type * as ServerRequest from "@effect/platform/Http/ServerRequest";
+import type * as Api from "effect-http/Api";
 import * as OpenApi from "effect-http/OpenApi";
 import * as Route from "effect-http/Route";
 import * as ServerError from "effect-http/ServerError";
 import * as SwaggerRouter from "effect-http/SwaggerRouter";
-import { convertMethod } from "effect-http/internal/utils";
+import * as utils from "effect-http/internal/utils";
 import * as Effect from "effect/Effect";
 import * as Pipeable from "effect/Pipeable";
 
@@ -72,7 +71,10 @@ export const handleRaw =
     const remainingEndpoints = removeRemainingEndpoint(builder, id);
 
     const router = builder.router.pipe(
-      Router.route(convertMethod(endpoint.method))(endpoint.path, handler),
+      Router.route(utils.convertMethod(endpoint.method))(
+        endpoint.path,
+        handler,
+      ),
     );
 
     return {
@@ -169,7 +171,7 @@ export const buildPartial = <R, E, RemainingEndpoints extends Api.Endpoint>(
   const swaggerRouter = SwaggerRouter.make(OpenApi.make(builder.api));
   return Router.concat(builder.router, swaggerRouter).pipe(
     Effect.catchTag("RouteNotFound", () =>
-      ServerResponse.text("Not Found", { status: 404 }),
+      ServerError.make(404, "Not Found").toServerResponse(),
     ),
   );
 };
