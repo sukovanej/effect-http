@@ -5,11 +5,11 @@
  */
 import * as OpenApi from "schema-openapi";
 
-import { Effect, pipe } from "effect";
 import type * as Api from "effect-http/Api";
 import type * as Client from "effect-http/Client";
-import { createRequestEncoder } from "effect-http/internal/utils";
-import { createResponseSchema } from "effect-http/internal/utils";
+import * as utils from "effect-http/internal/utils";
+import * as Effect from "effect/Effect";
+import { pipe } from "effect/Function";
 
 /**
  * @category models
@@ -34,8 +34,8 @@ export const make = <Endpoints extends Api.Endpoint>(
   option?: Partial<MockClientOptions<Endpoints>>,
 ): Client.Client<Endpoints> =>
   api.endpoints.reduce((client, { id, schemas }) => {
-    const parseInputs = createRequestEncoder(schemas.request);
-    const responseSchema = createResponseSchema(schemas.response);
+    const parseInputs = utils.createRequestEncoder(schemas.request);
+    const responseSchema = utils.createResponseSchema(schemas.response);
 
     const customResponses = option?.responses;
     const customResponse =
