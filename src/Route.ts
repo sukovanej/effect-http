@@ -6,11 +6,13 @@
 import * as Method from "@effect/platform/Http/Method";
 import * as Router from "@effect/platform/Http/Router";
 import * as ServerRequest from "@effect/platform/Http/ServerRequest";
-import { Effect, Types, pipe } from "effect";
 import * as Api from "effect-http/Api";
 import * as ServerError from "effect-http/ServerError";
 import * as ServerRequestParser from "effect-http/internal/serverRequestParser";
 import * as ServerResponseEncoder from "effect-http/internal/serverResponseEncoder";
+import * as Effect from "effect/Effect";
+import { pipe } from "effect/Function";
+import type * as Types from "effect/Types";
 
 import { AnySchema, SchemaTo } from "./internal/utils";
 
