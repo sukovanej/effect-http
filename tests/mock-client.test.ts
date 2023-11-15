@@ -5,14 +5,14 @@ import { exampleApiGet, exampleApiPostNullableField } from "./examples";
 import { runTestEffect } from "./utils";
 
 test("random example", async () => {
-  const client = MockClient.mockClient(exampleApiGet);
+  const client = MockClient.make(exampleApiGet);
   const response = await runTestEffect(client.getValue({}));
 
   expect(typeof response).toEqual("number");
 });
 
 test("custom response", async () => {
-  const client = MockClient.mockClient(exampleApiGet, {
+  const client = MockClient.make(exampleApiGet, {
     responses: { getValue: 12 },
   });
   const response = await runTestEffect(client.getValue({}));
@@ -21,7 +21,7 @@ test("custom response", async () => {
 });
 
 test("response schema with `optionFromNullable`", async () => {
-  const client = MockClient.mockClient(exampleApiPostNullableField);
+  const client = MockClient.make(exampleApiPostNullableField);
   const response = await runTestEffect(client.test());
 
   expect(Option.isOption(response.value)).toBe(true);

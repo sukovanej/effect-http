@@ -2,7 +2,8 @@
 
 ![download badge](https://img.shields.io/npm/dm/effect-http.svg)
 
-High-level declarative HTTP API for [effect-ts](https://github.com/Effect-TS).
+High-level declarative HTTP library for [Effect-TS](https://github.com/Effect-TS) built on top of
+[@effect/platform](https://github.com/effect-ts/platform).
 
 - :star: **Client derivation**. Write the api specification once, get the type-safe client with runtime validation for free.
 - :rainbow: **OpenAPI derivation**. `/docs` endpoint with OpenAPI UI out of box.
@@ -52,8 +53,7 @@ const User = Schema.struct({
 });
 const GetUserQuery = Schema.struct({ id: Schema.NumberFromString });
 
-const api = pipe(
-  Api.api({ title: "Users API" }),
+const api = Api.api({ title: "Users API" }).pipe(
   Api.get("getUser", "/user", {
     response: User,
     request: { query: GetUserQuery },
@@ -73,10 +73,10 @@ const app = pipe(
 );
 ```
 
-Now, we can generate an object providing the HTTP client interface using `Client.client`.
+Now, we can generate an object providing the HTTP client interface using `Client.make`.
 
 ```typescript
-const client = Client.client(api, {
+const client = Client.make(api, {
   baseUrl: new URL("http://localhost:3000"),
 });
 ```
@@ -119,8 +119,7 @@ import { Schema } from "@effect/schema";
 import { pipe } from "effect";
 import { Api } from "effect-http";
 
-export const api = pipe(
-  Api.api({ title: "My api" }),
+export const api = Api.api({ title: "My api" }).pipe(
   Api.get("stuff", "/stuff/:param", {
     response: Schema.struct({ value: Schema.number }),
     body: Schema.struct({ bodyField: Schema.array(Schema.string) }),
@@ -145,15 +144,18 @@ import { Schema } from "@effect/schema";
 import { pipe } from "effect";
 import { Api } from "effect-http";
 
+const Stuff = Schema.struct({ value: Schema.number });
+const StuffParams = Schema.struct({
+  param: Schema.string,
+  another: Schema.optional(Schema.string),
+});
+
 export const api = pipe(
   Api.api({ title: "My api" }),
   Api.get("stuff", "/stuff/:param/:another?", {
-    response: Schema.struct({ value: Schema.number }),
+    response: Stuff,
     request: {
-      params: Schema.struct({
-        param: Schema.string,
-        another: Schema.optional(Schema.string),
-      }),
+      params: StuffParams,
     },
   }),
 );
@@ -227,8 +229,7 @@ schema instead. The following example will enforce (both for types and runtime)
 that returned status, content and headers conform the specified response.
 
 ```ts
-const api = pipe(
-  Api.api(),
+const api = Api.api().pipe(
   Api.post("hello", "/hello", {
     response: {
       status: 200,
@@ -242,8 +243,7 @@ const api = pipe(
 It is also possible to specify multiple full response schemas.
 
 ```ts
-const api = pipe(
-  Api.api(),
+const api = Api.api().pipe(
   Api.post("hello", "/hello", {
     response: [
       {
@@ -271,8 +271,7 @@ Note: the `status` needs to be `as const` because without it Typescript
 will infere the `number` type.
 
 ```ts
-const app = pipe(
-  RouterBuilder.make(api),
+const app = RouterBuilder.make(api).pipe(
   RouterBuilder.handle("hello", () =>
     Effect.succeed({
       headers: { "my-header": 12 },
@@ -291,20 +290,18 @@ of HTTP exposure, it can be beneficial to perform integration or
 contract tests for your endpoints. The `Testing` module offers a
 `Testing.make` combinator that generates a testing client from
 the Server. This derived testing client has a similar interface
-to the one derived by `Client.client`.
+to the one derived by `Client.make`.
 
 Now, let's write an example test for the following server.
 
 ```ts
-const api = pipe(
-  Api.api(),
+const api = Api.api().pipe(
   Api.get("hello", "/hello", {
     response: Schema.string,
   }),
 );
 
-const app = pipe(
-  RouterBuilder.make(api),
+const app = RouterBuilder.make(api).pipe(
   RouterBuilder.handle("hello", ({ query }) =>
     Effect.succeed(`${query.input + 1}`),
   ),
@@ -374,12 +371,11 @@ Let's see it in action and implement the mentioned user management API. The
 API will look as follows.
 
 ```typescript
-import * as Schema from "@effect/schema/Schema";
+import { Schema } from "@effect/schema/Schema";
 import { Context, Effect, pipe } from "effect";
 import { Api, NodeServer, RouterBuilder, ServerError } from "effect-http";
 
-const api = pipe(
-  Api.api({ title: "Users API" }),
+const api = Api.api({ title: "Users API" }).pipe(
   Api.post("storeUser", "/users", {
     response: Schema.string,
     request: {
@@ -490,24 +486,24 @@ import { runMain } from "@effect/platform-node/Runtime";
 import { Schema } from "@effect/schema";
 import { Api, ExampleServer, NodeServer, RouterBuilder } from "effect-http";
 
-const responseSchema = Schema.struct({ name: Schema.string });
+const ExampleResponse = Schema.struct({ name: Schema.string });
 
 const testApi = Api.apiGroup("test").pipe(
-  Api.get("test", "/test", { response: responseSchema }),
+  Api.get("test", "/test", { response: ExampleResponse }),
 );
 
 const userApi = Api.apiGroup("Users").pipe(
-  Api.get("getUser", "/user", { response: responseSchema }),
-  Api.post("storeUser", "/user", { response: responseSchema }),
-  Api.put("updateUser", "/user", { response: responseSchema }),
-  Api.delete("deleteUser", "/user", { response: responseSchema }),
+  Api.get("getUser", "/user", { response: ExampleResponse }),
+  Api.post("storeUser", "/user", { response: ExampleResponse }),
+  Api.put("updateUser", "/user", { response: ExampleResponse }),
+  Api.delete("deleteUser", "/user", { response: ExampleResponse }),
 );
 
 const categoriesApi = Api.apiGroup("Categories").pipe(
-  Api.get("getCategory", "/category", { response: responseSchema }),
-  Api.post("storeCategory", "/category", { response: responseSchema }),
-  Api.put("updateCategory", "/category", { response: responseSchema }),
-  Api.delete("deleteCategory", "/category", { response: responseSchema }),
+  Api.get("getCategory", "/category", { response: ExampleResponse }),
+  Api.post("storeCategory", "/category", { response: ExampleResponse }),
+  Api.put("updateCategory", "/category", { response: ExampleResponse }),
+  Api.delete("deleteCategory", "/category", { response: ExampleResponse }),
 );
 
 const api = Api.api().pipe(
@@ -558,48 +554,39 @@ import * as Schema from "@effect/schema/Schema";
 import { Effect, pipe } from "effect";
 import { Api, NodeServer, RouterBuilder } from "effect-http";
 
-import { debugLogger } from "./_utils";
-
-const responseSchema = pipe(
+const User = pipe(
   Schema.struct({
     name: Schema.string,
     id: pipe(Schema.number, Schema.int(), Schema.positive()),
   }),
   Schema.description("User"),
 );
-const querySchema = Schema.struct({
+const GetUserQuery = Schema.struct({
   id: pipe(Schema.NumberFromString, Schema.description("User id")),
 });
 
-const api = pipe(
-  Api.api({ title: "Users API" }),
+const api = Api.api({ title: "Users API" }).pipe(
   Api.get(
     "getUser",
     "/user",
     {
-      response: responseSchema,
+      response: User,
       request: {
-        query: querySchema,
+        query: GetUserQuery,
       },
     },
     { description: "Returns a User by id" },
   ),
 );
 
-const app = pipe(
-  RouterBuilder.make(api),
+const app = RouterBuilder.make(api).pipe(
   RouterBuilder.handle("getUser", ({ query }) =>
     Effect.succeed({ name: "mike", id: query.id }),
   ),
   RouterBuilder.build,
 );
 
-pipe(
-  app,
-  NodeServer.listen({ port: 3000 }),
-  Effect.provide(debugLogger),
-  runMain,
-);
+app.pipe(NodeServer.listen({ port: 3000 }), runMain);
 ```
 
 ## API on the client side
@@ -637,23 +624,17 @@ import { Schema } from "@effect/schema";
 import { Effect, pipe } from "effect";
 import { Api, ExampleServer, NodeServer, RouterBuilder } from "effect-http";
 
-import { debugLogger } from "./_utils";
-
-const responseSchema = Schema.struct({
+const MyResponse = Schema.struct({
   name: Schema.string,
   value: Schema.number,
 });
 
-const api = pipe(
-  Api.api(),
-  Api.get("test", "/test", { response: responseSchema }),
-);
+const api = Api.api().pipe(Api.get("test", "/test", { response: MyResponse }));
 
 pipe(
   ExampleServer.make(api),
   RouterBuilder.build,
   NodeServer.listen({ port: 3000 }),
-  Effect.provide(debugLogger),
   runMain,
 );
 ```
@@ -677,19 +658,18 @@ import { Schema } from "@effect/schema";
 import { pipe } from "effect";
 import { Api } from "effect-http";
 
-const api = pipe(
-  Api.api(),
+const api = Api.api().pipe(
   Api.get("getValue", "/get-value", { response: Schema.number }),
 );
 ```
 
 In a real environment, we will probably use the derived client
-using `MockClient.mockClient`. But for tests, we probably want a dummy
+using `MockClient.make`. But for tests, we probably want a dummy
 client which will return values conforming the API. For such
 a use-case, we can derive a mock client.
 
 ```typescript
-const client = MockClient.mockClient(api);
+const client = MockClient.make(api);
 ```
 
 Calling `getValue` on the client will perform the same client-side
@@ -700,7 +680,7 @@ using the option argument. The following client will always
 return number `12` when calling the `getValue` operation.
 
 ```typescript
-const client = MockClient.mockClient(api, { responses: { getValue: 12 } });
+const client = MockClient.make(api, { responses: { getValue: 12 } });
 ```
 
 ## Compatibility

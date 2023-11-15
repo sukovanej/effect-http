@@ -29,7 +29,7 @@ export type MockClientOptions<Endpoints extends Api.Endpoint> = {
  * @category constructors
  * @since 1.0.0
  */
-export const mockClient = <Endpoints extends Api.Endpoint>(
+export const make = <Endpoints extends Api.Endpoint>(
   api: Api.Api<Endpoints>,
   option?: Partial<MockClientOptions<Endpoints>>,
 ): Client.Client<Endpoints> =>

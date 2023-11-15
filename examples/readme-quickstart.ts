@@ -31,7 +31,7 @@ app.pipe(NodeServer.listen({ port: 3000 }), runMain);
 
 // Another file
 
-const client = Client.client(api, {
+const client = Client.make(api, {
   baseUrl: new URL("http://localhost:3000"),
 });
 

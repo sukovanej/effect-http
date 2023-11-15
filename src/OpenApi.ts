@@ -16,7 +16,7 @@ import { isArray } from "effect-http/internal/utils";
  * @category constructors
  * @since 1.0.0
  */
-export const openApi = (
+export const make = (
   api: Api.Api,
 ): OpenApi.OpenAPISpec<OpenApi.OpenAPISchemaType> => {
   const pathSpecs = api.endpoints.map(

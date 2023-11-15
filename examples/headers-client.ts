@@ -16,18 +16,14 @@ export const api = pipe(
   }),
 );
 
-const client = Client.client(api, {
+const client = Client.make(api, {
   baseUrl: new URL("http://localhost:3000"),
 });
 
-pipe(
-  Effect.all(
-    pipe(
-      client.hello({ body: { value: 1 }, headers: { "x-client-id": "abc" } }),
-      Effect.flatMap((r) => Effect.logInfo(`Success ${r}`)),
-      Effect.catchAll((e) => Effect.logInfo(`Error ${JSON.stringify(e)}`)),
-      ReadonlyArray.replicate(1000000),
-    ),
+Effect.all(
+  client.hello({ body: { value: 1 }, headers: { "x-client-id": "abc" } }).pipe(
+    Effect.flatMap((r) => Effect.logInfo(`Success ${r}`)),
+    Effect.catchAll((e) => Effect.logInfo(`Error ${JSON.stringify(e)}`)),
+    ReadonlyArray.replicate(1000000),
   ),
-  Effect.runPromise,
-);
+).pipe(Effect.runPromise);

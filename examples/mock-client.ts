@@ -6,7 +6,7 @@ export const exampleApiGet = Api.api().pipe(
   Api.get("getValue", "/get-value", { response: Schema.number }),
 );
 
-const client = MockClient.mockClient(exampleApiGet);
+const client = MockClient.make(exampleApiGet);
 
 const program = pipe(
   client.getValue({}),

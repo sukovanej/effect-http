@@ -166,7 +166,7 @@ export const build = <R, E>(
 export const buildPartial = <R, E, RemainingEndpoints extends Api.Endpoint>(
   builder: RouterBuilder<R, E, RemainingEndpoints>,
 ): App.Default<R | SwaggerRouter.SwaggerFiles, E> => {
-  const swaggerRouter = SwaggerRouter.make(OpenApi.openApi(builder.api));
+  const swaggerRouter = SwaggerRouter.make(OpenApi.make(builder.api));
   return Router.concat(builder.router, swaggerRouter).pipe(
     Effect.catchTag("RouteNotFound", () =>
       ServerResponse.text("Not Found", { status: 404 }),

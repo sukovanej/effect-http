@@ -56,7 +56,7 @@ export const make = <R, E, Endpoints extends Api.Endpoint>(
 
     return yield* _(
       Deferred.await(allocatedUrl),
-      Effect.map((url) => Client.client(api, { baseUrl: url, ...options })),
+      Effect.map((url) => Client.make(api, { baseUrl: url, ...options })),
     );
   });
 

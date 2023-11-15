@@ -79,7 +79,7 @@ export interface Options {
  * @category constructors
  * @since 1.0.0
  */
-export const client = <Endpoints extends Api.Endpoint>(
+export const make = <Endpoints extends Api.Endpoint>(
   api: Api.Api<Endpoints>,
   options?: Partial<Options>,
 ): Client<Endpoints> =>

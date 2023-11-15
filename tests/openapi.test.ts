@@ -13,7 +13,7 @@ test("description", () => {
     ),
   );
 
-  const openApi = OpenApi.openApi(api);
+  const openApi = OpenApi.make(api);
 
   expect(openApi.paths["/my-operation"].put?.description).toEqual(
     "my description",
@@ -35,7 +35,7 @@ test("reference and schema component", () => {
     ),
   );
 
-  const openApi = OpenApi.openApi(api);
+  const openApi = OpenApi.make(api);
   expect(openApi).toStrictEqual({
     openapi: "3.0.3",
     info: {

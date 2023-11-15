@@ -1,7 +1,7 @@
 import { runMain } from "@effect/platform-node/Runtime";
 import * as Schema from "@effect/schema/Schema";
 import { Context, Effect, Layer, pipe } from "effect";
-import { Api, Client, NodeServer, RouterBuilder } from "effect-http";
+import { Api, NodeServer, RouterBuilder } from "effect-http";
 
 import { debugLogger } from "./_utils";
 
@@ -83,14 +83,9 @@ const app = pipe(
   RouterBuilder.handle("callStanda", () => Effect.succeed("zdar")),
 );
 
-const client = Client.client(api, {
-  baseUrl: new URL("http://localhost:4000"),
-});
-
 pipe(
   RouterBuilder.build(app),
   NodeServer.listen({ port: 4000 }),
-  Effect.flatMap(() => pipe(client.callStanda({ body: { zdar: "zdar" } }))),
   Effect.provide(dummyStuff),
   Effect.provide(debugLogger),
   runMain,
