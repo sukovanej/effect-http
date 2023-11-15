@@ -9,7 +9,11 @@ import { getAbsoluteFSPath } from "swagger-ui-dist";
 
 import * as Router from "@effect/platform/Http/Router";
 import * as ServerResponse from "@effect/platform/Http/ServerResponse";
-import { Context, Effect, Layer, ReadonlyRecord, pipe } from "effect";
+import * as Context from "effect/Context";
+import * as Effect from "effect/Effect";
+import { pipe } from "effect/Function";
+import * as Layer from "effect/Layer";
+import * as ReadonlyRecord from "effect/ReadonlyRecord";
 
 /** @internal */
 const createSwaggerInitializer = (path: string) => `
