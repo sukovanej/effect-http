@@ -5,10 +5,12 @@
  */
 import * as OpenApi from "schema-openapi";
 
-import { AST, Schema } from "@effect/schema";
-import { Option, identity, pipe } from "effect";
+import * as AST from "@effect/schema/AST";
+import * as Schema from "@effect/schema/Schema";
 import * as Api from "effect-http/Api";
-import { isArray } from "effect-http/internal/utils";
+import * as utils from "effect-http/internal/utils";
+import { identity, pipe } from "effect/Function";
+import * as Option from "effect/Option";
 
 /**
  * Generate OpenApi specification for the Api.
@@ -35,7 +37,7 @@ export const make = (
           ),
         );
       } else {
-        (isArray(responseSchema) ? responseSchema : [responseSchema]).map(
+        (utils.isArray(responseSchema) ? responseSchema : [responseSchema]).map(
           ({ status, content, headers }) => {
             const schema =
               content === Api.IgnoredSchemaId ? undefined : content;
