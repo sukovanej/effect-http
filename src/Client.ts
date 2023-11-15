@@ -5,26 +5,29 @@
  *
  * @since 1.0.0
  */
-import { HttpClient } from "@effect/platform";
+import * as PlatformClient from "@effect/platform/Http/Client";
 import * as ClientRequest from "@effect/platform/Http/ClientRequest";
-import { Schema } from "@effect/schema";
-import { Effect, Pipeable, type Types, identity, pipe } from "effect";
+import * as Schema from "@effect/schema/Schema";
 import * as Api from "effect-http/Api";
 import type * as ClientError from "effect-http/ClientError";
 import type * as Route from "effect-http/Route";
 import * as ClientRequestEncoder from "effect-http/internal/clientRequestEncoder";
 import * as ClientResponseParser from "effect-http/internal/clientResponseParser";
+import * as Effect from "effect/Effect";
+import { identity, pipe } from "effect/Function";
+import * as Pipeable from "effect/Pipeable";
+import type * as Types from "effect/Types";
 
 /**
  * @category models
  * @since 1.0.0
  */
 export type Client<Endpoints extends Api.Endpoint> = {
-  [Id in Endpoints["id"]]: EndpointClient<Endpoints, Id>;
+  [Id in Endpoints["id"]]: EndpointClient<Extract<Endpoints, { id: Id }>>;
 } & Pipeable.Pipeable;
 
 /** @internal */
-const httpClient = HttpClient.client.fetch();
+const httpClient = PlatformClient.fetch();
 
 /**
  * @category constructors
@@ -37,7 +40,7 @@ export const endpointClient = <
   id: Id,
   api: Api.Api<Endpoints>,
   options: Partial<Options>,
-): EndpointClient<Endpoints, Id> => {
+): EndpointClient<Extract<Endpoints, { id: Id }>> => {
   const endpoint = Api.getEndpoint(api, id);
   const responseParser = ClientResponseParser.create(endpoint.schemas.response);
   const requestEncoder = ClientRequestEncoder.create(endpoint);
@@ -117,7 +120,7 @@ export type ClientFunctionResponse<
 >;
 
 /** @ignore */
-type ClientFunction<Es extends Api.Endpoint, Id, I> = Record<
+type ClientFunction<Endpoint extends Api.Endpoint, I> = Record<
   string,
   never
 > extends I
@@ -126,23 +129,20 @@ type ClientFunction<Es extends Api.Endpoint, Id, I> = Record<
     ) => Effect.Effect<
       never,
       ClientError.ClientError,
-      ClientFunctionResponse<Extract<Es, { id: Id }>["schemas"]["response"]>
+      ClientFunctionResponse<Endpoint["schemas"]["response"]>
     >
   : (
       input: I,
     ) => Effect.Effect<
       never,
       ClientError.ClientError,
-      ClientFunctionResponse<Extract<Es, { id: Id }>["schemas"]["response"]>
+      ClientFunctionResponse<Endpoint["schemas"]["response"]>
     >;
 
 /** @ignore */
-type EndpointClient<Endpoints extends Api.Endpoint, Id> = ClientFunction<
-  Endpoints,
-  Id,
+type EndpointClient<Endpoint extends Api.Endpoint> = ClientFunction<
+  Endpoint,
   MakeHeadersOptionIfAllPartial<
-    Route.EndpointSchemasTo<
-      Extract<Endpoints, { id: Id }>["schemas"]
-    >["request"]
+    Route.EndpointSchemasTo<Endpoint["schemas"]>["request"]
   >
 >;

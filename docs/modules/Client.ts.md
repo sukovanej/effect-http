@@ -37,8 +37,7 @@ export declare const endpointClient: <Endpoints extends Api.Endpoint, Id extends
   api: Api.Api<Endpoints>,
   options: Partial<Options>
 ) => ClientFunction<
-  Endpoints,
-  Id,
+  Extract<Endpoints, { id: Id }>,
   MakeHeadersOptionIfAllPartial<{
     [K in Extract<
       keyof Extract<Endpoints, { id: Id }>["schemas"]["request"],
@@ -80,7 +79,7 @@ Added in v1.0.0
 
 ```ts
 export type Client<Endpoints extends Api.Endpoint> = {
-  [Id in Endpoints["id"]]: EndpointClient<Endpoints, Id>
+  [Id in Endpoints["id"]]: EndpointClient<Extract<Endpoints, { id: Id }>>
 } & Pipeable.Pipeable
 ```
 
