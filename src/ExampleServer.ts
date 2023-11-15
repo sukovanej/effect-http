@@ -10,11 +10,13 @@
  */
 import * as OpenApi from "schema-openapi";
 
-import { Effect, ReadonlyArray, pipe } from "effect";
 import type * as Api from "effect-http/Api";
 import * as RouterBuilder from "effect-http/RouterBuilder";
 import * as ServerError from "effect-http/ServerError";
-import { createResponseSchema } from "effect-http/internal/utils";
+import * as utils from "effect-http/internal/utils";
+import * as Effect from "effect/Effect";
+import { pipe } from "effect/Function";
+import * as ReadonlyArray from "effect/ReadonlyArray";
 
 /**
  * Generate an example Server implementation.
@@ -40,7 +42,7 @@ export const make = <A extends Api.Api>(
 
 /** @internal */
 const createExampleHandler = ({ schemas }: Api.Endpoint) => {
-  const responseSchema = createResponseSchema(schemas.response);
+  const responseSchema = utils.createResponseSchema(schemas.response);
 
   return () =>
     pipe(
