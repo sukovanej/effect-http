@@ -28,7 +28,6 @@ Added in v1.0.0
   - [From "effect-http/ServerError"](#from-effect-httpservererror)
   - [From "effect-http/SwaggerRouter"](#from-effect-httpswaggerrouter)
   - [From "effect-http/Testing"](#from-effect-httptesting)
-  - [From "effect-http/ValidationErrorFormatter"](#from-effect-httpvalidationerrorformatter)
 
 ---
 
@@ -60,7 +59,7 @@ Added in v1.0.0
 
 ## From "effect-http/ClientError"
 
-Re-exports all named exports from the "effect-http/ClientError" module as `ClientError`.
+Reexport of all the submodules.
 
 **Signature**
 
@@ -186,18 +185,6 @@ Re-exports all named exports from the "effect-http/Testing" module as `Testing`.
 
 ```ts
 export * as Testing from "effect-http/Testing"
-```
-
-Added in v1.0.0
-
-## From "effect-http/ValidationErrorFormatter"
-
-Reexport of all the submodules.
-
-**Signature**
-
-```ts
-export * from "effect-http/ValidationErrorFormatter"
 ```
 
 Added in v1.0.0

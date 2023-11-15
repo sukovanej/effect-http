@@ -1,10 +1,20 @@
+import { Schema } from "@effect/schema";
 import { Effect, ReadonlyArray, pipe } from "effect";
-import { Client } from "effect-http";
-
-import { api } from "../examples/headers";
+import { Api, Client } from "effect-http";
 
 // Example client triggering the API from `examples/headers.ts`
 // Running the script call the `/hello` endpoint 1000k times
+
+export const api = pipe(
+  Api.api(),
+  Api.post("hello", "/hello", {
+    response: Schema.string,
+    request: {
+      body: Schema.struct({ value: Schema.number }),
+      headers: Schema.struct({ "X-Client-Id": Schema.string }),
+    },
+  }),
+);
 
 const client = Client.client(api, {
   baseUrl: new URL("http://localhost:3000"),

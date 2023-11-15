@@ -1,6 +1,9 @@
+import { runMain } from "@effect/platform-node/Runtime";
 import { Schema } from "@effect/schema";
 import { Context, Effect, ReadonlyArray, Ref, pipe } from "effect";
 import { Api, NodeServer, RouterBuilder, ServerError } from "effect-http";
+
+import { debugLogger } from "./_utils";
 
 interface Clients {
   hasAccess: (clientId: string) => Effect.Effect<never, never, boolean>;
@@ -104,5 +107,6 @@ pipe(
   NodeServer.listen({ port: 3000 }),
   Effect.provideService(ClientsService, clients),
   Effect.provideServiceEffect(UsagesService, Ref.make([])),
-  Effect.runPromise,
+  Effect.provide(debugLogger),
+  runMain,
 );

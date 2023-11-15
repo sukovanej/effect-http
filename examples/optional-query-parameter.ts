@@ -1,6 +1,9 @@
+import { runMain } from "@effect/platform-node/Runtime";
 import { Schema } from "@effect/schema";
 import { Effect, pipe } from "effect";
 import { Api, NodeServer, RouterBuilder } from "effect-http";
+
+import { debugLogger } from "./_utils";
 
 const SchemaBooleanFromString = pipe(
   Schema.literal("true", "false"),
@@ -29,7 +32,7 @@ export const api = pipe(
   }),
 );
 
-const server = pipe(
+const app = pipe(
   RouterBuilder.make(api),
   RouterBuilder.handle("userById", ({ query: { include_deleted } }) =>
     Effect.succeed({
@@ -37,7 +40,10 @@ const server = pipe(
     }),
   ),
   RouterBuilder.build,
-  NodeServer.listen({ port: 3000 }),
 );
 
-Effect.runPromise(server);
+app.pipe(
+  NodeServer.listen({ port: 3000 }),
+  Effect.provide(debugLogger),
+  runMain,
+);

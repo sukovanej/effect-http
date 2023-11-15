@@ -1,6 +1,9 @@
+import { runMain } from "@effect/platform-node/Runtime";
 import { Schema } from "@effect/schema";
 import { Effect, pipe } from "effect";
 import { Api, NodeServer, RouterBuilder, ServerError } from "effect-http";
+
+import { debugLogger } from "./_utils";
 
 const api = pipe(
   Api.api({ title: "My api" }),
@@ -23,4 +26,9 @@ const app = pipe(
   RouterBuilder.build,
 );
 
-pipe(app, NodeServer.listen({ port: 3000 }), Effect.runPromise);
+pipe(
+  app,
+  NodeServer.listen({ port: 3000 }),
+  Effect.provide(debugLogger),
+  runMain,
+);

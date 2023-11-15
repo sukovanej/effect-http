@@ -1,5 +1,6 @@
 import { FileSystem } from "@effect/platform";
 import { HttpServer, NodeContext } from "@effect/platform-node";
+import { runMain } from "@effect/platform-node/Runtime";
 import { Schema } from "@effect/schema";
 import { Effect, pipe } from "effect";
 import { Api, NodeServer, RouterBuilder } from "effect-http";
@@ -37,11 +38,10 @@ const app = pipe(
   RouterBuilder.build,
 );
 
-const program = pipe(
+pipe(
   app,
   NodeServer.listen({ port: 3000 }),
   Effect.provide(debugLogger),
   Effect.provide(NodeContext.layer),
+  runMain,
 );
-
-Effect.runPromise(program);

@@ -78,11 +78,10 @@ export const endpointCallsMetricExtension = () => {
   return Middleware.make((app) =>
     Effect.gen(function* (_) {
       const request = yield* _(ServerRequest.ServerRequest);
-      const url = new URL(request.url);
 
       yield* _(
         Metric.increment(endpointCalledCounter),
-        Effect.tagMetrics("path", url.pathname),
+        Effect.tagMetrics("path", request.url),
       );
 
       return yield* _(app);

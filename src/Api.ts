@@ -200,8 +200,16 @@ export interface Endpoint {
   description?: string;
 }
 
+/**
+ * @since 1.0.0
+ * @category type id
+ */
 export const ApiTypeId: unique symbol = Symbol.for("effect-http/Api/ApiTypeId");
 
+/**
+ * @since 1.0.0
+ * @category type id
+ */
 export type ApiTypeId = typeof ApiTypeId;
 
 /**
@@ -217,10 +225,18 @@ export interface Api<E extends Endpoint = Endpoint> extends Pipeable.Pipeable {
   };
 }
 
+/**
+ * @since 1.0.0
+ * @category type id
+ */
 export const ApiGroupTypeId: unique symbol = Symbol.for(
   "effect-http/Api/ApiGroupTypeId",
 );
 
+/**
+ * @since 1.0.0
+ * @category type id
+ */
 export type ApiGroupTypeId = typeof ApiGroupTypeId;
 
 /**
@@ -535,6 +551,7 @@ export const getEndpoint = <
   return endpoint as any;
 };
 
+/** @internal */
 class ApiImpl<Endpoints extends Endpoint> implements Api<Endpoints> {
   readonly [ApiTypeId]: ApiTypeId;
 
@@ -551,6 +568,7 @@ class ApiImpl<Endpoints extends Endpoint> implements Api<Endpoints> {
   }
 }
 
+/** @internal */
 class ApiGroupImpl<Endpoints extends Endpoint> implements ApiGroup<Endpoints> {
   readonly [ApiGroupTypeId]: ApiGroupTypeId;
 

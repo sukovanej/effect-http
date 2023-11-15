@@ -1,3 +1,4 @@
+import { runMain } from "@effect/platform-node/Runtime";
 import * as Schema from "@effect/schema/Schema";
 import {
   Context,
@@ -12,7 +13,7 @@ import {
 } from "effect";
 import { Api, NodeServer, RouterBuilder, ServerError } from "effect-http";
 
-import { FileNotFoundError, readFile } from "./_utils";
+import { FileNotFoundError, debugLogger, readFile } from "./_utils";
 
 interface GetValue extends Request.Request<FileNotFoundError, string> {
   readonly _tag: "GetValue";
@@ -67,5 +68,6 @@ pipe(
     GetValueCache,
     Request.makeCache({ capacity: 100, timeToLive: Duration.seconds(5) }),
   ),
-  Effect.runPromise,
+  Effect.provide(debugLogger),
+  runMain,
 );

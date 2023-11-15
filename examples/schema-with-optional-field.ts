@@ -1,6 +1,9 @@
+import { runMain } from "@effect/platform-node/Runtime";
 import * as Schema from "@effect/schema/Schema";
 import { Effect, Option, pipe } from "effect";
 import { Api, NodeServer, RouterBuilder } from "effect-http";
+
+import { debugLogger } from "./_utils";
 
 const Response = Schema.struct({
   foo: Schema.optional(Schema.string).toOption(),
@@ -22,4 +25,9 @@ const app = pipe(
   RouterBuilder.build,
 );
 
-pipe(app, NodeServer.listen({ port: 4000 }), Effect.runPromise);
+pipe(
+  app,
+  NodeServer.listen({ port: 4000 }),
+  Effect.provide(debugLogger),
+  runMain,
+);

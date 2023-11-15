@@ -1,6 +1,7 @@
+import { runMain } from "@effect/platform-node/Runtime";
 import { Schema } from "@effect/schema";
 import { Effect, Metric, pipe } from "effect";
-import { Api, NodeServer, RouterBuilder } from "effect-http";
+import { Api, Middlewares, NodeServer, RouterBuilder } from "effect-http";
 
 import { debugLogger } from "./_utils";
 
@@ -17,18 +18,18 @@ const api = pipe(
 
 const app = pipe(
   RouterBuilder.make(api),
-  RouterBuilder.handle("getUser", () => Effect.succeed("Hello")),
+  RouterBuilder.handle("getUser", () =>
+    Effect.succeed("Hello").pipe(Effect.tap(() => Effect.log("hello"))),
+  ),
   RouterBuilder.handle("metrics", () => Metric.snapshot),
-  // TODO
-  //Http.prependExtension(Http.uuidLogAnnotationExtension()),
-  //Http.addExtension(Http.endpointCallsMetricExtension()),
-  //Http.exhaustive,
   RouterBuilder.build,
+  Middlewares.accessLogExtension(),
+  Middlewares.endpointCallsMetricExtension(),
+  Middlewares.uuidLogAnnotationExtension(),
 );
 
-pipe(
-  app,
+app.pipe(
   NodeServer.listen({ port: 3000 }),
   Effect.provide(debugLogger),
-  Effect.runPromise,
+  runMain,
 );

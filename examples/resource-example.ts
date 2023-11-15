@@ -1,3 +1,4 @@
+import { runMain } from "@effect/platform-node/Runtime";
 import * as Schema from "@effect/schema/Schema";
 import {
   Context,
@@ -48,5 +49,5 @@ pipe(
   ),
   Effect.scoped,
   Effect.provide(debugLogger),
-  Effect.runPromise,
+  runMain,
 );

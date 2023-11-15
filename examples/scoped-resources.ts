@@ -1,6 +1,9 @@
+import { runMain } from "@effect/platform-node/Runtime";
 import * as Schema from "@effect/schema/Schema";
 import { Context, Effect, pipe } from "effect";
 import { Api, NodeServer, RouterBuilder } from "effect-http";
+
+import { debugLogger } from "./_utils";
 
 interface Resource {
   value: number;
@@ -34,5 +37,6 @@ pipe(
   NodeServer.listen({ port: 3000 }),
   Effect.provideServiceEffect(ResourceService, resource),
   Effect.scoped,
-  Effect.runPromise,
+  Effect.provide(debugLogger),
+  runMain,
 );

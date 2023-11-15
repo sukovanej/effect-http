@@ -1,6 +1,9 @@
+import { runMain } from "@effect/platform-node/Runtime";
 import * as Schema from "@effect/schema/Schema";
 import { Context, Effect, Layer, pipe } from "effect";
 import { Api, Client, NodeServer, RouterBuilder } from "effect-http";
+
+import { debugLogger } from "./_utils";
 
 // Schemas
 
@@ -89,5 +92,6 @@ pipe(
   NodeServer.listen({ port: 4000 }),
   Effect.flatMap(() => pipe(client.callStanda({ body: { zdar: "zdar" } }))),
   Effect.provide(dummyStuff),
-  Effect.runPromise,
+  Effect.provide(debugLogger),
+  runMain,
 );

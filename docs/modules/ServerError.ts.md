@@ -16,11 +16,11 @@ Added in v1.0.0
 
 - [constructors](#constructors)
   - [badGatewayError](#badgatewayerror)
+  - [badRequest](#badrequest)
   - [conflictError](#conflicterror)
   - [forbiddenError](#forbiddenerror)
   - [gatewayTimeoutError](#gatewaytimeouterror)
   - [internalServerError](#internalservererror)
-  - [invalidBodyError](#invalidbodyerror)
   - [make](#make)
   - [makeJson](#makejson)
   - [makeText](#maketext)
@@ -45,6 +45,16 @@ Added in v1.0.0
 
 ```ts
 export declare const badGatewayError: (body: unknown) => ServerError
+```
+
+Added in v1.0.0
+
+## badRequest
+
+**Signature**
+
+```ts
+export declare const badRequest: (body: unknown) => ServerError
 ```
 
 Added in v1.0.0
@@ -85,16 +95,6 @@ Added in v1.0.0
 
 ```ts
 export declare const internalServerError: (body: unknown) => ServerError
-```
-
-Added in v1.0.0
-
-## invalidBodyError
-
-**Signature**
-
-```ts
-export declare const invalidBodyError: (body: unknown) => ServerError
 ```
 
 Added in v1.0.0
