@@ -3,10 +3,10 @@
  *
  * @since 1.0.0
  */
-import { HttpClient } from "@effect/platform";
-import { ParseResult } from "@effect/schema";
-import { Data } from "effect";
+import type * as PlatformClientError from "@effect/platform/Http/ClientError";
+import type * as ParseResult from "@effect/schema/ParseResult";
 import { formatParseError } from "effect-http/internal/formatParseError";
+import * as Data from "effect/Data";
 
 /** @ignore */
 type RequestLocation = "body" | "query" | "params" | "headers";
@@ -89,13 +89,13 @@ export class ResponseValidationError extends Data.TaggedError(
  */
 export class ResponseError extends Data.TaggedError("ResponseError")<{
   message: string;
-  error: HttpClient.error.ResponseError;
+  error: PlatformClientError.ResponseError;
 }> {
   /**
    * @category errors
    * @since 1.0.0
    */
-  static fromResponseError(error: HttpClient.error.ResponseError) {
+  static fromResponseError(error: PlatformClientError.ResponseError) {
     return new ResponseError({
       message: `Invalid response: ${error.reason}`,
       error,
