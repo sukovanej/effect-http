@@ -1,6 +1,9 @@
-import * as Schema from "@effect/schema/Schema";
+import { runMain } from "@effect/platform-node/Runtime";
+import { Schema } from "@effect/schema";
 import { Effect, pipe } from "effect";
-import * as Http from "effect-http";
+import { Api, NodeServer, RouterBuilder } from "effect-http";
+
+import { debugLogger } from "./_utils";
 
 const SchemaBooleanFromString = pipe(
   Schema.literal("true", "false"),
@@ -12,8 +15,8 @@ const SchemaBooleanFromString = pipe(
 );
 
 export const api = pipe(
-  Http.api(),
-  Http.get("userById", "/api/users/:userId", {
+  Api.api(),
+  Api.get("userById", "/api/users/:userId", {
     response: Schema.struct({ name: Schema.string }),
     request: {
       params: Schema.struct({
@@ -29,14 +32,18 @@ export const api = pipe(
   }),
 );
 
-const server = pipe(
-  Http.server(api),
-  Http.handle("userById", ({ query: { include_deleted } }) =>
+const app = pipe(
+  RouterBuilder.make(api),
+  RouterBuilder.handle("userById", ({ query: { include_deleted } }) =>
     Effect.succeed({
       name: `include_deleted = ${include_deleted ?? "[not set]"}`,
     }),
   ),
-  Http.listen({ port: 3000 }),
+  RouterBuilder.build,
 );
 
-Effect.runPromise(server);
+app.pipe(
+  NodeServer.listen({ port: 3000 }),
+  Effect.provide(debugLogger),
+  runMain,
+);

@@ -1,4 +1,5 @@
-import * as Schema from "@effect/schema/Schema";
+import { runMain } from "@effect/platform-node/Runtime";
+import { Schema } from "@effect/schema";
 import {
   Config,
   ConfigError,
@@ -9,7 +10,15 @@ import {
   ReadonlyArray,
   pipe,
 } from "effect";
-import * as Http from "effect-http";
+import {
+  Api,
+  Middlewares,
+  NodeServer,
+  RouterBuilder,
+  ServerError,
+} from "effect-http";
+
+import { debugLogger } from "./_utils";
 
 export const CredentialsConfig = Config.mapOrFail(
   Config.string(),
@@ -37,52 +46,54 @@ export const ArrayOfCredentialsConfig = pipe(
   (credentialsConfig) => Config.array(credentialsConfig, "CREDENTIALS"),
 );
 
-const CredentialsService = Context.Tag<readonly Http.BasicAuthCredentials[]>();
+const CredentialsService =
+  Context.Tag<readonly Middlewares.BasicAuthCredentials[]>();
 
 const api = pipe(
-  Http.api({ title: "Users API" }),
-  Http.get("getUser", "/user", {
+  Api.api({ title: "Users API" }),
+  Api.get("getUser", "/user", {
     response: Schema.string,
   }),
 );
 
-const server = pipe(
-  api,
-  Http.server,
-  Http.handle("getUser", () => Effect.succeed("hello world")),
-  Http.addExtension(
-    Http.basicAuthExtension((inputCredentials) =>
-      pipe(
-        Effect.map(
-          CredentialsService,
-          ReadonlyArray.groupBy(({ user }) => user),
-        ),
-        Effect.flatMap((creds) =>
-          pipe(
-            Option.fromNullable(creds[inputCredentials.user]),
-            Option.flatMap(
-              ReadonlyArray.findFirst(
-                (credentials) =>
-                  credentials.password === inputCredentials.password,
-              ),
+const app = pipe(
+  RouterBuilder.make(api),
+  RouterBuilder.handle("getUser", () => Effect.succeed("hello world")),
+  RouterBuilder.build,
+  Middlewares.basicAuth((inputCredentials) =>
+    pipe(
+      Effect.map(
+        CredentialsService,
+        ReadonlyArray.groupBy(({ user }) => user),
+      ),
+      Effect.flatMap((creds) =>
+        pipe(
+          Option.fromNullable(creds[inputCredentials.user]),
+          Option.flatMap(
+            ReadonlyArray.findFirst(
+              (credentials) =>
+                credentials.password === inputCredentials.password,
             ),
           ),
         ),
-        Effect.mapError(() => "Incorrect user or password"),
+      ),
+      Effect.mapError(() =>
+        ServerError.unauthorizedError("Incorrect user or password"),
       ),
     ),
   ),
-  Http.exhaustive,
 );
 
 pipe(
-  server,
-  Http.listen({ port: 3000 }),
+  app,
+  NodeServer.listen({ port: 3000 }),
   Effect.provideServiceEffect(
     CredentialsService,
     Effect.config(ArrayOfCredentialsConfig),
   ),
-  Effect.runPromise,
+  Effect.provide(debugLogger),
+  Effect.tapErrorCause(Effect.logError),
+  runMain,
 );
 
 /**

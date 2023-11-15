@@ -1,6 +1,15 @@
-import * as Schema from "@effect/schema/Schema";
+import { runMain } from "@effect/platform-node/Runtime";
+import { Schema } from "@effect/schema";
 import { Context, Effect, ReadonlyArray, Ref, pipe } from "effect";
-import * as Http from "effect-http";
+import {
+  Api,
+  Middlewares,
+  NodeServer,
+  RouterBuilder,
+  ServerError,
+} from "effect-http";
+
+import { debugLogger } from "./_utils";
 
 interface Clients {
   hasAccess: (clientId: string) => Effect.Effect<never, never, boolean>;
@@ -54,36 +63,9 @@ type Usages = Ref.Ref<ClientUsage[]>;
 const ClientsService = Context.Tag<Clients>();
 const UsagesService = Context.Tag<Usages>();
 
-const handleHello = ({
-  headers: { "x-client-id": clientId },
-}: Http.Input<Api, "hello">) =>
-  pipe(
-    Effect.filterOrFail(
-      Effect.flatMap(ClientsService, (clients) => clients.hasAccess(clientId)),
-      (hasAccess) => hasAccess,
-      () => Http.unauthorizedError("Wrong api key"),
-    ),
-    Effect.flatMap(() =>
-      Effect.flatMap(ClientsService, (client) =>
-        client.getRemainingUsage(clientId),
-      ),
-    ),
-    Effect.tap((remainingUsages) =>
-      Effect.log(`Remaining ${remainingUsages} usages.`),
-    ),
-    Effect.filterOrFail(
-      (remainingUsages) => remainingUsages > 0,
-      () => Http.tooManyRequestsError("Rate limit exceeded"),
-    ),
-    Effect.flatMap(() =>
-      Effect.flatMap(ClientsService, (client) => client.recordUsage(clientId)),
-    ),
-    Effect.as("hello there"),
-  );
-
 export const api = pipe(
-  Http.api(),
-  Http.post("hello", "/hello", {
+  Api.api(),
+  Api.post("hello", "/hello", {
     response: Schema.string,
     request: {
       body: Schema.struct({ value: Schema.number }),
@@ -92,19 +74,47 @@ export const api = pipe(
   }),
 );
 
-type Api = typeof api;
-
-const server = pipe(
-  api,
-  Http.server,
-  Http.handle("hello", handleHello),
-  Http.exhaustive,
+const app = pipe(
+  RouterBuilder.make(api),
+  RouterBuilder.handle("hello", ({ headers: { "x-client-id": clientId } }) =>
+    pipe(
+      Effect.filterOrFail(
+        Effect.flatMap(ClientsService, (clients) =>
+          clients.hasAccess(clientId),
+        ),
+        (hasAccess) => hasAccess,
+        () => ServerError.unauthorizedError("Wrong api key"),
+      ),
+      Effect.flatMap(() =>
+        Effect.flatMap(ClientsService, (client) =>
+          client.getRemainingUsage(clientId),
+        ),
+      ),
+      Effect.tap((remainingUsages) =>
+        Effect.log(`Remaining ${remainingUsages} usages.`),
+      ),
+      Effect.filterOrFail(
+        (remainingUsages) => remainingUsages > 0,
+        () => ServerError.tooManyRequestsError("Rate limit exceeded"),
+      ),
+      Effect.flatMap(() =>
+        Effect.flatMap(ClientsService, (client) =>
+          client.recordUsage(clientId),
+        ),
+      ),
+      Effect.as("hello there"),
+    ),
+  ),
+  RouterBuilder.build,
+  Middlewares.errorLog,
+  Middlewares.accessLog("Debug"),
 );
 
 pipe(
-  server,
-  Http.listen({ port: 3000 }),
+  app,
+  NodeServer.listen({ port: 3000 }),
   Effect.provideService(ClientsService, clients),
-  Effect.provideServiceEffect(UsagesService, Ref.make([])),
-  Effect.runPromise,
+  Effect.provideServiceEffect(UsagesService, Ref.make([] as ClientUsage[])),
+  Effect.provide(debugLogger),
+  runMain,
 );

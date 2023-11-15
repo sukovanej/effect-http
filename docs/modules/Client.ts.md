@@ -17,105 +17,56 @@ Added in v1.0.0
 <h2 class="text-delta">Table of contents</h2>
 
 - [constructors](#constructors)
-  - [client](#client)
   - [endpointClient](#endpointclient)
+  - [make](#make)
 - [models](#models)
   - [Client (type alias)](#client-type-alias)
-  - [ClientOptions (interface)](#clientoptions-interface)
+  - [Options (interface)](#options-interface)
 
 ---
 
 # constructors
-
-## client
-
-Derive client implementation from the `Api`
-
-**Signature**
-
-```ts
-export declare const client: <
-  A extends Api.Api<Api.Endpoint>,
-  H extends Record<string, unknown> = Record<never, never>
->(
-  api: A,
-  baseUrl: string | URL,
-  options?: ClientOptions<H> | undefined
-) => Client<A, H>
-```
-
-Added in v1.0.0
 
 ## endpointClient
 
 **Signature**
 
 ```ts
-export declare const endpointClient: <
-  A extends Api.Api<Api.Endpoint>,
-  Id extends A['endpoints'][number]['id'],
-  H extends Record<string, unknown>
->(
+export declare const endpointClient: <Endpoints extends Api.Endpoint, Id extends Endpoints["id"]>(
   id: Id,
-  api: A,
-  baseUrl: URL | string,
-  options?: ClientOptions<H> | undefined
+  api: Api.Api<Endpoints>,
+  options: Partial<Options>
 ) => ClientFunction<
-  A['endpoints'][number],
-  Id,
-  MakeHeadersOptionIfAllPartial<
-    Types.Simplify<{
-      [K in keyof {
-        [K in Extract<
-          keyof Extract<A['endpoints'][number], { id: Id }>['schemas']['request'],
-          RequiredFields<Extract<A['endpoints'][number], { id: Id }>['schemas']['request']>
-        >]: SchemaTo<Extract<A['endpoints'][number], { id: Id }>['schemas']['request'][K]>
-      }]: K extends 'headers'
-        ? Types.Simplify<
-            {
-              [HK in Extract<
-                keyof {
-                  [K in Extract<
-                    keyof Extract<A['endpoints'][number], { id: Id }>['schemas']['request'],
-                    RequiredFields<Extract<A['endpoints'][number], { id: Id }>['schemas']['request']>
-                  >]: SchemaTo<Extract<A['endpoints'][number], { id: Id }>['schemas']['request'][K]>
-                }[K],
-                keyof H
-              >]?:
-                | {
-                    [K in Extract<
-                      keyof Extract<A['endpoints'][number], { id: Id }>['schemas']['request'],
-                      RequiredFields<Extract<A['endpoints'][number], { id: Id }>['schemas']['request']>
-                    >]: SchemaTo<Extract<A['endpoints'][number], { id: Id }>['schemas']['request'][K]>
-                  }[K][HK]
-                | undefined
-            } & Pick<
-              {
-                [K in Extract<
-                  keyof Extract<A['endpoints'][number], { id: Id }>['schemas']['request'],
-                  RequiredFields<Extract<A['endpoints'][number], { id: Id }>['schemas']['request']>
-                >]: SchemaTo<Extract<A['endpoints'][number], { id: Id }>['schemas']['request'][K]>
-              }[K],
-              Exclude<
-                keyof {
-                  [K in Extract<
-                    keyof Extract<A['endpoints'][number], { id: Id }>['schemas']['request'],
-                    RequiredFields<Extract<A['endpoints'][number], { id: Id }>['schemas']['request']>
-                  >]: SchemaTo<Extract<A['endpoints'][number], { id: Id }>['schemas']['request'][K]>
-                }[K],
-                keyof H
-              >
-            >
-          >
-        : {
-            [K in Extract<
-              keyof Extract<A['endpoints'][number], { id: Id }>['schemas']['request'],
-              RequiredFields<Extract<A['endpoints'][number], { id: Id }>['schemas']['request']>
-            >]: SchemaTo<Extract<A['endpoints'][number], { id: Id }>['schemas']['request'][K]>
-          }[K]
-    }>
-  >
+  Extract<Endpoints, { id: Id }>,
+  MakeHeadersOptionIfAllPartial<{
+    [K in Extract<
+      keyof Extract<Endpoints, { id: Id }>["schemas"]["request"],
+      {
+        [K in keyof Extract<Endpoints, { id: Id }>["schemas"]["request"]]: Extract<
+          Endpoints,
+          { id: Id }
+        >["schemas"]["request"][K] extends typeof Api.IgnoredSchemaId
+          ? never
+          : K
+      }[keyof Extract<Endpoints, { id: Id }>["schemas"]["request"]]
+    >]: SchemaTo<Extract<Endpoints, { id: Id }>["schemas"]["request"][K]>
+  }>
 >
+```
+
+Added in v1.0.0
+
+## make
+
+Derive client implementation from the `Api`
+
+**Signature**
+
+```ts
+export declare const make: <Endpoints extends Api.Endpoint>(
+  api: Api.Api<Endpoints>,
+  options?: Partial<Options>
+) => Client<Endpoints>
 ```
 
 Added in v1.0.0
@@ -127,22 +78,21 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-export type Client<A extends Api.Api, H> = A extends Api.Api<infer Es>
-  ? {
-      [Id in Es['id']]: EndpointClient<A, Id, H>
-    } & Pipeable.Pipeable
-  : never
+export type Client<Endpoints extends Api.Endpoint> = {
+  [Id in Endpoints["id"]]: EndpointClient<Extract<Endpoints, { id: Id }>>
+} & Pipeable.Pipeable
 ```
 
 Added in v1.0.0
 
-## ClientOptions (interface)
+## Options (interface)
 
 **Signature**
 
 ```ts
-export interface ClientOptions<H extends Record<string, unknown>> {
-  headers: H
+export interface Options {
+  mapRequest?: (request: ClientRequest.ClientRequest) => ClientRequest.ClientRequest
+  baseUrl: URL | string
 }
 ```
 

@@ -5,11 +5,12 @@
  */
 import * as OpenApi from "schema-openapi";
 
-import { AST, Schema } from "@effect/schema";
-import { Option, identity, pipe } from "effect";
-import type { Api } from "effect-http/Api";
-import { IgnoredSchemaId } from "effect-http/Api";
-import { isArray } from "effect-http/internal/utils";
+import * as AST from "@effect/schema/AST";
+import * as Schema from "@effect/schema/Schema";
+import * as Api from "effect-http/Api";
+import * as utils from "effect-http/internal/utils";
+import { identity, pipe } from "effect/Function";
+import * as Option from "effect/Option";
 
 /**
  * Generate OpenApi specification for the Api.
@@ -17,11 +18,11 @@ import { isArray } from "effect-http/internal/utils";
  * @category constructors
  * @since 1.0.0
  */
-export const openApi = (
-  api: Api,
+export const make = (
+  api: Api.Api,
 ): OpenApi.OpenAPISpec<OpenApi.OpenAPISchemaType> => {
-  return api.endpoints.reduce(
-    (spec, { path, method, schemas, id, groupName, description }) => {
+  const pathSpecs = api.endpoints.map(
+    ({ path, method, schemas, id, groupName, description }) => {
       const operationSpec = [];
 
       const responseSchema = schemas.response;
@@ -36,11 +37,12 @@ export const openApi = (
           ),
         );
       } else {
-        (isArray(responseSchema) ? responseSchema : [responseSchema]).map(
+        (utils.isArray(responseSchema) ? responseSchema : [responseSchema]).map(
           ({ status, content, headers }) => {
-            const schema = content === IgnoredSchemaId ? undefined : content;
+            const schema =
+              content === Api.IgnoredSchemaId ? undefined : content;
             const setHeaders =
-              headers === IgnoredSchemaId
+              headers === Api.IgnoredSchemaId
                 ? identity
                 : OpenApi.responseHeaders(
                     createResponseHeadersSchemaMap(headers),
@@ -61,19 +63,19 @@ export const openApi = (
 
       const { params, query, body, headers } = schemas.request;
 
-      if (params !== IgnoredSchemaId) {
+      if (params !== Api.IgnoredSchemaId) {
         operationSpec.push(...createParameterSetters("path", params));
       }
 
-      if (query !== IgnoredSchemaId) {
+      if (query !== Api.IgnoredSchemaId) {
         operationSpec.push(...createParameterSetters("query", query));
       }
 
-      if (headers !== IgnoredSchemaId) {
+      if (headers !== Api.IgnoredSchemaId) {
         operationSpec.push(...createParameterSetters("header", headers));
       }
 
-      if (body !== IgnoredSchemaId) {
+      if (body !== Api.IgnoredSchemaId) {
         operationSpec.push(OpenApi.jsonRequest(body, descriptionSetter(body)));
       }
 
@@ -89,10 +91,11 @@ export const openApi = (
           OpenApi.tags(groupName),
           ...operationSpec,
         ),
-      )(spec);
+      );
     },
-    OpenApi.openAPI(api.options.title, api.options.version),
   );
+
+  return OpenApi.openAPI(api.options.title, api.options.version, ...pathSpecs);
 };
 
 /**

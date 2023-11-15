@@ -41,9 +41,9 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-export declare const make: <A extends Api.Api<Api.Endpoint>, Id extends A['endpoints'][number]['id'], R, E>(
+export declare const make: <A extends Api.Api<Api.Endpoint>, Id extends A["endpoints"][number]["id"], R, E>(
   id: Id,
-  fn: HandlerFunction<Extract<A['endpoints'][number], { id: Id }>, R, E>
+  fn: HandlerFunction<Extract<A["endpoints"][number], { id: Id }>, R, E>
 ) => (api: A) => Router.Route<R, Exclude<E, ServerError.ServerError>>
 ```
 
@@ -56,9 +56,9 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-export type HandlerFunction<En extends Api.Endpoint, R, E> = (
-  input: Types.Simplify<EndpointSchemasTo<En['schemas']>['request']>
-) => Effect.Effect<R, E, EndpointResponseSchemaTo<En['schemas']['response']>>
+export type HandlerFunction<Endpoint extends Api.Endpoint, R, E> = (
+  input: Types.Simplify<EndpointSchemasTo<Endpoint["schemas"]>["request"]>
+) => Effect.Effect<R, E, EndpointResponseSchemaTo<Endpoint["schemas"]["response"]>>
 ```
 
 Added in v1.0.0

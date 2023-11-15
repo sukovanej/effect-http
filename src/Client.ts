@@ -5,36 +5,29 @@
  *
  * @since 1.0.0
  */
-import { HttpClient } from "@effect/platform";
-import { Schema } from "@effect/schema";
-import { Effect, Pipeable, type Types, pipe } from "effect";
+import * as PlatformClient from "@effect/platform/Http/Client";
+import * as ClientRequest from "@effect/platform/Http/ClientRequest";
+import * as Schema from "@effect/schema/Schema";
 import * as Api from "effect-http/Api";
 import type * as ClientError from "effect-http/ClientError";
-import type {
-  EndpointSchemasTo,
-  ResponseSchemaFullTo,
-} from "effect-http/ServerBuilder";
+import type * as Route from "effect-http/Route";
 import * as ClientRequestEncoder from "effect-http/internal/clientRequestEncoder";
 import * as ClientResponseParser from "effect-http/internal/clientResponseParser";
+import * as Effect from "effect/Effect";
+import { identity, pipe } from "effect/Function";
+import * as Pipeable from "effect/Pipeable";
+import type * as Types from "effect/Types";
 
 /**
  * @category models
  * @since 1.0.0
  */
-export type Client<Endpoints extends Api.Endpoint, H> = {
-  [Id in Endpoints["id"]]: EndpointClient<Endpoints, Id, H>;
+export type Client<Endpoints extends Api.Endpoint> = {
+  [Id in Endpoints["id"]]: EndpointClient<Extract<Endpoints, { id: Id }>>;
 } & Pipeable.Pipeable;
 
-/**
- * @category models
- * @since 1.0.0
- */
-export interface ClientOptions<H extends Record<string, unknown>> {
-  headers: H;
-}
-
 /** @internal */
-const httpClient = HttpClient.client.fetch();
+const httpClient = PlatformClient.fetch();
 
 /**
  * @category constructors
@@ -43,24 +36,29 @@ const httpClient = HttpClient.client.fetch();
 export const endpointClient = <
   Endpoints extends Api.Endpoint,
   Id extends Endpoints["id"],
-  H extends Record<string, unknown>,
 >(
   id: Id,
   api: Api.Api<Endpoints>,
-  baseUrl: URL | string,
-  options?: ClientOptions<H>,
-): EndpointClient<Endpoints, Id, H> => {
+  options: Partial<Options>,
+): EndpointClient<Extract<Endpoints, { id: Id }>> => {
   const endpoint = Api.getEndpoint(api, id);
   const responseParser = ClientResponseParser.create(endpoint.schemas.response);
-  const requestEncoder = ClientRequestEncoder.create(
-    baseUrl,
-    endpoint,
-    options?.headers,
-  );
+  const requestEncoder = ClientRequestEncoder.create(endpoint);
+
+  let mapRequest = options.mapRequest ?? identity;
+
+  if (options.baseUrl) {
+    const url =
+      typeof options.baseUrl === "string"
+        ? options.baseUrl
+        : options.baseUrl.toString();
+    mapRequest = ClientRequest.prependUrl(url);
+  }
 
   return (args: unknown) =>
     pipe(
       requestEncoder.encodeRequest(args),
+      Effect.map(mapRequest),
       Effect.flatMap(httpClient),
       Effect.flatMap(responseParser.parseResponse),
       Effect.annotateLogs("clientOperationId", endpoint.id),
@@ -68,27 +66,32 @@ export const endpointClient = <
 };
 
 /**
+ * @category models
+ * @since 1.0.0
+ */
+export interface Options {
+  mapRequest?: (
+    request: ClientRequest.ClientRequest,
+  ) => ClientRequest.ClientRequest;
+  baseUrl: URL | string;
+}
+
+/**
  * Derive client implementation from the `Api`
  *
  * @category constructors
  * @since 1.0.0
  */
-export const client = <
-  Api extends Api.Api,
-  H extends Record<string, unknown> = Record<never, never>,
->(
-  api: Api,
-  baseUrl: string | URL,
-  options?: ClientOptions<H>,
-): Client<Api["endpoints"][number], H> =>
+export const make = <Endpoints extends Api.Endpoint>(
+  api: Api.Api<Endpoints>,
+  options?: Partial<Options>,
+): Client<Endpoints> =>
   api.endpoints.reduce(
-    (client, endpoint) => {
-      return {
-        ...client,
-        [endpoint.id]: endpointClient(endpoint.id, api, baseUrl, options),
-      };
-    },
-    {} as Client<Api["endpoints"][number], H>,
+    (client, endpoint) => ({
+      ...client,
+      [endpoint.id]: endpointClient(endpoint.id, api, options ?? {}),
+    }),
+    {} as Client<Endpoints>,
   );
 
 // Internal type helpers
@@ -104,31 +107,20 @@ type MakeHeadersOptionIfAllPartial<I> = I extends { headers: any }
   : I;
 
 /** @ignore */
-type DropCommonHeaders<I, CommonHeaders> = Types.Simplify<{
-  [K in keyof I]: K extends "headers"
-    ? Types.Simplify<
-        {
-          [HK in Extract<keyof I[K], keyof CommonHeaders>]?: I[K][HK];
-        } & Pick<I[K], Exclude<keyof I[K], keyof CommonHeaders>>
-      >
-    : I[K];
-}>;
-
-/** @ignore */
 export type ClientFunctionResponse<
   S extends Api.Endpoint["schemas"]["response"],
 > = Types.Simplify<
   S extends Schema.Schema<any, infer A>
     ? A
     : S extends readonly Api.ResponseSchemaFull[]
-    ? ResponseSchemaFullTo<S[number]>
-    : S extends Api.ResponseSchemaFull
-    ? ResponseSchemaFullTo<S>
-    : never
+      ? Route.ResponseSchemaFullTo<S[number]>
+      : S extends Api.ResponseSchemaFull
+        ? Route.ResponseSchemaFullTo<S>
+        : never
 >;
 
 /** @ignore */
-type ClientFunction<Es extends Api.Endpoint, Id, I> = Record<
+type ClientFunction<Endpoint extends Api.Endpoint, I> = Record<
   string,
   never
 > extends I
@@ -137,24 +129,20 @@ type ClientFunction<Es extends Api.Endpoint, Id, I> = Record<
     ) => Effect.Effect<
       never,
       ClientError.ClientError,
-      ClientFunctionResponse<Extract<Es, { id: Id }>["schemas"]["response"]>
+      ClientFunctionResponse<Endpoint["schemas"]["response"]>
     >
   : (
       input: I,
     ) => Effect.Effect<
       never,
       ClientError.ClientError,
-      ClientFunctionResponse<Extract<Es, { id: Id }>["schemas"]["response"]>
+      ClientFunctionResponse<Endpoint["schemas"]["response"]>
     >;
 
 /** @ignore */
-type EndpointClient<Endpoints extends Api.Endpoint, Id, H> = ClientFunction<
-  Endpoints,
-  Id,
+type EndpointClient<Endpoint extends Api.Endpoint> = ClientFunction<
+  Endpoint,
   MakeHeadersOptionIfAllPartial<
-    DropCommonHeaders<
-      EndpointSchemasTo<Extract<Endpoints, { id: Id }>["schemas"]>["request"],
-      H
-    >
+    Route.EndpointSchemasTo<Endpoint["schemas"]>["request"]
   >
 >;

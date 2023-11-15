@@ -10,11 +10,13 @@
  */
 import * as OpenApi from "schema-openapi";
 
-import { Effect, ReadonlyArray, pipe } from "effect";
-import type { Api, Endpoint } from "effect-http/Api";
-import { ServerBuilder, handle, server } from "effect-http/ServerBuilder";
-import { internalServerError } from "effect-http/ServerError";
-import { createResponseSchema } from "effect-http/internal/utils";
+import type * as Api from "effect-http/Api";
+import * as RouterBuilder from "effect-http/RouterBuilder";
+import * as ServerError from "effect-http/ServerError";
+import * as utils from "effect-http/internal/utils";
+import * as Effect from "effect/Effect";
+import { pipe } from "effect/Function";
+import * as ReadonlyArray from "effect/ReadonlyArray";
 
 /**
  * Generate an example Server implementation.
@@ -22,28 +24,31 @@ import { createResponseSchema } from "effect-http/internal/utils";
  * @category constructors
  * @since 1.0.0
  */
-export const exampleServer = <A extends Api>(
+export const make = <A extends Api.Api>(
   api: A,
-): ServerBuilder<never, never, A> => {
-  const _server = server(api);
+): RouterBuilder.RouterBuilder<never, never, never> => {
+  const _server = RouterBuilder.make(api);
 
   return pipe(
-    _server.unimplementedEndpoints,
+    _server.remainingEndpoints,
     ReadonlyArray.reduce(_server, (server, endpoint) =>
-      pipe(server, handle(endpoint.id, createExampleHandler(endpoint)) as any),
+      pipe(
+        server,
+        RouterBuilder.handle(endpoint.id, createExampleHandler(endpoint)),
+      ),
     ),
   ) as any;
 };
 
 /** @internal */
-const createExampleHandler = ({ schemas }: Endpoint) => {
-  const responseSchema = createResponseSchema(schemas.response);
+const createExampleHandler = ({ schemas }: Api.Endpoint) => {
+  const responseSchema = utils.createResponseSchema(schemas.response);
 
   return () =>
     pipe(
       OpenApi.randomExample(responseSchema),
       Effect.mapError((error) =>
-        internalServerError(
+        ServerError.internalServerError(
           `Sorry, I don't have any example response. ${JSON.stringify(error)}`,
         ),
       ),

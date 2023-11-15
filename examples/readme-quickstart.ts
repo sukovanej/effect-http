@@ -1,6 +1,7 @@
-import * as Schema from "@effect/schema/Schema";
+import { runMain } from "@effect/platform-node/Runtime";
+import { Schema } from "@effect/schema";
 import { Effect, pipe } from "effect";
-import * as Http from "effect-http";
+import { Api, Client, NodeServer, RouterBuilder } from "effect-http";
 
 const responseSchema = Schema.struct({
   name: Schema.string,
@@ -9,8 +10,8 @@ const responseSchema = Schema.struct({
 const querySchema = Schema.struct({ id: Schema.NumberFromString });
 
 const api = pipe(
-  Http.api({ title: "Users API" }),
-  Http.get("getUser", "/user", {
+  Api.api({ title: "Users API" }),
+  Api.get("getUser", "/user", {
     response: responseSchema,
     request: {
       query: querySchema,
@@ -18,25 +19,25 @@ const api = pipe(
   }),
 );
 
-const server = pipe(
-  api,
-  Http.server,
-  Http.handle("getUser", ({ query }) =>
+const app = pipe(
+  RouterBuilder.make(api),
+  RouterBuilder.handle("getUser", ({ query }) =>
     Effect.succeed({ name: "milan", id: query.id }),
   ),
-  Http.exhaustive,
+  RouterBuilder.build,
 );
 
-const client = Http.client(api, new URL("http://localhost:3000"));
+app.pipe(NodeServer.listen({ port: 3000 }), runMain);
 
-const callServer = () =>
-  pipe(
-    client.getUser({ query: { id: 12 } }),
-    Effect.flatMap((user) => Effect.log(`Got ${user.name}, nice!`)),
-  );
+// Another file
 
-pipe(
-  server,
-  Http.listen({ port: 3000, onStart: callServer }),
-  Effect.runPromise,
+const client = Client.make(api, {
+  baseUrl: new URL("http://localhost:3000"),
+});
+
+const program = pipe(
+  client.getUser({ query: { id: 12 } }),
+  Effect.flatMap((user) => Effect.log(`Got ${user.name}, nice!`)),
 );
+
+Effect.runPromise(program);

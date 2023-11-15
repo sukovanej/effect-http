@@ -1,6 +1,6 @@
 import { Schema } from "@effect/schema";
 import { Either, identity, pipe } from "effect";
-import { defaultValidationErrorFormatterServer } from "effect-http/ValidationErrorFormatter";
+import { formatParseError } from "effect-http/internal/formatParseError";
 
 const expectError = <E>(self: Either.Either<E, unknown>): E =>
   Either.match(self, {
@@ -11,11 +11,7 @@ const expectError = <E>(self: Either.Either<E, unknown>): E =>
   });
 
 const evaluate = (value: unknown) => (schema: Schema.Schema<any, any>) =>
-  pipe(
-    Schema.parseEither(schema)(value),
-    expectError,
-    defaultValidationErrorFormatterServer,
-  );
+  pipe(Schema.parseEither(schema)(value), expectError, formatParseError);
 
 describe("struct", () => {
   test("simple string", () => {
@@ -24,7 +20,7 @@ describe("struct", () => {
       evaluate({ name: 1 }),
     );
 
-    expect(errors).toEqual("name must be a string, got 1");
+    expect(errors).toEqual("name must be string, received 1");
   });
 
   test("simple number", () => {
@@ -33,7 +29,7 @@ describe("struct", () => {
       evaluate({ name: "name", id: "id" }),
     );
 
-    expect(errors).toEqual('id must be a number, got "id"');
+    expect(errors).toEqual('id must be number, received "id"');
   });
 
   test("missing", () => {
@@ -57,7 +53,7 @@ describe("struct", () => {
       }),
     );
 
-    expect(errors).toEqual('users.[1].value must be a string, got {"x":1}');
+    expect(errors).toEqual('users.[1].value must be string, received {"x":1}');
   });
 
   test("union", () => {
@@ -77,7 +73,7 @@ describe("struct", () => {
     );
 
     expect(errors).toEqual(
-      'users.[0].value must be one of 1 or "zdar", got "patrik"',
+      'users.[0].value must be 1 or "zdar", received "patrik"',
     );
   });
 });
@@ -99,6 +95,6 @@ test("pattern", () => {
   );
 
   expect(errors).toEqual(
-    'users.[0].value must be a string matching the pattern ^[a-zA-Z]{2}$, got "abc"',
+    'users.[0].value must be a string matching the pattern ^[a-zA-Z]{2}$, received "abc"',
   );
 });

@@ -1,11 +1,13 @@
+import { runMain } from "@effect/platform-node/Runtime";
 import * as Schema from "@effect/schema/Schema";
 import { Effect, pipe } from "effect";
-import * as Http from "effect-http";
-import * as Api from "effect-http";
+import { Api, NodeServer, RouterBuilder } from "effect-http";
+
+import { debugLogger } from "./_utils";
 
 const api = pipe(
-  Http.api(),
-  Http.post("hello", "/hello", {
+  Api.api(),
+  Api.post("hello", "/hello", {
     response: [
       {
         status: 201,
@@ -37,20 +39,21 @@ const api = pipe(
   }),
 );
 
-const server = pipe(
-  Http.server(api),
-  Http.handle("hello", ({ ResponseUtil }) =>
-    Effect.succeed(
-      ResponseUtil.response200({ content: 12, headers: { "my-header": 69 } }),
-    ),
+const app = pipe(
+  RouterBuilder.make(api),
+  RouterBuilder.handle("hello", () =>
+    Effect.succeed({
+      content: 12,
+      headers: { "my-header": 69 },
+      status: 201 as const,
+    }),
   ),
+  RouterBuilder.build,
 );
 
-const HelloResponseUtil = Http.responseUtil(Api.getEndpoint(api, "hello"));
-const response200 = HelloResponseUtil.response200({
-  headers: { "my-header": 12 },
-  content: 12,
-});
-console.log(response200);
-
-pipe(server, Http.listen({ port: 3000 }), Effect.runPromise);
+pipe(
+  app,
+  NodeServer.listen({ port: 3000 }),
+  Effect.provide(debugLogger),
+  runMain,
+);

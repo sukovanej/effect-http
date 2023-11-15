@@ -10,28 +10,22 @@
  */
 import type * as OpenApi from "schema-openapi";
 
-import { Schema } from "@effect/schema";
-import {
-  Equivalence,
-  HashSet,
-  Order,
-  Pipeable,
-  ReadonlyArray,
-  Types,
-  pipe,
-} from "effect";
-import {
-  AnySchema,
-  getSchemaPropertySignatures,
-  isArray,
-} from "effect-http/internal/utils";
+import * as Schema from "@effect/schema/Schema";
+import * as utils from "effect-http/internal/utils";
+import * as Equivalence from "effect/Equivalence";
+import { pipe } from "effect/Function";
+import * as HashSet from "effect/HashSet";
+import * as Order from "effect/Order";
+import * as Pipeable from "effect/Pipeable";
+import * as ReadonlyArray from "effect/ReadonlyArray";
+import type * as Types from "effect/Types";
 
 /** Headers are case-insensitive, internally we deal with them as lowercase
  *  because that's how express deal with them.
  *
  *  @internal
  */
-export const fieldsToLowerCase = (s: AnySchema) => {
+export const fieldsToLowerCase = (s: utils.AnySchema) => {
   const ast = s.ast;
 
   if (ast._tag !== "TypeLiteral") {
@@ -68,7 +62,7 @@ const createSchemasFromInput = <I extends InputEndpointSchemas>({
   ({
     response: Schema.isSchema(response)
       ? response
-      : composeResponseSchema(isArray(response) ? response : [response]),
+      : composeResponseSchema(utils.isArray(response) ? response : [response]),
     request: {
       query: request?.query ?? IgnoredSchemaId,
       params: request?.params ?? IgnoredSchemaId,
@@ -79,20 +73,26 @@ const createSchemasFromInput = <I extends InputEndpointSchemas>({
     },
   }) as CreateEndpointSchemasFromInput<I>;
 
+/** @internal */
 const tupleOrder = Order.tuple(Order.string, Order.boolean);
+
+/** @internal */
 const tupleEquivalence = Equivalence.tuple(
   Equivalence.string,
   Equivalence.boolean,
 );
+
+/** @internal */
 const arrayOfTupleEquals = ReadonlyArray.getEquivalence(tupleEquivalence);
 
+/** @internal */
 const checkPathPatternMatchesSchema = (
   id: string,
   path: string,
-  schema?: AnySchema,
+  schema?: utils.AnySchema,
 ) => {
   const fromSchema = pipe(
-    schema === undefined ? [] : getSchemaPropertySignatures(schema),
+    schema === undefined ? [] : utils.getSchemaPropertySignatures(schema),
     ReadonlyArray.fromIterable,
     ReadonlyArray.map((ps) => [ps.name as string, ps.isOptional] as const),
     ReadonlyArray.sort(tupleOrder),
@@ -136,7 +136,7 @@ export const endpoint =
     }
 
     if (
-      isArray(schemas.response) &&
+      utils.isArray(schemas.response) &&
       HashSet.size(
         HashSet.make(...schemas.response.map(({ status }) => status)),
       ) !== schemas.response.length
@@ -157,7 +157,14 @@ export const endpoint =
       ...options,
     };
 
-    return { ...api, endpoints: [...api.endpoints, newEndpoint] } as any;
+    if (isApi(api)) {
+      return new ApiImpl([...api.endpoints, newEndpoint], api.options) as any;
+    }
+
+    return new ApiGroupImpl(
+      [...api.endpoints, newEndpoint],
+      api.groupName,
+    ) as any;
   };
 
 /**
@@ -165,12 +172,15 @@ export const endpoint =
  * @since 1.0.0
  */
 export interface EndpointSchemas {
-  response: AnySchema | ResponseSchemaFull | readonly ResponseSchemaFull[];
+  response:
+    | utils.AnySchema
+    | ResponseSchemaFull
+    | readonly ResponseSchemaFull[];
   request: {
-    query: AnySchema | IgnoredSchemaId;
-    params: AnySchema | IgnoredSchemaId;
-    body: AnySchema | IgnoredSchemaId;
-    headers: AnySchema | IgnoredSchemaId;
+    query: utils.AnySchema | IgnoredSchemaId;
+    params: utils.AnySchema | IgnoredSchemaId;
+    body: utils.AnySchema | IgnoredSchemaId;
+    headers: utils.AnySchema | IgnoredSchemaId;
   };
 }
 
@@ -188,10 +198,23 @@ export interface Endpoint {
 }
 
 /**
+ * @since 1.0.0
+ * @category type id
+ */
+export const ApiTypeId: unique symbol = Symbol.for("effect-http/Api/ApiTypeId");
+
+/**
+ * @since 1.0.0
+ * @category type id
+ */
+export type ApiTypeId = typeof ApiTypeId;
+
+/**
  * @category models
  * @since 1.0.0
  */
 export interface Api<E extends Endpoint = Endpoint> extends Pipeable.Pipeable {
+  [ApiTypeId]: ApiTypeId;
   endpoints: E[];
   options: {
     title: string;
@@ -200,14 +223,43 @@ export interface Api<E extends Endpoint = Endpoint> extends Pipeable.Pipeable {
 }
 
 /**
+ * @since 1.0.0
+ * @category type id
+ */
+export const ApiGroupTypeId: unique symbol = Symbol.for(
+  "effect-http/Api/ApiGroupTypeId",
+);
+
+/**
+ * @since 1.0.0
+ * @category type id
+ */
+export type ApiGroupTypeId = typeof ApiGroupTypeId;
+
+/**
+ * @category refinements
+ * @since 1.0.0
+ */
+export const isApi = (u: unknown): u is Api<any> =>
+  typeof u === "object" && u !== null && ApiTypeId in u;
+
+/**
  * @category models
  * @since 1.0.0
  */
 export interface ApiGroup<E extends Endpoint = Endpoint>
   extends Pipeable.Pipeable {
+  [ApiGroupTypeId]: ApiGroupTypeId;
   endpoints: E[];
   groupName: string;
 }
+
+/**
+ * @category refinements
+ * @since 1.0.0
+ */
+export const isApiGroup = (u: unknown): u is ApiGroup<any> =>
+  typeof u === "object" && u !== null && ApiGroupTypeId in u;
 
 /**
  * @category models
@@ -225,12 +277,12 @@ export interface InputEndpointSchemas {
   response:
     | InputResponseSchemaFull
     | readonly InputResponseSchemaFull[]
-    | AnySchema;
+    | utils.AnySchema;
   request?: {
-    query?: AnySchema;
-    params?: AnySchema;
-    body?: AnySchema;
-    headers?: AnySchema;
+    query?: utils.AnySchema;
+    params?: utils.AnySchema;
+    body?: utils.AnySchema;
+    headers?: utils.AnySchema;
   };
 }
 
@@ -244,17 +296,8 @@ const DEFAULT_OPTIONS: Api["options"] = {
  * @category constructors
  * @since 1.0.0
  */
-export const api = (options?: Partial<Api["options"]>): Api<never> => ({
-  options: {
-    ...DEFAULT_OPTIONS,
-    ...options,
-  },
-  endpoints: [],
-  pipe() {
-    // eslint-disable-next-line prefer-rest-params
-    return Pipeable.pipeArguments(this, arguments);
-  },
-});
+export const api = (options?: Partial<Api["options"]>): Api<never> =>
+  new ApiImpl([], { ...DEFAULT_OPTIONS, ...options });
 
 /**
  * @category models
@@ -328,14 +371,8 @@ export const options: EndpointSetter = endpoint("options");
  * @category constructors
  * @since 1.0.0
  */
-export const apiGroup = (groupName: string): ApiGroup<never> => ({
-  endpoints: [],
-  groupName,
-  pipe() {
-    // eslint-disable-next-line prefer-rest-params
-    return Pipeable.pipeArguments(this, arguments);
-  },
-});
+export const apiGroup = (groupName: string): ApiGroup<never> =>
+  new ApiGroupImpl([], groupName);
 
 /**
  * Merge the Api `Group` with an `Api`
@@ -356,16 +393,13 @@ export const addGroup =
       );
     }
 
-    return {
-      ...api,
-      endpoints: [...api.endpoints, ...apiGroup.endpoints],
-    };
+    return new ApiImpl([...api.endpoints, ...apiGroup.endpoints], api.options);
   };
 
-const _FormData = Schema.instanceOf(FormData, {
-  jsonSchema: { type: "string" },
-  description: "Multipart form data",
-});
+const _FormData = Schema.instanceOf(FormData).pipe(
+  Schema.jsonSchema({ type: "string" }),
+  Schema.description("Multipart form data"),
+);
 
 export {
   /**
@@ -400,8 +434,8 @@ type AddEndpoint<
 > = A extends Api<infer E>
   ? Api<E | Types.Simplify<CreateEndpointFromInput<Id, Schemas>>>
   : A extends ApiGroup<infer E>
-  ? ApiGroup<E | Types.Simplify<CreateEndpointFromInput<Id, Schemas>>>
-  : never;
+    ? ApiGroup<E | Types.Simplify<CreateEndpointFromInput<Id, Schemas>>>
+    : never;
 
 /** @ignore */
 export const IgnoredSchemaId = Symbol("effect-http/ignore-schema-id");
@@ -411,13 +445,13 @@ export type IgnoredSchemaId = typeof IgnoredSchemaId;
 
 /** @ignore */
 type ResponseSchemaFromInput<S extends InputEndpointSchemas["response"]> =
-  S extends AnySchema
+  S extends utils.AnySchema
     ? S
     : S extends readonly InputResponseSchemaFull[]
-    ? ComputeEndpointResponseFull<S>
-    : S extends InputResponseSchemaFull
-    ? ResponseSchemaFullFromInput<S>
-    : never;
+      ? ComputeEndpointResponseFull<S>
+      : S extends InputResponseSchemaFull
+        ? ResponseSchemaFullFromInput<S>
+        : never;
 
 type GetOptional<
   A extends Record<string, unknown> | undefined,
@@ -444,7 +478,7 @@ export type CreateEndpointSchemasFromInput<I extends InputEndpointSchemas> =
 
 /** @ignore */
 type UndefinedToIgnoredSchema<S extends unknown | undefined> =
-  S extends AnySchema ? S : IgnoredSchemaId;
+  S extends utils.AnySchema ? S : IgnoredSchemaId;
 
 /** @ignore */
 type UndefinedToIgnoredSchemaLowercased<S extends unknown | undefined> =
@@ -482,15 +516,15 @@ type ResponseSchemaFullFromInput<R extends InputResponseSchemaFull> = {
 /** @ignore */
 export interface ResponseSchemaFull {
   status: number;
-  content: AnySchema | IgnoredSchemaId;
-  headers: AnySchema | IgnoredSchemaId;
+  content: utils.AnySchema | IgnoredSchemaId;
+  headers: utils.AnySchema | IgnoredSchemaId;
 }
 
 /** @ignore */
 export interface InputResponseSchemaFull {
   status: number;
-  content?: AnySchema;
-  headers?: AnySchema;
+  content?: utils.AnySchema;
+  headers?: utils.AnySchema;
 }
 
 /**
@@ -513,3 +547,37 @@ export const getEndpoint = <
 
   return endpoint as any;
 };
+
+/** @internal */
+class ApiImpl<Endpoints extends Endpoint> implements Api<Endpoints> {
+  readonly [ApiTypeId]: ApiTypeId;
+
+  constructor(
+    readonly endpoints: Endpoints[],
+    readonly options: Api["options"],
+  ) {
+    this[ApiTypeId] = ApiTypeId;
+  }
+
+  pipe() {
+    // eslint-disable-next-line prefer-rest-params
+    return Pipeable.pipeArguments(this, arguments);
+  }
+}
+
+/** @internal */
+class ApiGroupImpl<Endpoints extends Endpoint> implements ApiGroup<Endpoints> {
+  readonly [ApiGroupTypeId]: ApiGroupTypeId;
+
+  constructor(
+    readonly endpoints: Endpoints[],
+    readonly groupName: string,
+  ) {
+    this[ApiGroupTypeId] = ApiGroupTypeId;
+  }
+
+  pipe() {
+    // eslint-disable-next-line prefer-rest-params
+    return Pipeable.pipeArguments(this, arguments);
+  }
+}

@@ -1,6 +1,9 @@
+import { runMain } from "@effect/platform-node/Runtime";
 import * as Schema from "@effect/schema/Schema";
 import { Effect, pipe } from "effect";
-import * as Http from "effect-http";
+import { Api, NodeServer, RouterBuilder } from "effect-http";
+
+import { debugLogger } from "./_utils";
 
 const responseSchema = pipe(
   Schema.struct({
@@ -14,8 +17,8 @@ const querySchema = Schema.struct({
 });
 
 const api = pipe(
-  Http.api({ title: "Users API" }),
-  Http.get(
+  Api.api({ title: "Users API" }),
+  Api.get(
     "getUser",
     "/user",
     {
@@ -28,13 +31,17 @@ const api = pipe(
   ),
 );
 
-const server = pipe(
-  api,
-  Http.server,
-  Http.handle("getUser", ({ query }) =>
+const app = pipe(
+  RouterBuilder.make(api),
+  RouterBuilder.handle("getUser", ({ query }) =>
     Effect.succeed({ name: "mike", id: query.id }),
   ),
-  Http.exhaustive,
+  RouterBuilder.build,
 );
 
-pipe(server, Http.listen({ port: 3000 }), Effect.runPromise);
+pipe(
+  app,
+  NodeServer.listen({ port: 3000 }),
+  Effect.provide(debugLogger),
+  runMain,
+);

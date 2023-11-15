@@ -40,8 +40,16 @@ Added in v1.0.0
   - [EndpointOptions (interface)](#endpointoptions-interface)
   - [EndpointSchemas (interface)](#endpointschemas-interface)
   - [InputEndpointSchemas (interface)](#inputendpointschemas-interface)
+- [refinements](#refinements)
+  - [isApi](#isapi)
+  - [isApiGroup](#isapigroup)
 - [schemas](#schemas)
   - [FormData](#formdata)
+- [type id](#type-id)
+  - [ApiGroupTypeId](#apigrouptypeid)
+  - [ApiGroupTypeId (type alias)](#apigrouptypeid-type-alias)
+  - [ApiTypeId](#apitypeid)
+  - [ApiTypeId (type alias)](#apitypeid-type-alias)
 - [utils](#utils)
   - [getEndpoint](#getendpoint)
 
@@ -70,7 +78,7 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-export declare const api: (options?: Partial<Api['options']>) => Api<never>
+export declare const api: (options?: Partial<Api["options"]>) => Api<never>
 ```
 
 Added in v1.0.0
@@ -177,6 +185,7 @@ Added in v1.0.0
 
 ```ts
 export interface Api<E extends Endpoint = Endpoint> extends Pipeable.Pipeable {
+  [ApiTypeId]: ApiTypeId
   endpoints: E[]
   options: {
     title: string
@@ -193,6 +202,7 @@ Added in v1.0.0
 
 ```ts
 export interface ApiGroup<E extends Endpoint = Endpoint> extends Pipeable.Pipeable {
+  [ApiGroupTypeId]: ApiGroupTypeId
   endpoints: E[]
   groupName: string
 }
@@ -265,6 +275,28 @@ export interface InputEndpointSchemas {
 
 Added in v1.0.0
 
+# refinements
+
+## isApi
+
+**Signature**
+
+```ts
+export declare const isApi: (u: unknown) => u is Api<any>
+```
+
+Added in v1.0.0
+
+## isApiGroup
+
+**Signature**
+
+```ts
+export declare const isApiGroup: (u: unknown) => u is ApiGroup<any>
+```
+
+Added in v1.0.0
+
 # schemas
 
 ## FormData
@@ -279,6 +311,48 @@ export declare const FormData: Schema.Schema<FormData, FormData>
 
 Added in v1.0.0
 
+# type id
+
+## ApiGroupTypeId
+
+**Signature**
+
+```ts
+export declare const ApiGroupTypeId: typeof ApiGroupTypeId
+```
+
+Added in v1.0.0
+
+## ApiGroupTypeId (type alias)
+
+**Signature**
+
+```ts
+export type ApiGroupTypeId = typeof ApiGroupTypeId
+```
+
+Added in v1.0.0
+
+## ApiTypeId
+
+**Signature**
+
+```ts
+export declare const ApiTypeId: typeof ApiTypeId
+```
+
+Added in v1.0.0
+
+## ApiTypeId (type alias)
+
+**Signature**
+
+```ts
+export type ApiTypeId = typeof ApiTypeId
+```
+
+Added in v1.0.0
+
 # utils
 
 ## getEndpoint
@@ -286,10 +360,10 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-export declare const getEndpoint: <A extends Api<Endpoint>, Id extends A['endpoints'][number]['id']>(
+export declare const getEndpoint: <A extends Api<Endpoint>, Id extends A["endpoints"][number]["id"]>(
   api: A,
   id: Id
-) => Extract<A['endpoints'][number], { id: Id }>
+) => Extract<A["endpoints"][number], { id: Id }>
 ```
 
 Added in v1.0.0

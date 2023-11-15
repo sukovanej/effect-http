@@ -1,6 +1,6 @@
 ---
 title: Testing.ts
-nav_order: 16
+nav_order: 14
 parent: Modules
 ---
 
@@ -15,31 +15,32 @@ Added in v1.0.0
 <h2 class="text-delta">Table of contents</h2>
 
 - [constructors](#constructors)
-  - [testingClient](#testingclient)
+  - [make](#make)
 
 ---
 
 # constructors
 
-## testingClient
+## make
 
-Create a testing client for the `Server`. It generates a similar interface
-as the `Http.client` but instead of remote Http calls it performs direct
-handler invocations and returns a `Response` object.
-
-All the validations and `Request` / `Response` conversions are actually
-triggered, the network part is bypassed.
-
-Server dependencies are propagated to the `Effect` context. Thus, if your
-server implementation involves the usage of services, you need to
-satisfy the conctract in your tests.
+Create a testing client for the `Server`.
 
 **Signature**
 
 ```ts
-export declare const testingClient: <R, A extends Api<Endpoint>>(
-  serverBuilder: ServerBuilder<R, never, A>
-) => TestingClient<R, A>
+export declare const make: <R, E, Endpoints extends Api.Endpoint>(
+  app: App.Default<R | SwaggerRouter.SwaggerFiles, E>,
+  api: Api.Api<Endpoints>,
+  options?: Partial<Client.Options>
+) => Effect.Effect<
+  | Scope.Scope
+  | Exclude<
+      Exclude<Exclude<R, ServerRequest.ServerRequest>, PlatformNodeServer.Server | Platform.Platform>,
+      SwaggerRouter.SwaggerFiles
+    >,
+  never,
+  Client.Client<Endpoints>
+>
 ```
 
 Added in v1.0.0

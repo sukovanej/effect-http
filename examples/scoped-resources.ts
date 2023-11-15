@@ -1,6 +1,9 @@
+import { runMain } from "@effect/platform-node/Runtime";
 import * as Schema from "@effect/schema/Schema";
 import { Context, Effect, pipe } from "effect";
-import * as Http from "effect-http";
+import { Api, NodeServer, RouterBuilder } from "effect-http";
+
+import { debugLogger } from "./_utils";
 
 interface Resource {
   value: number;
@@ -17,21 +20,23 @@ const resource = Effect.acquireRelease(
 );
 
 const api = pipe(
-  Http.api(),
-  Http.get("test", "/test", { response: Schema.string }),
+  Api.api(),
+  Api.get("test", "/test", { response: Schema.string }),
 );
 
-const server = pipe(
-  Http.server(api),
-  Http.handle("test", () =>
+const app = pipe(
+  RouterBuilder.make(api),
+  RouterBuilder.handle("test", () =>
     Effect.map(ResourceService, ({ value }) => `There you go: ${value}`),
   ),
+  RouterBuilder.build,
 );
 
 pipe(
-  server,
-  Http.listen({ port: 3000 }),
+  app,
+  NodeServer.listen({ port: 3000 }),
   Effect.provideServiceEffect(ResourceService, resource),
   Effect.scoped,
-  Effect.runPromise,
+  Effect.provide(debugLogger),
+  runMain,
 );

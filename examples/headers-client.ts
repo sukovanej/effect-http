@@ -1,21 +1,29 @@
+import { Schema } from "@effect/schema";
 import { Effect, ReadonlyArray, pipe } from "effect";
-import * as Http from "effect-http";
-
-import { api } from "../examples/headers";
+import { Api, Client } from "effect-http";
 
 // Example client triggering the API from `examples/headers.ts`
 // Running the script call the `/hello` endpoint 1000k times
 
-const client = Http.client(api, new URL("http://localhost:3000"));
-
-pipe(
-  Effect.all(
-    pipe(
-      client.hello({ body: { value: 1 }, headers: { "x-client-id": "abc" } }),
-      Effect.flatMap((r) => Effect.logInfo(`Success ${r}`)),
-      Effect.catchAll((e) => Effect.logInfo(`Error ${JSON.stringify(e)}`)),
-      ReadonlyArray.replicate(1000000),
-    ),
-  ),
-  Effect.runPromise,
+export const api = pipe(
+  Api.api(),
+  Api.post("hello", "/hello", {
+    response: Schema.string,
+    request: {
+      body: Schema.struct({ value: Schema.number }),
+      headers: Schema.struct({ "X-Client-Id": Schema.string }),
+    },
+  }),
 );
+
+const client = Client.make(api, {
+  baseUrl: new URL("http://localhost:3000"),
+});
+
+Effect.all(
+  client.hello({ body: { value: 1 }, headers: { "x-client-id": "abc" } }).pipe(
+    Effect.flatMap((r) => Effect.logInfo(`Success ${r}`)),
+    Effect.catchAll((e) => Effect.logInfo(`Error ${JSON.stringify(e)}`)),
+    ReadonlyArray.replicate(1000000),
+  ),
+).pipe(Effect.runPromise);

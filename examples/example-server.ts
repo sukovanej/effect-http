@@ -1,6 +1,7 @@
-import * as Schema from "@effect/schema/Schema";
+import { runMain } from "@effect/platform-node/Runtime";
+import { Schema } from "@effect/schema";
 import { Effect, pipe } from "effect";
-import * as Http from "effect-http";
+import { Api, ExampleServer, NodeServer, RouterBuilder } from "effect-http";
 
 import { debugLogger } from "./_utils";
 
@@ -10,14 +11,14 @@ const responseSchema = Schema.struct({
 });
 
 const api = pipe(
-  Http.api(),
-  Http.get("test", "/test", { response: responseSchema }),
+  Api.api(),
+  Api.get("test", "/test", { response: responseSchema }),
 );
 
 pipe(
-  api,
-  Http.exampleServer,
-  Http.listen({ port: 3000 }),
+  ExampleServer.make(api),
+  RouterBuilder.build,
+  NodeServer.listen({ port: 3000 }),
   Effect.provide(debugLogger),
-  Effect.runPromise,
+  runMain,
 );

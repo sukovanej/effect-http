@@ -2,7 +2,8 @@
 
 ![download badge](https://img.shields.io/npm/dm/effect-http.svg)
 
-High-level declarative HTTP API for [effect-ts](https://github.com/Effect-TS).
+High-level declarative HTTP library for [Effect-TS](https://github.com/Effect-TS) built on top of
+[@effect/platform](https://github.com/effect-ts/platform).
 
 - :star: **Client derivation**. Write the api specification once, get the type-safe client with runtime validation for free.
 - :rainbow: **OpenAPI derivation**. `/docs` endpoint with OpenAPI UI out of box.
@@ -26,73 +27,72 @@ breaking changes and the internals and the public API are still evolving and cha
   - [Reporting errors in handlers](#reporting-errors-in-handlers)
   - [Example API with conflict API error](#example-api-with-conflict-api-error)
 - [Grouping endpoints](#grouping-endpoints)
-- [Incremental adoption into existing express app](#incremental-adoption-into-existing-express-app)
-- [Cookbook](#cookbook)
-  - [Handler input type derivation](#handler-input-type-derivation)
-  - [Descriptions in OpenApi](#descriptions-in-openapi)
+- [Descriptions in OpenApi](#descriptions-in-openapi)
 - [API on the client side](#api-on-the-client-side)
   - [Example server](#example-server)
   - [Mock client](#mock-client)
   - [Common headers](#common-headers)
-- [Extensions](#extensions)
 - [Compatibility](#compatibility)
 
 Install together with `effect` using
 
 ```bash
-pnpm add effect effect-http
+pnpm add effect effect-http @effect/platform-node
 ```
 
 Bootstrap a simple API specification.
 
 ```typescript
-import * as Schema from "@effect/schema/Schema";
+import { Schema } from "@effect/schema";
 import { Effect, pipe } from "effect";
+import { Api, Client, NodeServer, RouterBuilder } from "effect-http";
 
-import * as Http from "effect-http";
+const User = Schema.struct({
+  name: Schema.string,
+  id: pipe(Schema.number, Schema.int(), Schema.positive()),
+});
+const GetUserQuery = Schema.struct({ id: Schema.NumberFromString });
 
-const responseSchema = Schema.struct({ name: Schema.string });
-const query = Schema.struct({ id: Schema.number });
-
-const api = pipe(
-  Http.api({ title: "Users API" }),
-  Http.get("getUser", "/user", {
-    response: responseSchema,
-    request: { query: query },
+const api = Api.api({ title: "Users API" }).pipe(
+  Api.get("getUser", "/user", {
+    response: User,
+    request: { query: GetUserQuery },
   }),
 );
 ```
 
-Create the server implementation.
+Create the app implementation.
 
 ```typescript
-const server = pipe(
-  api,
-  Http.server,
-  Http.handle("getUser", ({ query }) => Effect.succeed({ name: "milan" })),
-  Http.exhaustive,
+const app = pipe(
+  RouterBuilder.make(api),
+  RouterBuilder.handle("getUser", ({ query }) =>
+    Effect.succeed({ name: "milan", id: query.id }),
+  ),
+  RouterBuilder.build,
 );
 ```
 
-Now, we can generate an object providing the HTTP client interface using `Http.client`.
+Now, we can generate an object providing the HTTP client interface using `Client.make`.
 
 ```typescript
-const client = Http.client(api, new URL("http://localhost:3000"));
+const client = Client.make(api, {
+  baseUrl: new URL("http://localhost:3000"),
+});
 ```
 
-And spawn the server on port 3000 and call it using the `client`.
+Spawn the server on port 3000,
 
 ```typescript
-const callServer = () =>
-  pipe(
-    client.getUser({ query: { id: 12 } }),
-    Effect.flatMap((user) => Effect.logInfo(`Got ${user.name}, nice!`)),
-  );
+app.pipe(NodeServer.listen({ port: 3000 }), runMain);
+```
 
-pipe(
-  server,
-  Http.listen({ port: 3000, onStart: callServer }),
-  Effect.runPromise,
+and call it using the `client`.
+
+```ts
+const callServer = pipe(
+  client.getUser({ query: { id: 12 } }),
+  Effect.flatMap((user) => Effect.log(`Got ${user.name}, nice!`)),
 );
 ```
 
@@ -110,25 +110,21 @@ Each endpoint can declare expectations on the request format. Specifically,
 - `params` - path parameters
 - `headers` - request headers
 
-They are specified in the input schemas object (3rd argument of `Http.get`, `Http.post`, ...).
+They are specified in the input schemas object (3rd argument of `Api.get`, `Api.post`, ...).
 
 #### Example
 
 ```typescript
-import * as Schema from "@effect/schema/Schema";
+import { Schema } from "@effect/schema";
 import { pipe } from "effect";
+import { Api } from "effect-http";
 
-import * as Http from "effect-http";
-
-export const api = pipe(
-  Http.api({ title: "My api" }),
-  Http.get("stuff", "/stuff/:param", {
+export const api = Api.api({ title: "My api" }).pipe(
+  Api.get("stuff", "/stuff/:param", {
     response: Schema.struct({ value: Schema.number }),
-    request: {
-      body: Schema.struct({ bodyField: Schema.array(Schema.string) }),
-      query: Schema.struct({ query: Schema.string }),
-      params: Schema.struct({ param: Schema.string }),
-    },
+    body: Schema.struct({ bodyField: Schema.array(Schema.string) }),
+    query: { query: Schema.string },
+    params: { param: Schema.string },
   }),
 );
 ```
@@ -144,20 +140,22 @@ In the following example the last `:another` path parameter can be
 ommited on the client side.
 
 ```typescript
-import * as Schema from "@effect/schema/Schema";
+import { Schema } from "@effect/schema";
 import { pipe } from "effect";
+import { Api } from "effect-http";
 
-import * as Http from "effect-http";
+const Stuff = Schema.struct({ value: Schema.number });
+const StuffParams = Schema.struct({
+  param: Schema.string,
+  another: Schema.optional(Schema.string),
+});
 
 export const api = pipe(
-  Http.api({ title: "My api" }),
-  Http.get("stuff", "/stuff/:param/:another?", {
-    response: Schema.struct({ value: Schema.number }),
+  Api.api({ title: "My api" }),
+  Api.get("stuff", "/stuff/:param/:another?", {
+    response: Stuff,
     request: {
-      params: Schema.struct({
-        param: Schema.string,
-        another: Schema.optional(Schema.string),
-      }),
+      params: StuffParams,
     },
   }),
 );
@@ -171,18 +169,25 @@ a mapping from header names onto their schemas. The example below shows an API w
 a single endpoint `/hello` which expects a header `X-Client-Id` to be present.
 
 ```typescript
-import * as Schema from "@effect/schema/Schema";
+import { runMain } from "@effect/platform-node/Runtime";
+import { Schema } from "@effect/schema";
+import { pipe } from "effect";
+import { Api, ExampleServer, NodeServer, RouterBuilder } from "effect-http";
 
-import * as Http from "effect-http";
-
-const api = pipe(
-  Http.api(),
-  Http.get("hello", "/hello", {
+const api = Api.api().pipe(
+  Api.get("hello", "/hello", {
     response: Schema.string,
     request: {
       headers: Schema.struct({ "X-Client-Id": Schema.string }),
     },
   }),
+);
+
+pipe(
+  ExampleServer.make(api),
+  RouterBuilder.build,
+  NodeServer.listen({ port: 3000 }),
+  runMain,
 );
 ```
 
@@ -192,7 +197,11 @@ Server implementation deals with the validation the usual way. For example, if w
 to call the endpoint without the header we will get the following error response.
 
 ```json
-{ "error": "InvalidHeadersError", "details": "x-client-id is missing" }
+{
+  "error": "Request validation error",
+  "location": "headers",
+  "message": "x-client-id is missing"
+}
 ```
 
 And as usual, the information about headers will be reflected in the generated
@@ -202,24 +211,13 @@ OpenAPI UI.
 
 **Important note**. You might have noticed the `details` field of the error response
 describes the missing header using lower-case. This is not an error but rather a
-consequence of the fact that HTTP headers are case-insensitive and internally `effect-http`
-converts all header names to lower-case to simplify integration with the underlying
-http library - [express](https://github.com/expressjs/express).
+consequence of the fact that HTTP headers are case-insensitive.
 
 Don't worry, this is also encoded into the type information and if you were to
 implement the handler, both autocompletion and type-checking would hint the
-lower-cased form of the header name.
-
-```typescript
-type Api = typeof api;
-
-const handleHello = ({
-  headers: { "x-client-id": clientId },
-}: Http.Input<Api, "hello">) => Effect.succeed("all good");
-```
-
-Take a look at [examples/headers.ts](examples/headers.ts) to see a complete example
-API implementation with in-memory rate-limiting and client identification using headers.
+lower-cased form of the header name. Take a look at [examples/headers.ts](examples/headers.ts)
+to see a complete example API implementation with in-memory rate-limiting and client
+identification using headers.
 
 ### Responses
 
@@ -231,9 +229,8 @@ schema instead. The following example will enforce (both for types and runtime)
 that returned status, content and headers conform the specified response.
 
 ```ts
-const api = pipe(
-  Http.api(),
-  Http.post("hello", "/hello", {
+const api = Api.api().pipe(
+  Api.post("hello", "/hello", {
     response: {
       status: 200,
       content: Schema.number,
@@ -246,9 +243,8 @@ const api = pipe(
 It is also possible to specify multiple full response schemas.
 
 ```ts
-const api = pipe(
-  Http.api(),
-  Http.post("hello", "/hello", {
+const api = Api.api().pipe(
+  Api.post("hello", "/hello", {
     response: [
       {
         status: 201,
@@ -271,54 +267,20 @@ const api = pipe(
 The server implemention is type-checked against the api responses
 and one of the specified response objects must be returned.
 
-The response object can be generated using a `ResponseUtil`. It is
-a derived object based on the `Api` and operation id and it provides
-methods named `response<status>` that create the response.
+Note: the `status` needs to be `as const` because without it Typescript
+will infere the `number` type.
 
 ```ts
-const server = pipe(
-  Http.server(api),
-  Http.handle("hello", ({ ResponseUtil }) =>
-    Effect.succeed(
-      ResponseUtil.response200({ headers: { "my-header": 12 }, content: 12 }),
-    ),
+const app = RouterBuilder.make(api).pipe(
+  RouterBuilder.handle("hello", () =>
+    Effect.succeed({
+      headers: { "my-header": 12 },
+      content: 12,
+      status: 200 as const,
+    }),
   ),
+  RouterBuilder.build,
 );
-```
-
-Note that one can create the response util object using `Http.responseUtil`
-if needed independently of the server implementation.
-
-```ts
-const HelloResponseUtil = Http.responseUtil(api, "hello");
-const response200 = HelloResponseUtil.response200({
-  headers: { "my-header": 12 },
-  content: 12,
-});
-```
-
-The derived client for this `Api` exposes a `hello` method that
-returns the following type.
-
-```ts
-type DerivedTypeOfHelloMethod =
-  | {
-      content: number;
-      status: 201;
-    }
-  | {
-      headers: {
-        readonly "my-header": number;
-      };
-      content: number;
-      status: 200;
-    }
-  | {
-      headers: {
-        readonly "x-another": number;
-      };
-      status: 204;
-    };
 ```
 
 ### Testing the server
@@ -326,26 +288,24 @@ type DerivedTypeOfHelloMethod =
 While most of your tests should focus on the functionality independent
 of HTTP exposure, it can be beneficial to perform integration or
 contract tests for your endpoints. The `Testing` module offers a
-`Http.testingClient` combinator that generates a testing client from
+`Testing.make` combinator that generates a testing client from
 the Server. This derived testing client has a similar interface
-to the one derived by `Http.client`, but with the distinction that
-it returns a `Response` object and bypasses the network by
-directly triggering the handlers defined in the Server.
+to the one derived by `Client.make`.
 
 Now, let's write an example test for the following server.
 
 ```ts
-const api = pipe(
-  Http.api(),
-  Http.get("hello", "/hello", {
+const api = Api.api().pipe(
+  Api.get("hello", "/hello", {
     response: Schema.string,
   }),
 );
 
-const server = pipe(
-  api,
-  Http.server,
-  Http.handle("hello", ({ query }) => Effect.succeed(`${query.input + 1}`)),
+const app = RouterBuilder.make(api).pipe(
+  RouterBuilder.handle("hello", ({ query }) =>
+    Effect.succeed(`${query.input + 1}`),
+  ),
+  RouterBUilder.build,
 );
 ```
 
@@ -353,10 +313,9 @@ The test might look as follows.
 
 ```ts
 test("test /hello endpoint", async () => {
-  const testingClient = Http.testingClient(server);
-
-  const response = await Effect.runPromise(
-    client.hello({ query: { input: 12 } }),
+  const response = await Testing.make(app, api).pipe(
+    Effect.flatMap((client) => client.hello({ query: { input: 12 } })),
+    Effect.runPromise,
   );
 
   expect(response).toEqual("13");
@@ -390,50 +349,21 @@ functions we can use in the error rail of the handler effect.
 
 ##### 4xx
 
-- 400 `Http.invalidQueryError` - _query parameters validation failed_
-- 400 `Http.invalidParamsError` - _path parameters validation failed_
-- 400 `Http.invalidBodyError` - _request body validation failed_
-- 400 `Http.invalidHeadersError` - _request headers validation failed_
-- 401 `Http.unauthorizedError` - _invalid authentication credentials_
-- 403 `Http.forbiddenError` - _authorization failure_
-- 404 `Http.notFoundError` - _cannot find the requested resource_
-- 409 `Http.conflictError` - _request conflicts with the current state of the server_
-- 415 `Http.unsupportedMediaTypeError` - _unsupported payload format_
-- 429 `Http.tooManyRequestsError` - _the user has sent too many requests in a given amount of time_
+- 400 `ServerError.badRequest` - _client make an invalid request_
+- 401 `ServerError.unauthorizedError` - _invalid authentication credentials_
+- 403 `ServerError.forbiddenError` - _authorization failure_
+- 404 `ServerError.notFoundError` - _cannot find the requested resource_
+- 409 `ServerError.conflictError` - _request conflicts with the current state of the server_
+- 415 `ServerError.unsupportedMediaTypeError` - _unsupported payload format_
+- 429 `ServerError.tooManyRequestsError` - _the user has sent too many requests in a given amount of time_
 
 ##### 5xx
 
-- 500 `Http.invalidResponseError` - _internal server error because of response validation failure_
-- 500 `Http.internalServerError` - _internal server error_
-- 501 `Http.notImplementedError` - _functionality to fulfill the request is not supported_
-- 502 `Http.badGatewayError` - _invalid response from the upstream server_
-- 503 `Http.serviceunavailableError` - _server is not ready to handle the request_
-- 504 `Http.gatewayTimeoutError` - _request timeout from the upstream server_
-
-Using these errors, `Server` runtime can generate human-readable details
-in HTTP responses and logs. Also, it can correctly decide what status code
-should be returned to the client.
-
-The formatting of `details` field of the error JSON object is abstracted using
-[Http.ValidationErrorFormatter](src/Server/ValidationErrorFormatter.ts). The
-`ValidationErrorFormatter` is a function taking a `Schema.ParseError` and returning
-its string representation. It can be overridden using layers. The following example
-will perform a direct JSON serialization of the `Schema.ParserError` to construct
-the error details.
-
-```typescript
-const myValidationErrorFormatter: Http.ValidationErrorFormatter = (error) =>
-  JSON.stringify(error);
-
-pipe(
-  server,
-  Http.listen({ port: 3000 }),
-  Effect.provide(
-    Http.setValidationErrorFormatter(myValidationErrorFormatter),
-  ),
-  Effect.runPromise,
-);
-```
+- 500 `ServerError.internalServerError` - _internal server error_
+- 501 `ServerError.notImplementedError` - _functionality to fulfill the request is not supported_
+- 502 `ServerError.badGatewayError` - _invalid response from the upstream server_
+- 503 `ServerError.serviceunavailableError` - _server is not ready to handle the request_
+- 504 `ServerError.gatewayTimeoutError` - _request timeout from the upstream server_
 
 #### Example API with conflict API error
 
@@ -441,22 +371,18 @@ Let's see it in action and implement the mentioned user management API. The
 API will look as follows.
 
 ```typescript
-import * as Schema from "@effect/schema/Schema";
+import { Schema } from "@effect/schema/Schema";
 import { Context, Effect, pipe } from "effect";
+import { Api, NodeServer, RouterBuilder, ServerError } from "effect-http";
 
-import * as Http from "effect-http";
-
-const api = pipe(
-  Http.api({ title: "Users API" }),
-  Http.post("storeUser", "/users", {
+const api = Api.api({ title: "Users API" }).pipe(
+  Api.post("storeUser", "/users", {
     response: Schema.string,
     request: {
       body: Schema.struct({ name: Schema.string }),
     },
   }),
 );
-
-type Api = typeof api;
 ```
 
 Now, let's implement a `UserRepository` interface abstracting the interaction with
@@ -478,41 +404,37 @@ const mockUserRepository = UserRepository.of({
 });
 ```
 
-And finally, we have the actual `Server` implementation.
+And finally, we have the actual `App` implementation.
 
 ```typescript
-const handleStoreUser = ({ body }: Http.Input<Api, "storeUser">) =>
-  pipe(
-    Effect.flatMap(UserRepository, (userRepository) =>
-      userRepository.existsByName(body.name),
-    ),
-    Effect.filterOrFail(
-      (alreadyExists) => !alreadyExists,
-      () => Http.conflictError(`User "${body.name}" already exists.`),
-    ),
-    Effect.flatMap(() =>
-      Effect.flatMap(UserRepository, (repository) =>
-        repository.store(body.name),
+const app = RouterBuilder.make(api).pipe(
+  RouterBuilder.handle("storeUser", ({ body }) =>
+    pipe(
+      Effect.flatMap(UserRepository, (userRepository) =>
+        userRepository.existsByName(body.name),
       ),
+      Effect.filterOrFail(
+        (alreadyExists) => !alreadyExists,
+        () => ServerError.makeText(409, `User "${body.name}" already exists.`),
+      ),
+      Effect.flatMap(() =>
+        Effect.flatMap(UserRepository, (repository) =>
+          repository.store(body.name),
+        ),
+      ),
+      Effect.map(() => `User "${body.name}" stored.`),
     ),
-    Effect.map(() => `User "${body.name}" stored.`),
-  );
-
-const server = pipe(
-  api,
-  Http.server,
-  Http.handle("storeUser", handleStoreUser),
-  Http.exhaustive,
+  ),
+  RouterBuilder.build,
 );
 ```
 
-To run the server, we will start the server using `Http.listen` and provide
+To run the server, we will start the server using `NodeServer.listen` and provide
 the `mockUserRepository` service.
 
 ```typescript
-pipe(
-  server,
-  Http.listen({ port: 3000 }),
+app.pipe(
+  NodeServer.listen({ port: 3000 }),
   Effect.provideService(UserRepository, mockUserRepository),
   Effect.runPromise,
 );
@@ -525,9 +447,9 @@ _Server_
 ```bash
 $ pnpm tsx examples/conflict-error-example.ts
 
-16:53:55 (Fiber #0) INFO  Server listening on :::3000
-16:54:14 (Fiber #8) WARN  POST /users failed
-ᐉ { "errorTag": "ConflictError", "error": "User "milan" already exists." }
+22:06:00 (Fiber #0) DEBUG Static swagger UI files loaded (1.7MB)
+22:06:00 (Fiber #0) INFO  Listening on :::3000
+22:06:01 (Fiber #8) WARN  POST /users client error 409
 ```
 
 _Client_ (using [httpie cli](https://httpie.io/cli))
@@ -544,60 +466,56 @@ ETag: W/"44-T++MIpKSqscvfSu9Ed1oobwDDXo"
 Keep-Alive: timeout=5
 X-Powered-By: Express
 
-{
-    "details": "User \"patrik\" already exists.",
-    "error": "ConflictError"
-}
+User "patrik" already exists.
 ```
 
 ### Grouping endpoints
 
-To create a new group of endpoints, use `Http.apiGroup("group name")`. This combinator
-initializes new `ApiGroup` object. You can pipe it with combinators like `Http.get`,
-`Http.post`, etc, as if were defining the `Api`. Api groups can be combined into an
-`Api` using a `Http.addGroup` combinator which merges endpoints from the group
+To create a new group of endpoints, use `Api.apiGroup("group name")`. This combinator
+initializes new `ApiGroup` object. You can pipe it with combinators like `Api.get`,
+`Api.post`, etc, as if were defining the `Api`. Api groups can be combined into an
+`Api` using a `Api.addGroup` combinator which merges endpoints from the group
 into the api in the type-safe manner while preserving group names for each endpoint.
 
 This enables separability of concers for big APIs and provides information for
 generation of tags for the OpenAPI specification.
 
 ```typescript
-import * as Schema from "@effect/schema/Schema";
-import { Effect, pipe } from "effect";
+import { runMain } from "@effect/platform-node/Runtime";
+import { Schema } from "@effect/schema";
+import { Api, ExampleServer, NodeServer, RouterBuilder } from "effect-http";
 
-import * as Http from "effect-http";
+const ExampleResponse = Schema.struct({ name: Schema.string });
 
-const responseSchema = Schema.struct({ name: Schema.string });
-
-const testApi = pipe(
-  Http.apiGroup("test"),
-  Http.get("test", "/test", { response: responseSchema }),
+const testApi = Api.apiGroup("test").pipe(
+  Api.get("test", "/test", { response: ExampleResponse }),
 );
 
-const userApi = pipe(
-  Http.apiGroup("Users"),
-  Http.get("getUser", "/user", { response: responseSchema }),
-  Http.post("storeUser", "/user", { response: responseSchema }),
-  Http.put("updateUser", "/user", { response: responseSchema }),
-  Http.delete("deleteUser", "/user", { response: responseSchema }),
+const userApi = Api.apiGroup("Users").pipe(
+  Api.get("getUser", "/user", { response: ExampleResponse }),
+  Api.post("storeUser", "/user", { response: ExampleResponse }),
+  Api.put("updateUser", "/user", { response: ExampleResponse }),
+  Api.delete("deleteUser", "/user", { response: ExampleResponse }),
 );
 
-const categoriesApi = pipe(
-  Http.apiGroup("Categories"),
-  Http.get("getCategory", "/category", { response: responseSchema }),
-  Http.post("storeCategory", "/category", { response: responseSchema }),
-  Http.put("updateCategory", "/category", { response: responseSchema }),
-  Http.delete("deleteCategory", "/category", { response: responseSchema }),
+const categoriesApi = Api.apiGroup("Categories").pipe(
+  Api.get("getCategory", "/category", { response: ExampleResponse }),
+  Api.post("storeCategory", "/category", { response: ExampleResponse }),
+  Api.put("updateCategory", "/category", { response: ExampleResponse }),
+  Api.delete("deleteCategory", "/category", { response: ExampleResponse }),
 );
 
-const api = pipe(
-  Http.api(),
-  Http.addGroup(testApi),
-  Http.addGroup(userApi),
-  Http.addGroup(categoriesApi),
+const api = Api.api().pipe(
+  Api.addGroup(testApi),
+  Api.addGroup(userApi),
+  Api.addGroup(categoriesApi),
 );
 
-pipe(api, Http.exampleServer, Http.listen({ port: 3000 }), Effect.runPromise);
+ExampleServer.make(api).pipe(
+  RouterBuilder.build,
+  NodeServer.listen({ port: 3000 }),
+  runMain,
+);
 ```
 
 _(This is a complete standalone code example)_
@@ -607,153 +525,7 @@ corresponding titles for each group.
 
 ![example-generated-open-api-ui](https://raw.githubusercontent.com/sukovanej/effect-http/master/assets/example-server-openapi-ui.png)
 
-## Incremental adoption into existing express app
-
-In `effect-http`, calling `Http.listen` under the hood performs the conversion of a
-`Server` onto an `Express` app and then it immediately triggers `listen()` on the
-generated app. This is very convenient because in the userland, you deal with the
-app creation using `Effect` and don't need to care about details of the underlying
-Express web framework.
-
-This hiding might get in a way if you decide to adopt `effect-http` into an
-existing application. Because of that, the Express app derivation is exposed
-as a public API of the `effect-http`. The exposed function is `Http.express`
-and it takes a configuration options and `Server` object (it's curried) as
-inputs and returns the generated `Express` app.
-
-As the [Express documentation](https://expressjs.com/en/guide/using-middleware.html)
-describes, _an Express application is essentially a series of middleware function calls_.
-This is perfect because if we decide to integrate an effect api into an express app,
-we can do so by simply plugging the generated app as an application-level middleware
-into the express app already in place.
-
-Let's see it in action. Suppose we have the following existing express application.
-
-```typescript
-import express from "express";
-
-const legacyApp = express();
-
-legacyApp.get("/legacy-endpoint", (_, res) => {
-  res.json({ hello: "world" });
-});
-
-app.listen(3000, () => console.log("Listening on 3000"));
-```
-
-Now, we'll create an `effect-http` api and server.
-
-```typescript
-import * as Schema from "@effect/schema/Schema";
-import { Effect, pipe } from "effect";
-
-import * as Http from "effect-http";
-
-const api = pipe(
-  Http.api(),
-  Http.get("newEndpoint", "/new-endpoint", {
-    response: Schema.struct({ hello: Schema.string }),
-  }),
-);
-
-const server = pipe(
-  Http.server(api),
-  Http.handle("newEndpoint", () => Effect.succeed({ hello: "new world" })),
-  Http.exhaustive,
-);
-```
-
-In order to _merge_ these two applications, we use the aforementioned
-`Http.express` function to convert the `server` into an Express app.
-We'll receive the `Express` app in the success rail of the `Effect`
-so we can map over it and attach the legacy app there. To start
-the application, use `Http.listenExpress()` which has the same
-signature as `Http.listen` but instead of `Http.Server` it takes
-an `Express` instance.
-
-```typescript
-pipe(
-  server,
-  Http.express({ openapiPath: "/docs-new" }),
-  Effect.map((app) => {
-    app.use(legacyApp);
-    return app;
-  }),
-  Effect.flatMap(Http.listenExpress()),
-  Effect.runPromise,
-);
-```
-
-There are some caveats we should be aware of. Middlewares and express in general
-are imperative. Middlewares that execute first can end the request-response
-cycle. Also, the `Server` doesn't have any information about the legacy express
-application and the validation, logging and OpenAPI applies only for its
-routes. That's why this approach should be generally considered a transition
-state. It's in place mainly to allow an incremental rewrite.
-
-If you already manage an OpenAPI in the express app, you can use the
-options of `Http.express` to either disable the generated OpenAPI completely
-or expose it through a different endpoint.
-
-```typescript
-// Disable the generated OpenAPI
-Http.express({ openapiEnabled: false });
-
-// Or, expose the new OpenAPI within a different route
-Http.express({ openapiPath: "/docs-new" });
-```
-
-[See the full example](examples/incremental-adoption-express.ts)
-
-## Cookbook
-
-### Handler input type derivation
-
-In non-trivial applications, it is expected the `Server` specification
-and handlers are separated. If we define schemas purely for the purpose
-of defining the `Api` we'd be forced to derive their type definitions
-only for the type-safety of `Server` handlers. Instead, `Http` provides
-the `Input` type helper which accepts a type of the `Api` and operation
-id type and produces type covering query, params and body schema type.
-
-```typescript
-import * as Schema from "@effect/schema/Schema";
-import { Effect, pipe } from "effect";
-
-import * as Http from "effect-http";
-
-const api = pipe(
-  Http.api({ title: "My api" }),
-  Http.get("stuff", "/stuff", {
-    response: Schema.string,
-    request: {
-      query: Schema.struct({ value: Schema.string }),
-    },
-  }),
-);
-
-type Api = typeof api;
-
-// Notice query has type { readonly value: string; }
-const handleStuff = ({ query }: Http.Input<Api, "stuff">) =>
-  pipe(
-    Effect.fail(Http.notFoundError("I didnt find it")),
-    Effect.tap(() => Effect.log(`Received ${query.value}`)),
-  );
-
-const server = pipe(
-  api,
-  Http.server,
-  Http.handle("stuff", handleStuff),
-  Http.exhaustive,
-);
-
-pipe(server, Http.listen({ port: 3000 }), Effect.runPromise);
-```
-
-_(This is a complete standalone code example)_
-
-### Descriptions in OpenApi
+## Descriptions in OpenApi
 
 The [schema-openapi](https://github.com/sukovanej/schema-openapi) library which is
 used for OpenApi derivation from the `Schema` takes into account
@@ -771,39 +543,49 @@ uses the schema. In the following example, the "_User_" description for the resp
 schema is used both as the schema description but also for the response itself. The
 same holds for the `id` query paremeter.
 
-For an operation-level description, call the API endpoint method (`Http.get`,
-`Http.post` etc) with a 4th argument and set the `description` field to the
+For an operation-level description, call the API endpoint method (`Api.get`,
+`Api.post` etc) with a 4th argument and set the `description` field to the
 desired description.
 
 ```ts
+import { runMain } from "@effect/platform-node/Runtime";
 import * as Schema from "@effect/schema/Schema";
-import { pipe } from "effect";
+import { Effect, pipe } from "effect";
+import { Api, NodeServer, RouterBuilder } from "effect-http";
 
-import * as Http from "effect-http";
-
-const responseSchema = pipe(
+const User = pipe(
   Schema.struct({
     name: Schema.string,
     id: pipe(Schema.number, Schema.int(), Schema.positive()),
   }),
   Schema.description("User"),
 );
-const querySchema = Schema.struct({
+const GetUserQuery = Schema.struct({
   id: pipe(Schema.NumberFromString, Schema.description("User id")),
 });
 
-const api = pipe(
-  Http.api({ title: "Users API" }),
-  Http.get(
+const api = Api.api({ title: "Users API" }).pipe(
+  Api.get(
     "getUser",
     "/user",
     {
-      response: responseSchema,
-      request: { query: querySchema },
+      response: User,
+      request: {
+        query: GetUserQuery,
+      },
     },
     { description: "Returns a User by id" },
   ),
 );
+
+const app = RouterBuilder.make(api).pipe(
+  RouterBuilder.handle("getUser", ({ query }) =>
+    Effect.succeed({ name: "mike", id: query.id }),
+  ),
+  RouterBuilder.build,
+);
+
+app.pipe(NodeServer.listen({ port: 3000 }), runMain);
 ```
 
 ## API on the client side
@@ -813,9 +595,9 @@ by developers providing the HTTP service, it is possible to use it also to
 model, use and test against someone else's API. Out of box, you can make
 us of the following combinators.
 
-- `Http.client` - client for the real integration with the API.
-- `Http.mockClient` - client for testing against the API interface.
-- `Http.exampleServer` - server implementation derivation with example responses.
+- `Client` - client for the real integration with the API.
+- `MockClient` - client for testing against the API interface.
+- `ExampleServer` - server implementation derivation with example responses.
 
 ### Example server
 
@@ -833,22 +615,27 @@ helpful in the following and probably many more cases.
   perform integration tests without the need to connect to a real
   running HTTP service.
 
-Use `Http.exampleServer` combinator to generate a `Server` from `Api`.
+Use `ExampleServer.make` combinator to generate a `RouterBuilder` from an `Api`.
 
 ```typescript
-import * as Schema from "@effect/schema/Schema";
+import { runMain } from "@effect/platform-node/Runtime";
+import { Schema } from "@effect/schema";
 import { Effect, pipe } from "effect";
+import { Api, ExampleServer, NodeServer, RouterBuilder } from "effect-http";
 
-import * as Http from "effect-http";
+const MyResponse = Schema.struct({
+  name: Schema.string,
+  value: Schema.number,
+});
 
-const responseSchema = Schema.struct({ name: Schema.string });
+const api = Api.api().pipe(Api.get("test", "/test", { response: MyResponse }));
 
-const api = pipe(
-  Http.api(),
-  Http.get("test", "/test", { response: responseSchema }),
+pipe(
+  ExampleServer.make(api),
+  RouterBuilder.build,
+  NodeServer.listen({ port: 3000 }),
+  runMain,
 );
-
-pipe(api, Http.exampleServer, Http.listen({ port: 3000 }), Effect.runPromise);
 ```
 
 _(This is a complete standalone code example)_
@@ -866,24 +653,22 @@ with `/get-value` endpoint returning a number. We can model such
 API as follows.
 
 ```typescript
-import * as Schema from "@effect/schema/Schema";
+import { Schema } from "@effect/schema";
 import { pipe } from "effect";
+import { Api } from "effect-http";
 
-import * as Http from "effect-http";
-
-const api = pipe(
-  Http.api(),
-  Http.get("getValue", "/get-value", { response: Schema.number }),
+const api = Api.api().pipe(
+  Api.get("getValue", "/get-value", { response: Schema.number }),
 );
 ```
 
 In a real environment, we will probably use the derived client
-using `Http.client`. But for tests, we probably want a dummy
+using `MockClient.make`. But for tests, we probably want a dummy
 client which will return values conforming the API. For such
 a use-case, we can derive a mock client.
 
 ```typescript
-const client = pipe(api, Http.mockClient());
+const client = MockClient.make(api);
 ```
 
 Calling `getValue` on the client will perform the same client-side
@@ -894,139 +679,7 @@ using the option argument. The following client will always
 return number `12` when calling the `getValue` operation.
 
 ```typescript
-const client = pipe(api, Http.mockClient({ responses: { getValue: 12 } }));
-```
-
-### Common headers
-
-On the client side, headers that have the same value for all request calls
-(for example `USER-AGENT`) can be configured during a client creation. Such
-headers can be completely omitted when an operation requiring these headers
-is called. Common headers can be overriden during operation call.
-
-Note that configuring common headers doesn't make them available
-for all requests. Common header will be applied only if the given
-endpoint declares it in its schema.
-
-```typescript
-import * as Schema from "@effect/schema/Schema";
-import { Effect, pipe } from "effect";
-
-import * as Http from "effect-http";
-
-const api = pipe(
-  Http.api(),
-  Http.get("test", "/test", {
-    response: Schema.struct({ name: Schema.string }),
-    request: {
-      headers: Schema.struct({ AUTHORIZATION: Schema.string }),
-    },
-  }),
-);
-
-const client = Http.client(api, new URL("http://my-url"), {
-  headers: {
-    authorization: "Basic aGVsbG8gcGF0cmlrLCBob3cgYXJlIHlvdSB0b2RheQ==",
-  },
-});
-
-// "x-my-header" can be provided to override the default but it's not necessary
-pipe(client.test(), Effect.runPromise);
-```
-
-_(This is a complete standalone code example)_
-
-## Extensions
-
-> [!warning]
-> The extension API is very experimental.
-
-Extensions allow the `Server` to be extended using effects that
-are applied for all requests. The extension API is primarly
-introduced to allow reusable implementations of authentication,
-authorization, access logging, metrics collection, etc.
-If you have a particular functionality that needs to be triggered
-for every request on the server, extensions might be the way to go.
-
-Extensions are somewhat similar to middlewares. They are represented
-as a list of functions with additional metadata and they run
-sequentially during every request handling. Contrary to middlewares,
-extensions can't arbitrarly interupt the request-response chain, they can
-only end it by failing. Also, extensions can't perform mutations of
-the request object. The following extension types are supported.
-
-- `BeforeHandlerExtension` - runs before every endpoint handler.
-- `AfterHandlerExtension` - runs after every sucessful endpoint handler.
-- `OnErrorExtension` - runs when the handling fails.
-
-Failure of extension effects is propagated as the endpoint
-error but success results of extensions are ignored. Therefore, extensions
-don't allow modifications of inputs and outputs of endpoints.
-
-There are built-in extensions in the `effect-http` in the `Extensions`
-module.
-
-| Extension                      | Description                                                                                   | Applied by default |
-| ------------------------------ | --------------------------------------------------------------------------------------------- | :----------------: |
-| `accessLogExtension`           | access logs for handled requests                                                              | :white_check_mark: |
-| `errorLogExtension`            | failed requests are logged out                                                                | :white_check_mark: |
-| `uuidLogAnnotationExtension`   | generates a UUID for every request and uses it in log annotations                             |        :x:         |
-| `endpointCallsMetricExtension` | measures how many times each endpoint was called in a `server.endpoint_calls` counter metrics |        :x:         |
-| `basicAuthExtension`           | authentication / authorization using basic auth                                               |        :x:         |
-
-In the following example, `uuid-log-annotation`, `access-log`
-and `endpoint-calls-metric` extensions are used. Collected metrics
-are accesible as raw data through the _/metrics_ endpoint.
-
-```ts
-import * as Schema from "@effect/schema/Schema";
-import { Effect, Metric, pipe } from "effect";
-
-import * as Http from "effect-http";
-
-const api = pipe(
-  Http.api({ title: "Users API" }),
-  Http.get(
-    "getUser",
-    "/user",
-    { response: Schema.string },
-    { description: "Returns a User by id" },
-  ),
-  Http.get("metrics", "/metrics", { response: Schema.any }),
-);
-
-const server = pipe(
-  api,
-  Http.server,
-  Http.handle("getUser", () => Effect.succeed("Hello")),
-  Http.handle("metrics", () => Metric.snapshot()),
-  Http.prependExtension(Http.uuidLogAnnotationExtension()),
-  Http.addExtension(Http.endpointCallsMetricExtension()),
-  Http.exhaustive,
-);
-
-pipe(server, Http.listen({ port: 3000 }), Effect.runPromise);
-```
-
-Extensions can be constructed using the following constructors.
-
-- `Http.afterHandlerExtension`
-- `Http.beforeHandlerExtension`
-- `Http.onHandlerErrorExtension`
-
-The example bellow would fail every request with the authorization error.
-
-```ts
-const myExtension = Http.beforeHandlerExtension("example-auth", () =>
-  Effect.fail(Http.unauthorizedError("sorry bro")),
-);
-
-const server = pipe(
-  api,
-  Http.server,
-  Http.addExtension(myExtension),
-  Http.exhaustive,
-);
+const client = MockClient.make(api, { responses: { getValue: 12 } });
 ```
 
 ## Compatibility

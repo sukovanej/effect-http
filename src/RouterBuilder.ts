@@ -3,12 +3,16 @@
  *
  * @since 1.0.0
  */
+import type * as App from "@effect/platform/Http/App";
 import * as Router from "@effect/platform/Http/Router";
-import * as ServerRequest from "@effect/platform/Http/ServerRequest";
-import * as Api from "effect-http/Api";
+import type * as ServerRequest from "@effect/platform/Http/ServerRequest";
+import type * as Api from "effect-http/Api";
+import * as OpenApi from "effect-http/OpenApi";
 import * as Route from "effect-http/Route";
 import * as ServerError from "effect-http/ServerError";
-import { convertMethod } from "effect-http/internal/utils";
+import * as SwaggerRouter from "effect-http/SwaggerRouter";
+import * as utils from "effect-http/internal/utils";
+import * as Effect from "effect/Effect";
 import * as Pipeable from "effect/Pipeable";
 
 /**
@@ -18,6 +22,7 @@ import * as Pipeable from "effect/Pipeable";
 export interface RouterBuilder<R, E, RemainingEndpoints extends Api.Endpoint>
   extends Pipeable.Pipeable {
   remainingEndpoints: readonly RemainingEndpoints[];
+  api: Api.Api;
   router: Router.Router<R, E>;
 }
 
@@ -32,6 +37,7 @@ export const make = <Api extends Api.Api>(
 ): RouterBuilder<never, never, Api["endpoints"][number]> => ({
   remainingEndpoints: api.endpoints,
   router: Router.empty,
+  api,
   pipe() {
     // eslint-disable-next-line prefer-rest-params
     return Pipeable.pipeArguments(this, arguments);
@@ -65,7 +71,10 @@ export const handleRaw =
     const remainingEndpoints = removeRemainingEndpoint(builder, id);
 
     const router = builder.router.pipe(
-      Router.route(convertMethod(endpoint.method))(endpoint.path, handler),
+      Router.route(utils.convertMethod(endpoint.method))(
+        endpoint.path,
+        handler,
+      ),
     );
 
     return {
@@ -101,10 +110,7 @@ export const handle =
     const endpoint = getRemainingEndpoint(builder, id);
     const remainingEndpoints = removeRemainingEndpoint(builder, id);
 
-    const router = Route.addRoute(
-      builder.router,
-      Route.fromEndpoint(fn)(endpoint),
-    );
+    const router = addRoute(builder.router, Route.fromEndpoint(fn)(endpoint));
 
     return {
       ...builder,
@@ -114,7 +120,7 @@ export const handle =
   };
 
 /**
- * Handle an endpoint using a raw `Router.Route.Handler`.
+ * Modify the `Router`.
  *
  * @category mapping
  * @since 1.0.0
@@ -125,7 +131,7 @@ export const mapRouter =
   ) =>
   (
     builder: RouterBuilder<R1, E1, RemainingEndpoints>,
-  ): RouterBuilder<R1 | R2, E1 | E2, RemainingEndpoints> => ({
+  ): RouterBuilder<R2, E2, RemainingEndpoints> => ({
     ...builder,
     router: fn(builder.router),
   });
@@ -133,12 +139,42 @@ export const mapRouter =
 /**
  * Handle an endpoint using a raw `Router.Route.Handler`.
  *
- * @category getters
+ * @category destructors
  * @since 1.0.0
  */
 export const getRouter = <R, E>(
   builder: RouterBuilder<R, E, any>,
 ): Router.Router<R, E> => builder.router;
+
+/**
+ * Create an `App` instance.
+ *
+ * @category destructors
+ * @since 1.0.0
+ */
+export const build = <R, E>(
+  builder: RouterBuilder<R, E, never>,
+): App.Default<R | SwaggerRouter.SwaggerFiles, E> => buildPartial(builder);
+
+/**
+ * Create an `App` instance.
+ *
+ * Warning: this function doesn't enforce all the endpoints are implemented and
+ * a running server might not conform the given Api spec.
+ *
+ * @category destructors
+ * @since 1.0.0
+ */
+export const buildPartial = <R, E, RemainingEndpoints extends Api.Endpoint>(
+  builder: RouterBuilder<R, E, RemainingEndpoints>,
+): App.Default<R | SwaggerRouter.SwaggerFiles, E> => {
+  const swaggerRouter = SwaggerRouter.make(OpenApi.make(builder.api));
+  return Router.concat(builder.router, swaggerRouter).pipe(
+    Effect.catchTag("RouteNotFound", () =>
+      ServerError.make(404, "Not Found").toServerResponse(),
+    ),
+  );
+};
 
 /** @internal */
 const getRemainingEndpoint = <
@@ -170,3 +206,12 @@ const removeRemainingEndpoint = <
   builder.remainingEndpoints.filter(
     (endpoint) => endpoint.id !== id,
   ) as Exclude<RemainingEndpoints, { id: Id }>[];
+
+/** @internal */
+export const addRoute = <R1, R2, E1, E2>(
+  router: Router.Router<R1, E1>,
+  route: Router.Route<R2, E2>,
+): Router.Router<
+  Exclude<R1 | R2, Router.RouteContext | ServerRequest.ServerRequest>,
+  E1 | E2
+> => Router.concat(Router.fromIterable([route]))(router) as any;

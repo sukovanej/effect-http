@@ -2,15 +2,15 @@ import { vi } from "vitest";
 
 import { Schema } from "@effect/schema";
 import { Cause, Duration, Effect, Either, Exit, Fiber, pipe } from "effect";
-import * as Http from "effect-http";
+import { Api, ExampleServer, RouterBuilder, Testing } from "effect-http";
 
 import { exampleApiGetQueryParameter } from "./examples";
-import { runTestEffect, testServer } from "./utils";
+import { runTestEffect } from "./utils";
 
 test("quickstart example e2e", async () => {
   const api = pipe(
-    Http.api(),
-    Http.get("getUser", "/user", {
+    Api.api(),
+    Api.get("getUser", "/user", {
       response: Schema.struct({ name: Schema.string }),
       request: {
         query: Schema.struct({ id: Schema.NumberFromString }),
@@ -18,17 +18,16 @@ test("quickstart example e2e", async () => {
     }),
   );
 
-  const server = pipe(
-    api,
-    Http.server,
-    Http.handle("getUser", ({ query }) =>
+  const app = pipe(
+    RouterBuilder.make(api),
+    RouterBuilder.handle("getUser", ({ query }) =>
       Effect.succeed({ name: `milan:${query.id}` }),
     ),
-    Http.exhaustive,
+    RouterBuilder.build,
   );
 
   await pipe(
-    testServer(server),
+    Testing.make(app, api),
     Effect.flatMap((client) => client.getUser({ query: { id: 12 } })),
     Effect.map((response) => {
       expect(response).toEqual({ name: "milan:12" });
@@ -37,43 +36,33 @@ test("quickstart example e2e", async () => {
   );
 });
 
-const methods = [
-  "get",
-  "put",
-  "post",
-  "delete",
-  "options",
-  "patch",
-  // "head",
-  // "trace",
-] as const;
+test.each(["get", "put", "post", "delete", "options", "patch"] as const)(
+  "Dummy call - %s",
+  async (method) => {
+    const responseSchema = Schema.struct({ name: Schema.string });
 
-test.each(methods)("Dummy call - %s", async (method) => {
-  const responseSchema = Schema.struct({ name: Schema.string });
+    const api = pipe(
+      Api.api(),
+      Api[method]("doStuff", "/stuff", {
+        response: responseSchema,
+      }),
+    );
 
-  const api = pipe(
-    Http.api(),
-    Http[method]("doStuff", "/stuff", {
-      response: responseSchema,
-    }),
-  );
+    const app = pipe(
+      RouterBuilder.make(api),
+      RouterBuilder.handle("doStuff", () => Effect.succeed({ name: "milan" })),
+      RouterBuilder.build,
+    );
 
-  const server = pipe(
-    api,
-    Http.server,
-    Http.handle("doStuff", () => Effect.succeed({ name: "milan" })),
-    Http.exhaustive,
-  );
+    const response = await pipe(
+      Testing.make(app, api),
+      Effect.flatMap((client) => client.doStuff({})),
+      runTestEffect,
+    );
 
-  await pipe(
-    testServer(server),
-    Effect.flatMap((client) => client.doStuff({})),
-    Effect.map((response) => {
-      expect(response).toEqual({ name: "milan" });
-    }),
-    runTestEffect,
-  );
-});
+    expect(response).toEqual({ name: "milan" });
+  },
+);
 
 test("All input types", async () => {
   const responseSchema = Schema.struct({
@@ -90,8 +79,8 @@ test("All input types", async () => {
   const bodySchema = Schema.struct({ helloWorld: Schema.string });
 
   const api = pipe(
-    Http.api(),
-    Http.post("doStuff", "/stuff/:operation", {
+    Api.api(),
+    Api.post("doStuff", "/stuff/:operation", {
       response: responseSchema,
       request: {
         body: bodySchema,
@@ -101,17 +90,16 @@ test("All input types", async () => {
     }),
   );
 
-  const server = pipe(
-    api,
-    Http.server,
-    Http.handle("doStuff", ({ body, query, params }) =>
+  const app = pipe(
+    RouterBuilder.make(api),
+    RouterBuilder.handle("doStuff", ({ body, query, params }) =>
       Effect.succeed({ ...body, ...query, ...params }),
     ),
-    Http.exhaustive,
+    RouterBuilder.build,
   );
 
   const result = await pipe(
-    testServer(server),
+    Testing.make(app, api),
     Effect.flatMap((client) =>
       client.doStuff({
         params: { operation: "operation" },
@@ -132,8 +120,8 @@ test("All input types", async () => {
 
 test("missing headers", async () => {
   const api = pipe(
-    Http.api(),
-    Http.get("getUser", "/user", {
+    Api.api(),
+    Api.get("getUser", "/user", {
       response: Schema.struct({ name: Schema.string }),
       request: {
         headers: Schema.struct({
@@ -144,17 +132,16 @@ test("missing headers", async () => {
     }),
   );
 
-  const server = pipe(
-    api,
-    Http.server,
-    Http.handle("getUser", ({ headers: { "x-my-header": header } }) =>
+  const app = pipe(
+    RouterBuilder.make(api),
+    RouterBuilder.handle("getUser", ({ headers: { "x-my-header": header } }) =>
       Effect.succeed({ name: `patrik ${header}` }),
     ),
-    Http.exhaustive,
+    RouterBuilder.build,
   );
 
   const result = await pipe(
-    testServer(server),
+    Testing.make(app, api),
     // @ts-expect-error
     Effect.flatMap((client) => Effect.either(client.getUser())),
     runTestEffect,
@@ -165,92 +152,26 @@ test("missing headers", async () => {
   );
 });
 
-test("common headers", async () => {
-  const api = pipe(
-    Http.api(),
-    Http.get("getUser", "/user", {
-      response: Schema.struct({ name: Schema.string }),
-      request: {
-        headers: Schema.struct({ "X-MY-HEADER": Schema.NumberFromString }),
-      },
-    }),
-    Http.post("doSomething", "/something", {
-      response: Schema.struct({ name: Schema.string }),
-      request: {
-        headers: Schema.struct({
-          "X-MY-HEADER": Schema.NumberFromString,
-          "ANOTHER-HEADER": Schema.string,
-        }),
-      },
-    }),
-  );
-
-  const server = pipe(
-    api,
-    Http.server,
-    Http.handle("getUser", ({ headers: { "x-my-header": header } }) =>
-      Effect.succeed({ name: `patrik ${header}` }),
-    ),
-    Http.handle(
-      "doSomething",
-      ({ headers: { "x-my-header": header, "another-header": another } }) =>
-        Effect.succeed({ name: `matej ${header} ${another}` }),
-    ),
-    Http.exhaustive,
-  );
-
-  const result = await pipe(
-    testServer(server, {
-      headers: { "x-my-header": 1, "another-header": "test" },
-    }),
-    Effect.flatMap((client) =>
-      Effect.all([
-        client.getUser({ headers: { "x-my-header": 2 } }),
-        client.getUser({ headers: {} }),
-        client.getUser(),
-        client.doSomething({
-          headers: { "x-my-header": 2, "another-header": "another" },
-        }),
-        client.doSomething({
-          headers: { "another-header": "another" },
-        }),
-        client.doSomething(),
-      ]),
-    ),
-    runTestEffect,
-  );
-
-  expect(result).toEqual([
-    { name: "patrik 2" },
-    { name: "patrik 1" },
-    { name: "patrik 1" },
-    { name: "matej 2 another" },
-    { name: "matej 1 another" },
-    { name: "matej 1 test" },
-  ]);
-});
-
 test("supports interruption", async () => {
   const api = pipe(
-    Http.api(),
-    Http.get("getUser", "/user", {
+    Api.api(),
+    Api.get("getUser", "/user", {
       response: Schema.struct({ name: Schema.string }),
     }),
   );
 
   const generateName = vi.fn(() => ({ name: `test` }));
 
-  const server = pipe(
-    api,
-    Http.server,
-    Http.handle("getUser", () =>
+  const app = pipe(
+    RouterBuilder.make(api),
+    RouterBuilder.handle("getUser", () =>
       Effect.delay(Effect.sync(generateName), Duration.seconds(1)),
     ),
-    Http.exhaustive,
+    RouterBuilder.build,
   );
 
   await pipe(
-    testServer(server),
+    Testing.make(app, api),
     Effect.flatMap((client) =>
       Effect.gen(function* ($) {
         const request = yield* $(Effect.fork(client.getUser()));
@@ -266,10 +187,12 @@ test("supports interruption", async () => {
 });
 
 test("validation error", async () => {
-  const server = Http.exampleServer(exampleApiGetQueryParameter);
+  const app = ExampleServer.make(exampleApiGetQueryParameter).pipe(
+    RouterBuilder.build,
+  );
 
   const result = await pipe(
-    testServer(server),
+    Testing.make(app, exampleApiGetQueryParameter),
     Effect.flatMap((client) =>
       Effect.either(client.hello({ query: { country: "abc" } })),
     ),

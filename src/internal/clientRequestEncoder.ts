@@ -1,9 +1,11 @@
-import { HttpClient } from "@effect/platform";
-import { Schema } from "@effect/schema";
-import { Effect, Predicate, identity, pipe } from "effect";
-import { Endpoint, IgnoredSchemaId } from "effect-http/Api";
+import * as ClientRequest from "@effect/platform/Http/ClientRequest";
+import * as Schema from "@effect/schema/Schema";
+import * as Api from "effect-http/Api";
 import * as ClientError from "effect-http/ClientError";
-import { convertMethod } from "effect-http/internal/utils";
+import * as utils from "effect-http/internal/utils";
+import * as Effect from "effect/Effect";
+import { identity, pipe } from "effect/Function";
+import * as Predicate from "effect/Predicate";
 
 interface ClientRequestEncoder {
   encodeRequest: (
@@ -11,7 +13,7 @@ interface ClientRequestEncoder {
   ) => Effect.Effect<
     never,
     ClientError.ClientError,
-    HttpClient.request.ClientRequest
+    ClientRequest.ClientRequest
   >;
 }
 
@@ -19,38 +21,33 @@ const make = (
   encodeRequest: ClientRequestEncoder["encodeRequest"],
 ): ClientRequestEncoder => ({ encodeRequest });
 
-export const create = (
-  baseUrl: string | URL,
-  endpoint: Endpoint,
-  commonHeaders: unknown,
-): ClientRequestEncoder => {
+export const create = (endpoint: Api.Endpoint): ClientRequestEncoder => {
   const encodeBody = createBodyEncoder(endpoint);
   const encodeQuery = createQueryEncoder(endpoint);
-  const encodeHeaders = createHeadersEncoder(endpoint, commonHeaders);
+  const encodeHeaders = createHeadersEncoder(endpoint);
   const encodeParams = createParamsEncoder(endpoint);
 
   return make((input) =>
     Effect.gen(function* (_) {
       const _input = (input || {}) as Record<string, unknown>;
 
-      const body = yield* _(encodeBody(_input['body']));
-      const query = yield* _(encodeQuery(_input['query']));
-      const params = yield* _(encodeParams(_input['params']));
-      const headers = yield* _(encodeHeaders(_input['headers']));
+      const body = yield* _(encodeBody(_input["body"]));
+      const query = yield* _(encodeQuery(_input["query"]));
+      const params = yield* _(encodeParams(_input["params"]));
+      const headers = yield* _(encodeHeaders(_input["headers"]));
 
       const path = constructPath(params || {}, endpoint.path);
-      const url = new URL(path, baseUrl);
 
       const request = pipe(
-        HttpClient.request.get(url.toString()),
-        HttpClient.request.setMethod(convertMethod(endpoint.method)),
+        ClientRequest.get(path),
+        ClientRequest.setMethod(utils.convertMethod(endpoint.method)),
         body === undefined
           ? identity
           : body instanceof FormData
-          ? HttpClient.request.formDataBody(body)
-          : HttpClient.request.unsafeJsonBody(body),
-        query ? HttpClient.request.setUrlParams(query) : identity,
-        headers ? HttpClient.request.setHeaders(headers) : identity,
+            ? ClientRequest.formDataBody(body)
+            : ClientRequest.unsafeJsonBody(body),
+        query ? ClientRequest.setUrlParams(query) : identity,
+        headers ? ClientRequest.setHeaders(headers) : identity,
       );
 
       return request;
@@ -68,10 +65,10 @@ const ignoredSchemaEncoder = (name: string) => (input: unknown) => {
   return Effect.succeed(undefined);
 };
 
-const createBodyEncoder = (endpoint: Endpoint) => {
+const createBodyEncoder = (endpoint: Api.Endpoint) => {
   const schema = endpoint.schemas.request.body;
 
-  if (schema == IgnoredSchemaId) {
+  if (schema == Api.IgnoredSchemaId) {
     return ignoredSchemaEncoder("body");
   }
 
@@ -89,10 +86,10 @@ const isRecordOrUndefined = (
 ): i is Record<string | symbol, unknown> | undefined =>
   Predicate.isRecord(i) || Predicate.isUndefined(i);
 
-const createQueryEncoder = (endpoint: Endpoint) => {
+const createQueryEncoder = (endpoint: Api.Endpoint) => {
   const schema = endpoint.schemas.request.query;
 
-  if (schema == IgnoredSchemaId) {
+  if (schema == Api.IgnoredSchemaId) {
     return ignoredSchemaEncoder("query");
   }
 
@@ -105,31 +102,27 @@ const createQueryEncoder = (endpoint: Endpoint) => {
   };
 };
 
-const createHeadersEncoder = (endpoint: Endpoint, commonHeaders: unknown) => {
+const createHeadersEncoder = (endpoint: Api.Endpoint) => {
   const schema = endpoint.schemas.request.headers;
 
-  // Is checked by the type constract
-  if (!isRecordOrUndefined(commonHeaders)) {
-    throw new Error("Common headers must be a record");
-  }
-
-  const encode = schema == IgnoredSchemaId ? undefined : Schema.encode(schema);
+  const encode =
+    schema == Api.IgnoredSchemaId ? undefined : Schema.encode(schema);
 
   return (headers: unknown) => {
     if (!isRecordOrUndefined(headers)) {
       return Effect.dieMessage("Headers must be a record");
     }
 
-    return (encode ?? Effect.succeed)({ ...commonHeaders, ...headers }).pipe(
+    return (encode ?? Effect.succeed)(headers).pipe(
       Effect.mapError(ClientError.RequestEncodeError.fromParseError("headers")),
     );
   };
 };
 
-const createParamsEncoder = (endpoint: Endpoint) => {
+const createParamsEncoder = (endpoint: Api.Endpoint) => {
   const schema = endpoint.schemas.request.params;
 
-  if (schema == IgnoredSchemaId) {
+  if (schema == Api.IgnoredSchemaId) {
     return ignoredSchemaEncoder("params");
   }
 

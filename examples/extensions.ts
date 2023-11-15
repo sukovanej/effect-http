@@ -1,33 +1,35 @@
-import * as Schema from "@effect/schema/Schema";
+import { runMain } from "@effect/platform-node/Runtime";
+import { Schema } from "@effect/schema";
 import { Effect, Metric, pipe } from "effect";
-import * as Http from "effect-http";
+import { Api, Middlewares, NodeServer, RouterBuilder } from "effect-http";
 
 import { debugLogger } from "./_utils";
 
 const api = pipe(
-  Http.api({ title: "Users API" }),
-  Http.get(
+  Api.api({ title: "Users API" }),
+  Api.get(
     "getUser",
     "/user",
     { response: Schema.string },
     { description: "Returns a User by id" },
   ),
-  Http.get("metrics", "/metrics", { response: Schema.any }),
+  Api.get("metrics", "/metrics", { response: Schema.any }),
 );
 
-const server = pipe(
-  api,
-  Http.server,
-  Http.handle("getUser", () => Effect.succeed("Hello")),
-  Http.handle("metrics", () => Metric.snapshot),
-  Http.prependExtension(Http.uuidLogAnnotationExtension()),
-  Http.addExtension(Http.endpointCallsMetricExtension()),
-  Http.exhaustive,
+const app = pipe(
+  RouterBuilder.make(api),
+  RouterBuilder.handle("getUser", () =>
+    Effect.succeed("Hello").pipe(Effect.tap(() => Effect.log("hello"))),
+  ),
+  RouterBuilder.handle("metrics", () => Metric.snapshot),
+  RouterBuilder.build,
+  Middlewares.accessLog(),
+  Middlewares.endpointCallsMetric(),
+  Middlewares.uuidLogAnnotation(),
 );
 
-pipe(
-  server,
-  Http.listen({ port: 3000 }),
+app.pipe(
+  NodeServer.listen({ port: 3000 }),
   Effect.provide(debugLogger),
-  Effect.runPromise,
+  runMain,
 );

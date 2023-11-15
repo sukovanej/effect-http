@@ -5,20 +5,20 @@
  */
 import * as OpenApi from "schema-openapi";
 
-import { Effect, pipe } from "effect";
 import type * as Api from "effect-http/Api";
 import type * as Client from "effect-http/Client";
-import { createRequestEncoder } from "effect-http/internal/utils";
-import { createResponseSchema } from "effect-http/internal/utils";
+import * as utils from "effect-http/internal/utils";
+import * as Effect from "effect/Effect";
+import { pipe } from "effect/Function";
 
 /**
  * @category models
  * @since 1.0.0
  */
-export type MockClientOptions<A extends Api.Api> = {
+export type MockClientOptions<Endpoints extends Api.Endpoint> = {
   responses: {
-    [Id in A["endpoints"][number]["id"]]: Client.ClientFunctionResponse<
-      Extract<A["endpoints"][number], { id: Id }>["schemas"]["response"]
+    [Id in Endpoints["id"]]: Client.ClientFunctionResponse<
+      Extract<Endpoints, { id: Id }>["schemas"]["response"]
     >;
   };
 };
@@ -29,34 +29,28 @@ export type MockClientOptions<A extends Api.Api> = {
  * @category constructors
  * @since 1.0.0
  */
-export const mockClient = <
-  A extends Api.Api,
-  H extends Record<string, unknown>,
->(
-  api: A,
-  option?: Partial<MockClientOptions<A> & Client.ClientOptions<H>>,
-): Client.Client<A["endpoints"][number], H> =>
-  api.endpoints.reduce(
-    (client, { id, schemas }) => {
-      const parseInputs = createRequestEncoder(schemas.request);
-      const responseSchema = createResponseSchema(schemas.response);
+export const make = <Endpoints extends Api.Endpoint>(
+  api: Api.Api<Endpoints>,
+  option?: Partial<MockClientOptions<Endpoints>>,
+): Client.Client<Endpoints> =>
+  api.endpoints.reduce((client, { id, schemas }) => {
+    const parseInputs = utils.createRequestEncoder(schemas.request);
+    const responseSchema = utils.createResponseSchema(schemas.response);
 
-      const customResponses = option?.responses;
-      const customResponse =
-        customResponses && customResponses[id as A["endpoints"][number]["id"]];
+    const customResponses = option?.responses;
+    const customResponse =
+      customResponses && customResponses[id as Endpoints["id"]];
 
-      const fn = (args: any) => {
-        return pipe(
-          parseInputs(args),
-          Effect.flatMap(() =>
-            customResponse !== undefined
-              ? Effect.succeed(customResponse)
-              : OpenApi.randomExample(responseSchema),
-          ),
-        );
-      };
+    const fn = (args: any) => {
+      return pipe(
+        parseInputs(args),
+        Effect.flatMap(() =>
+          customResponse !== undefined
+            ? Effect.succeed(customResponse)
+            : OpenApi.randomExample(responseSchema),
+        ),
+      );
+    };
 
-      return { ...client, [id]: fn };
-    },
-    {} as Client.Client<A["endpoints"][number], H>,
-  );
+    return { ...client, [id]: fn };
+  }, {} as Client.Client<Endpoints>);
