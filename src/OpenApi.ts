@@ -19,8 +19,8 @@ import { isArray } from "effect-http/internal/utils";
 export const openApi = (
   api: Api.Api,
 ): OpenApi.OpenAPISpec<OpenApi.OpenAPISchemaType> => {
-  return api.endpoints.reduce(
-    (spec, { path, method, schemas, id, groupName, description }) => {
+  const pathSpecs = api.endpoints.map(
+    ({ path, method, schemas, id, groupName, description }) => {
       const operationSpec = [];
 
       const responseSchema = schemas.response;
@@ -89,10 +89,11 @@ export const openApi = (
           OpenApi.tags(groupName),
           ...operationSpec,
         ),
-      )(spec);
+      );
     },
-    OpenApi.openAPI(api.options.title, api.options.version),
   );
+
+  return OpenApi.openAPI(api.options.title, api.options.version, ...pathSpecs);
 };
 
 /**

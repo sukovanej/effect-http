@@ -1,7 +1,7 @@
 import fs from "fs";
 
 import { Data, Effect, Layer, LogLevel, Logger, pipe } from "effect";
-import { Log } from "effect-log";
+import { PrettyLogger } from "effect-log";
 
 export interface FileNotFoundError extends Data.Case {
   readonly _tag: "FileNotFoundError";
@@ -23,6 +23,6 @@ export const readFile = (filename: string) =>
   );
 
 export const debugLogger = pipe(
-  Log.setPrettyLogger(),
+  PrettyLogger.layer(),
   Layer.merge(Logger.minimumLogLevel(LogLevel.All)),
 );

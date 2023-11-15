@@ -106,7 +106,7 @@ pipe(
   app,
   NodeServer.listen({ port: 3000 }),
   Effect.provideService(ClientsService, clients),
-  Effect.provideServiceEffect(UsagesService, Ref.make([])),
+  Effect.provideServiceEffect(UsagesService, Ref.make([] as ClientUsage[])),
   Effect.provide(debugLogger),
   runMain,
 );
