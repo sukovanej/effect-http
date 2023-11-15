@@ -1,6 +1,13 @@
+import { runMain } from "@effect/platform-node/Runtime";
 import * as Schema from "@effect/schema/Schema";
 import { Context, Effect, pipe } from "effect";
-import { Api, NodeServer, RouterBuilder, ServerError } from "effect-http";
+import {
+  Api,
+  Middlewares,
+  NodeServer,
+  RouterBuilder,
+  ServerError,
+} from "effect-http";
 
 const api = pipe(
   Api.api({ title: "Users API" }),
@@ -11,8 +18,6 @@ const api = pipe(
     },
   }),
 );
-
-type Api = typeof api;
 
 interface UserRepository {
   existsByName: (name: string) => Effect.Effect<never, never, boolean>;
@@ -26,7 +31,7 @@ const mockUserRepository = UserRepository.of({
   store: () => Effect.unit,
 });
 
-const routerBuilder = RouterBuilder.make(api).pipe(
+const app = RouterBuilder.make(api).pipe(
   RouterBuilder.handle("storeUser", ({ body }) =>
     pipe(
       Effect.flatMap(UserRepository, (userRepository) =>
@@ -44,10 +49,12 @@ const routerBuilder = RouterBuilder.make(api).pipe(
       Effect.map(() => `User "${body.name}" stored.`),
     ),
   ),
+  RouterBuilder.build,
+  Middlewares.errorLogExtension(),
 );
 
-RouterBuilder.build(routerBuilder).pipe(
+app.pipe(
   NodeServer.listen({ port: 3000 }),
   Effect.provideService(UserRepository, mockUserRepository),
-  Effect.runPromise,
+  runMain,
 );

@@ -1,4 +1,5 @@
-import * as Schema from "@effect/schema/Schema";
+import { runMain } from "@effect/platform-node/Runtime";
+import { Schema } from "@effect/schema";
 import { Effect, pipe } from "effect";
 import { Api, Client, NodeServer, RouterBuilder } from "effect-http";
 
@@ -26,25 +27,17 @@ const app = pipe(
   RouterBuilder.build,
 );
 
+app.pipe(NodeServer.listen({ port: 3000 }), runMain);
+
+// Another file
+
 const client = Client.client(api, {
   baseUrl: new URL("http://localhost:3000"),
 });
 
-const callServer = pipe(
+const program = pipe(
   client.getUser({ query: { id: 12 } }),
   Effect.flatMap((user) => Effect.log(`Got ${user.name}, nice!`)),
 );
-
-const program = Effect.gen(function* (_) {
-  const serverFiber = yield* _(
-    app,
-    NodeServer.listen({ port: 3000 }),
-    Effect.fork,
-  );
-
-  yield* _(callServer);
-
-  yield* _(Effect.interruptWith(serverFiber.id()));
-});
 
 Effect.runPromise(program);

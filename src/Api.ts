@@ -79,13 +79,19 @@ const createSchemasFromInput = <I extends InputEndpointSchemas>({
     },
   }) as CreateEndpointSchemasFromInput<I>;
 
+/** @internal */
 const tupleOrder = Order.tuple(Order.string, Order.boolean);
+
+/** @internal */
 const tupleEquivalence = Equivalence.tuple(
   Equivalence.string,
   Equivalence.boolean,
 );
+
+/** @internal */
 const arrayOfTupleEquals = ReadonlyArray.getEquivalence(tupleEquivalence);
 
+/** @internal */
 const checkPathPatternMatchesSchema = (
   id: string,
   path: string,
@@ -157,7 +163,14 @@ export const endpoint =
       ...options,
     };
 
-    return { ...api, endpoints: [...api.endpoints, newEndpoint] } as any;
+    if (isApi(api)) {
+      return new ApiImpl([...api.endpoints, newEndpoint], api.options) as any;
+    }
+
+    return new ApiGroupImpl(
+      [...api.endpoints, newEndpoint],
+      api.groupName,
+    ) as any;
   };
 
 /**
@@ -187,11 +200,16 @@ export interface Endpoint {
   description?: string;
 }
 
+export const ApiTypeId: unique symbol = Symbol.for("effect-http/Api/ApiTypeId");
+
+export type ApiTypeId = typeof ApiTypeId;
+
 /**
  * @category models
  * @since 1.0.0
  */
 export interface Api<E extends Endpoint = Endpoint> extends Pipeable.Pipeable {
+  [ApiTypeId]: ApiTypeId;
   endpoints: E[];
   options: {
     title: string;
@@ -199,15 +217,36 @@ export interface Api<E extends Endpoint = Endpoint> extends Pipeable.Pipeable {
   };
 }
 
+export const ApiGroupTypeId: unique symbol = Symbol.for(
+  "effect-http/Api/ApiGroupTypeId",
+);
+
+export type ApiGroupTypeId = typeof ApiGroupTypeId;
+
+/**
+ * @category refinements
+ * @since 1.0.0
+ */
+export const isApi = (u: unknown): u is Api<any> =>
+  typeof u === "object" && u !== null && ApiTypeId in u;
+
 /**
  * @category models
  * @since 1.0.0
  */
 export interface ApiGroup<E extends Endpoint = Endpoint>
   extends Pipeable.Pipeable {
+  [ApiGroupTypeId]: ApiGroupTypeId;
   endpoints: E[];
   groupName: string;
 }
+
+/**
+ * @category refinements
+ * @since 1.0.0
+ */
+export const isApiGroup = (u: unknown): u is ApiGroup<any> =>
+  typeof u === "object" && u !== null && ApiGroupTypeId in u;
 
 /**
  * @category models
@@ -244,17 +283,8 @@ const DEFAULT_OPTIONS: Api["options"] = {
  * @category constructors
  * @since 1.0.0
  */
-export const api = (options?: Partial<Api["options"]>): Api<never> => ({
-  options: {
-    ...DEFAULT_OPTIONS,
-    ...options,
-  },
-  endpoints: [],
-  pipe() {
-    // eslint-disable-next-line prefer-rest-params
-    return Pipeable.pipeArguments(this, arguments);
-  },
-});
+export const api = (options?: Partial<Api["options"]>): Api<never> =>
+  new ApiImpl([], { ...DEFAULT_OPTIONS, ...options });
 
 /**
  * @category models
@@ -328,14 +358,8 @@ export const options: EndpointSetter = endpoint("options");
  * @category constructors
  * @since 1.0.0
  */
-export const apiGroup = (groupName: string): ApiGroup<never> => ({
-  endpoints: [],
-  groupName,
-  pipe() {
-    // eslint-disable-next-line prefer-rest-params
-    return Pipeable.pipeArguments(this, arguments);
-  },
-});
+export const apiGroup = (groupName: string): ApiGroup<never> =>
+  new ApiGroupImpl([], groupName);
 
 /**
  * Merge the Api `Group` with an `Api`
@@ -356,10 +380,7 @@ export const addGroup =
       );
     }
 
-    return {
-      ...api,
-      endpoints: [...api.endpoints, ...apiGroup.endpoints],
-    };
+    return new ApiImpl([...api.endpoints, ...apiGroup.endpoints], api.options);
   };
 
 const _FormData = Schema.instanceOf(FormData).pipe(
@@ -513,3 +534,35 @@ export const getEndpoint = <
 
   return endpoint as any;
 };
+
+class ApiImpl<Endpoints extends Endpoint> implements Api<Endpoints> {
+  readonly [ApiTypeId]: ApiTypeId;
+
+  constructor(
+    readonly endpoints: Endpoints[],
+    readonly options: Api["options"],
+  ) {
+    this[ApiTypeId] = ApiTypeId;
+  }
+
+  pipe() {
+    // eslint-disable-next-line prefer-rest-params
+    return Pipeable.pipeArguments(this, arguments);
+  }
+}
+
+class ApiGroupImpl<Endpoints extends Endpoint> implements ApiGroup<Endpoints> {
+  readonly [ApiGroupTypeId]: ApiGroupTypeId;
+
+  constructor(
+    readonly endpoints: Endpoints[],
+    readonly groupName: string,
+  ) {
+    this[ApiGroupTypeId] = ApiGroupTypeId;
+  }
+
+  pipe() {
+    // eslint-disable-next-line prefer-rest-params
+    return Pipeable.pipeArguments(this, arguments);
+  }
+}

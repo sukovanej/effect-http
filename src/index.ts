@@ -7,11 +7,6 @@
 /**
  * @since 1.0.0
  */
-export * from "effect-http/ValidationErrorFormatter";
-
-/**
- * @since 1.0.0
- */
 export * as ClientError from "effect-http/ClientError";
 
 /**

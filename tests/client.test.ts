@@ -28,9 +28,7 @@ test("quickstart example e2e", async () => {
 
   await pipe(
     Testing.make(app, api),
-    Effect.flatMap((client) => {
-      return client.getUser({ query: { id: 12 } });
-    }),
+    Effect.flatMap((client) => client.getUser({ query: { id: 12 } })),
     Effect.map((response) => {
       expect(response).toEqual({ name: "milan:12" });
     }),

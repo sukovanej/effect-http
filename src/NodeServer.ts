@@ -13,7 +13,6 @@ import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
 import * as Scope from "effect/Scope";
 
-
 /**
  * @category models
  * @since 1.0.0

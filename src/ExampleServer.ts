@@ -32,10 +32,7 @@ export const make = <A extends Api.Api>(
     ReadonlyArray.reduce(_server, (server, endpoint) =>
       pipe(
         server,
-        RouterBuilder.handle(
-          endpoint.id,
-          createExampleHandler(endpoint),
-        ) as any,
+        RouterBuilder.handle(endpoint.id, createExampleHandler(endpoint)),
       ),
     ),
   ) as any;

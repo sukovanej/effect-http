@@ -76,6 +76,12 @@ export const isServerError = (error: unknown): error is ServerError =>
  * @category constructors
  * @since 1.0.0
  */
+export const badRequest = (body: unknown) => make(401, body);
+
+/**
+ * @category constructors
+ * @since 1.0.0
+ */
 export const unauthorizedError = (body: unknown) => make(401, body);
 
 /**
@@ -137,9 +143,3 @@ export const serviceUnavailableError = (body: unknown) => make(503, body);
  * @since 1.0.0
  */
 export const gatewayTimeoutError = (body: unknown) => make(504, body);
-
-/**
- * @category constructors
- * @since 1.0.0
- */
-export const invalidBodyError = (body: unknown) => make(400, body);

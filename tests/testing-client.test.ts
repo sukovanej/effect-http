@@ -216,11 +216,11 @@ test("form data", async () => {
         const file = body["file"];
 
         if (file === null) {
-          return yield* _(ServerError.invalidBodyError('Expected "file"'));
+          return yield* _(ServerError.badRequest('Expected "file"'));
         }
 
         if (Predicate.isString(file)) {
-          return yield* _(ServerError.invalidBodyError("Expected file"));
+          return yield* _(ServerError.badRequest("Expected file"));
         }
 
         const fs = yield* _(FileSystem.FileSystem);
