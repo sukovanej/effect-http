@@ -1,20 +1,24 @@
-import { OpenAPISpecMethodName } from "schema-openapi";
+import * as SchemaOpenApi from "schema-openapi";
 
-import { Method } from "@effect/platform/Http/Method";
-import { ParseResult, Schema } from "@effect/schema";
-import { Effect, Option, Predicate, pipe } from "effect";
-import { Endpoint, IgnoredSchemaId } from "effect-http/Api";
+import * as Method from "@effect/platform/Http/Method";
+import * as ParseResult from "@effect/schema/ParseResult";
+import * as Schema from "@effect/schema/Schema";
+import * as Api from "effect-http/Api";
 import * as ClientError from "effect-http/ClientError";
+import * as Effect from "effect/Effect";
+import { pipe } from "effect/Function";
+import * as Option from "effect/Option";
+import * as Predicate from "effect/Predicate";
 
 /** @internal */
 export const getSchema = <A = AnySchema>(
-  input: AnySchema | IgnoredSchemaId,
+  input: AnySchema | Api.IgnoredSchemaId,
   defaultSchema: AnySchema | A = Schema.unknown,
-) => (input == IgnoredSchemaId ? defaultSchema : input);
+) => (input == Api.IgnoredSchemaId ? defaultSchema : input);
 
 /** @internal */
-export const getSchemaOption = (input: AnySchema | IgnoredSchemaId) =>
-  input == IgnoredSchemaId ? Option.none() : Option.some(input);
+export const getSchemaOption = (input: AnySchema | Api.IgnoredSchemaId) =>
+  input == Api.IgnoredSchemaId ? Option.none() : Option.some(input);
 
 /** @internal */
 export const isArray = (input: unknown): input is readonly any[] =>
@@ -25,7 +29,7 @@ export type SchemaTo<S> = S extends Schema.Schema<any, infer A> ? A : never;
 
 /** @internal */
 export const createResponseSchema = (
-  responseSchema: Endpoint["schemas"]["response"],
+  responseSchema: Api.Endpoint["schemas"]["response"],
 ) => {
   if (Schema.isSchema(responseSchema)) {
     return responseSchema;
@@ -53,13 +57,13 @@ const parse = <A, E>(
   onError: (error: ParseResult.ParseError) => E,
 ) =>
   pipe(
-    a === IgnoredSchemaId ? Effect.succeed(a) : encode(a),
+    a === Api.IgnoredSchemaId ? Effect.succeed(a) : encode(a),
     Effect.mapError(onError),
   );
 
 /** @internal */
 export const createRequestEncoder = (
-  requestSchemas: Endpoint["schemas"]["request"],
+  requestSchemas: Api.Endpoint["schemas"]["request"],
 ) => {
   const encodeQuery = Schema.encode(getSchema(requestSchemas.query));
   const encodeParams = Schema.encode(getSchema(requestSchemas.params));
@@ -130,11 +134,13 @@ export const getResponseContent = (response: Response) =>
   });
 
 /** @internal */
-export const convertMethod = (method: OpenAPISpecMethodName): Method => {
+export const convertMethod = (
+  method: SchemaOpenApi.OpenAPISpecMethodName,
+): Method.Method => {
   // TODO: probably remove from schema-openapi
   if (method === "trace") {
     throw new Error("trace method is not supported by @effect/platform");
   }
 
-  return method.toUpperCase() as Method;
+  return method.toUpperCase() as Method.Method;
 };

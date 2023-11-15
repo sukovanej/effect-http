@@ -1,12 +1,12 @@
 import * as Body from "@effect/platform/Http/Body";
 import * as Headers from "@effect/platform/Http/Headers";
 import * as ServerResponse from "@effect/platform/Http/ServerResponse";
-import { Schema } from "@effect/schema";
-import { Effect } from "effect";
+import * as Schema from "@effect/schema/Schema";
+import * as Effect from "effect/Effect";
 import * as Api from "effect-http/Api";
 import * as ServerError from "effect-http/ServerError";
 import { formatParseError } from "effect-http/internal/formatParseError";
-import { AnySchema, isArray } from "effect-http/internal/utils";
+import * as utils from "effect-http/internal/utils";
 
 interface ServerResponseEncoder {
   encodeResponse: (
@@ -30,14 +30,14 @@ export const create = (
 ): ServerResponseEncoder => {
   if (Schema.isSchema(responseSchema)) {
     return fromSchema(responseSchema);
-  } else if (isArray(responseSchema)) {
+  } else if (utils.isArray(responseSchema)) {
     return fromResponseSchemaFullArray(responseSchema);
   }
 
   return fromResponseSchemaFullArray([responseSchema]);
 };
 
-const fromSchema = (schema: AnySchema): ServerResponseEncoder => {
+const fromSchema = (schema: utils.AnySchema): ServerResponseEncoder => {
   const encode = ServerResponse.schemaJson(schema);
   return make((body) => Effect.mapError(encode(body), convertBodyError));
 };

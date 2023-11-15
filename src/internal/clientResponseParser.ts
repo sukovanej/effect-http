@@ -1,13 +1,14 @@
-import { HttpClient } from "@effect/platform";
-import { Schema } from "@effect/schema";
-import { Effect, Unify } from "effect";
+import * as ClientResponse from "@effect/platform/Http/ClientResponse";
+import * as Schema from "@effect/schema/Schema";
+import * as Effect from "effect/Effect";
+import * as Unify from "effect/Unify";
 import * as Api from "effect-http/Api";
 import * as ClientError from "effect-http/ClientError";
-import { AnySchema, isArray } from "effect-http/internal/utils";
+import * as utils from "effect-http/internal/utils";
 
 interface ClientResponseParser {
   parseResponse: (
-    response: HttpClient.response.ClientResponse,
+    response: ClientResponse.ClientResponse,
   ) => Effect.Effect<never, ClientError.ClientError, any>;
 }
 
@@ -20,7 +21,7 @@ export const create = (
 ): ClientResponseParser => {
   if (Schema.isSchema(responseSchema)) {
     return fromSchema(responseSchema);
-  } else if (isArray(responseSchema)) {
+  } else if (utils.isArray(responseSchema)) {
     return fromResponseSchemaFullArray(responseSchema);
   }
 
@@ -28,7 +29,7 @@ export const create = (
 };
 
 const handleUnsucessful = Unify.unify(
-  (response: HttpClient.response.ClientResponse) => {
+  (response: ClientResponse.ClientResponse) => {
     if (response.status >= 300) {
       return response.json.pipe(
         Effect.orElse(() => response.text),
@@ -45,7 +46,7 @@ const handleUnsucessful = Unify.unify(
   },
 );
 
-const fromSchema = (schema: AnySchema): ClientResponseParser => {
+const fromSchema = (schema: utils.AnySchema): ClientResponseParser => {
   const parse = Schema.parse(schema);
   return make((response) =>
     Effect.gen(function* (_) {

@@ -1,9 +1,12 @@
 import * as ServerRequest from "@effect/platform/Http/ServerRequest";
 import * as Schema from "@effect/schema/Schema";
-import { Effect, Option, Unify, pipe } from "effect";
 import * as Api from "effect-http/Api";
 import * as ServerError from "effect-http/ServerError";
 import { formatParseError } from "effect-http/internal/formatParseError";
+import * as Effect from "effect/Effect";
+import { pipe } from "effect/Function";
+import * as Option from "effect/Option";
+import * as Unify from "effect/Unify";
 
 interface ServerRequestParser {
   parseRequest: (
