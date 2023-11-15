@@ -98,7 +98,7 @@ Logs out a handler failure.
 **Signature**
 
 ```ts
-export declare const errorLog: () => <R, E>(
+export declare const errorLog: <R, E>(
   app: Default<R, E>
 ) => Effect.Effect<ServerRequest.ServerRequest | R, E, ServerResponse>
 ```

@@ -15,7 +15,7 @@ Added in v1.0.0
 <h2 class="text-delta">Table of contents</h2>
 
 - [constructors](#constructors)
-  - [mockClient](#mockclient)
+  - [make](#make)
 - [models](#models)
   - [MockClientOptions (type alias)](#mockclientoptions-type-alias)
 
@@ -23,14 +23,14 @@ Added in v1.0.0
 
 # constructors
 
-## mockClient
+## make
 
 Derive mock client implementation from the `Api`
 
 **Signature**
 
 ```ts
-export declare const mockClient: <Endpoints extends Api.Endpoint>(
+export declare const make: <Endpoints extends Api.Endpoint>(
   api: Api.Api<Endpoints>,
   option?: Partial<MockClientOptions<Endpoints>> | undefined
 ) => Client.Client<Endpoints>

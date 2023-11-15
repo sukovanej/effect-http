@@ -17,8 +17,8 @@ Added in v1.0.0
 <h2 class="text-delta">Table of contents</h2>
 
 - [constructors](#constructors)
-  - [client](#client)
   - [endpointClient](#endpointclient)
+  - [make](#make)
 - [models](#models)
   - [Client (type alias)](#client-type-alias)
   - [Options (interface)](#options-interface)
@@ -26,21 +26,6 @@ Added in v1.0.0
 ---
 
 # constructors
-
-## client
-
-Derive client implementation from the `Api`
-
-**Signature**
-
-```ts
-export declare const client: <Endpoints extends Api.Endpoint>(
-  api: Api.Api<Endpoints>,
-  options?: Partial<Options>
-) => Client<Endpoints>
-```
-
-Added in v1.0.0
 
 ## endpointClient
 
@@ -68,6 +53,21 @@ export declare const endpointClient: <Endpoints extends Api.Endpoint, Id extends
     >]: SchemaTo<Extract<Endpoints, { id: Id }>["schemas"]["request"][K]>
   }>
 >
+```
+
+Added in v1.0.0
+
+## make
+
+Derive client implementation from the `Api`
+
+**Signature**
+
+```ts
+export declare const make: <Endpoints extends Api.Endpoint>(
+  api: Api.Api<Endpoints>,
+  options?: Partial<Options>
+) => Client<Endpoints>
 ```
 
 Added in v1.0.0

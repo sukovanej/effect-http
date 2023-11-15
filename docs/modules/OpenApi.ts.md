@@ -15,20 +15,20 @@ Added in v1.0.0
 <h2 class="text-delta">Table of contents</h2>
 
 - [constructors](#constructors)
-  - [openApi](#openapi)
+  - [make](#make)
 
 ---
 
 # constructors
 
-## openApi
+## make
 
 Generate OpenApi specification for the Api.
 
 **Signature**
 
 ```ts
-export declare const openApi: (api: Api.Api) => OpenApi.OpenAPISpec<OpenApi.OpenAPISchemaType>
+export declare const make: (api: Api.Api) => OpenApi.OpenAPISpec<OpenApi.OpenAPISchemaType>
 ```
 
 Added in v1.0.0
