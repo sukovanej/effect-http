@@ -23,9 +23,9 @@ const app = pipe(
   ),
   RouterBuilder.handle("metrics", () => Metric.snapshot),
   RouterBuilder.build,
-  Middlewares.accessLogExtension(),
-  Middlewares.endpointCallsMetricExtension(),
-  Middlewares.uuidLogAnnotationExtension(),
+  Middlewares.accessLog(),
+  Middlewares.endpointCallsMetric(),
+  Middlewares.uuidLogAnnotation(),
 );
 
 app.pipe(

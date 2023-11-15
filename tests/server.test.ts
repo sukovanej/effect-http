@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 
+import * as Middleware from "@effect/platform/Http/Middleware";
 import {
   Context,
   Effect,
@@ -188,33 +189,24 @@ test("Response containing optional field", async () => {
   ]);
 });
 
-// test("failing after handler extension", async () => {
-//   const server = RouterBuilder.make(exampleApiGetStringResponse).pipe(
-//     RouterBuilder.handle("hello", () => Effect.succeed(1)),
-//     RouterBuilder.addExtension(
-//       Http.beforeHandlerExtension("test", () =>
-//         Effect.fail(ServerError.unauthorizedError("sorry bro")),
-//       ),
-//     ),
-//     RouterBuilder.exhaustive,
-//   );
-//
-//   const result = await pipe(
-//     testServer(server),
-//     Effect.flatMap((client) => client.hello({})),
-//     Effect.either,
-//     runTestEffect,
-//   );
-//
-//   expect(result).toEqual(
-//     Either.left(
-//       Http.HttpClientError.create(
-//         { error: "UnauthorizedError", details: "sorry bro" },
-//         401,
-//       ),
-//     ),
-//   );
-// });
+test("failing after handler extension", async () => {
+  const app = RouterBuilder.make(exampleApiGetStringResponse).pipe(
+    RouterBuilder.handle("hello", () => Effect.succeed(1)),
+    RouterBuilder.build,
+    Middleware.make(() =>
+      ServerError.unauthorizedError("sorry bro").toServerResponse(),
+    ),
+  );
+
+  const result = await pipe(
+    Testing.make(app, exampleApiGetStringResponse),
+    Effect.flatMap((client) => client.hello({})),
+    Effect.flip,
+    runTestEffect,
+  );
+
+  expect(result).toEqual(ClientError.HttpClientError.create("sorry bro", 403));
+});
 
 describe("type safe responses", () => {
   test("responses must have unique status codes", () => {

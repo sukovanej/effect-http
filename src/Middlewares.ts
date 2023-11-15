@@ -26,9 +26,7 @@ import { ServerError } from "effect-http";
  * @category extensions
  * @since 1.0.0
  */
-export const accessLogExtension = (
-  level: "Info" | "Warning" | "Debug" = "Info",
-) =>
+export const accessLog = (level: "Info" | "Warning" | "Debug" = "Info") =>
   Middleware.make((app) =>
     pipe(
       ServerRequest.ServerRequest,
@@ -44,14 +42,12 @@ export const accessLogExtension = (
  * The annotation key is configurable using the first argument.
  *
  * Note that in order to apply the annotation also for access logging, you should
- * make sure the `access-log` extension run after the `uuid-log-annotation`. Try
- * using `Http.prependExtension(Http.uuidLogAnnotationExtension())` if you don't
- * see the `requestId` log annotation in your access logs.
+ * make sure the `access-log` extension runs after the `uuid-log-annotation`.
  *
  * @category extensions
  * @since 1.0.0
  */
-export const uuidLogAnnotationExtension = (logAnnotationKey = "requestId") =>
+export const uuidLogAnnotation = (logAnnotationKey = "requestId") =>
   Middleware.make((app) =>
     pipe(
       Effect.sync(() => crypto.randomUUID()),
@@ -72,7 +68,7 @@ export const uuidLogAnnotationExtension = (logAnnotationKey = "requestId") =>
  * @category extensions
  * @since 1.0.0
  */
-export const endpointCallsMetricExtension = () => {
+export const endpointCallsMetric = () => {
   const endpointCalledCounter = Metric.counter("server.endpoint_calls");
 
   return Middleware.make((app) =>
@@ -95,7 +91,7 @@ export const endpointCallsMetricExtension = () => {
  * @category extensions
  * @since 1.0.0
  */
-export const errorLogExtension = () =>
+export const errorLog = () =>
   Middleware.make((app) =>
     Effect.gen(function* (_) {
       const request = yield* _(ServerRequest.ServerRequest);

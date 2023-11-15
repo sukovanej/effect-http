@@ -81,7 +81,7 @@ const app = pipe(
 );
 ```
 
-Now, we can generate an object providing the HTTP client interface using `Http.client`.
+Now, we can generate an object providing the HTTP client interface using `Client.client`.
 
 ```typescript
 const client = Client.client(api, {
@@ -118,7 +118,7 @@ Each endpoint can declare expectations on the request format. Specifically,
 - `params` - path parameters
 - `headers` - request headers
 
-They are specified in the input schemas object (3rd argument of `Http.get`, `Http.post`, ...).
+They are specified in the input schemas object (3rd argument of `Api.get`, `Api.post`, ...).
 
 #### Example
 
@@ -217,24 +217,13 @@ OpenAPI UI.
 
 **Important note**. You might have noticed the `details` field of the error response
 describes the missing header using lower-case. This is not an error but rather a
-consequence of the fact that HTTP headers are case-insensitive and internally `effect-http`
-converts all header names to lower-case to simplify integration with the underlying
-http library - [express](https://github.com/expressjs/express).
+consequence of the fact that HTTP headers are case-insensitive.
 
 Don't worry, this is also encoded into the type information and if you were to
 implement the handler, both autocompletion and type-checking would hint the
-lower-cased form of the header name.
-
-```typescript
-type Api = typeof api;
-
-const handleHello = ({
-  headers: { "x-client-id": clientId },
-}: Http.Input<Api, "hello">) => Effect.succeed("all good");
-```
-
-Take a look at [examples/headers.ts](examples/headers.ts) to see a complete example
-API implementation with in-memory rate-limiting and client identification using headers.
+lower-cased form of the header name. Take a look at [examples/headers.ts](examples/headers.ts)
+to see a complete example API implementation with in-memory rate-limiting and client
+identification using headers.
 
 ### Responses
 
@@ -247,8 +236,8 @@ that returned status, content and headers conform the specified response.
 
 ```ts
 const api = pipe(
-  Http.api(),
-  Http.post("hello", "/hello", {
+  Api.api(),
+  Api.post("hello", "/hello", {
     response: {
       status: 200,
       content: Schema.number,
@@ -262,8 +251,8 @@ It is also possible to specify multiple full response schemas.
 
 ```ts
 const api = pipe(
-  Http.api(),
-  Http.post("hello", "/hello", {
+  Api.api(),
+  Api.post("hello", "/hello", {
     response: [
       {
         status: 201,
@@ -286,54 +275,21 @@ const api = pipe(
 The server implemention is type-checked against the api responses
 and one of the specified response objects must be returned.
 
-The response object can be generated using a `ResponseUtil`. It is
-a derived object based on the `Api` and operation id and it provides
-methods named `response<status>` that create the response.
+Note: the `status` needs to be `as const` because without it Typescript
+will infere the `number` type.
 
 ```ts
-const server = pipe(
-  Http.server(api),
-  Http.handle("hello", ({ ResponseUtil }) =>
-    Effect.succeed(
-      ResponseUtil.response200({ headers: { "my-header": 12 }, content: 12 }),
-    ),
+const app = pipe(
+  RouterBuilder.make(api),
+  RouterBuilder.handle("hello", () =>
+    Effect.succeed({
+      headers: { "my-header": 12 },
+      content: 12,
+      status: 200 as const,
+    }),
   ),
+  RouterBuilder.build,
 );
-```
-
-Note that one can create the response util object using `Http.responseUtil`
-if needed independently of the server implementation.
-
-```ts
-const HelloResponseUtil = Http.responseUtil(api, "hello");
-const response200 = HelloResponseUtil.response200({
-  headers: { "my-header": 12 },
-  content: 12,
-});
-```
-
-The derived client for this `Api` exposes a `hello` method that
-returns the following type.
-
-```ts
-type DerivedTypeOfHelloMethod =
-  | {
-      content: number;
-      status: 201;
-    }
-  | {
-      headers: {
-        readonly "my-header": number;
-      };
-      content: number;
-      status: 200;
-    }
-  | {
-      headers: {
-        readonly "x-another": number;
-      };
-      status: 204;
-    };
 ```
 
 ### Testing the server
@@ -341,11 +297,9 @@ type DerivedTypeOfHelloMethod =
 While most of your tests should focus on the functionality independent
 of HTTP exposure, it can be beneficial to perform integration or
 contract tests for your endpoints. The `Testing` module offers a
-`Http.testingClient` combinator that generates a testing client from
+`Testing.make` combinator that generates a testing client from
 the Server. This derived testing client has a similar interface
-to the one derived by `Http.client`, but with the distinction that
-it returns a `Response` object and bypasses the network by
-directly triggering the handlers defined in the Server.
+to the one derived by `Client.client`.
 
 Now, let's write an example test for the following server.
 
@@ -602,14 +556,17 @@ uses the schema. In the following example, the "_User_" description for the resp
 schema is used both as the schema description but also for the response itself. The
 same holds for the `id` query paremeter.
 
-For an operation-level description, call the API endpoint method (`Http.get`,
-`Http.post` etc) with a 4th argument and set the `description` field to the
+For an operation-level description, call the API endpoint method (`Api.get`,
+`Api.post` etc) with a 4th argument and set the `description` field to the
 desired description.
 
 ```ts
+import { runMain } from "@effect/platform-node/Runtime";
 import * as Schema from "@effect/schema/Schema";
-import { pipe } from "effect";
-import * as Http from "effect-http";
+import { Effect, pipe } from "effect";
+import { Api, NodeServer, RouterBuilder } from "effect-http";
+
+import { debugLogger } from "./_utils";
 
 const responseSchema = pipe(
   Schema.struct({
@@ -623,16 +580,33 @@ const querySchema = Schema.struct({
 });
 
 const api = pipe(
-  Http.api({ title: "Users API" }),
-  Http.get(
+  Api.api({ title: "Users API" }),
+  Api.get(
     "getUser",
     "/user",
     {
       response: responseSchema,
-      request: { query: querySchema },
+      request: {
+        query: querySchema,
+      },
     },
     { description: "Returns a User by id" },
   ),
+);
+
+const app = pipe(
+  RouterBuilder.make(api),
+  RouterBuilder.handle("getUser", ({ query }) =>
+    Effect.succeed({ name: "mike", id: query.id }),
+  ),
+  RouterBuilder.build,
+);
+
+pipe(
+  app,
+  NodeServer.listen({ port: 3000 }),
+  Effect.provide(debugLogger),
+  runMain,
 );
 ```
 
@@ -663,21 +637,33 @@ helpful in the following and probably many more cases.
   perform integration tests without the need to connect to a real
   running HTTP service.
 
-Use `Http.exampleServer` combinator to generate a `Server` from `Api`.
+Use `ExampleServer.make` combinator to generate a `RouterBuilder` from an `Api`.
 
 ```typescript
-import * as Schema from "@effect/schema/Schema";
+import { runMain } from "@effect/platform-node/Runtime";
+import { Schema } from "@effect/schema";
 import { Effect, pipe } from "effect";
-import * as Http from "effect-http";
+import { Api, ExampleServer, NodeServer, RouterBuilder } from "effect-http";
 
-const responseSchema = Schema.struct({ name: Schema.string });
+import { debugLogger } from "./_utils";
+
+const responseSchema = Schema.struct({
+  name: Schema.string,
+  value: Schema.number,
+});
 
 const api = pipe(
-  Http.api(),
-  Http.get("test", "/test", { response: responseSchema }),
+  Api.api(),
+  Api.get("test", "/test", { response: responseSchema }),
 );
 
-pipe(api, Http.exampleServer, Http.listen({ port: 3000 }), Effect.runPromise);
+pipe(
+  ExampleServer.make(api),
+  RouterBuilder.build,
+  NodeServer.listen({ port: 3000 }),
+  Effect.provide(debugLogger),
+  runMain,
+);
 ```
 
 _(This is a complete standalone code example)_
@@ -695,23 +681,23 @@ with `/get-value` endpoint returning a number. We can model such
 API as follows.
 
 ```typescript
-import * as Schema from "@effect/schema/Schema";
+import { Schema } from "@effect/schema";
 import { pipe } from "effect";
-import * as Http from "effect-http";
+import { Api } from "effect-http";
 
 const api = pipe(
-  Http.api(),
-  Http.get("getValue", "/get-value", { response: Schema.number }),
+  Api.api(),
+  Api.get("getValue", "/get-value", { response: Schema.number }),
 );
 ```
 
 In a real environment, we will probably use the derived client
-using `Http.client`. But for tests, we probably want a dummy
+using `MockClient.mockClient`. But for tests, we probably want a dummy
 client which will return values conforming the API. For such
 a use-case, we can derive a mock client.
 
 ```typescript
-const client = pipe(api, Http.mockClient());
+const client = MockClient.mockClient(api);
 ```
 
 Calling `getValue` on the client will perform the same client-side
@@ -722,7 +708,7 @@ using the option argument. The following client will always
 return number `12` when calling the `getValue` operation.
 
 ```typescript
-const client = pipe(api, Http.mockClient({ responses: { getValue: 12 } }));
+const client = MockClient.mockClient(api, { responses: { getValue: 12 } });
 ```
 
 ## Compatibility

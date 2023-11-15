@@ -50,7 +50,7 @@ const app = RouterBuilder.make(api).pipe(
     ),
   ),
   RouterBuilder.build,
-  Middlewares.errorLogExtension(),
+  Middlewares.errorLog(),
 );
 
 app.pipe(
