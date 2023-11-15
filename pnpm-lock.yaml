@@ -47,8 +47,8 @@ devDependencies:
     specifier: 2.0.0-next.55
     version: 2.0.0-next.55
   effect-log:
-    specifier: ^0.23.0
-    version: 0.23.0(effect@2.0.0-next.55)
+    specifier: ^0.23.1
+    version: 0.23.1(effect@2.0.0-next.55)
   eslint:
     specifier: ^8.53.0
     version: 8.53.0
@@ -1533,8 +1533,8 @@ packages:
     resolution: {integrity: sha512-I88TYZWc9XiYHRQ4/3c5rjjfgkjhLyW2luGIheGERbNQ6OY7yTybanSpDXZa8y7VUP9YmDcYa+eyq4ca7iLqWA==}
     dev: true
 
-  /effect-log@0.23.0(effect@2.0.0-next.55):
-    resolution: {integrity: sha512-OXp6Q9MrkcTUHrrGcV0PILZQJ1if+XFtg07sQt7W3hyOOEQ/+f+2rTykmlOz4phUt5VNbVRbzPJSQpP59Fe7lQ==}
+  /effect-log@0.23.1(effect@2.0.0-next.55):
+    resolution: {integrity: sha512-iKvJ+wOAGNoxProsJ3RjrhwTYoVrHwfmOe3L/qCznTtqgXaaFyb2TO1GCkvauY6Ym8hltU4wsLUUdTv0PGcssQ==}
     peerDependencies:
       effect: 2.0.0-next.55
     dependencies:

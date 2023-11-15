@@ -1,7 +1,13 @@
 import { runMain } from "@effect/platform-node/Runtime";
 import { Schema } from "@effect/schema";
 import { Context, Effect, ReadonlyArray, Ref, pipe } from "effect";
-import { Api, NodeServer, RouterBuilder, ServerError } from "effect-http";
+import {
+  Api,
+  Middlewares,
+  NodeServer,
+  RouterBuilder,
+  ServerError,
+} from "effect-http";
 
 import { debugLogger } from "./_utils";
 
@@ -100,6 +106,8 @@ const app = pipe(
     ),
   ),
   RouterBuilder.build,
+  Middlewares.errorLog,
+  Middlewares.accessLog("Debug"),
 );
 
 pipe(

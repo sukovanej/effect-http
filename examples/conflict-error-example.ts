@@ -9,6 +9,8 @@ import {
   ServerError,
 } from "effect-http";
 
+import { debugLogger } from "./_utils";
+
 const api = pipe(
   Api.api({ title: "Users API" }),
   Api.post("storeUser", "/users", {
@@ -50,11 +52,12 @@ const app = RouterBuilder.make(api).pipe(
     ),
   ),
   RouterBuilder.build,
-  Middlewares.errorLog(),
+  Middlewares.errorLog,
 );
 
 app.pipe(
   NodeServer.listen({ port: 3000 }),
   Effect.provideService(UserRepository, mockUserRepository),
+  Effect.provide(debugLogger),
   runMain,
 );

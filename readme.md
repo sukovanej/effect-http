@@ -447,10 +447,9 @@ _Server_
 ```bash
 $ pnpm tsx examples/conflict-error-example.ts
 
-16:53:55 (Fiber #0) INFO  Server listening on :::3000
-16:54:14 (Fiber #8) WARN  POST /users failed
-ᐉ { "errorTag": "ConflictError", "error": "User "milan" already exists." }
-// TODO: currenty, the server doesn't logs a warn
+22:06:00 (Fiber #0) DEBUG Static swagger UI files loaded (1.7MB)
+22:06:00 (Fiber #0) INFO  Listening on :::3000
+22:06:01 (Fiber #8) WARN  POST /users client error 409
 ```
 
 _Client_ (using [httpie cli](https://httpie.io/cli))

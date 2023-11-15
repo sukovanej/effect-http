@@ -7,16 +7,13 @@ import * as crypto from "crypto";
 
 import * as Middleware from "@effect/platform/Http/Middleware";
 import * as ServerRequest from "@effect/platform/Http/ServerRequest";
-import {
-  Effect,
-  Either,
-  FiberRef,
-  HashMap,
-  Metric,
-  identity,
-  pipe,
-} from "effect";
-import { ServerError } from "effect-http";
+import * as ServerError from "effect-http/ServerError";
+import * as Effect from "effect/Effect";
+import * as Either from "effect/Either";
+import * as FiberRef from "effect/FiberRef";
+import { pipe } from "effect/Function";
+import * as HashMap from "effect/HashMap";
+import * as Metric from "effect/Metric";
 
 /**
  * Add access logs for handled requests. The log runs before each request.
@@ -91,29 +88,33 @@ export const endpointCallsMetric = () => {
  * @category extensions
  * @since 1.0.0
  */
-export const errorLog = () =>
-  Middleware.make((app) =>
-    Effect.gen(function* (_) {
-      const request = yield* _(ServerRequest.ServerRequest);
-      const path = new URL(request.url).pathname;
+export const errorLog = Middleware.make((app) =>
+  Effect.gen(function* (_) {
+    const request = yield* _(ServerRequest.ServerRequest);
 
-      return yield* _(
-        app,
-        Effect.tapError((error) =>
-          pipe(
-            Effect.logError(`${request.method.toUpperCase()} ${path} failed`),
-            ServerError.isServerError(error)
-              ? (eff) =>
-                  Effect.annotateLogs(eff, {
-                    errorTag: error._tag,
-                    error: error.json || error.message,
-                  })
-              : identity,
-          ),
+    const response = yield* _(app);
+
+    if (response.status >= 400 && response.status < 500) {
+      yield* _(
+        Effect.logWarning(
+          `${request.method.toUpperCase()} ${request.url} client error ${
+            response.status
+          }`,
         ),
       );
-    }),
-  );
+    } else if (response.status >= 500) {
+      yield* _(
+        Effect.logError(
+          `${request.method.toUpperCase()} ${request.url} server error ${
+            response.status
+          }`,
+        ),
+      );
+    }
+
+    return response;
+  }),
+);
 
 /**
  * @category basic auth extension
