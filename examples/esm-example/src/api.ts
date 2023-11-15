@@ -1,4 +1,4 @@
-import * as Http from "effect-http";
+import { Api } from "effect-http";
 
 import {
   CreateItemRequest,
@@ -7,8 +7,8 @@ import {
   Items,
 } from "./schemas.js";
 
-export const api = Http.api({ title: "Example TODO list API" }).pipe(
-  Http.post("createItem", "/item", {
+export const api = Api.api({ title: "Example TODO list API" }).pipe(
+  Api.post("createItem", "/item", {
     request: {
       body: CreateItemRequest,
     },
@@ -17,12 +17,10 @@ export const api = Http.api({ title: "Example TODO list API" }).pipe(
       content: CreateItemResponse,
     },
   }),
-  Http.get("getItems", "/items", {
+  Api.get("getItems", "/items", {
     request: {
       query: GetItemsQuery,
     },
     response: Items,
   }),
 );
-
-export type Api = typeof api;
