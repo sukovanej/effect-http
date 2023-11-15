@@ -1,13 +1,13 @@
 import { Effect } from "effect";
-import * as Http from "effect-http";
-import { Log } from "effect-log";
+import { NodeServer } from "effect-http";
+import { PrettyLogger } from "effect-log";
 
 import { ItemRepositoryInMemory } from "./repository.js";
-import { server } from "./server.js";
+import { app } from "./server.js";
 
-const program = server.pipe(
-  Http.listen({ port: 3000 }),
-  Effect.provide(Log.setPrettyLogger()),
+const program = app.pipe(
+  NodeServer.listen({ port: 3000 }),
+  Effect.provide(PrettyLogger.layer()),
   Effect.provide(ItemRepositoryInMemory),
 );
 
