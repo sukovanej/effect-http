@@ -4,15 +4,16 @@
  * @since 1.0.0
  */
 import * as PlatformNodeServer from "@effect/platform-node/Http/Server";
-import * as App from "@effect/platform/Http/App";
-import * as Platform from "@effect/platform/Http/Platform";
+import type * as App from "@effect/platform/Http/App";
+import type * as Platform from "@effect/platform/Http/Platform";
 import * as Server from "@effect/platform/Http/Server";
-import * as ServerRequest from "@effect/platform/Http/ServerRequest";
-import { Deferred, Scope } from "effect";
-import * as Api from "effect-http/Api";
+import type * as ServerRequest from "@effect/platform/Http/ServerRequest";
+import type * as Api from "effect-http/Api";
 import * as Client from "effect-http/Client";
 import * as SwaggerRouter from "effect-http/SwaggerRouter";
+import * as Deferred from "effect/Deferred";
 import * as Effect from "effect/Effect";
+import type * as Scope from "effect/Scope";
 
 /**
  * Create a testing client for the `Server`.
