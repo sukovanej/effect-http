@@ -79,3 +79,23 @@ test("reference and schema component", () => {
     },
   });
 });
+
+test("full info object", () => {
+  const api = Api.api({
+    title: "My awesome pets API",
+    version: "1.0.0",
+    description: "my description",
+    license: { name: "MIT" },
+  });
+
+  expect(OpenApi.make(api)).toEqual({
+    openapi: "3.0.3",
+    info: {
+      title: "My awesome pets API",
+      version: "1.0.0",
+      description: "my description",
+      license: { name: "MIT" },
+    },
+    paths: {},
+  });
+});

@@ -49,6 +49,8 @@ export interface Api<E extends Endpoint = Endpoint> extends Pipeable.Pipeable {
   options: {
     title: string;
     version: string;
+    description?: string;
+    license?: OpenApi.OpenAPISpecLicense;
   };
 }
 

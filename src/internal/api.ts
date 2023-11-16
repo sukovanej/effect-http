@@ -18,8 +18,7 @@ const composeResponseSchema = (
     (r) =>
       ({
         status: r.status,
-        headers:
-          (r.headers && fieldsToLowerCase(r.headers)) ?? IgnoredSchemaId,
+        headers: (r.headers && fieldsToLowerCase(r.headers)) ?? IgnoredSchemaId,
         content: r.content ?? IgnoredSchemaId,
       }) as const,
   );
@@ -252,7 +251,9 @@ class ApiImpl<Endpoints extends Api.Endpoint> implements Api.Api<Endpoints> {
 }
 
 /** @internal */
-class ApiGroupImpl<Endpoints extends Api.Endpoint> implements Api.ApiGroup<Endpoints> {
+class ApiGroupImpl<Endpoints extends Api.Endpoint>
+  implements Api.ApiGroup<Endpoints>
+{
   readonly [ApiGroupTypeId]: Api.ApiGroupTypeId;
 
   constructor(

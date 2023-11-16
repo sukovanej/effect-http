@@ -95,7 +95,21 @@ export const make = (
     },
   );
 
-  return OpenApi.openAPI(api.options.title, api.options.version, ...pathSpecs);
+  const openApi = OpenApi.openAPI(
+    api.options.title,
+    api.options.version,
+    ...pathSpecs,
+  );
+
+  if (api.options.description) {
+    openApi.info.description = api.options.description;
+  }
+
+  if (api.options.license) {
+    openApi.info.license = api.options.license;
+  }
+
+  return openApi;
 };
 
 /**
