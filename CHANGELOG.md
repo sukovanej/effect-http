@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.37.2
+
+### Patch Changes
+
+- cf4a7f7: Full OpenApi info can be set when calling the `Api.api`.
+
 ## 0.37.1
 
 ### Patch Changes
