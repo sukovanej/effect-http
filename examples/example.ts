@@ -7,12 +7,12 @@ import { debugLogger } from "./_utils";
 
 // Schemas
 
-const milanSchema = Schema.struct({
-  penisLength: Schema.number,
+const HumanSchema = Schema.struct({
+  height: Schema.number,
   name: Schema.string,
 });
-const lesnekSchema = Schema.struct({ name: Schema.string });
-const standaSchema = Schema.record(
+const Lesnek = Schema.struct({ name: Schema.string });
+const Standa = Schema.record(
   Schema.string,
   Schema.union(Schema.string, Schema.number),
 );
@@ -32,23 +32,23 @@ const api = pipe(
   Api.get("getLesnek", "/lesnek", {
     response: Schema.string,
     request: {
-      query: lesnekSchema,
+      query: Lesnek,
     },
   }),
   Api.get("test", "/test", {
-    response: standaSchema,
-    request: { query: lesnekSchema },
+    response: Standa,
+    request: { query: Lesnek },
   }),
   Api.post("standa", "/standa", {
-    response: standaSchema,
+    response: Standa,
     request: {
-      body: standaSchema,
+      body: Standa,
     },
   }),
   Api.post("handleMilan", "/petr", {
-    response: milanSchema,
+    response: HumanSchema,
     request: {
-      body: milanSchema,
+      body: HumanSchema,
     },
   }),
   Api.put("callStanda", "/api/zdar", {
@@ -60,11 +60,11 @@ const api = pipe(
 );
 
 const app = pipe(
-  RouterBuilder.make(api),
+  RouterBuilder.make(api, { parseOptions: { errors: "all" } }),
   RouterBuilder.handle("handleMilan", ({ body }) =>
     Effect.map(StuffService, ({ value }) => ({
       ...body,
-      penisLength: body.penisLength + value,
+      randomValue: body.height + value,
     })),
   ),
   RouterBuilder.handle("getMilan", () => Effect.succeed("test")),

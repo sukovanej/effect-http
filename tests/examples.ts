@@ -228,3 +228,15 @@ export const exampleApiFullResponse = Api.api().pipe(
     },
   }),
 );
+
+export const exampleApiMultipleQueryValues = Api.api().pipe(
+  Api.post("test", "/test", {
+    response: Schema.string,
+    request: {
+      query: Schema.struct({
+        value: Schema.literal("x", "y"),
+        another: Schema.string,
+      }),
+    },
+  }),
+);

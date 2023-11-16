@@ -144,11 +144,15 @@ const formatAST = (ast: AST.AST) => {
   return JSON.stringify(ast);
 };
 
-export const formatParseError = (error: ParseResult.ParseError): string => {
+export const formatParseError = (error: ParseResult.ParseError, parseOptions?: AST.ParseOptions): string => {
   const errors = ReadonlyArray.flatMap(error.errors, formatParseErrors);
 
   if (errors.length === 1) {
     return stringifyError(errors[0]);
+  }
+
+  if (parseOptions?.errors === "all") {
+    return errors.map(stringifyError).join(", ");
   }
 
   if (!ReadonlyArray.isNonEmptyArray(errors)) {

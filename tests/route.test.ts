@@ -8,6 +8,7 @@ import {
   exampleApiGetCustomResponseWithHeaders,
   exampleApiGetOptionalField,
   exampleApiGetQueryParameter,
+  exampleApiMultipleQueryValues,
   exampleApiParams,
   exampleApiPostNullableField,
   exampleApiRequestBody,
@@ -34,6 +35,20 @@ const exampleRouteRequestHeaders = exampleApiRequestHeaders.pipe(
 
 const exampleRouteParams = exampleApiParams.pipe(
   Route.make("hello", ({ params }) => Effect.succeed(params.value)),
+);
+
+const exampleMultipleQueryAllErrors = exampleApiMultipleQueryValues.pipe(
+  Route.make(
+    "test",
+    ({ query }) => Effect.succeed(`${query.value}, ${query.value}`),
+    { parseOptions: { errors: "all" } },
+  ),
+);
+
+const exampleMultipleQueryFirstError = exampleApiMultipleQueryValues.pipe(
+  Route.make("test", ({ query }) =>
+    Effect.succeed(`${query.value}, ${query.value}`),
+  ),
 );
 
 describe("examples", () => {
@@ -263,6 +278,34 @@ describe("error reporting", () => {
     expect(await Effect.runPromise(response.json)).toEqual({
       error: "Invalid response body",
       message: "must be string, received 1",
+    });
+  });
+
+  test("multiple errors", async () => {
+    const response = await testRoute(
+      exampleMultipleQueryAllErrors,
+      ClientRequest.post("/test"),
+    ).pipe(runTestEffect);
+
+    expect(response.status).toEqual(400);
+    expect(await Effect.runPromise(response.json)).toEqual({
+      error: "Request validation error",
+      location: "query",
+      message: "another is missing, value is missing",
+    });
+  });
+
+  test("multiple errors", async () => {
+    const response = await testRoute(
+      exampleMultipleQueryFirstError,
+      ClientRequest.post("/test"),
+    ).pipe(runTestEffect);
+
+    expect(response.status).toEqual(400);
+    expect(await Effect.runPromise(response.json)).toEqual({
+      error: "Request validation error",
+      location: "query",
+      message: "another is missing",
     });
   });
 });
