@@ -124,15 +124,21 @@ They are specified in the input schemas object (3rd argument of `Api.get`, `Api.
 
 ```typescript
 import { Schema } from "@effect/schema";
-import { pipe } from "effect";
 import { Api } from "effect-http";
 
+const Stuff = Schema.struct({ value: Schema.number });
+const StuffRequest = Schema.struct({ field: Schema.array(Schema.string) });
+const StuffQuery = Schema.struct({ value: Schema.string });
+const StuffParams = Schema.struct({ param: Schema.string });
+
 export const api = Api.api({ title: "My api" }).pipe(
-  Api.get("stuff", "/stuff/:param", {
-    response: Schema.struct({ value: Schema.number }),
-    body: Schema.struct({ bodyField: Schema.array(Schema.string) }),
-    query: { query: Schema.string },
-    params: { param: Schema.string },
+  Api.post("stuff", "/stuff/:param", {
+    response: Stuff,
+    request: {
+      body: StuffRequest,
+      query: StuffQuery,
+      params: StuffParams,
+    },
   }),
 );
 ```
@@ -541,7 +547,7 @@ used for OpenApi derivation from the `Schema` takes into account
 annotations and propagates them into the specification.
 
 Some descriptions are provided from the built-in `@effect/schema/Schema` combinators.
-For example, the usage of `Schema.int()` will result in "_a positive number_"
+For example, the usage of `Schema.Int.pipe(Schema.positive())` will result in "_a positive number_"
 description in the OpenApi schema. One can also add custom description using the
 `Schema.description` combinator.
 
