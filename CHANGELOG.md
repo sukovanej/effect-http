@@ -1,5 +1,15 @@
 # effect-http
 
+## 0.38.0
+
+### Minor Changes
+
+- d5af5ff: Allow specifying `ParseOptions` for a `RouterBuilder` request validation.
+
+### Patch Changes
+
+- 139bf95: Update @effect/schema.
+
 ## 0.37.2
 
 ### Patch Changes
