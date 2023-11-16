@@ -6,7 +6,9 @@
 import * as Method from "@effect/platform/Http/Method";
 import * as Router from "@effect/platform/Http/Router";
 import * as ServerRequest from "@effect/platform/Http/ServerRequest";
+import type * as Schema from "@effect/schema/Schema";
 import * as Api from "effect-http/Api";
+import type * as RouterBuilder from "effect-http/RouterBuilder";
 import * as ServerError from "effect-http/ServerError";
 import * as ServerRequestParser from "effect-http/internal/serverRequestParser";
 import * as ServerResponseEncoder from "effect-http/internal/serverResponseEncoder";
@@ -34,15 +36,22 @@ export type HandlerFunction<Endpoint extends Api.Endpoint, R, E> = (
  */
 export const fromEndpoint: <Endpoint extends Api.Endpoint, R, E>(
   fn: HandlerFunction<Endpoint, R, E>,
+  options?: RouterBuilder.Options,
 ) => (
   endpoint: Endpoint,
 ) => Router.Route<R, Exclude<E, ServerError.ServerError>> =
-  <Endpoint extends Api.Endpoint, R, E>(fn: HandlerFunction<Endpoint, R, E>) =>
+  <Endpoint extends Api.Endpoint, R, E>(
+    fn: HandlerFunction<Endpoint, R, E>,
+    options?: RouterBuilder.Options,
+  ) =>
   (endpoint) => {
     const responseEncoder = ServerResponseEncoder.create(
       endpoint.schemas.response,
     );
-    const requestParser = ServerRequestParser.create(endpoint);
+    const requestParser = ServerRequestParser.create(
+      endpoint,
+      options?.parseOptions,
+    );
 
     return Router.makeRoute(
       endpoint.method.toUpperCase() as Method.Method,
@@ -76,19 +85,20 @@ export const make: <
 >(
   id: Id,
   fn: HandlerFunction<Extract<A["endpoints"][number], { id: Id }>, R, E>,
+  options?: RouterBuilder.Options,
 ) => (api: A) => Router.Route<R, Exclude<E, ServerError.ServerError>> =
-  (id, fn) => (api) => {
+  (id, fn, options) => (api) => {
     const endpoint = Api.getEndpoint(api, id);
 
     if (endpoint === undefined) {
       throw new Error(`Operation id ${id} not found`);
     }
 
-    return fromEndpoint(fn)(endpoint);
+    return fromEndpoint(fn, options)(endpoint);
   };
 
 /** @ignore */
-type EndpointResponseSchemaTo<S> = S extends AnySchema
+type EndpointResponseSchemaTo<S> = S extends Schema.Schema<any>
   ? SchemaTo<S>
   : S extends readonly Api.ResponseSchemaFull[]
     ? ResponseSchemaFullTo<S[number]>

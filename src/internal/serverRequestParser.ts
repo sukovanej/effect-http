@@ -1,4 +1,5 @@
 import * as ServerRequest from "@effect/platform/Http/ServerRequest";
+import type * as AST from "@effect/schema/AST";
 import * as Schema from "@effect/schema/Schema";
 import * as Api from "effect-http/Api";
 import * as ServerError from "effect-http/ServerError";
@@ -32,11 +33,14 @@ const make = (
   parseRequest: ServerRequestParser["parseRequest"],
 ): ServerRequestParser => ({ parseRequest });
 
-export const create = (endpoint: Api.Endpoint): ServerRequestParser => {
-  const parseBody = createBodyParser(endpoint);
-  const parseQuery = createQueryParser(endpoint);
-  const parseHeaders = createHeadersParser(endpoint);
-  const parseParams = createParamsParser(endpoint);
+export const create = (
+  endpoint: Api.Endpoint,
+  parseOptions?: AST.ParseOptions,
+): ServerRequestParser => {
+  const parseBody = createBodyParser(endpoint, parseOptions);
+  const parseQuery = createQueryParser(endpoint, parseOptions);
+  const parseHeaders = createHeadersParser(endpoint, parseOptions);
+  const parseParams = createParamsParser(endpoint, parseOptions);
 
   return make((request) =>
     Effect.all({
@@ -48,7 +52,10 @@ export const create = (endpoint: Api.Endpoint): ServerRequestParser => {
   );
 };
 
-const createBodyParser = (endpoint: Api.Endpoint) => {
+const createBodyParser = (
+  endpoint: Api.Endpoint,
+  parseOptions?: AST.ParseOptions,
+) => {
   const schema = endpoint.schemas.request.body;
 
   if (schema == Api.IgnoredSchemaId) {
@@ -72,9 +79,9 @@ const createBodyParser = (endpoint: Api.Endpoint) => {
         return createError("body", "Invalid JSON");
       }),
       Effect.flatMap((request) =>
-        parse(request).pipe(
+        parse(request, parseOptions).pipe(
           Effect.mapError((error) =>
-            createError("body", formatParseError(error)),
+            createError("body", formatParseError(error, parseOptions)),
           ),
         ),
       ),
@@ -82,7 +89,10 @@ const createBodyParser = (endpoint: Api.Endpoint) => {
   });
 };
 
-const createQueryParser = (endpoint: Api.Endpoint) => {
+const createQueryParser = (
+  endpoint: Api.Endpoint,
+  parseOptions?: AST.ParseOptions,
+) => {
   const schema = endpoint.schemas.request.query;
 
   if (schema == Api.IgnoredSchemaId) {
@@ -99,13 +109,19 @@ const createQueryParser = (endpoint: Api.Endpoint) => {
         (acc, [name, value]) => ({ ...acc, [name]: value }),
         {},
       ),
+      parseOptions,
     ).pipe(
-      Effect.mapError((error) => createError("query", formatParseError(error))),
+      Effect.mapError((error) =>
+        createError("query", formatParseError(error, parseOptions)),
+      ),
     );
   };
 };
 
-const createHeadersParser = (endpoint: Api.Endpoint) => {
+const createHeadersParser = (
+  endpoint: Api.Endpoint,
+  parseOptions?: AST.ParseOptions,
+) => {
   const schema = endpoint.schemas.request.headers;
 
   if (schema == Api.IgnoredSchemaId) {
@@ -115,14 +131,17 @@ const createHeadersParser = (endpoint: Api.Endpoint) => {
   const parse = Schema.parse(schema);
 
   return (request: ServerRequest.ServerRequest) =>
-    parse(request.headers).pipe(
+    parse(request.headers, parseOptions).pipe(
       Effect.mapError((error) =>
-        createError("headers", formatParseError(error)),
+        createError("headers", formatParseError(error, parseOptions)),
       ),
     );
 };
 
-const createParamsParser = (endpoint: Api.Endpoint) => {
+const createParamsParser = (
+  endpoint: Api.Endpoint,
+  parseOptions?: AST.ParseOptions,
+) => {
   const schema = endpoint.schemas.request.params;
 
   if (schema == Api.IgnoredSchemaId) {
@@ -136,8 +155,10 @@ const createParamsParser = (endpoint: Api.Endpoint) => {
     // TODO
     const url = new URL(request.url, "http://localhost");
     const params = getRequestParams(url);
-    return parse(params).pipe(
-      Effect.mapError((error) => createError("path", formatParseError(error))),
+    return parse(params, parseOptions).pipe(
+      Effect.mapError((error) =>
+        createError("path", formatParseError(error, parseOptions)),
+      ),
     );
   };
 };
