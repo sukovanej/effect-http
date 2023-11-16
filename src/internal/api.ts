@@ -58,7 +58,7 @@ const arrayOfTupleEquals = ReadonlyArray.getEquivalence(tupleEquivalence);
 const checkPathPatternMatchesSchema = (
   id: string,
   path: string,
-  schema?: utils.AnySchema,
+  schema?: Schema.Schema<any>,
 ) => {
   const fromSchema = pipe(
     schema === undefined ? [] : utils.getSchemaPropertySignatures(schema),
@@ -141,7 +141,7 @@ export const endpoint =
  *
  *  @internal
  */
-export const fieldsToLowerCase = (s: utils.AnySchema) => {
+export const fieldsToLowerCase = (s: Schema.Schema<any>) => {
   const ast = s.ast;
 
   if (ast._tag !== "TypeLiteral") {

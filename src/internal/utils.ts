@@ -11,20 +11,19 @@ import * as Option from "effect/Option";
 import * as Predicate from "effect/Predicate";
 
 /** @internal */
-export const getSchema = <A = AnySchema>(
-  input: AnySchema | Api.IgnoredSchemaId,
-  defaultSchema: AnySchema | A = Schema.unknown,
+export const getSchema = <A = Schema.Schema<any>>(
+  input: Schema.Schema<any> | Api.IgnoredSchemaId,
+  defaultSchema: Schema.Schema<any> | A = Schema.unknown,
 ) => (input == Api.IgnoredSchemaId ? defaultSchema : input);
 
 /** @internal */
-export const getSchemaOption = (input: AnySchema | Api.IgnoredSchemaId) =>
+export const getSchemaOption = (input: Schema.Schema<any> | Api.IgnoredSchemaId) =>
   input == Api.IgnoredSchemaId ? Option.none() : Option.some(input);
 
 /** @internal */
 export const isArray = (input: unknown): input is readonly any[] =>
   Array.isArray(input);
 
-export type AnySchema = Schema.Schema<any>;
 export type SchemaTo<S> = S extends Schema.Schema<any, infer A> ? A : never;
 
 /** @internal */
@@ -98,7 +97,7 @@ export const createRequestEncoder = (
 };
 
 /** @internal */
-export const getSchemaPropertySignatures = (schema: AnySchema) => {
+export const getSchemaPropertySignatures = (schema: Schema.Schema<any>) => {
   let ast = schema.ast;
 
   if (ast._tag === "Transform") {

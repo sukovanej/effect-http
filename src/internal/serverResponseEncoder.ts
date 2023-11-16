@@ -37,7 +37,7 @@ export const create = (
   return fromResponseSchemaFullArray([responseSchema]);
 };
 
-const fromSchema = (schema: utils.AnySchema): ServerResponseEncoder => {
+const fromSchema = (schema: Schema.Schema<any>): ServerResponseEncoder => {
   const encode = ServerResponse.schemaJson(schema);
   return make((body) => Effect.mapError(encode(body), convertBodyError));
 };

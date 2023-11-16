@@ -1,10 +1,10 @@
 import * as ClientResponse from "@effect/platform/Http/ClientResponse";
 import * as Schema from "@effect/schema/Schema";
-import * as Effect from "effect/Effect";
-import * as Unify from "effect/Unify";
 import * as Api from "effect-http/Api";
 import * as ClientError from "effect-http/ClientError";
 import * as utils from "effect-http/internal/utils";
+import * as Effect from "effect/Effect";
+import * as Unify from "effect/Unify";
 
 interface ClientResponseParser {
   parseResponse: (
@@ -46,7 +46,7 @@ const handleUnsucessful = Unify.unify(
   },
 );
 
-const fromSchema = (schema: utils.AnySchema): ClientResponseParser => {
+const fromSchema = (schema: Schema.Schema<any>): ClientResponseParser => {
   const parse = Schema.parse(schema);
   return make((response) =>
     Effect.gen(function* (_) {
