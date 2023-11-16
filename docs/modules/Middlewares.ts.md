@@ -14,19 +14,20 @@ Added in v1.0.0
 
 <h2 class="text-delta">Table of contents</h2>
 
-- [basic auth](#basic-auth)
+- [authorization](#authorization)
   - [basicAuth](#basicauth)
-- [basic auth extension](#basic-auth-extension)
-  - [BasicAuthCredentials (interface)](#basicauthcredentials-interface)
-- [extensions](#extensions)
+- [logging](#logging)
   - [accessLog](#accesslog)
-  - [endpointCallsMetric](#endpointcallsmetric)
   - [errorLog](#errorlog)
   - [uuidLogAnnotation](#uuidlogannotation)
+- [metrics](#metrics)
+  - [endpointCallsMetric](#endpointcallsmetric)
+- [models](#models)
+  - [BasicAuthCredentials (interface)](#basicauthcredentials-interface)
 
 ---
 
-# basic auth
+# authorization
 
 ## basicAuth
 
@@ -43,22 +44,7 @@ export declare const basicAuth: <R, _>(
 
 Added in v1.0.0
 
-# basic auth extension
-
-## BasicAuthCredentials (interface)
-
-**Signature**
-
-```ts
-export interface BasicAuthCredentials {
-  user: string
-  password: string
-}
-```
-
-Added in v1.0.0
-
-# extensions
+# logging
 
 ## accessLog
 
@@ -72,21 +58,6 @@ is `Debug`.
 export declare const accessLog: (
   level?: "Info" | "Warning" | "Debug"
 ) => <R, E>(app: Default<R, E>) => Effect.Effect<ServerRequest.ServerRequest | R, E, ServerResponse>
-```
-
-Added in v1.0.0
-
-## endpointCallsMetric
-
-Measure how many times each endpoint was called in a
-`server.endpoint_calls` counter metrics.
-
-**Signature**
-
-```ts
-export declare const endpointCallsMetric: () => <R, E>(
-  app: Default<R, E>
-) => Effect.Effect<ServerRequest.ServerRequest | R, E, ServerResponse>
 ```
 
 Added in v1.0.0
@@ -111,7 +82,7 @@ Annotate request logs using generated UUID. The default annotation key is `reque
 The annotation key is configurable using the first argument.
 
 Note that in order to apply the annotation also for access logging, you should
-make sure the `access-log` extension runs after the `uuid-log-annotation`.
+make sure the `access-log` middleware is plugged after the `uuid-log-annotation`.
 
 **Signature**
 
@@ -119,6 +90,38 @@ make sure the `access-log` extension runs after the `uuid-log-annotation`.
 export declare const uuidLogAnnotation: (
   logAnnotationKey?: string
 ) => <R, E>(app: Default<R, E>) => Effect.Effect<ServerRequest.ServerRequest | R, E, ServerResponse>
+```
+
+Added in v1.0.0
+
+# metrics
+
+## endpointCallsMetric
+
+Measure how many times each endpoint was called in a
+`server.endpoint_calls` counter metrics.
+
+**Signature**
+
+```ts
+export declare const endpointCallsMetric: () => <R, E>(
+  app: Default<R, E>
+) => Effect.Effect<ServerRequest.ServerRequest | R, E, ServerResponse>
+```
+
+Added in v1.0.0
+
+# models
+
+## BasicAuthCredentials (interface)
+
+**Signature**
+
+```ts
+export interface BasicAuthCredentials {
+  user: string
+  password: string
+}
 ```
 
 Added in v1.0.0

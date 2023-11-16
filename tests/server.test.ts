@@ -189,7 +189,7 @@ test("Response containing optional field", async () => {
   ]);
 });
 
-test("failing after handler extension", async () => {
+test("failing after unauthorized middleware", async () => {
   const app = RouterBuilder.make(exampleApiGetStringResponse).pipe(
     RouterBuilder.handle("hello", () => Effect.succeed(1)),
     RouterBuilder.build,

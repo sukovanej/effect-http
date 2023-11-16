@@ -20,7 +20,7 @@ import * as Metric from "effect/Metric";
  * Optionally configure log level using the first argument. The default log level
  * is `Debug`.
  *
- * @category extensions
+ * @category logging
  * @since 1.0.0
  */
 export const accessLog = (level: "Info" | "Warning" | "Debug" = "Info") =>
@@ -39,9 +39,9 @@ export const accessLog = (level: "Info" | "Warning" | "Debug" = "Info") =>
  * The annotation key is configurable using the first argument.
  *
  * Note that in order to apply the annotation also for access logging, you should
- * make sure the `access-log` extension runs after the `uuid-log-annotation`.
+ * make sure the `access-log` middleware is plugged after the `uuid-log-annotation`.
  *
- * @category extensions
+ * @category logging
  * @since 1.0.0
  */
 export const uuidLogAnnotation = (logAnnotationKey = "requestId") =>
@@ -62,7 +62,7 @@ export const uuidLogAnnotation = (logAnnotationKey = "requestId") =>
  * Measure how many times each endpoint was called in a
  * `server.endpoint_calls` counter metrics.
  *
- * @category extensions
+ * @category metrics
  * @since 1.0.0
  */
 export const endpointCallsMetric = () => {
@@ -85,7 +85,7 @@ export const endpointCallsMetric = () => {
 /**
  * Logs out a handler failure.
  *
- * @category extensions
+ * @category logging
  * @since 1.0.0
  */
 export const errorLog = Middleware.make((app) =>
@@ -117,7 +117,7 @@ export const errorLog = Middleware.make((app) =>
 );
 
 /**
- * @category basic auth extension
+ * @category models
  * @since 1.0.0
  */
 export interface BasicAuthCredentials {
@@ -128,7 +128,7 @@ export interface BasicAuthCredentials {
 /**
  * Basic auth middleware.
  *
- * @category basic auth
+ * @category authorization
  * @since 1.0.0
  */
 export const basicAuth = <R, _>(

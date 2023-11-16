@@ -1,13 +1,18 @@
 import { Schema } from "@effect/schema";
-import { pipe } from "effect";
 import { Api } from "effect-http";
 
-export const api = pipe(
-  Api.api({ title: "My api" }),
-  Api.get("stuff", "/stuff/:param", {
-    response: Schema.struct({ value: Schema.number }),
-    body: Schema.struct({ bodyField: Schema.array(Schema.string) }),
-    query: { query: Schema.string },
-    params: { param: Schema.string },
+const Stuff = Schema.struct({ value: Schema.number });
+const StuffRequest = Schema.struct({ field: Schema.array(Schema.string) });
+const StuffQuery = Schema.struct({ value: Schema.string });
+const StuffParams = Schema.struct({ param: Schema.string });
+
+export const api = Api.api({ title: "My api" }).pipe(
+  Api.post("stuff", "/stuff/:param", {
+    response: Stuff,
+    request: {
+      body: StuffRequest,
+      query: StuffQuery,
+      params: StuffParams,
+    },
   }),
 );
