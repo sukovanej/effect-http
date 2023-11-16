@@ -85,7 +85,7 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-static fromResponseError(error: HttpClient.error.ResponseError)
+static fromResponseError(error: PlatformClientError.ResponseError)
 ```
 
 Added in v1.0.0
