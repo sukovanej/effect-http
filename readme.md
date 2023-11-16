@@ -421,7 +421,7 @@ const app = RouterBuilder.make(api).pipe(
       ),
       Effect.filterOrFail(
         (alreadyExists) => !alreadyExists,
-        () => ServerError.makeText(409, `User "${body.name}" already exists.`),
+        () => ServerError.conflictError(`User "${body.name}" already exists.`),
       ),
       Effect.flatMap(() =>
         Effect.flatMap(UserRepository, (repository) =>
