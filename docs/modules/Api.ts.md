@@ -190,6 +190,8 @@ export interface Api<E extends Endpoint = Endpoint> extends Pipeable.Pipeable {
   options: {
     title: string
     version: string
+    description?: string
+    license?: OpenApi.OpenAPISpecLicense
   }
 }
 ```
@@ -245,12 +247,12 @@ Added in v1.0.0
 
 ```ts
 export interface EndpointSchemas {
-  response: utils.AnySchema | ResponseSchemaFull | readonly ResponseSchemaFull[]
+  response: Schema.Schema<any> | ResponseSchemaFull | readonly ResponseSchemaFull[]
   request: {
-    query: utils.AnySchema | IgnoredSchemaId
-    params: utils.AnySchema | IgnoredSchemaId
-    body: utils.AnySchema | IgnoredSchemaId
-    headers: utils.AnySchema | IgnoredSchemaId
+    query: Schema.Schema<any> | IgnoredSchemaId
+    params: Schema.Schema<any> | IgnoredSchemaId
+    body: Schema.Schema<any> | IgnoredSchemaId
+    headers: Schema.Schema<any> | IgnoredSchemaId
   }
 }
 ```
@@ -263,12 +265,12 @@ Added in v1.0.0
 
 ```ts
 export interface InputEndpointSchemas {
-  response: InputResponseSchemaFull | readonly InputResponseSchemaFull[] | utils.AnySchema
+  response: InputResponseSchemaFull | readonly InputResponseSchemaFull[] | Schema.Schema<any>
   request?: {
-    query?: utils.AnySchema
-    params?: utils.AnySchema
-    body?: utils.AnySchema
-    headers?: utils.AnySchema
+    query?: Schema.Schema<any>
+    params?: Schema.Schema<any>
+    body?: Schema.Schema<any>
+    headers?: Schema.Schema<any>
   }
 }
 ```

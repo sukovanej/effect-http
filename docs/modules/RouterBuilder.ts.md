@@ -26,6 +26,7 @@ Added in v1.0.0
 - [mapping](#mapping)
   - [mapRouter](#maprouter)
 - [models](#models)
+  - [Options (interface)](#options-interface)
   - [RouterBuilder (interface)](#routerbuilder-interface)
 
 ---
@@ -131,7 +132,8 @@ Create a new unimplemeted `RouterBuilder` from an `Api`.
 
 ```ts
 export declare const make: <Api extends Api.Api<Api.Endpoint>>(
-  api: Api
+  api: Api,
+  options?: Partial<Options>
 ) => RouterBuilder<never, never, Api["endpoints"][number]>
 ```
 
@@ -155,6 +157,18 @@ Added in v1.0.0
 
 # models
 
+## Options (interface)
+
+**Signature**
+
+```ts
+export interface Options {
+  parseOptions: AST.ParseOptions
+}
+```
+
+Added in v1.0.0
+
 ## RouterBuilder (interface)
 
 **Signature**
@@ -164,6 +178,7 @@ export interface RouterBuilder<R, E, RemainingEndpoints extends Api.Endpoint> ex
   remainingEndpoints: readonly RemainingEndpoints[]
   api: Api.Api
   router: Router.Router<R, E>
+  options: Options
 }
 ```
 

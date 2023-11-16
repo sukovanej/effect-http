@@ -30,7 +30,8 @@ Added in v1.0.0
 
 ```ts
 export declare const fromEndpoint: <Endpoint extends Api.Endpoint, R, E>(
-  fn: HandlerFunction<Endpoint, R, E>
+  fn: HandlerFunction<Endpoint, R, E>,
+  options?: RouterBuilder.Options
 ) => (endpoint: Endpoint) => Router.Route<R, Exclude<E, ServerError.ServerError>>
 ```
 
@@ -43,7 +44,8 @@ Added in v1.0.0
 ```ts
 export declare const make: <A extends Api.Api<Api.Endpoint>, Id extends A["endpoints"][number]["id"], R, E>(
   id: Id,
-  fn: HandlerFunction<Extract<A["endpoints"][number], { id: Id }>, R, E>
+  fn: HandlerFunction<Extract<A["endpoints"][number], { id: Id }>, R, E>,
+  options?: RouterBuilder.Options
 ) => (api: A) => Router.Route<R, Exclude<E, ServerError.ServerError>>
 ```
 

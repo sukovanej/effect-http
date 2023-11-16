@@ -16,7 +16,7 @@ import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
 import type * as Types from "effect/Types";
 
-import { AnySchema, SchemaTo } from "./internal/utils";
+import { SchemaTo } from "./internal/utils";
 
 /**
  * @category models
@@ -113,9 +113,10 @@ export type ResponseSchemaFullTo<S extends Api.ResponseSchemaFull> =
         {
           status: S["status"];
         } & {
-          [K in Exclude<RequiredFields<S>, "status">]: S[K] extends AnySchema
-            ? SchemaTo<S[K]>
-            : never;
+          [K in Exclude<
+            RequiredFields<S>,
+            "status"
+          >]: S[K] extends Schema.Schema<any> ? SchemaTo<S[K]> : never;
         }
       >
     : never;
