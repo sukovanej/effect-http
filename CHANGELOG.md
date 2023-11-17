@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.38.3
+
+### Patch Changes
+
+- a054d92: Make `SwaggerRouter` platform agnostic.
+
 ## 0.38.2
 
 ### Patch Changes
