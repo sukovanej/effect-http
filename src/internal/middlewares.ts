@@ -166,8 +166,7 @@ export const cors = (options?: Partial<Middlewares.CorsOptions>) => {
       const request = yield* _(ServerRequest.ServerRequest);
       let response = yield* _(app);
 
-      const url =
-        request.headers["host"] || request.headers["origin"] || request.url;
+      const url = request.headers["origin"] || request.url;
 
       if (options?.allowAllOrigins || allowedOrigins.includes(url)) {
         response = response.pipe(
