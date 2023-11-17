@@ -46,6 +46,10 @@ export const make = <R, E, Endpoints extends Api.Endpoint>(
       Effect.promise(() => import("@effect/platform-node/Http/Server")),
     );
 
+    const NodeContext = yield* _(
+      Effect.promise(() => import("@effect/platform-node/NodeContext")),
+    );
+
     const NodeServerLive = NodeServer.layer(() => createServer(), {
       port: undefined,
     });
@@ -56,6 +60,7 @@ export const make = <R, E, Endpoints extends Api.Endpoint>(
       Effect.flatMap(() => Server.serve(app)),
       Effect.provide(NodeServerLive),
       Effect.provide(SwaggerRouter.SwaggerFilesLive),
+      Effect.provide(NodeContext.layer),
       Effect.forkScoped,
     );
 
