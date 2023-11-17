@@ -16,6 +16,7 @@ Added in v1.0.0
 
 - [authorization](#authorization)
   - [basicAuth](#basicauth)
+  - [cors](#cors)
 - [logging](#logging)
   - [accessLog](#accesslog)
   - [errorLog](#errorlog)
@@ -24,6 +25,7 @@ Added in v1.0.0
   - [endpointCallsMetric](#endpointcallsmetric)
 - [models](#models)
   - [BasicAuthCredentials (interface)](#basicauthcredentials-interface)
+  - [CorsOptions (interface)](#corsoptions-interface)
 
 ---
 
@@ -36,10 +38,22 @@ Basic auth middleware.
 **Signature**
 
 ```ts
-export declare const basicAuth: <R, _>(
-  checkCredentials: (credentials: BasicAuthCredentials) => Effect.Effect<R, ServerError.ServerError, _>,
+export declare const basicAuth: <R2, _>(
+  checkCredentials: (credentials: BasicAuthCredentials) => Effect.Effect<R2, ServerError.ServerError, _>,
   options?: Partial<{ headerName: string; skipPaths: readonly string[] }>
-) => <R, E>(app: Default<R, E>) => Effect.Effect<ServerRequest.ServerRequest | R | R, E, ServerResponse>
+) => <R1, E>(app: App.Default<R1, E>) => App.Default<R2 | R1, E>
+```
+
+Added in v1.0.0
+
+## cors
+
+Basic auth middleware.
+
+**Signature**
+
+```ts
+export declare const cors: (options?: Partial<CorsOptions>) => <R, E>(app: App.Default<R, E>) => App.Default<R, E>
 ```
 
 Added in v1.0.0
@@ -57,7 +71,7 @@ is `Debug`.
 ```ts
 export declare const accessLog: (
   level?: "Info" | "Warning" | "Debug"
-) => <R, E>(app: Default<R, E>) => Effect.Effect<ServerRequest.ServerRequest | R, E, ServerResponse>
+) => <R, E>(app: App.Default<R, E>) => App.Default<R, E>
 ```
 
 Added in v1.0.0
@@ -69,9 +83,7 @@ Logs out a handler failure.
 **Signature**
 
 ```ts
-export declare const errorLog: <R, E>(
-  app: Default<R, E>
-) => Effect.Effect<ServerRequest.ServerRequest | R, E, ServerResponse>
+export declare const errorLog: <R, E>(app: App.Default<R, E>) => App.Default<R, E>
 ```
 
 Added in v1.0.0
@@ -82,14 +94,14 @@ Annotate request logs using generated UUID. The default annotation key is `reque
 The annotation key is configurable using the first argument.
 
 Note that in order to apply the annotation also for access logging, you should
-make sure the `access-log` middleware is plugged after the `uuid-log-annotation`.
+make sure the `accessLog` middleware is plugged after the `uuidLogAnnotation`.
 
 **Signature**
 
 ```ts
 export declare const uuidLogAnnotation: (
   logAnnotationKey?: string
-) => <R, E>(app: Default<R, E>) => Effect.Effect<ServerRequest.ServerRequest | R, E, ServerResponse>
+) => <R, E>(app: App.Default<R, E>) => App.Default<R, E>
 ```
 
 Added in v1.0.0
@@ -104,9 +116,7 @@ Measure how many times each endpoint was called in a
 **Signature**
 
 ```ts
-export declare const endpointCallsMetric: () => <R, E>(
-  app: Default<R, E>
-) => Effect.Effect<ServerRequest.ServerRequest | R, E, ServerResponse>
+export declare const endpointCallsMetric: () => <R, E>(app: App.Default<R, E>) => App.Default<R, E>
 ```
 
 Added in v1.0.0
@@ -121,6 +131,19 @@ Added in v1.0.0
 export interface BasicAuthCredentials {
   user: string
   password: string
+}
+```
+
+Added in v1.0.0
+
+## CorsOptions (interface)
+
+**Signature**
+
+```ts
+export interface CorsOptions {
+  allowedOrigins: string | readonly string[]
+  allowAllOrigins: boolean
 }
 ```
 

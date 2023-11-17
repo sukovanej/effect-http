@@ -77,7 +77,7 @@ test("human-readable error response", async () => {
   );
 
   expect(result).toMatchObject(
-    ClientError.HttpClientError.create("Didnt find it", 404),
+    ClientError.makeServerSide("Didnt find it", 404),
   );
 });
 
@@ -205,7 +205,7 @@ test("failing after unauthorized middleware", async () => {
     runTestEffect,
   );
 
-  expect(result).toEqual(ClientError.HttpClientError.create("sorry bro", 403));
+  expect(result).toEqual(ClientError.makeServerSide("sorry bro", 403));
 });
 
 describe("type safe responses", () => {

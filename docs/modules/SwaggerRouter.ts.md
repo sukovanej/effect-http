@@ -43,7 +43,7 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-export declare const SwaggerFiles: Tag<SwaggerFiles, SwaggerFiles>
+export declare const SwaggerFiles: Context.Tag<SwaggerFiles, SwaggerFiles>
 ```
 
 Added in v1.0.0

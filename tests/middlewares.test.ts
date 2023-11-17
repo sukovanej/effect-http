@@ -9,6 +9,7 @@ import {
   ServerError,
   Testing,
 } from "effect-http";
+import { apply } from "effect/Function";
 
 import { runTestEffect } from "./utils";
 
@@ -86,8 +87,29 @@ test("basic auth", async () => {
   );
 
   expect(result).toEqual([
-    ClientError.HttpClientError.create("Wrong credentials", 403),
+    ClientError.makeServerSide("Wrong credentials", 403),
     "test",
     "pong",
   ]);
+});
+
+test("cors", async () => {
+  const api = Api.api().pipe(
+    Api.get("test", "/test", {
+      response: Schema.string,
+    }),
+  );
+
+  const app = RouterBuilder.make(api).pipe(
+    RouterBuilder.handle("test", () => Effect.succeed("hello")),
+    RouterBuilder.build,
+    Middlewares.cors({ allowAllOrigins: true }),
+  );
+
+  const response = await Testing.makeRaw(app).pipe(
+    Effect.flatMap(apply(ClientRequest.get("/test"))),
+    runTestEffect,
+  );
+
+  expect(response.headers["access-control-allow-origin"]).contains("localhost");
 });

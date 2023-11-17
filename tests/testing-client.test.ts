@@ -3,8 +3,13 @@ import { FileSystem, NodeContext } from "@effect/platform-node";
 import * as Router from "@effect/platform/Http/Router";
 import { Schema } from "@effect/schema";
 import { Context, Effect, Predicate, pipe } from "effect";
-import { Api, RouterBuilder, ServerError, Testing } from "effect-http";
-import { HttpClientError } from "effect-http/ClientError";
+import {
+  Api,
+  ClientError,
+  RouterBuilder,
+  ServerError,
+  Testing,
+} from "effect-http";
 
 import { runTestEffect } from "./utils";
 
@@ -59,7 +64,7 @@ test("testing failure", async () => {
     runTestEffect,
   );
 
-  expect(response).toEqual(HttpClientError.create("oh oh", 404));
+  expect(response).toEqual(ClientError.makeServerSide("oh oh", 404));
 });
 
 test("testing with dependencies", async () => {

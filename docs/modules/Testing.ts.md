@@ -16,6 +16,7 @@ Added in v1.0.0
 
 - [constructors](#constructors)
   - [make](#make)
+  - [makeRaw](#makeraw)
 
 ---
 
@@ -29,17 +30,40 @@ Create a testing client for the `Server`.
 
 ```ts
 export declare const make: <R, E, Endpoints extends Api.Endpoint>(
-  app: App.Default<R | SwaggerRouter.SwaggerFiles, E>,
+  app: App.Default<R, E>,
   api: Api.Api<Endpoints>,
   options?: Partial<Client.Options>
 ) => Effect.Effect<
   | Scope.Scope
   | Exclude<
-      Exclude<Exclude<R, ServerRequest.ServerRequest>, PlatformNodeServer.Server | Platform.Platform>,
+      Exclude<Exclude<R, ServerRequest.ServerRequest>, Server.Server | Platform.Platform>,
       SwaggerRouter.SwaggerFiles
     >,
   never,
   Client.Client<Endpoints>
+>
+```
+
+Added in v1.0.0
+
+## makeRaw
+
+Create a testing client for the `Server`. Instead of the `Client.Client` interface
+it returns a raw _@effect/platform/Http/Client_ `Client` with base url set.
+
+**Signature**
+
+```ts
+export declare const makeRaw: <R, E>(
+  app: App.Default<R, E>
+) => Effect.Effect<
+  | Scope.Scope
+  | Exclude<
+      Exclude<Exclude<R, ServerRequest.ServerRequest>, Server.Server | Platform.Platform>,
+      SwaggerRouter.SwaggerFiles
+    >,
+  never,
+  PlatformClient.Client<never, PlatformClientError.HttpClientError, ClientResponse.ClientResponse>
 >
 ```
 

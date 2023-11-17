@@ -1,7 +1,9 @@
 import * as ClientRequest from "@effect/platform/Http/ClientRequest";
 import * as HttpServer from "@effect/platform/HttpServer";
 import { Effect, Option } from "effect";
+import { Testing } from "effect-http";
 import * as Route from "effect-http/Route";
+import { apply } from "effect/Function";
 
 import {
   exampleApiGet,
@@ -14,12 +16,15 @@ import {
   exampleApiRequestBody,
   exampleApiRequestHeaders,
 } from "./examples";
-import { runTestEffect, testRouter } from "./utils";
+import { runTestEffect } from "./utils";
 
 const testRoute = <R, E>(
   route: HttpServer.router.Route<R, E>,
   request: ClientRequest.ClientRequest,
-) => testRouter(HttpServer.router.fromIterable([route]), request);
+) =>
+  Testing.makeRaw(HttpServer.router.fromIterable([route])).pipe(
+    Effect.flatMap(apply(request)),
+  );
 
 const exampleRouteGetQueryParameter = exampleApiGetQueryParameter.pipe(
   Route.make("hello", ({ query }) => Effect.succeed(query.country)),

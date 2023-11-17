@@ -35,9 +35,7 @@ const handleUnsucessful = Unify.unify(
         Effect.orElse(() => response.text),
         Effect.orElseSucceed(() => "No body provided"),
         Effect.flatMap((error) =>
-          Effect.fail(
-            ClientError.HttpClientError.create(error, response.status),
-          ),
+          Effect.fail(ClientError.makeServerSide(error, response.status)),
         ),
       );
     }
@@ -54,14 +52,17 @@ const fromSchema = (schema: Schema.Schema<any>): ClientResponseParser => {
 
       const json = yield* _(
         response.json,
-        Effect.mapError(ClientError.ResponseError.fromResponseError),
+        Effect.mapError((error) =>
+          ClientError.makeClientSide(
+            error,
+            `Invalid response: ${error.reason}`,
+          ),
+        ),
       );
 
       return yield* _(
         parse(json),
-        Effect.mapError(
-          ClientError.ResponseValidationError.fromParseError("body"),
-        ),
+        Effect.mapError(ClientError.makeClientSideResponseValidation("body")),
       );
     }),
   );
@@ -98,11 +99,16 @@ const fromResponseSchemaFullArray = (
           ? undefined
           : yield* _(
               response.json,
-              Effect.mapError(ClientError.ResponseError.fromResponseError),
+              Effect.mapError((error) =>
+                ClientError.makeClientSide(
+                  error,
+                  `Invalid response: ${error.reason}`,
+                ),
+              ),
               Effect.flatMap((json) =>
                 Schema.parse(contextSchema)(json).pipe(
                   Effect.mapError(
-                    ClientError.ResponseValidationError.fromParseError("body"),
+                    ClientError.makeClientSideResponseValidation("body"),
                   ),
                 ),
               ),
@@ -115,7 +121,7 @@ const fromResponseSchemaFullArray = (
               response.headers,
               Schema.parse(schemas.headers),
               Effect.mapError(
-                ClientError.ResponseValidationError.fromParseError("headers"),
+                ClientError.makeClientSideResponseValidation("headers"),
               ),
             );
 
