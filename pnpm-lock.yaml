@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@effect/platform':
-    specifier: ^0.30.2
-    version: 0.30.2(@effect/schema@0.48.1)(effect@2.0.0-next.55)
+    specifier: ^0.30.4
+    version: 0.30.4(@effect/schema@0.48.1)(effect@2.0.0-next.55)
   schema-openapi:
     specifier: ^0.20.1
     version: 0.20.1(@effect/schema@0.48.1)(effect@2.0.0-next.55)
@@ -23,8 +23,8 @@ devDependencies:
     specifier: ^0.3.4
     version: 0.3.4(tsx@4.1.2)(typescript@5.2.2)
   '@effect/platform-node':
-    specifier: ^0.31.2
-    version: 0.31.2(@effect/schema@0.48.1)(effect@2.0.0-next.55)
+    specifier: ^0.31.4
+    version: 0.31.4(@effect/schema@0.48.1)(effect@2.0.0-next.55)
   '@effect/schema':
     specifier: ^0.48.1
     version: 0.48.1(effect@2.0.0-next.55)(fast-check@3.13.2)
@@ -32,8 +32,8 @@ devDependencies:
     specifier: ^4.3.0
     version: 4.3.0(prettier@3.1.0)
   '@types/node':
-    specifier: ^20.9.0
-    version: 20.9.0
+    specifier: ^20.9.1
+    version: 20.9.1
   '@types/swagger-ui-dist':
     specifier: ^3.30.4
     version: 3.30.4
@@ -56,8 +56,8 @@ devDependencies:
     specifier: ^3.1.0
     version: 3.1.0
   tsup:
-    specifier: ^7.2.0
-    version: 7.2.0(typescript@5.2.2)
+    specifier: ^7.3.0
+    version: 7.3.0(typescript@5.2.2)
   tsx:
     specifier: ^4.1.2
     version: 4.1.2
@@ -407,12 +407,12 @@ packages:
       typescript: 5.2.2
     dev: true
 
-  /@effect/platform-node@0.31.2(@effect/schema@0.48.1)(effect@2.0.0-next.55):
-    resolution: {integrity: sha512-pNJfcgM8aYAxGt7ir2/qbN+LIAnN3O2TXK0akPEowptFRRUpvjEwDhOGcLUje/1BHk4b1bikmU1tLdPOFxivOg==}
+  /@effect/platform-node@0.31.4(@effect/schema@0.48.1)(effect@2.0.0-next.55):
+    resolution: {integrity: sha512-V1XfyAuXZpYcMVjPN3PSYAADDreLYm0wPeb2Ylhec53m5PpFb2jMZJuPfEgHOTJ3T4DqJ99iMsa3U5Ga43nrvg==}
     peerDependencies:
       effect: 2.0.0-next.55
     dependencies:
-      '@effect/platform': 0.30.2(@effect/schema@0.48.1)(effect@2.0.0-next.55)
+      '@effect/platform': 0.30.4(@effect/schema@0.48.1)(effect@2.0.0-next.55)
       effect: 2.0.0-next.55
       mime: 3.0.0
       multipasta: 0.1.18
@@ -420,8 +420,8 @@ packages:
       - '@effect/schema'
     dev: true
 
-  /@effect/platform@0.30.2(@effect/schema@0.48.1)(effect@2.0.0-next.55):
-    resolution: {integrity: sha512-NdvaINbYwmOpvRdfqlmEwdeD1fH8u1XkgUGoIjatWMn1GQr46xLcZAVZAakRjGLmlI0cPx9BWZfRjRaFgUcN2w==}
+  /@effect/platform@0.30.4(@effect/schema@0.48.1)(effect@2.0.0-next.55):
+    resolution: {integrity: sha512-Vvy8YvILRr9oRxT6E5k25oE/qHRI9hbZ8mreyqFS9teB6GXFONqa6fIkp09f35RIN359hBW/vTbg1cPz47eHjA==}
     peerDependencies:
       '@effect/schema': ^0.48.0
       effect: 2.0.0-next.55
@@ -1139,8 +1139,8 @@ packages:
     resolution: {integrity: sha512-J8xLz7q2OFulZ2cyGTLE1TbbZcjpno7FaN6zdJNrgAdrJ+DZzh/uFR6YrTb4C+nXakvud8Q4+rbhoIWlYQbUFQ==}
     dev: true
 
-  /@types/node@20.9.0:
-    resolution: {integrity: sha512-nekiGu2NDb1BcVofVcEKMIwzlx4NjHlcjhoxxKBNLtz15Y1z7MYf549DFvkHSId02Ax6kGwWntIBPC3l/JZcmw==}
+  /@types/node@20.9.1:
+    resolution: {integrity: sha512-HhmzZh5LSJNS5O8jQKpJ/3ZcrrlG6L70hpGqMIAoM9YVD0YBRNWYsfwcXq8VnSjlNpCpgLzMXdiPo+dxcvSmiA==}
     dependencies:
       undici-types: 5.26.5
     dev: true
@@ -1520,13 +1520,13 @@ packages:
     resolution: {integrity: sha512-E+XQCRwSbaaiChtv6k6Dwgc+bx+Bs6vuKJHHl5kox/BaKbhiXzqQOwK4cO22yElGp2OCmjwVhT3HmxgyPGnJfQ==}
     dev: true
 
-  /bundle-require@4.0.2(esbuild@0.18.20):
+  /bundle-require@4.0.2(esbuild@0.19.5):
     resolution: {integrity: sha512-jwzPOChofl67PSTW2SGubV9HBQAhhR2i6nskiOThauo9dzwDUgOWQScFVaJkjEfYX+UXiD+LEx8EblQMc2wIag==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
     peerDependencies:
       esbuild: '>=0.17'
     dependencies:
-      esbuild: 0.18.20
+      esbuild: 0.19.5
       load-tsconfig: 0.2.5
     dev: true
 
@@ -3653,14 +3653,6 @@ packages:
       glob: 7.2.3
     dev: true
 
-  /rollup@3.29.4:
-    resolution: {integrity: sha512-oWzmBZwvYrU0iJHtDmhsm662rC15FRXmcjCk1xD771dFDx5jJ02ufAQQTn0etB2emNk4J9EZg/yWKpsn9BWGRw==}
-    engines: {node: '>=14.18.0', npm: '>=8.0.0'}
-    hasBin: true
-    optionalDependencies:
-      fsevents: 2.3.3
-    dev: true
-
   /rollup@4.4.1:
     resolution: {integrity: sha512-idZzrUpWSblPJX66i+GzrpjKE3vbYrlWirUHteoAbjKReZwa0cohAErOYA5efoMmNCdvG9yrJS+w9Kl6csaH4w==}
     engines: {node: '>=18.0.0', npm: '>=8.0.0'}
@@ -4146,14 +4138,14 @@ packages:
     resolution: {integrity: sha512-Y/arvbn+rrz3JCKl9C4kVNfTfSm2/mEp5FSz5EsZSANGPSlQrpRI5M4PKF+mJnE52jOO90PnPSc3Ur3bTQw0gA==}
     dev: true
 
-  /tsup@7.2.0(typescript@5.2.2):
-    resolution: {integrity: sha512-vDHlczXbgUvY3rWvqFEbSqmC1L7woozbzngMqTtL2PGBODTtWlRwGDDawhvWzr5c1QjKe4OAKqJGfE1xeXUvtQ==}
-    engines: {node: '>=16.14'}
+  /tsup@7.3.0(typescript@5.2.2):
+    resolution: {integrity: sha512-Ja1eaSRrE+QarmATlNO5fse2aOACYMBX+IZRKy1T+gpyH+jXgRrl5l4nHIQJQ1DoDgEjHDTw8cpE085UdBZuWQ==}
+    engines: {node: '>=18'}
     hasBin: true
     peerDependencies:
       '@swc/core': ^1
       postcss: ^8.4.12
-      typescript: '>=4.1.0'
+      typescript: '>=4.5.0'
     peerDependenciesMeta:
       '@swc/core':
         optional: true
@@ -4162,17 +4154,17 @@ packages:
       typescript:
         optional: true
     dependencies:
-      bundle-require: 4.0.2(esbuild@0.18.20)
+      bundle-require: 4.0.2(esbuild@0.19.5)
       cac: 6.7.14
       chokidar: 3.5.3
       debug: 4.3.4
-      esbuild: 0.18.20
+      esbuild: 0.19.5
       execa: 5.1.1
       globby: 11.1.0
       joycon: 3.1.1
       postcss-load-config: 4.0.1
       resolve-from: 5.0.0
-      rollup: 3.29.4
+      rollup: 4.4.1
       source-map: 0.8.0-beta.0
       sucrase: 3.34.0
       tree-kill: 1.2.2
@@ -4327,7 +4319,7 @@ packages:
       spdx-expression-parse: 3.0.1
     dev: true
 
-  /vite-node@0.34.6(@types/node@20.9.0):
+  /vite-node@0.34.6(@types/node@20.9.1):
     resolution: {integrity: sha512-nlBMJ9x6n7/Amaz6F3zJ97EBwR2FkzhBRxF5e+jE6LA3yi6Wtc2lyTij1OnDMIr34v5g/tVQtsVAzhT0jc5ygA==}
     engines: {node: '>=v14.18.0'}
     hasBin: true
@@ -4337,7 +4329,7 @@ packages:
       mlly: 1.4.2
       pathe: 1.1.1
       picocolors: 1.0.0
-      vite: 5.0.0(@types/node@20.9.0)
+      vite: 5.0.0(@types/node@20.9.1)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -4349,7 +4341,7 @@ packages:
       - terser
     dev: true
 
-  /vite@5.0.0(@types/node@20.9.0):
+  /vite@5.0.0(@types/node@20.9.1):
     resolution: {integrity: sha512-ESJVM59mdyGpsiNAeHQOR/0fqNoOyWPYesFto8FFZugfmhdHx8Fzd8sF3Q/xkVhZsyOxHfdM7ieiVAorI9RjFw==}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
@@ -4377,7 +4369,7 @@ packages:
       terser:
         optional: true
     dependencies:
-      '@types/node': 20.9.0
+      '@types/node': 20.9.1
       esbuild: 0.19.5
       postcss: 8.4.31
       rollup: 4.4.1
@@ -4418,7 +4410,7 @@ packages:
     dependencies:
       '@types/chai': 4.3.10
       '@types/chai-subset': 1.3.5
-      '@types/node': 20.9.0
+      '@types/node': 20.9.1
       '@vitest/expect': 0.34.6
       '@vitest/runner': 0.34.6
       '@vitest/snapshot': 0.34.6
@@ -4437,8 +4429,8 @@ packages:
       strip-literal: 1.3.0
       tinybench: 2.5.1
       tinypool: 0.7.0
-      vite: 5.0.0(@types/node@20.9.0)
-      vite-node: 0.34.6(@types/node@20.9.0)
+      vite: 5.0.0(@types/node@20.9.1)
+      vite-node: 0.34.6(@types/node@20.9.1)
       why-is-node-running: 2.2.2
     transitivePeerDependencies:
       - less
