@@ -1,5 +1,12 @@
 # effect-http
 
+## 0.38.1
+
+### Patch Changes
+
+- 5b2b478: Update schema-openapi.
+- a74988e: Update @effect/platform.
+
 ## 0.38.0
 
 ### Minor Changes
