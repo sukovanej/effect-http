@@ -87,7 +87,7 @@ test("basic auth", async () => {
   );
 
   expect(result).toEqual([
-    ClientError.HttpClientError.create("Wrong credentials", 403),
+    ClientError.makeServerSide("Wrong credentials", 403),
     "test",
     "pong",
   ]);

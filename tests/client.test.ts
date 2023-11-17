@@ -1,8 +1,14 @@
 import { vi } from "vitest";
 
 import { Schema } from "@effect/schema";
-import { Cause, Duration, Effect, Either, Exit, Fiber, pipe } from "effect";
-import { Api, ExampleServer, RouterBuilder, Testing } from "effect-http";
+import { Cause, Duration, Effect, Exit, Fiber, pipe } from "effect";
+import {
+  Api,
+  ClientError,
+  ExampleServer,
+  RouterBuilder,
+  Testing,
+} from "effect-http";
 
 import { exampleApiGetQueryParameter } from "./examples";
 import { runTestEffect } from "./utils";
@@ -143,12 +149,17 @@ test("missing headers", async () => {
   const result = await pipe(
     Testing.make(app, api),
     // @ts-expect-error
-    Effect.flatMap((client) => Effect.either(client.getUser())),
+    Effect.flatMap((client) => client.getUser()),
+    Effect.flip,
     runTestEffect,
   );
 
-  expect(result).toMatchObject(
-    Either.left({ _tag: "RequestEncodeError", location: "headers" }),
+  expect(result).toEqual(
+    ClientError.makeServerSide(
+      {},
+      400,
+      "Failed to encode headers. must be a generic object, received undefined",
+    ),
   );
 });
 
@@ -193,13 +204,16 @@ test("validation error", async () => {
 
   const result = await pipe(
     Testing.make(app, exampleApiGetQueryParameter),
-    Effect.flatMap((client) =>
-      Effect.either(client.hello({ query: { country: "abc" } })),
-    ),
+    Effect.flatMap((client) => client.hello({ query: { country: "abc" } })),
+    Effect.flip,
     runTestEffect,
   );
 
-  expect(result).toMatchObject(
-    Either.left({ _tag: "RequestEncodeError", location: "query" }),
+  expect(result).toEqual(
+    ClientError.makeServerSide(
+      {},
+      400,
+      'Failed to encode query parameters. country must be a string matching the pattern ^[A-Z]{2}$, received "abc"',
+    ),
   );
 });

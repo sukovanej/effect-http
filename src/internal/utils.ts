@@ -1,13 +1,12 @@
 import * as SchemaOpenApi from "schema-openapi";
 
-import * as Method from "@effect/platform/Http/Method";
-import * as ParseResult from "@effect/schema/ParseResult";
+import type * as Method from "@effect/platform/Http/Method";
+import type * as ParseResult from "@effect/schema/ParseResult";
 import * as Schema from "@effect/schema/Schema";
 import * as Api from "effect-http/Api";
 import * as ClientError from "effect-http/ClientError";
 import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
-import * as Option from "effect/Option";
 import * as Predicate from "effect/Predicate";
 
 /** @internal */
@@ -15,11 +14,6 @@ export const getSchema = <A = Schema.Schema<any>>(
   input: Schema.Schema<any> | Api.IgnoredSchemaId,
   defaultSchema: Schema.Schema<any> | A = Schema.unknown,
 ) => (input == Api.IgnoredSchemaId ? defaultSchema : input);
-
-/** @internal */
-export const getSchemaOption = (
-  input: Schema.Schema<any> | Api.IgnoredSchemaId,
-) => (input == Api.IgnoredSchemaId ? Option.none() : Option.some(input));
 
 /** @internal */
 export const isArray = (input: unknown): input is readonly any[] =>
@@ -76,22 +70,22 @@ export const createRequestEncoder = (
       query: parse(
         args["query"],
         encodeQuery,
-        ClientError.RequestEncodeError.fromParseError("query"),
+        ClientError.makeClientSideRequestValidation("query"),
       ),
       params: parse(
         args["params"],
         encodeParams,
-        ClientError.RequestEncodeError.fromParseError("params"),
+        ClientError.makeClientSideRequestValidation("params"),
       ),
       body: parse(
         args["body"],
         encodeBody,
-        ClientError.RequestEncodeError.fromParseError("body"),
+        ClientError.makeClientSideRequestValidation("body"),
       ),
       headers: parse(
         args["headers"],
         encodeHeaders,
-        ClientError.RequestEncodeError.fromParseError("headers"),
+        ClientError.makeClientSideRequestValidation("headers"),
       ),
     });
   };

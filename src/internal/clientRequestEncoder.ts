@@ -2,6 +2,7 @@ import * as ClientRequest from "@effect/platform/Http/ClientRequest";
 import * as Schema from "@effect/schema/Schema";
 import * as Api from "effect-http/Api";
 import * as ClientError from "effect-http/ClientError";
+import { formatParseError } from "effect-http/internal/formatParseError";
 import * as utils from "effect-http/internal/utils";
 import * as Effect from "effect/Effect";
 import { identity, pipe } from "effect/Function";
@@ -76,7 +77,12 @@ const createBodyEncoder = (endpoint: Api.Endpoint) => {
 
   return (body: unknown) => {
     return encode(body).pipe(
-      Effect.mapError(ClientError.RequestEncodeError.fromParseError("body")),
+      Effect.mapError((error) =>
+        ClientError.makeClientSide(
+          error,
+          `Failed to encode body. ${formatParseError(error)}`,
+        ),
+      ),
     );
   };
 };
@@ -97,7 +103,12 @@ const createQueryEncoder = (endpoint: Api.Endpoint) => {
 
   return (query: unknown) => {
     return encode(query).pipe(
-      Effect.mapError(ClientError.RequestEncodeError.fromParseError("query")),
+      Effect.mapError((error) =>
+        ClientError.makeClientSide(
+          error,
+          `Failed to encode query parameters. ${formatParseError(error)}`,
+        ),
+      ),
     );
   };
 };
@@ -114,7 +125,12 @@ const createHeadersEncoder = (endpoint: Api.Endpoint) => {
     }
 
     return (encode ?? Effect.succeed)(headers).pipe(
-      Effect.mapError(ClientError.RequestEncodeError.fromParseError("headers")),
+      Effect.mapError((error) =>
+        ClientError.makeClientSide(
+          error,
+          `Failed to encode headers. ${formatParseError(error)}`,
+        ),
+      ),
     );
   };
 };
@@ -130,7 +146,12 @@ const createParamsEncoder = (endpoint: Api.Endpoint) => {
 
   return (params: unknown) => {
     return encode(params).pipe(
-      Effect.mapError(ClientError.RequestEncodeError.fromParseError("params")),
+      Effect.mapError((error) =>
+        ClientError.makeClientSide(
+          error,
+          `Failed to encode path parmeters. ${formatParseError(error)}`,
+        ),
+      ),
     );
   };
 };
