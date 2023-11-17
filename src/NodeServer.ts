@@ -51,6 +51,10 @@ export const listen =
         Effect.promise(() => import("@effect/platform-node/Http/Server")),
       );
 
+      const NodeContext = yield* _(
+        Effect.promise(() => import("@effect/platform-node/NodeContext")),
+      );
+
       const { createServer } = yield* _(Effect.promise(() => import("http")));
 
       const NodeServerLive = NodeServer.layer(() => createServer(), _options);
@@ -70,6 +74,7 @@ export const listen =
           Effect.scoped,
           Effect.provide(NodeServerLive),
           Effect.provide(SwaggerRouter.SwaggerFilesLive),
+          Effect.provide(NodeContext.layer),
         ),
       );
     });

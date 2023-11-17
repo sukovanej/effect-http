@@ -3,12 +3,10 @@
  *
  * @since 1.0.0
  */
-import fs from "fs";
-import path from "path";
-import { getAbsoluteFSPath } from "swagger-ui-dist";
-
+import * as FileSystem from "@effect/platform/FileSystem";
 import * as Router from "@effect/platform/Http/Router";
 import * as ServerResponse from "@effect/platform/Http/ServerResponse";
+import * as Path from "@effect/platform/Path";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
@@ -36,22 +34,9 @@ window.onload = function() {
 
 /** @internal */
 const readFile = (path: string) =>
-  Effect.async<never, never, string>((cb) =>
-    fs.readFile(path, "utf-8", (error, buffer) => {
-      if (error) {
-        cb(Effect.die(error));
-      } else {
-        cb(Effect.succeed(buffer));
-      }
-    }),
+  Effect.flatMap(FileSystem.FileSystem, (fs) =>
+    fs.readFileString(path, "utf-8"),
   );
-
-/** @internal */
-const swaggerBasePath = getAbsoluteFSPath();
-
-/** @internal */
-const readSwaggerFile = (file: string) =>
-  readFile(path.join(swaggerBasePath, file)).pipe(Effect.orDie);
 
 const SWAGGER_FILE_NAMES = [
   "index.html",
@@ -63,11 +48,20 @@ const SWAGGER_FILE_NAMES = [
   "favicon-16x16.png",
 ];
 
+/** @internal */
+const readSwaggerFile = (swaggerBasePath: string, file: string) =>
+  Effect.flatMap(Path.Path, (path) =>
+    readFile(path.resolve(swaggerBasePath, file)).pipe(Effect.orDie),
+  );
+
 /**
  * @category models
  * @since 1.0.0
  */
-export type SwaggerFiles = Record<string, string>;
+export interface SwaggerFiles {
+  files: Record<string, string>;
+  absolutePath: string;
+}
 
 /**
  * @category context
@@ -79,20 +73,31 @@ export const SwaggerFiles = Context.Tag<SwaggerFiles>();
  * @category context
  * @since 1.0.0
  */
-export const SwaggerFilesLive = pipe(
-  SWAGGER_FILE_NAMES,
-  Effect.forEach((path) =>
-    Effect.zip(Effect.succeed(path), readSwaggerFile(path)),
-  ),
-  Effect.tap((files) => {
-    const size = files.reduce((acc, [_, content]) => acc + content.length, 0);
-    const sizeMb = (size / 1024 / 1024).toFixed(1);
+export const SwaggerFilesLive = Effect.gen(function* (_) {
+  const { getAbsoluteFSPath } = yield* _(
+    Effect.promise(() => import("swagger-ui-dist")),
+  );
 
-    return Effect.logDebug(`Static swagger UI files loaded (${sizeMb}MB)`);
-  }),
-  Effect.map(ReadonlyRecord.fromEntries),
-  Layer.effect(SwaggerFiles),
-);
+  const absolutePath = getAbsoluteFSPath();
+
+  const files = yield* _(
+    SWAGGER_FILE_NAMES,
+    Effect.forEach((path) =>
+      Effect.zip(Effect.succeed(path), readSwaggerFile(absolutePath, path)),
+    ),
+    Effect.map(ReadonlyRecord.fromEntries),
+  );
+
+  const size = Object.entries(files).reduce(
+    (acc, [_, content]) => acc + content.length,
+    0,
+  );
+  const sizeMb = (size / 1024 / 1024).toFixed(1);
+
+  yield* _(Effect.logDebug(`Static swagger UI files loaded (${sizeMb}MB)`));
+
+  return { files, absolutePath };
+}).pipe(Layer.effect(SwaggerFiles));
 
 /** @internal */
 const createHeaders = (file: string) => {
@@ -116,8 +121,8 @@ const serverStaticDocsFile = (filename: string) => {
   return Router.get(
     `/docs/${filename}`,
     Effect.gen(function* (_) {
-      const swaggerFiles = yield* _(SwaggerFiles);
-      const content = swaggerFiles[filename];
+      const { files } = yield* _(SwaggerFiles);
+      const content = files[filename];
 
       return ServerResponse.text(content, { ...(headers && { headers }) });
     }),
