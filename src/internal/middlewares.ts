@@ -7,6 +7,7 @@ import * as crypto from "crypto";
 
 import * as Middleware from "@effect/platform/Http/Middleware";
 import * as ServerRequest from "@effect/platform/Http/ServerRequest";
+import * as ServerResponse from "@effect/platform/Http/ServerResponse";
 import type * as Middlewares from "effect-http/Middlewares";
 import * as ServerError from "effect-http/ServerError";
 import * as Effect from "effect/Effect";
@@ -152,3 +153,31 @@ export const basicAuth = <R, _>(
       return yield* _(app);
     }),
   );
+
+export const cors = (options?: Partial<Middlewares.CorsOptions>) => {
+  const _allowedOrigings = options?.allowedOrigins ?? [];
+  const allowedOrigins =
+    typeof _allowedOrigings === "string"
+      ? [_allowedOrigings]
+      : _allowedOrigings;
+
+  return Middleware.make((app) =>
+    Effect.gen(function* (_) {
+      const request = yield* _(ServerRequest.ServerRequest);
+      let response = yield* _(app);
+
+      const url =
+        request.headers["host"] || request.headers["origin"] || request.url;
+
+      if (options?.allowAllOrigins || allowedOrigins.includes(url)) {
+        response = response.pipe(
+          ServerResponse.setHeaders({
+            "Access-Control-Allow-Origin": url,
+          }),
+        );
+      }
+
+      return response;
+    }),
+  );
+};

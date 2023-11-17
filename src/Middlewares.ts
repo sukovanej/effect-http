@@ -80,3 +80,22 @@ export const basicAuth: <R2, _>(
   }>,
 ) => <R1, E>(app: App.Default<R1, E>) => App.Default<R1 | R2, E> =
   internal.basicAuth;
+
+/**
+ * @category models
+ * @since 1.0.0
+ */
+export interface CorsOptions {
+  allowedOrigins: string | readonly string[];
+  allowAllOrigins: boolean;
+}
+
+/**
+ * Basic auth middleware.
+ *
+ * @category authorization
+ * @since 1.0.0
+ */
+export const cors: (
+  options?: Partial<CorsOptions>,
+) => <R, E>(app: App.Default<R, E>) => App.Default<R, E> = internal.cors;
