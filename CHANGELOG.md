@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.38.2
+
+### Patch Changes
+
+- 6cb924d: Load platform-node lazily.
+
 ## 0.38.1
 
 ### Patch Changes
