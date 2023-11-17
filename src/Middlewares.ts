@@ -86,8 +86,10 @@ export const basicAuth: <R2, _>(
  * @since 1.0.0
  */
 export interface CorsOptions {
-  allowedOrigins: string | readonly string[];
-  allowAllOrigins: boolean;
+  origin: string | readonly string[];
+  methods: string | readonly string[];
+  crendetials: boolean;
+  // TODO: allowed headers, exposed headers, max age
 }
 
 /**

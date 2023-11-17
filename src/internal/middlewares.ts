@@ -155,29 +155,57 @@ export const basicAuth = <R, _>(
   );
 
 export const cors = (options?: Partial<Middlewares.CorsOptions>) => {
-  const _allowedOrigings = options?.allowedOrigins ?? [];
   const allowedOrigins =
-    typeof _allowedOrigings === "string"
-      ? [_allowedOrigings]
-      : _allowedOrigings;
+    typeof options?.origin === "string"
+      ? [options?.origin]
+      : options?.origin ?? [];
+
+  const allowedMethods =
+    typeof options?.methods === "string"
+      ? [options?.methods]
+      : options?.methods ?? [];
+
+  const isAllowed = (origin: string) => {
+    return allowedOrigins.includes(origin);
+  };
+
+  const createOriginHeaders = (requestOrigin: string) => {
+    if (allowedOrigins.length === 0 || allowedOrigins[0] === "*") {
+      return { "Access-Control-Allow-Origin": "*" };
+    } else if (allowedOrigins.length === 1) {
+      return {
+        "Access-Control-Allow-Origin": allowedOrigins[0],
+        Vary: "Origin",
+      };
+    }
+
+    return {
+      "Access-Control-Allow-Origin": (isAllowed(requestOrigin)
+        ? requestOrigin
+        : false
+      ).toString(),
+      Vary: "Origin",
+    };
+  };
+
+  const methodsHeaders =
+    allowedMethods.length > 0
+      ? { "Access-Control-Allow-Methods": allowedMethods.join(", ") }
+      : {};
 
   return Middleware.make((app) =>
     Effect.gen(function* (_) {
       const request = yield* _(ServerRequest.ServerRequest);
-      let response = yield* _(app);
+      const url = request.headers["origin"];
 
-      const url =
-        request.headers["host"] || request.headers["origin"] || request.url;
+      const response = yield* _(app);
 
-      if (options?.allowAllOrigins || allowedOrigins.includes(url)) {
-        response = response.pipe(
-          ServerResponse.setHeaders({
-            "Access-Control-Allow-Origin": url,
-          }),
-        );
-      }
+      const corsHeaders = {
+        ...createOriginHeaders(url),
+        ...methodsHeaders,
+      };
 
-      return response;
+      return response.pipe(ServerResponse.setHeaders(corsHeaders));
     }),
   );
 };
