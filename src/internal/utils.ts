@@ -17,8 +17,9 @@ export const getSchema = <A = Schema.Schema<any>>(
 ) => (input == Api.IgnoredSchemaId ? defaultSchema : input);
 
 /** @internal */
-export const getSchemaOption = (input: Schema.Schema<any> | Api.IgnoredSchemaId) =>
-  input == Api.IgnoredSchemaId ? Option.none() : Option.some(input);
+export const getSchemaOption = (
+  input: Schema.Schema<any> | Api.IgnoredSchemaId,
+) => (input == Api.IgnoredSchemaId ? Option.none() : Option.some(input));
 
 /** @internal */
 export const isArray = (input: unknown): input is readonly any[] =>

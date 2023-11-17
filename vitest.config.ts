@@ -5,7 +5,7 @@ export default defineConfig({
   test: {
     globals: true,
     setupFiles: "./tests/setupTests.ts",
-    reporters: ["hanging-process", "default"]
+    reporters: ["hanging-process", "default"],
   },
   resolve: {
     alias: {
