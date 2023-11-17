@@ -2,11 +2,11 @@ import * as Body from "@effect/platform/Http/Body";
 import * as Headers from "@effect/platform/Http/Headers";
 import * as ServerResponse from "@effect/platform/Http/ServerResponse";
 import * as Schema from "@effect/schema/Schema";
-import * as Effect from "effect/Effect";
 import * as Api from "effect-http/Api";
 import * as ServerError from "effect-http/ServerError";
 import { formatParseError } from "effect-http/internal/formatParseError";
 import * as utils from "effect-http/internal/utils";
+import * as Effect from "effect/Effect";
 
 interface ServerResponseEncoder {
   encodeResponse: (

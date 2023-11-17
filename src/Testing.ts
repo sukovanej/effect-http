@@ -3,7 +3,7 @@
  *
  * @since 1.0.0
  */
-import * as PlatformNodeServer from "@effect/platform-node/Http/Server";
+import type * as PlatformNodeServer from "@effect/platform-node/Http/Server";
 import type * as App from "@effect/platform/Http/App";
 import type * as Platform from "@effect/platform/Http/Platform";
 import * as Server from "@effect/platform/Http/Server";
@@ -42,7 +42,11 @@ export const make = <R, E, Endpoints extends Api.Endpoint>(
 
     const { createServer } = yield* _(Effect.promise(() => import("http")));
 
-    const NodeServerLive = PlatformNodeServer.layer(() => createServer(), {
+    const NodeServer = yield* _(
+      Effect.promise(() => import("@effect/platform-node/Http/Server")),
+    );
+
+    const NodeServerLive = NodeServer.layer(() => createServer(), {
       port: undefined,
     });
 

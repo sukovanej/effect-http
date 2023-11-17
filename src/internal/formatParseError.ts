@@ -1,10 +1,10 @@
 import * as AST from "@effect/schema/AST";
 import * as ParseResult from "@effect/schema/ParseResult";
 import * as Equivalence from "effect/Equivalence";
+import { pipe } from "effect/Function";
 import * as Option from "effect/Option";
 import * as Order from "effect/Order";
 import * as ReadonlyArray from "effect/ReadonlyArray";
-import { pipe } from "effect/Function";
 
 const getDescription = AST.getAnnotation<AST.DescriptionAnnotation>(
   AST.DescriptionAnnotationId,
@@ -72,7 +72,9 @@ type ValidationErrorUnexpected = ValidationErrorBase & {
 type ValidationErrorMissing = ValidationErrorBase & { _tag: "Missing" };
 type ValidationError = ValidationErrorUnexpected | ValidationErrorMissing;
 
-const formatParseErrors = (errors: ParseResult.ParseErrors): readonly ValidationError[] => {
+const formatParseErrors = (
+  errors: ParseResult.ParseErrors,
+): readonly ValidationError[] => {
   if (errors._tag === "Key") {
     return errors.errors.flatMap((error) =>
       formatParseErrors(error).map((e) => ({
@@ -144,7 +146,10 @@ const formatAST = (ast: AST.AST) => {
   return JSON.stringify(ast);
 };
 
-export const formatParseError = (error: ParseResult.ParseError, parseOptions?: AST.ParseOptions): string => {
+export const formatParseError = (
+  error: ParseResult.ParseError,
+  parseOptions?: AST.ParseOptions,
+): string => {
   const errors = ReadonlyArray.flatMap(error.errors, formatParseErrors);
 
   if (errors.length === 1) {

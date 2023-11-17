@@ -102,7 +102,10 @@ export const handle =
     const endpoint = getRemainingEndpoint(builder, id);
     const remainingEndpoints = removeRemainingEndpoint(builder, id);
 
-    const router = addRoute(builder.router, Route.fromEndpoint(fn, builder.options)(endpoint));
+    const router = addRoute(
+      builder.router,
+      Route.fromEndpoint(fn, builder.options)(endpoint),
+    );
 
     return {
       ...builder,
