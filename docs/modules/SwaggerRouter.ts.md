@@ -20,7 +20,7 @@ Added in v1.0.0
   - [SwaggerFiles](#swaggerfiles)
   - [SwaggerFilesLive](#swaggerfileslive)
 - [models](#models)
-  - [SwaggerFiles (type alias)](#swaggerfiles-type-alias)
+  - [SwaggerFiles (interface)](#swaggerfiles-interface)
 
 ---
 
@@ -43,7 +43,7 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-export declare const SwaggerFiles: Context.Tag<SwaggerFiles, SwaggerFiles>
+export declare const SwaggerFiles: Tag<SwaggerFiles, SwaggerFiles>
 ```
 
 Added in v1.0.0
@@ -53,19 +53,21 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-export declare const SwaggerFilesLive: Layer.Layer<never, never, SwaggerFiles>
+export declare const SwaggerFilesLive: Layer.Layer<FileSystem.FileSystem | Path.Path, never, SwaggerFiles>
 ```
 
 Added in v1.0.0
 
 # models
 
-## SwaggerFiles (type alias)
+## SwaggerFiles (interface)
 
 **Signature**
 
 ```ts
-export type SwaggerFiles = Record<string, string>
+export interface SwaggerFiles {
+  files: Record<string, string>
+}
 ```
 
 Added in v1.0.0
