@@ -142,8 +142,10 @@ Added in v1.0.0
 
 ```ts
 export interface CorsOptions {
-  allowedOrigins: string | readonly string[]
-  allowAllOrigins: boolean
+  origin: string | readonly string[]
+  methods: string | readonly string[]
+  crendetials: boolean
+  // TODO: allowed headers, exposed headers, max age
 }
 ```
 
