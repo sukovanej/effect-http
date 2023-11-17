@@ -9,8 +9,8 @@ dependencies:
     specifier: ^0.30.4
     version: 0.30.4(@effect/schema@0.48.1)(effect@2.0.0-next.55)
   schema-openapi:
-    specifier: ^0.20.1
-    version: 0.20.1(@effect/schema@0.48.1)(effect@2.0.0-next.55)
+    specifier: ^0.21.0
+    version: 0.21.0(@effect/schema@0.48.1)(effect@2.0.0-next.55)
   swagger-ui-dist:
     specifier: ^5.10.0
     version: 5.10.0
@@ -3710,8 +3710,8 @@ packages:
     resolution: {integrity: sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==}
     dev: true
 
-  /schema-openapi@0.20.1(@effect/schema@0.48.1)(effect@2.0.0-next.55):
-    resolution: {integrity: sha512-bweJ+CaJdDSvqRNI463fp58JOoauBVv7ddhllDGofyby0/a7yJsmQW6IHdVUsdCvHR4rq/FCP8ynoWAlSAXVfA==}
+  /schema-openapi@0.21.0(@effect/schema@0.48.1)(effect@2.0.0-next.55):
+    resolution: {integrity: sha512-BF4CjRwDXVBoDCsSfH8UC+QyBLXLIifM6wbBkdzce8CJxDn7bLwGhDNVjwmXXMvlPxvAtw8LS9lhY5r7/RmisQ==}
     peerDependencies:
       '@effect/schema': ^0.48.0
       effect: 2.0.0-next.55

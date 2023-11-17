@@ -65,7 +65,7 @@
   },
   "dependencies": {
     "@effect/platform": "^0.30.4",
-    "schema-openapi": "^0.20.1",
+    "schema-openapi": "^0.21.0",
     "swagger-ui-dist": "^5.10.0"
   },
   "peerDependencies": {
