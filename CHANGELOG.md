@@ -1,5 +1,18 @@
 # effect-http
 
+## 0.39.0
+
+### Minor Changes
+
+- d98d8bc: Refactor `ClientError` module.
+- d98d8bc: Add `Testing.makeRaw`.
+
+### Patch Changes
+
+- 15974df: Add @effect/platform-node as an optional dependency.
+- d98d8bc: Update dependencies.
+- d98d8bc: CORS middleware.
+
 ## 0.38.3
 
 ### Patch Changes
