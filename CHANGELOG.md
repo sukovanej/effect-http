@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.39.1
+
+### Patch Changes
+
+- 49a2efe: Fix CORS middleware.
+
 ## 0.39.0
 
 ### Minor Changes
