@@ -1,5 +1,12 @@
 # effect-http
 
+## 0.40.0
+
+### Minor Changes
+
+- 34a3b5b: Remove `trace` method.
+- 34a3b5b: Finish CORS middleware.
+
 ## 0.39.1
 
 ### Patch Changes
