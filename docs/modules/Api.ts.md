@@ -32,7 +32,6 @@ Added in v1.0.0
   - [patch](#patch)
   - [post](#post)
   - [put](#put)
-  - [trace](#trace)
 - [models](#models)
   - [Api (interface)](#api-interface)
   - [ApiGroup (interface)](#apigroup-interface)
@@ -40,6 +39,7 @@ Added in v1.0.0
   - [EndpointOptions (interface)](#endpointoptions-interface)
   - [EndpointSchemas (interface)](#endpointschemas-interface)
   - [InputEndpointSchemas (interface)](#inputendpointschemas-interface)
+  - [Method (type alias)](#method-type-alias)
 - [refinements](#refinements)
   - [isApi](#isapi)
   - [isApiGroup](#isapigroup)
@@ -167,16 +167,6 @@ export declare const put: EndpointSetter
 
 Added in v1.0.0
 
-## trace
-
-**Signature**
-
-```ts
-export declare const trace: EndpointSetter
-```
-
-Added in v1.0.0
-
 # models
 
 ## Api (interface)
@@ -191,7 +181,10 @@ export interface Api<E extends Endpoint = Endpoint> extends Pipeable.Pipeable {
     title: string
     version: string
     description?: string
-    license?: OpenApi.OpenAPISpecLicense
+    license?: {
+      name: string
+      url?: string
+    }
   }
 }
 ```
@@ -220,7 +213,7 @@ Added in v1.0.0
 export interface Endpoint {
   id: string
   path: string
-  method: OpenApi.OpenAPISpecMethodName
+  method: Method
   schemas: EndpointSchemas
   groupName: string
   description?: string
@@ -273,6 +266,16 @@ export interface InputEndpointSchemas {
     headers?: Schema.Schema<any>
   }
 }
+```
+
+Added in v1.0.0
+
+## Method (type alias)
+
+**Signature**
+
+```ts
+export type Method = "get" | "put" | "post" | "delete" | "head" | "patch" | "options"
 ```
 
 Added in v1.0.0

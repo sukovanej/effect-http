@@ -1,5 +1,3 @@
-import * as SchemaOpenApi from "schema-openapi";
-
 import type * as Method from "@effect/platform/Http/Method";
 import type * as ParseResult from "@effect/schema/ParseResult";
 import * as Schema from "@effect/schema/Schema";
@@ -128,13 +126,5 @@ export const getResponseContent = (response: Response) =>
   });
 
 /** @internal */
-export const convertMethod = (
-  method: SchemaOpenApi.OpenAPISpecMethodName,
-): Method.Method => {
-  // TODO: probably remove from schema-openapi
-  if (method === "trace") {
-    throw new Error("trace method is not supported by @effect/platform");
-  }
-
-  return method.toUpperCase() as Method.Method;
-};
+export const convertMethod = (method: Api.Method): Method.Method =>
+  method.toUpperCase() as Method.Method;

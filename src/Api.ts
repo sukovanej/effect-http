@@ -8,8 +8,6 @@
  *
  * @since 1.0.0
  */
-import type * as OpenApi from "schema-openapi";
-
 import type * as Schema from "@effect/schema/Schema";
 import * as internal from "effect-http/internal/api";
 import type * as Pipeable from "effect/Pipeable";
@@ -50,7 +48,10 @@ export interface Api<E extends Endpoint = Endpoint> extends Pipeable.Pipeable {
     title: string;
     version: string;
     description?: string;
-    license?: OpenApi.OpenAPISpecLicense;
+    license?: {
+      name: string;
+      url?: string;
+    };
   };
 }
 
@@ -69,10 +70,23 @@ export interface ApiGroup<E extends Endpoint = Endpoint>
  * @category models
  * @since 1.0.0
  */
+export type Method =
+  | "get"
+  | "put"
+  | "post"
+  | "delete"
+  | "head"
+  | "patch"
+  | "options";
+
+/**
+ * @category models
+ * @since 1.0.0
+ */
 export interface Endpoint {
   id: string;
   path: string;
-  method: OpenApi.OpenAPISpecMethodName;
+  method: Method;
   schemas: EndpointSchemas;
   groupName: string;
   description?: string;
@@ -183,12 +197,6 @@ export const head: EndpointSetter = internal.endpoint("head");
  * @since 1.0.0
  */
 export const patch: EndpointSetter = internal.endpoint("patch");
-
-/**
- * @category methods
- * @since 1.0.0
- */
-export const trace: EndpointSetter = internal.endpoint("trace");
 
 const _delete: EndpointSetter = internal.endpoint("delete");
 
@@ -349,7 +357,7 @@ type CreateEndpointFromInput<
   id: Id;
   schemas: CreateEndpointSchemasFromInput<Schemas>;
   path: string;
-  method: OpenApi.OpenAPISpecMethodName;
+  method: Method;
   groupName: string;
   description?: string;
 };
