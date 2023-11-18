@@ -103,7 +103,7 @@ test("cors", async () => {
   const app = RouterBuilder.make(api).pipe(
     RouterBuilder.handle("test", () => Effect.succeed("hello")),
     RouterBuilder.build,
-    Middlewares.cors({ origin: "localhost:3000" }),
+    Middlewares.cors({ allowedOrigins: ["localhost:3000"] }),
   );
 
   const response = await Testing.makeRaw(app).pipe(
