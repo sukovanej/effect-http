@@ -42,10 +42,10 @@ breaking changes and the internals and the public API are still evolving and cha
   - [Common headers](#common-headers)
 - [Compatibility](#compatibility)
 
-Install together with `effect` using
+Install together with `effect`, `@effect/platform` and `@effect/platform-node` using
 
 ```bash
-pnpm add effect effect-http @effect/platform-node
+pnpm add effect-http effect @effect/platform @effect/platform-node
 ```
 
 Bootstrap a simple API specification.
