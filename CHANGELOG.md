@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.40.1
+
+### Patch Changes
+
+- ea57f51: Make `@effect/platform` a peer dependency.
+
 ## 0.40.0
 
 ### Minor Changes
