@@ -47,7 +47,7 @@
   "devDependencies": {
     "@changesets/cli": "^2.26.2",
     "@effect/docgen": "^0.3.4",
-    "@effect/schema": "^0.48.3",
+    "@effect/schema": "^0.48.4",
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",
     "@types/node": "^20.9.1",
     "@types/swagger-ui-dist": "^3.30.4",
@@ -72,6 +72,6 @@
     "effect": "2.0.0-next.55"
   },
   "optionalDependencies": {
-    "@effect/platform-node": "^0.31.6"
+    "@effect/platform-node": "^0.31.8"
   }
 }
