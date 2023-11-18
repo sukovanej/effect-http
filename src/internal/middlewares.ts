@@ -154,56 +154,122 @@ export const basicAuth = <R, _>(
     }),
   );
 
-export const cors = (options?: Partial<Middlewares.CorsOptions>) => {
-  const allowedOrigins =
-    typeof options?.origin === "string"
-      ? [options?.origin]
-      : options?.origin ?? [];
+export const cors = (_options?: Partial<Middlewares.CorsOptions>) => {
+  const DEFAULTS = {
+    allowedOrigins: ["*"],
+    allowedMethods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE"],
+    allowedHeaders: [],
+    exposedHeaders: [],
+    credentials: false,
+  } as const;
 
-  const allowedMethods =
-    typeof options?.methods === "string"
-      ? [options?.methods]
-      : options?.methods ?? [];
+  const options = { ...DEFAULTS, ..._options };
 
-  const isAllowed = (origin: string) => {
-    return allowedOrigins.includes(origin);
+  const isAllowedOrigin = (origin: string) => {
+    return options.allowedOrigins.includes(origin);
   };
 
-  const createOriginHeaders = (requestOrigin: string) => {
-    if (allowedOrigins.length === 0 || allowedOrigins[0] === "*") {
+  const allowOrigin = (originHeader: string) => {
+    if (options.allowedOrigins.length === 0) {
       return { "Access-Control-Allow-Origin": "*" };
-    } else if (allowedOrigins.length === 1) {
+    }
+
+    if (options.allowedOrigins.length === 1) {
       return {
-        "Access-Control-Allow-Origin": allowedOrigins[0],
+        "Access-Control-Allow-Origin": options.allowedOrigins[0],
         Vary: "Origin",
       };
     }
 
-    return {
-      "Access-Control-Allow-Origin": (isAllowed(requestOrigin)
-        ? requestOrigin
-        : false
-      ).toString(),
-      Vary: "Origin",
-    };
+    if (isAllowedOrigin(originHeader)) {
+      return {
+        "Access-Control-Allow-Origin": originHeader,
+        Vary: "Origin",
+      };
+    }
+
+    return undefined;
   };
 
-  const methodsHeaders =
-    allowedMethods.length > 0
-      ? { "Access-Control-Allow-Methods": allowedMethods.join(", ") }
-      : {};
+  const allowMethods = (() => {
+    if (options.allowedMethods.length > 0) {
+      return {
+        "Access-Control-Allow-Methods": options.allowedMethods.join(", "),
+      };
+    }
+
+    return undefined;
+  })();
+
+  const allowCredentials = (() => {
+    if (options.credentials) {
+      return { "Access-Control-Allow-Credentials": "true" };
+    }
+
+    return undefined;
+  })();
+
+  const allowHeaders = (accessControlRequestHeaders: string | undefined) => {
+    if (options.allowedHeaders.length === 0 && accessControlRequestHeaders) {
+      return {
+        Vary: "Access-Control-Request-Headers",
+        "Access-Control-Allow-Headers": accessControlRequestHeaders,
+      };
+    }
+
+    if (options.allowedHeaders) {
+      return {
+        "Access-Control-Allow-Headers": options.allowedHeaders.join(","),
+      };
+    }
+
+    return undefined;
+  };
+
+  const exposeHeaders = (() => {
+    if (options.exposedHeaders.length > 0) {
+      return {
+        "Access-Control-Expose-Headers": options.exposedHeaders.join(","),
+      };
+    }
+
+    return undefined;
+  })();
+
+  const maxAge = (() => {
+    if (options.maxAge) {
+      return { "Access-Control-Max-Age": options.maxAge.toString() };
+    }
+
+    return undefined;
+  })();
 
   return Middleware.make((app) =>
     Effect.gen(function* (_) {
       const request = yield* _(ServerRequest.ServerRequest);
-      const url = request.headers["origin"];
+
+      const origin = request.headers["origin"];
+      const accessControlRequestHeaders =
+        request.headers["access-control-request-headers"];
+
+      let corsHeaders = {
+        ...allowOrigin(origin),
+        ...allowCredentials,
+        ...exposeHeaders,
+      };
+
+      if (request.method === "OPTIONS") {
+        corsHeaders = {
+          ...corsHeaders,
+          ...allowMethods,
+          ...allowHeaders(accessControlRequestHeaders),
+          ...maxAge,
+        };
+
+        return ServerResponse.empty({ status: 204, headers: corsHeaders });
+      }
 
       const response = yield* _(app);
-
-      const corsHeaders = {
-        ...createOriginHeaders(url),
-        ...methodsHeaders,
-      };
 
       return response.pipe(ServerResponse.setHeaders(corsHeaders));
     }),

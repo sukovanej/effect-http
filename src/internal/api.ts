@@ -1,5 +1,3 @@
-import type * as OpenApi from "schema-openapi";
-
 import * as Schema from "@effect/schema/Schema";
 import type * as Api from "effect-http/Api";
 import * as utils from "effect-http/internal/utils";
@@ -88,7 +86,7 @@ const checkPathPatternMatchesSchema = (
 
 /** @internal */
 export const endpoint =
-  (method: OpenApi.OpenAPISpecMethodName) =>
+  (method: Api.Method) =>
   <const Id extends string, const I extends Api.InputEndpointSchemas>(
     id: Id,
     path: string,

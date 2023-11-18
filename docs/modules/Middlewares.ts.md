@@ -142,10 +142,12 @@ Added in v1.0.0
 
 ```ts
 export interface CorsOptions {
-  origin: string | readonly string[]
-  methods: string | readonly string[]
-  crendetials: boolean
-  // TODO: allowed headers, exposed headers, max age
+  allowedOrigins: readonly string[]
+  allowedMethods: readonly string[]
+  allowedHeaders: readonly string[]
+  exposedHeaders: readonly string[]
+  maxAge: number
+  credentials: boolean
 }
 ```
 
