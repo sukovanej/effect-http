@@ -1,6 +1,6 @@
 import * as ClientRequest from "@effect/platform/Http/ClientRequest";
 import { Effect, Option } from "effect";
-import { Testing } from "effect-http";
+import { NodeTesting } from "effect-http";
 import * as RouterBuilder from "effect-http/RouterBuilder";
 import { apply } from "effect/Function";
 
@@ -51,7 +51,7 @@ describe("examples", () => {
       RouterBuilder.getRouter,
     );
 
-    const response = await Testing.makeRaw(router).pipe(
+    const response = await NodeTesting.makeRaw(router).pipe(
       Effect.flatMap(apply(ClientRequest.get("/get-value"))),
       runTestEffect,
     );
@@ -70,7 +70,7 @@ describe("examples", () => {
       RouterBuilder.getRouter,
     );
 
-    const response = await Testing.makeRaw(router).pipe(
+    const response = await NodeTesting.makeRaw(router).pipe(
       Effect.flatMap(apply(ClientRequest.post("/test"))),
       runTestEffect,
     );
@@ -81,7 +81,9 @@ describe("examples", () => {
   });
 
   test("get, query parameter", async () => {
-    const response = await Testing.makeRaw(exampleRouteGetQueryParameter).pipe(
+    const response = await NodeTesting.makeRaw(
+      exampleRouteGetQueryParameter,
+    ).pipe(
       Effect.flatMap(
         apply(
           ClientRequest.get("/hello").pipe(
@@ -110,7 +112,7 @@ describe("examples", () => {
       RouterBuilder.getRouter,
     );
 
-    const response = await Testing.makeRaw(router).pipe(
+    const response = await NodeTesting.makeRaw(router).pipe(
       Effect.flatMap(apply(ClientRequest.get("/hello"))),
       runTestEffect,
     );
@@ -134,7 +136,7 @@ describe("examples", () => {
       RouterBuilder.getRouter,
     );
 
-    const response = await Testing.makeRaw(router).pipe(
+    const response = await NodeTesting.makeRaw(router).pipe(
       Effect.flatMap(
         apply(
           ClientRequest.get("/hello").pipe(
@@ -151,7 +153,7 @@ describe("examples", () => {
   });
 
   test("post, request body", async () => {
-    const response = await Testing.makeRaw(exampleRouteRequestBody).pipe(
+    const response = await NodeTesting.makeRaw(exampleRouteRequestBody).pipe(
       Effect.flatMap(
         apply(
           ClientRequest.post("/hello").pipe(
@@ -169,7 +171,7 @@ describe("examples", () => {
   });
 
   test("path parameters", async () => {
-    const response = await Testing.makeRaw(exampleRouteParams).pipe(
+    const response = await NodeTesting.makeRaw(exampleRouteParams).pipe(
       Effect.flatMap(apply(ClientRequest.post("/hello/a"))),
       runTestEffect,
     );
@@ -183,10 +185,9 @@ describe("examples", () => {
 
 describe("error reporting", () => {
   test("missing query parameter", async () => {
-    const response = await Testing.makeRaw(exampleRouteGetQueryParameter).pipe(
-      Effect.flatMap(apply(ClientRequest.get("/hello"))),
-      runTestEffect,
-    );
+    const response = await NodeTesting.makeRaw(
+      exampleRouteGetQueryParameter,
+    ).pipe(Effect.flatMap(apply(ClientRequest.get("/hello"))), runTestEffect);
 
     expect(response.status).toEqual(400);
     expect(await Effect.runPromise(response.json)).toEqual({
@@ -197,7 +198,9 @@ describe("error reporting", () => {
   });
 
   test("invalid query parameter", async () => {
-    const response = await Testing.makeRaw(exampleRouteGetQueryParameter).pipe(
+    const response = await NodeTesting.makeRaw(
+      exampleRouteGetQueryParameter,
+    ).pipe(
       Effect.flatMap(
         apply(
           ClientRequest.get("/hello").pipe(
@@ -218,7 +221,7 @@ describe("error reporting", () => {
   });
 
   test("invalid JSON body - empty", async () => {
-    const response = await Testing.makeRaw(exampleRouteRequestBody).pipe(
+    const response = await NodeTesting.makeRaw(exampleRouteRequestBody).pipe(
       Effect.flatMap(apply(ClientRequest.post("/hello"))),
       runTestEffect,
     );
@@ -232,7 +235,7 @@ describe("error reporting", () => {
   });
 
   test("invalid JSON body - text", async () => {
-    const response = await Testing.makeRaw(exampleRouteRequestBody).pipe(
+    const response = await NodeTesting.makeRaw(exampleRouteRequestBody).pipe(
       Effect.flatMap(
         apply(
           ClientRequest.post("/hello").pipe(ClientRequest.textBody("value")),
@@ -250,7 +253,7 @@ describe("error reporting", () => {
   });
 
   test("invalid JSON body - incorrect schema", async () => {
-    const response = await Testing.makeRaw(exampleRouteRequestBody).pipe(
+    const response = await NodeTesting.makeRaw(exampleRouteRequestBody).pipe(
       Effect.flatMap(
         apply(
           ClientRequest.post("/hello").pipe(
@@ -270,7 +273,7 @@ describe("error reporting", () => {
   });
 
   test("invalid header", async () => {
-    const response = await Testing.makeRaw(exampleRouteRequestHeaders).pipe(
+    const response = await NodeTesting.makeRaw(exampleRouteRequestHeaders).pipe(
       Effect.flatMap(apply(ClientRequest.post("/hello"))),
       runTestEffect,
     );
@@ -284,7 +287,7 @@ describe("error reporting", () => {
   });
 
   test("invalid param", async () => {
-    const response = await Testing.makeRaw(exampleRouteParams).pipe(
+    const response = await NodeTesting.makeRaw(exampleRouteParams).pipe(
       Effect.flatMap(apply(ClientRequest.post("/hello/c"))),
       runTestEffect,
     );
@@ -306,7 +309,7 @@ describe("error reporting", () => {
       RouterBuilder.getRouter,
     );
 
-    const response = await Testing.makeRaw(exampleRouteInvalid).pipe(
+    const response = await NodeTesting.makeRaw(exampleRouteInvalid).pipe(
       Effect.flatMap(apply(ClientRequest.post("/hello/a"))),
       runTestEffect,
     );
@@ -335,7 +338,7 @@ test("single full response", async () => {
     RouterBuilder.getRouter,
   );
 
-  const result = await Testing.makeRaw(app).pipe(
+  const result = await NodeTesting.makeRaw(app).pipe(
     Effect.flatMap((client) =>
       Effect.all(
         [ClientRequest.post("/hello"), ClientRequest.post("/another")].map(

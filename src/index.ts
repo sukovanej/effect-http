@@ -67,4 +67,9 @@ export * as Testing from "effect-http/Testing";
 /**
  * @since 1.0.0
  */
+export * as NodeTesting from "effect-http/NodeTesting";
+
+/**
+ * @since 1.0.0
+ */
 export * as Middlewares from "effect-http/Middlewares";

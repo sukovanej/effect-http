@@ -14,6 +14,10 @@ import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as ReadonlyRecord from "effect/ReadonlyRecord";
 
+export const TypeId: SwaggerRouter.TypeId = Symbol.for(
+  "effect-http/SwaggerRouter/TypeId",
+) as SwaggerRouter.TypeId;
+
 /** @internal */
 const createSwaggerInitializer = (path: string) => `
 window.onload = function() {
@@ -82,7 +86,7 @@ export const SwaggerFilesLive = Effect.gen(function* (_) {
 
   yield* _(Effect.logDebug(`Static swagger UI files loaded (${sizeMb}MB)`));
 
-  return { files };
+  return { [TypeId]: TypeId, files } as SwaggerRouter.SwaggerFiles;
 }).pipe(Layer.effect(SwaggerFiles));
 
 /** @internal */

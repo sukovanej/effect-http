@@ -22,6 +22,7 @@ Added in v1.0.0
   - [From "effect-http/Middlewares"](#from-effect-httpmiddlewares)
   - [From "effect-http/MockClient"](#from-effect-httpmockclient)
   - [From "effect-http/NodeServer"](#from-effect-httpnodeserver)
+  - [From "effect-http/NodeTesting"](#from-effect-httpnodetesting)
   - [From "effect-http/OpenApi"](#from-effect-httpopenapi)
   - [From "effect-http/Route"](#from-effect-httproute)
   - [From "effect-http/RouterBuilder"](#from-effect-httprouterbuilder)
@@ -113,6 +114,18 @@ Re-exports all named exports from the "effect-http/NodeServer" module as `NodeSe
 
 ```ts
 export * as NodeServer from "effect-http/NodeServer"
+```
+
+Added in v1.0.0
+
+## From "effect-http/NodeTesting"
+
+Re-exports all named exports from the "effect-http/NodeTesting" module as `NodeTesting`.
+
+**Signature**
+
+```ts
+export * as NodeTesting from "effect-http/NodeTesting"
 ```
 
 Added in v1.0.0

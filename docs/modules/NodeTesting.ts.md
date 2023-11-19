@@ -1,10 +1,10 @@
 ---
-title: Testing.ts
-nav_order: 16
+title: NodeTesting.ts
+nav_order: 9
 parent: Modules
 ---
 
-## Testing overview
+## NodeTesting overview
 
 Testing if the `Server` implementation.
 
@@ -34,13 +34,13 @@ export declare const make: <R, E, Endpoints extends Api.Endpoint>(
   api: Api.Api<Endpoints>,
   options?: Partial<Client.Options>
 ) => Effect.Effect<
-  | Server.Server
-  | FileSystem.FileSystem
-  | Path.Path
   | Scope.Scope
   | Exclude<
-      Exclude<Exclude<Exclude<R, ServerRequest.ServerRequest>, Scope.Scope>, SwaggerRouter.SwaggerFiles>,
-      SwaggerRouter.SwaggerFiles
+      Exclude<
+        Exclude<Exclude<Exclude<R, ServerRequest.ServerRequest>, Scope.Scope>, SwaggerRouter.SwaggerFiles>,
+        SwaggerRouter.SwaggerFiles
+      >,
+      Server.Server | Platform.Platform
     >,
   never,
   Client.Client<Endpoints>
@@ -60,13 +60,13 @@ it returns a raw _@effect/platform/Http/Client_ `Client` with base url set.
 export declare const makeRaw: <R, E>(
   app: App.Default<R, E>
 ) => Effect.Effect<
-  | Server.Server
-  | FileSystem.FileSystem
-  | Path.Path
   | Scope.Scope
   | Exclude<
-      Exclude<Exclude<Exclude<R, ServerRequest.ServerRequest>, Scope.Scope>, SwaggerRouter.SwaggerFiles>,
-      SwaggerRouter.SwaggerFiles
+      Exclude<
+        Exclude<Exclude<Exclude<R, ServerRequest.ServerRequest>, Scope.Scope>, SwaggerRouter.SwaggerFiles>,
+        SwaggerRouter.SwaggerFiles
+      >,
+      Server.Server | Platform.Platform
     >,
   never,
   PlatformClient.Client<never, PlatformClientError.HttpClientError, ClientResponse.ClientResponse>

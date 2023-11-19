@@ -5,9 +5,9 @@ import {
   Api,
   ClientError,
   Middlewares,
+  NodeTesting,
   RouterBuilder,
   ServerError,
-  Testing,
 } from "effect-http";
 import { apply } from "effect/Function";
 
@@ -51,7 +51,7 @@ test("basic auth", async () => {
     mapRequest: (
       request: ClientRequest.ClientRequest,
     ) => ClientRequest.ClientRequest,
-  ) => Testing.make(app, helloApi, { mapRequest });
+  ) => NodeTesting.make(app, helloApi, { mapRequest });
 
   const result = await pipe(
     Effect.all([
@@ -106,7 +106,7 @@ test("cors", async () => {
     Middlewares.cors({ allowedOrigins: ["localhost:3000"] }),
   );
 
-  const response = await Testing.makeRaw(app).pipe(
+  const response = await NodeTesting.makeRaw(app).pipe(
     Effect.flatMap(apply(ClientRequest.get("/test"))),
     runTestEffect,
   );

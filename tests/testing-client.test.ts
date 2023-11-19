@@ -6,9 +6,9 @@ import { Context, Effect, Predicate, pipe } from "effect";
 import {
   Api,
   ClientError,
+  NodeTesting,
   RouterBuilder,
   ServerError,
-  Testing,
 } from "effect-http";
 
 import { runTestEffect } from "./utils";
@@ -33,7 +33,7 @@ test("testing query", async () => {
   );
 
   const response = await pipe(
-    Testing.make(app, api),
+    NodeTesting.make(app, api),
     Effect.flatMap((client) => client.hello({ query: { input: 12 } })),
     runTestEffect,
   );
@@ -58,7 +58,7 @@ test("testing failure", async () => {
   );
 
   const response = await pipe(
-    Testing.make(app, api),
+    NodeTesting.make(app, api),
     Effect.flatMap((client) => client.hello()),
     Effect.flip,
     runTestEffect,
@@ -90,7 +90,7 @@ test("testing with dependencies", async () => {
   );
 
   const response = await pipe(
-    Testing.make(app, api),
+    NodeTesting.make(app, api),
     Effect.flatMap((client) => client.hello({ query: { input: 12 } })),
     Effect.provideService(MyService, 2),
     runTestEffect,
@@ -119,7 +119,7 @@ test("testing params", async () => {
   );
 
   const response = await pipe(
-    Testing.make(app, api),
+    NodeTesting.make(app, api),
     Effect.flatMap((client) => client.hello({ params: { input: 12 } })),
     runTestEffect,
   );
@@ -159,7 +159,7 @@ test("testing multiple responses", async () => {
   );
 
   const [response1, response2] = await pipe(
-    Testing.make(app, api),
+    NodeTesting.make(app, api),
     Effect.flatMap((client) =>
       Effect.all([
         client.hello({ query: { input: 1 } }),
@@ -193,7 +193,7 @@ test("testing body", async () => {
   );
 
   const response = await pipe(
-    Testing.make(app, api),
+    NodeTesting.make(app, api),
     Effect.flatMap((client) => client.hello({ body: { input: 12 } })),
     runTestEffect,
   );
@@ -240,7 +240,7 @@ test("form data", async () => {
   formData.append("file", new Blob(["my file content"]));
 
   const response = await pipe(
-    Testing.make(app, api),
+    NodeTesting.make(app, api),
     Effect.flatMap((client) => client.upload({ body: formData })),
     Effect.provide(NodeContext.layer),
     runTestEffect,

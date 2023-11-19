@@ -1,6 +1,6 @@
 ---
 title: SwaggerRouter.ts
-nav_order: 13
+nav_order: 15
 parent: Modules
 ---
 
@@ -21,6 +21,9 @@ Added in v1.0.0
   - [SwaggerFilesLive](#swaggerfileslive)
 - [models](#models)
   - [SwaggerFiles (interface)](#swaggerfiles-interface)
+- [type id](#type-id)
+  - [TypeId](#typeid)
+  - [TypeId (type alias)](#typeid-type-alias)
 
 ---
 
@@ -66,8 +69,31 @@ Added in v1.0.0
 
 ```ts
 export interface SwaggerFiles {
+  [TypeId]: TypeId
   files: Record<string, string>
 }
+```
+
+Added in v1.0.0
+
+# type id
+
+## TypeId
+
+**Signature**
+
+```ts
+export declare const TypeId: typeof TypeId
+```
+
+Added in v1.0.0
+
+## TypeId (type alias)
+
+**Signature**
+
+```ts
+export type TypeId = typeof TypeId
 ```
 
 Added in v1.0.0

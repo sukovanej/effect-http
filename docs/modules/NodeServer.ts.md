@@ -16,6 +16,8 @@ Added in v1.0.0
 
 - [combinators](#combinators)
   - [listen](#listen)
+- [models](#models)
+  - [Options (interface)](#options-interface)
 
 ---
 
@@ -32,12 +34,26 @@ export declare const listen: (
   router: App.Default<R, E>
 ) => Effect.Effect<
   Exclude<
-    Exclude<Exclude<Exclude<R, ServerRequest.ServerRequest>, Scope.Scope>, Server.Server | Platform.Platform>,
-    SwaggerRouter.SwaggerFiles
+    Exclude<Exclude<Exclude<R, ServerRequest.ServerRequest>, Scope.Scope>, SwaggerRouter.SwaggerFiles>,
+    Server.Server | Platform.Platform
   >,
   ServeError.ServeError,
   never
 >
+```
+
+Added in v1.0.0
+
+# models
+
+## Options (interface)
+
+**Signature**
+
+```ts
+export interface Options {
+  port: number | undefined
+}
 ```
 
 Added in v1.0.0

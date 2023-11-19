@@ -11,10 +11,23 @@ import type * as Context from "effect/Context";
 import type * as Layer from "effect/Layer";
 
 /**
+ * @category type id
+ * @since 1.0.0
+ */
+export const TypeId: unique symbol = internal.TypeId;
+
+/**
+ * @category type id
+ * @since 1.0.0
+ */
+export type TypeId = typeof TypeId;
+
+/**
  * @category models
  * @since 1.0.0
  */
 export interface SwaggerFiles {
+  [TypeId]: TypeId;
   files: Record<string, string>;
 }
 

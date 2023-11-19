@@ -1,7 +1,7 @@
 import * as ClientRequest from "@effect/platform/Http/ClientRequest";
 import * as HttpServer from "@effect/platform/HttpServer";
 import { Effect, Option } from "effect";
-import { Testing } from "effect-http";
+import { NodeTesting } from "effect-http";
 import * as Route from "effect-http/Route";
 import { apply } from "effect/Function";
 
@@ -22,7 +22,7 @@ const testRoute = <R, E>(
   route: HttpServer.router.Route<R, E>,
   request: ClientRequest.ClientRequest,
 ) =>
-  Testing.makeRaw(HttpServer.router.fromIterable([route])).pipe(
+  NodeTesting.makeRaw(HttpServer.router.fromIterable([route])).pipe(
     Effect.flatMap(apply(request)),
   );
 
