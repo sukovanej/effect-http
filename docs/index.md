@@ -127,7 +127,7 @@ import { Schema } from "@effect/schema";
 import { Api } from "effect-http";
 
 const Stuff = Schema.struct({ value: Schema.number });
-const StuffRequest = Schema.struct({ field: Schema.array(Schema.string) });
+const StuffBody = Schema.struct({ field: Schema.array(Schema.string) });
 const StuffQuery = Schema.struct({ value: Schema.string });
 const StuffParams = Schema.struct({ param: Schema.string });
 
@@ -135,7 +135,7 @@ export const api = Api.api({ title: "My api" }).pipe(
   Api.post("stuff", "/stuff/:param", {
     response: Stuff,
     request: {
-      body: StuffRequest,
+      body: StuffBody,
       query: StuffQuery,
       params: StuffParams,
     },
@@ -248,7 +248,7 @@ const api = Api.api().pipe(
     response: {
       status: 200,
       content: Schema.number,
-      headers: { "My-Header": Schema.string },
+      headers: Schema.struct({ "My-Header": Schema.string }),
     },
   }),
 );
@@ -267,11 +267,11 @@ const api = Api.api().pipe(
       {
         status: 200,
         content: Schema.number,
-        headers: { "My-Header": Schema.string },
+        headers: Schema.struct({ "My-Header": Schema.string }),
       },
       {
         status: 204,
-        headers: { "X-Another": Schema.NumberFromString },
+        headers: Schema.struct({ "X-Another": Schema.NumberFromString }),
       },
     ],
   }),
@@ -385,7 +385,7 @@ Let's see it in action and implement the mentioned user management API. The
 API will look as follows.
 
 ```typescript
-import { Schema } from "@effect/schema/Schema";
+import { Schema } from "@effect/schema";
 import { Context, Effect, pipe } from "effect";
 import { Api, NodeServer, RouterBuilder, ServerError } from "effect-http";
 
