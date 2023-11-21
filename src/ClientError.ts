@@ -5,13 +5,13 @@
  */
 import type * as ParseResult from "@effect/schema/ParseResult";
 import * as internal from "effect-http/internal/client-error";
-import type * as Data from "effect/Data";
+import type * as Cause from "effect/Cause";
 
 /**
  * @category models
  * @since 1.0.0
  */
-export interface ClientError extends Data.YieldableError {
+export interface ClientError extends Cause.YieldableError {
   _tag: "ClientError";
   message: string;
   error: unknown;

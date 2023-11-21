@@ -77,7 +77,7 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-export interface ClientError extends Data.YieldableError {
+export interface ClientError extends Cause.YieldableError {
   _tag: "ClientError"
   message: string
   error: unknown
