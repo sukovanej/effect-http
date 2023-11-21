@@ -3,7 +3,7 @@ import { HttpServer, NodeContext } from "@effect/platform-node";
 import { runMain } from "@effect/platform-node/Runtime";
 import { Schema } from "@effect/schema";
 import { Effect, pipe } from "effect";
-import { Api, NodeServer, RouterBuilder } from "effect-http";
+import { Api, HttpSchema, NodeServer, RouterBuilder } from "effect-http";
 
 import { debugLogger } from "./_utils";
 
@@ -11,7 +11,7 @@ const api = pipe(
   Api.api(),
   Api.post("upload", "/upload", {
     request: {
-      body: Api.FormData,
+      body: HttpSchema.FormData,
     },
     response: Schema.string,
   }),

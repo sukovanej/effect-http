@@ -6,6 +6,7 @@ import { Context, Effect, Predicate, pipe } from "effect";
 import {
   Api,
   ClientError,
+  HttpSchema,
   RouterBuilder,
   ServerError,
   Testing,
@@ -206,9 +207,9 @@ test("form data", async () => {
     Api.api(),
     Api.post("upload", "/upload", {
       request: {
-        body: Api.FormData,
+        body: HttpSchema.FormData,
       },
-      response: Schema.string,
+      response: HttpSchema.PlainText,
     }),
   );
 

@@ -68,3 +68,8 @@ export * as Testing from "effect-http/Testing";
  * @since 1.0.0
  */
 export * as Middlewares from "effect-http/Middlewares";
+
+/**
+ * @since 1.0.0
+ */
+export * as HttpSchema from "effect-http/HttpSchema";

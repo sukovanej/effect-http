@@ -63,7 +63,7 @@ export const errorLog = Middleware.make((app) =>
   Effect.gen(function* (_) {
     const request = yield* _(ServerRequest.ServerRequest);
 
-    const response = yield* _(app);
+    const response = yield* _(app, Effect.tapErrorCause(Effect.logError));
 
     if (response.status >= 400 && response.status < 500) {
       yield* _(

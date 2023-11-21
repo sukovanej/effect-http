@@ -1,6 +1,6 @@
 ---
 title: index.ts
-nav_order: 5
+nav_order: 6
 parent: Modules
 ---
 
@@ -19,6 +19,7 @@ Added in v1.0.0
   - [From "effect-http/Client"](#from-effect-httpclient)
   - [From "effect-http/ClientError"](#from-effect-httpclienterror)
   - [From "effect-http/ExampleServer"](#from-effect-httpexampleserver)
+  - [From "effect-http/HttpSchema"](#from-effect-httphttpschema)
   - [From "effect-http/Middlewares"](#from-effect-httpmiddlewares)
   - [From "effect-http/MockClient"](#from-effect-httpmockclient)
   - [From "effect-http/NodeServer"](#from-effect-httpnodeserver)
@@ -77,6 +78,18 @@ Re-exports all named exports from the "effect-http/ExampleServer" module as `Exa
 
 ```ts
 export * as ExampleServer from "effect-http/ExampleServer"
+```
+
+Added in v1.0.0
+
+## From "effect-http/HttpSchema"
+
+Re-exports all named exports from the "effect-http/HttpSchema" module as `HttpSchema`.
+
+**Signature**
+
+```ts
+export * as HttpSchema from "effect-http/HttpSchema"
 ```
 
 Added in v1.0.0

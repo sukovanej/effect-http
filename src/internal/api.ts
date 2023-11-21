@@ -226,11 +226,6 @@ export const IgnoredSchemaId: Api.IgnoredSchemaId = Symbol.for(
   "effect-http/ignore-schema-id",
 ) as Api.IgnoredSchemaId;
 
-export const formDataSchema = Schema.instanceOf(FormData).pipe(
-  Schema.jsonSchema({ type: "string" }),
-  Schema.description("Multipart form data"),
-);
-
 /** @internal */
 class ApiImpl<Endpoints extends Api.Endpoint> implements Api.Api<Endpoints> {
   readonly [ApiTypeId]: Api.ApiTypeId;

@@ -233,19 +233,6 @@ export const addGroup: <E2 extends Endpoint>(
   apiGroup: ApiGroup<E2>,
 ) => <E1 extends Endpoint>(api: Api<E1>) => Api<E1 | E2> = internal.addGroup;
 
-const formDataSchema: Schema.Schema<FormData, FormData> =
-  internal.formDataSchema;
-
-export {
-  /**
-   * FormData schema
-   *
-   * @category schemas
-   * @since 1.0.0
-   */
-  formDataSchema as FormData,
-};
-
 // Internal type helpers
 
 /** @ignore */

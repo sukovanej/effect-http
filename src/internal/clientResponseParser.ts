@@ -2,8 +2,11 @@ import * as ClientResponse from "@effect/platform/Http/ClientResponse";
 import * as Schema from "@effect/schema/Schema";
 import * as Api from "effect-http/Api";
 import * as ClientError from "effect-http/ClientError";
+import * as HttpSchema from "effect-http/HttpSchema";
 import * as utils from "effect-http/internal/utils";
 import * as Effect from "effect/Effect";
+import { flow } from "effect/Function";
+import * as Option from "effect/Option";
 import * as Unify from "effect/Unify";
 
 interface ClientResponseParser {
@@ -45,26 +48,10 @@ const handleUnsucessful = Unify.unify(
 );
 
 const fromSchema = (schema: Schema.Schema<any>): ClientResponseParser => {
-  const parse = Schema.parse(schema);
+  const decode = decodeBody(schema);
+
   return make((response) =>
-    Effect.gen(function* (_) {
-      yield* _(handleUnsucessful(response));
-
-      const json = yield* _(
-        response.json,
-        Effect.mapError((error) =>
-          ClientError.makeClientSide(
-            error,
-            `Invalid response: ${error.reason}`,
-          ),
-        ),
-      );
-
-      return yield* _(
-        parse(json),
-        Effect.mapError(ClientError.makeClientSideResponseValidation("body")),
-      );
-    }),
+    handleUnsucessful(response).pipe(Effect.flatMap(() => decode(response))),
   );
 };
 
@@ -91,28 +78,8 @@ const fromResponseSchemaFullArray = (
       }
 
       const schemas = statusToSchema[response.status];
-
-      const contextSchema = schemas.content;
-
-      const content =
-        contextSchema === Api.IgnoredSchemaId
-          ? undefined
-          : yield* _(
-              response.json,
-              Effect.mapError((error) =>
-                ClientError.makeClientSide(
-                  error,
-                  `Invalid response: ${error.reason}`,
-                ),
-              ),
-              Effect.flatMap((json) =>
-                Schema.parse(contextSchema)(json).pipe(
-                  Effect.mapError(
-                    ClientError.makeClientSideResponseValidation("body"),
-                  ),
-                ),
-              ),
-            );
+      const parseBody = parseContent(schemas.content);
+      const content = yield* _(parseBody(response));
 
       const headers =
         schemas.headers === Api.IgnoredSchemaId
@@ -128,4 +95,48 @@ const fromResponseSchemaFullArray = (
       return { status: response.status, content, headers };
     }),
   );
+};
+
+const decodeBody = (schema: Schema.Schema<any>) => {
+  const { decode } = HttpSchema.getContentCodecAnnotation(schema).pipe(
+    Option.getOrElse(() => HttpSchema.jsonContentCodec),
+  );
+
+  const parse = Schema.parse(schema);
+
+  return (response: ClientResponse.ClientResponse) =>
+    response.text.pipe(
+      Effect.mapError((error) =>
+        ClientError.makeClientSide(error, `Invalid response: ${error.reason}`),
+      ),
+      Effect.flatMap(
+        flow(
+          decode,
+          Effect.mapError((error) =>
+            ClientError.makeClientSide(
+              error,
+              `Invalid response: ${error.message}`,
+            ),
+          ),
+        ),
+      ),
+      Effect.flatMap(
+        flow(
+          parse,
+          Effect.mapError(ClientError.makeClientSideResponseValidation("body")),
+        ),
+      ),
+    );
+};
+
+const parseContent: (
+  schema: Schema.Schema<any> | Api.IgnoredSchemaId,
+) => (
+  response: ClientResponse.ClientResponse,
+) => Effect.Effect<never, ClientError.ClientError, any> = (schema) => {
+  if (schema === Api.IgnoredSchemaId) {
+    return () => Effect.succeed(undefined);
+  }
+
+  return decodeBody(schema);
 };

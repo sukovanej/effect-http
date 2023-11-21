@@ -3,10 +3,13 @@ import * as Headers from "@effect/platform/Http/Headers";
 import * as ServerResponse from "@effect/platform/Http/ServerResponse";
 import * as Schema from "@effect/schema/Schema";
 import * as Api from "effect-http/Api";
+import * as HttpSchema from "effect-http/HttpSchema";
 import * as ServerError from "effect-http/ServerError";
 import { formatParseError } from "effect-http/internal/formatParseError";
 import * as utils from "effect-http/internal/utils";
 import * as Effect from "effect/Effect";
+import { flow, pipe } from "effect/Function";
+import * as Option from "effect/Option";
 
 interface ServerResponseEncoder {
   encodeResponse: (
@@ -38,8 +41,36 @@ export const create = (
 };
 
 const fromSchema = (schema: Schema.Schema<any>): ServerResponseEncoder => {
-  const encode = ServerResponse.schemaJson(schema);
-  return make((body) => Effect.mapError(encode(body), convertBodyError));
+  const encodeFirst = Schema.encode(schema);
+  const { encode } = pipe(
+    HttpSchema.getContentCodecAnnotation(schema),
+    Option.getOrElse(() => HttpSchema.jsonContentCodec),
+  );
+  const contentType = createContentType(schema);
+
+  return make((body) =>
+    encodeFirst(body).pipe(
+      Effect.mapError((error) =>
+        createErrorResponse(
+          "Invalid response content",
+          formatParseError(error),
+        ),
+      ),
+      Effect.flatMap(
+        flow(
+          encode,
+          Effect.mapError((error) =>
+            createErrorResponse("Invalid response content", error.message),
+          ),
+        ),
+      ),
+      Effect.map((content) =>
+        ServerResponse.uint8Array(new TextEncoder().encode(content), {
+          headers: { "content-type": contentType },
+        }),
+      ),
+    ),
+  );
 };
 
 const fromResponseSchemaFullArray = (
@@ -68,24 +99,56 @@ const fromResponseSchemaFullArray = (
   );
 };
 
+const createContentType = (schema: Schema.Schema<any> | undefined) =>
+  pipe(
+    Option.fromNullable(schema),
+    Option.flatMap(HttpSchema.getContentTypeAnnotation),
+    Option.getOrElse(() => "application/json"),
+  );
+
 const createContentSetter = (schema: Api.ResponseSchemaFull) => {
-  const setBody =
-    schema.content === Api.IgnoredSchemaId
-      ? undefined
-      : ServerResponse.schemaJson(schema.content);
+  const contentSchema =
+    schema.content === Api.IgnoredSchemaId ? undefined : schema.content;
+
+  const encodeContent = contentSchema && Schema.encode(contentSchema);
+  const { encode } = pipe(
+    Option.fromNullable(contentSchema),
+    Option.flatMap(HttpSchema.getContentCodecAnnotation),
+    Option.getOrElse(() => HttpSchema.jsonContentCodec),
+  );
+  const contentType = createContentType(contentSchema);
 
   return (input: FullResponseInput) =>
     (response: ServerResponse.ServerResponse) => {
-      if (setBody === undefined && input.content !== undefined) {
+      if (encodeContent === undefined && input.content !== undefined) {
         return Effect.die("Unexpected response content");
-      } else if (setBody !== undefined && input.content === undefined) {
+      } else if (encodeContent !== undefined && input.content === undefined) {
         return Effect.die("Response content not provided");
-      } else if (setBody === undefined) {
+      } else if (encodeContent === undefined) {
         return Effect.succeed(response);
       }
 
-      return setBody(input.content, response).pipe(
-        Effect.mapError(convertBodyError),
+      return pipe(
+        encodeContent(input.content),
+        Effect.mapError((error) =>
+          createErrorResponse(
+            "Invalid response content",
+            formatParseError(error),
+          ),
+        ),
+        Effect.flatMap(
+          flow(
+            encode,
+            Effect.mapError((error) =>
+              createErrorResponse("Invalid response content", error.message),
+            ),
+          ),
+        ),
+        Effect.map((content) =>
+          response.pipe(
+            ServerResponse.setBody(Body.text(content, contentType)),
+          ),
+        ),
       );
     };
 };
@@ -128,19 +191,3 @@ const FullResponseInput = Schema.struct({
 type FullResponseInput = Schema.Schema.To<typeof FullResponseInput>;
 
 const parseFullResponseInput = Schema.parse(FullResponseInput);
-
-const convertBodyError = (error: Body.BodyError) => {
-  if (error.reason._tag === "JsonError") {
-    return createErrorResponse(
-      "Invalid response body",
-      "Invalid response JSON",
-    );
-  } else if (error.reason._tag === "SchemaError") {
-    return createErrorResponse(
-      "Invalid response body",
-      formatParseError(error.reason.error),
-    );
-  }
-
-  throw new Error(`Handling of ${error} not implemented`);
-};

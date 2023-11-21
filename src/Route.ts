@@ -68,7 +68,6 @@ export const fromEndpoint: <Endpoint extends Api.Endpoint, R, E>(
 
           return Effect.fail(error as Exclude<E, ServerError.ServerError>);
         }),
-        Effect.tapError(Effect.logError),
       ),
     );
   };
