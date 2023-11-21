@@ -114,7 +114,7 @@ export type ResponseSchemaFullTo<S extends Api.ResponseSchemaFull> =
         } & {
           [K in Exclude<
             RequiredFields<S>,
-            "status"
+            "status" | "representations"
           >]: S[K] extends Schema.Schema<any> ? SchemaTo<S[K]> : never;
         }
       >

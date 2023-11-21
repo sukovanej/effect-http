@@ -2,8 +2,10 @@ import * as Body from "@effect/platform/Http/Body";
 import * as Headers from "@effect/platform/Http/Headers";
 import * as ServerResponse from "@effect/platform/Http/ServerResponse";
 import * as Schema from "@effect/schema/Schema";
+import { ReadonlyArray } from "effect";
 import * as Api from "effect-http/Api";
 import * as HttpSchema from "effect-http/HttpSchema";
+import * as Representation from "effect-http/Representation";
 import * as ServerError from "effect-http/ServerError";
 import { formatParseError } from "effect-http/internal/formatParseError";
 import * as utils from "effect-http/internal/utils";
@@ -40,16 +42,43 @@ export const create = (
   return fromResponseSchemaFullArray([responseSchema]);
 };
 
-const fromSchema = (schema: Schema.Schema<any>): ServerResponseEncoder => {
-  const encodeFirst = Schema.encode(schema);
+const createRepresentationPicker = (
+  representations: ReadonlyArray.NonEmptyReadonlyArray<
+    Representation.Representation<any>
+  >,
+): ((
+  response: ServerResponse.ServerResponse,
+) => Representation.Representation<any>) => {
+  if (representations.length === 0) {
+    return () => representations[0];
+  }
+
+  return (response) => {
+    const accept = response.headers["accept"];
+
+    // TODO: this logic needs to be improved a lot!
+    return pipe(
+      representations,
+      ReadonlyArray.filter(
+        (representation) => representation.contentType === accept,
+      ),
+      ReadonlyArray.head,
+      Option.getOrElse(() => representations[0]),
+    );
+  };
+};
+
+const encodeContent = (schema: Schema.Schema<any>) => {
+  const encodeContent = Schema.encode(schema);
   const { encode } = pipe(
     HttpSchema.getContentCodecAnnotation(schema),
     Option.getOrElse(() => HttpSchema.jsonContentCodec),
   );
   const contentType = createContentType(schema);
 
-  return make((body) =>
-    encodeFirst(body).pipe(
+  return (content: unknown) => (response: ServerResponse.ServerResponse) =>
+    pipe(
+      encodeContent(content),
       Effect.mapError((error) =>
         createErrorResponse(
           "Invalid response content",
@@ -65,11 +94,16 @@ const fromSchema = (schema: Schema.Schema<any>): ServerResponseEncoder => {
         ),
       ),
       Effect.map((content) =>
-        ServerResponse.uint8Array(new TextEncoder().encode(content), {
-          headers: { "content-type": contentType },
-        }),
+        response.pipe(ServerResponse.setBody(Body.text(content, contentType))),
       ),
-    ),
+    );
+};
+
+const fromSchema = (schema: Schema.Schema<any>): ServerResponseEncoder => {
+  const encode = encodeContent(schema);
+
+  return make((input) =>
+    ServerResponse.empty({ status: 200 }).pipe(encode(input)),
   );
 };
 
@@ -109,47 +143,19 @@ const createContentType = (schema: Schema.Schema<any> | undefined) =>
 const createContentSetter = (schema: Api.ResponseSchemaFull) => {
   const contentSchema =
     schema.content === Api.IgnoredSchemaId ? undefined : schema.content;
-
-  const encodeContent = contentSchema && Schema.encode(contentSchema);
-  const { encode } = pipe(
-    Option.fromNullable(contentSchema),
-    Option.flatMap(HttpSchema.getContentCodecAnnotation),
-    Option.getOrElse(() => HttpSchema.jsonContentCodec),
-  );
-  const contentType = createContentType(contentSchema);
+  const encode = contentSchema && encodeContent(contentSchema);
 
   return (input: FullResponseInput) =>
     (response: ServerResponse.ServerResponse) => {
-      if (encodeContent === undefined && input.content !== undefined) {
+      if (encode === undefined && input.content !== undefined) {
         return Effect.die("Unexpected response content");
-      } else if (encodeContent !== undefined && input.content === undefined) {
+      } else if (encode !== undefined && input.content === undefined) {
         return Effect.die("Response content not provided");
-      } else if (encodeContent === undefined) {
+      } else if (encode === undefined) {
         return Effect.succeed(response);
       }
 
-      return pipe(
-        encodeContent(input.content),
-        Effect.mapError((error) =>
-          createErrorResponse(
-            "Invalid response content",
-            formatParseError(error),
-          ),
-        ),
-        Effect.flatMap(
-          flow(
-            encode,
-            Effect.mapError((error) =>
-              createErrorResponse("Invalid response content", error.message),
-            ),
-          ),
-        ),
-        Effect.map((content) =>
-          response.pipe(
-            ServerResponse.setBody(Body.text(content, contentType)),
-          ),
-        ),
-      );
+      return pipe(response, encode(input.content));
     };
 };
 

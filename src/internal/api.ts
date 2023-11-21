@@ -7,6 +7,7 @@ import * as HashSet from "effect/HashSet";
 import * as Order from "effect/Order";
 import * as Pipeable from "effect/Pipeable";
 import * as ReadonlyArray from "effect/ReadonlyArray";
+import * as Representation from 'effect-http/Representation'
 
 /** @internal */
 const composeResponseSchema = (
@@ -18,6 +19,7 @@ const composeResponseSchema = (
         status: r.status,
         headers: (r.headers && fieldsToLowerCase(r.headers)) ?? IgnoredSchemaId,
         content: r.content ?? IgnoredSchemaId,
+        representations: r.representations ?? [Representation.json],
       }) as const,
   );
 

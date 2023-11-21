@@ -73,3 +73,8 @@ export * as Middlewares from "effect-http/Middlewares";
  * @since 1.0.0
  */
 export * as HttpSchema from "effect-http/HttpSchema";
+
+/**
+ * @since 1.0.0
+ */
+export * as Representation from "effect-http/Representation";
