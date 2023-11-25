@@ -1,5 +1,15 @@
 # effect-http
 
+## 0.41.0
+
+### Minor Changes
+
+- 57a9122: Update dependencies.
+
+### Patch Changes
+
+- cb7f4df: Update swagger-ui-dist.
+
 ## 0.40.1
 
 ### Patch Changes
