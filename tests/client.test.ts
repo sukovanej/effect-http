@@ -158,7 +158,7 @@ test("missing headers", async () => {
     ClientError.makeServerSide(
       {},
       400,
-      "Failed to encode headers. must be a generic object, received undefined",
+      "Failed to encode headers. must be an object, received undefined",
     ),
   );
 });

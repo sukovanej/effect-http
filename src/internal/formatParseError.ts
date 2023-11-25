@@ -39,7 +39,7 @@ const stringifyExpected = (
     Option.getOrElse(() => error.expected.join(" or ")),
   );
 
-  return `${expected}`;
+  return expected;
 };
 
 const stringifyError = (error: ValidationError) => {
@@ -134,6 +134,10 @@ const formatParseErrors = (
 
 const formatAST = (ast: AST.AST) => {
   const expected = getExpected(ast);
+
+  if (ast._tag === 'TypeLiteral') {
+    return 'an object';
+  }
 
   if (Option.isSome(expected)) {
     return expected.value as string;

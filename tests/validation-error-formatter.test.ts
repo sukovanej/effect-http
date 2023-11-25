@@ -76,6 +76,12 @@ describe("struct", () => {
       'users.[0].value must be 1 or "zdar", received "patrik"',
     );
   });
+
+  test("object", () => {
+    const errors = pipe(Schema.struct({ foo: Schema.string }), evaluate(null));
+
+    expect(errors).toEqual("must be an object, received null");
+  });
 });
 
 test("pattern", () => {
