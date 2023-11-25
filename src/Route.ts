@@ -13,7 +13,6 @@ import * as ServerError from "effect-http/ServerError";
 import * as ServerRequestParser from "effect-http/internal/serverRequestParser";
 import * as ServerResponseEncoder from "effect-http/internal/serverResponseEncoder";
 import * as Effect from "effect/Effect";
-import { pipe } from "effect/Function";
 import type * as Types from "effect/Types";
 
 import { SchemaTo } from "./internal/utils";
@@ -56,11 +55,14 @@ export const fromEndpoint: <Endpoint extends Api.Endpoint, R, E>(
     return Router.makeRoute(
       endpoint.method.toUpperCase() as Method.Method,
       endpoint.path,
-      pipe(
-        ServerRequest.ServerRequest,
-        Effect.flatMap(requestParser.parseRequest),
-        Effect.flatMap((input: any) => fn(input)),
-        Effect.flatMap(responseEncoder.encodeResponse),
+      Effect.gen(function* (_) {
+        const request = yield* _(ServerRequest.ServerRequest);
+        const response = yield* _(
+          requestParser.parseRequest(request),
+          Effect.flatMap((input: any) => fn(input)),
+        );
+        return yield* _(responseEncoder.encodeResponse(request, response));
+      }).pipe(
         Effect.catchAll((error) => {
           if (ServerError.isServerError(error)) {
             return error.toServerResponse();

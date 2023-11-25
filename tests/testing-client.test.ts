@@ -7,6 +7,7 @@ import {
   Api,
   ClientError,
   HttpSchema,
+  Representation,
   RouterBuilder,
   ServerError,
   Testing,
@@ -209,7 +210,11 @@ test("form data", async () => {
       request: {
         body: HttpSchema.FormData,
       },
-      response: HttpSchema.PlainText,
+      response: {
+        content: Schema.string,
+        status: 200,
+        representations: [Representation.plainText],
+      },
     }),
   );
 
@@ -230,9 +235,10 @@ test("form data", async () => {
         }
 
         const fs = yield* _(FileSystem.FileSystem);
+        const content = yield* _(fs.readFileString(file[0].path));
 
-        return yield* _(fs.readFileString(file[0].path));
-      }),
+        return { content, status: 200 as const };
+      }).pipe(Effect.scoped),
     ),
     RouterBuilder.build,
   );

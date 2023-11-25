@@ -3,7 +3,14 @@ import { HttpServer, NodeContext } from "@effect/platform-node";
 import { runMain } from "@effect/platform-node/Runtime";
 import { Schema } from "@effect/schema";
 import { Effect, pipe } from "effect";
-import { Api, HttpSchema, NodeServer, RouterBuilder } from "effect-http";
+import {
+  Api,
+  HttpSchema,
+  NodeServer,
+  Representation,
+  RouterBuilder,
+  ServerError,
+} from "effect-http";
 
 import { debugLogger } from "./_utils";
 
@@ -13,7 +20,11 @@ const api = pipe(
     request: {
       body: HttpSchema.FormData,
     },
-    response: Schema.string,
+    response: {
+      content: Schema.string,
+      status: 200,
+      representations: [Representation.plainText],
+    },
   }),
 );
 
@@ -27,12 +38,13 @@ const app = pipe(
       const file = formData["file"];
 
       if (typeof file === "string") {
-        return file;
+        return yield* _(ServerError.badRequest('Expected "file"'));
       }
 
       const fs = yield* _(FileSystem.FileSystem);
+      const content = yield* _(fs.readFileString(file[0].path));
 
-      return yield* _(fs.readFileString(file[0].path));
+      return { content, status: 200 as const };
     }).pipe(Effect.scoped),
   ),
   RouterBuilder.build,

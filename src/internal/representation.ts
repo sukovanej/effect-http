@@ -1,10 +1,15 @@
-import * as Schema from "@effect/schema/Schema";
 import type * as Representation from "effect-http/Representation";
+import * as Data from "effect/Data";
+import * as Effect from "effect/Effect";
 import * as Pipeable from "effect/Pipeable";
 
 export const TypeId: Representation.TypeId = Symbol.for(
   "effect-http/Representation/Representation",
 ) as Representation.TypeId;
+
+class RepresentationErrorImpl
+  extends Data.TaggedError("RepresentationError")<{ message: string }>
+  implements Representation.RepresentationError {}
 
 const representationProto = {
   [TypeId]: TypeId,
@@ -13,22 +18,43 @@ const representationProto = {
   },
 };
 
-export const make = <A>(
-  fields: Omit<
-    Representation.Representation<A>,
-    Representation.TypeId | "pipe"
-  >,
-) => {
+export const make = (
+  fields: Omit<Representation.Representation, Representation.TypeId | "pipe">,
+): Representation.Representation => {
   const representation = Object.create(representationProto);
   return Object.assign(representation, fields);
 };
 
 export const json = make({
-  schema: Schema.ParseJson,
+  stringify: (input) =>
+    Effect.try({
+      try: () => JSON.stringify(input),
+      catch: (error) =>
+        new RepresentationErrorImpl({
+          message: `JSON parsing failed with ${error}`,
+        }),
+    }),
+  parse: (input) =>
+    Effect.try({
+      try: () => JSON.parse(input),
+      catch: (error) =>
+        new RepresentationErrorImpl({
+          message: `JSON stringify failed with ${error}`,
+        }),
+    }),
   contentType: "application/json",
 });
 
 export const plainText = make({
-  schema: Schema.string,
+  stringify: (input) => {
+    if (typeof input === "string") {
+      return Effect.succeed(input);
+    } else if (typeof input === "number") {
+      return Effect.succeed(String(input));
+    }
+
+    return json.stringify(input);
+  },
+  parse: Effect.succeed,
   contentType: "text/plain",
 });

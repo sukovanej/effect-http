@@ -1,10 +1,10 @@
 import * as Body from "@effect/platform/Http/Body";
 import * as Headers from "@effect/platform/Http/Headers";
+import type * as ServerRequest from "@effect/platform/Http/ServerRequest";
 import * as ServerResponse from "@effect/platform/Http/ServerResponse";
 import * as Schema from "@effect/schema/Schema";
 import { ReadonlyArray } from "effect";
 import * as Api from "effect-http/Api";
-import * as HttpSchema from "effect-http/HttpSchema";
 import * as Representation from "effect-http/Representation";
 import * as ServerError from "effect-http/ServerError";
 import { formatParseError } from "effect-http/internal/formatParseError";
@@ -15,6 +15,7 @@ import * as Option from "effect/Option";
 
 interface ServerResponseEncoder {
   encodeResponse: (
+    request: ServerRequest.ServerRequest,
     input: unknown,
   ) => Effect.Effect<
     never,
@@ -42,68 +43,64 @@ export const create = (
   return fromResponseSchemaFullArray([responseSchema]);
 };
 
-const createRepresentationPicker = (
-  representations: ReadonlyArray.NonEmptyReadonlyArray<
-    Representation.Representation<any>
-  >,
-): ((
-  response: ServerResponse.ServerResponse,
-) => Representation.Representation<any>) => {
+export const representationFromRequest = (
+  representations: ReadonlyArray.NonEmptyReadonlyArray<Representation.Representation>,
+  request: ServerRequest.ServerRequest,
+): Representation.Representation => {
   if (representations.length === 0) {
-    return () => representations[0];
+    representations[0];
   }
 
-  return (response) => {
-    const accept = response.headers["accept"];
+  const accept = request.headers["accept"];
 
-    // TODO: this logic needs to be improved a lot!
-    return pipe(
-      representations,
-      ReadonlyArray.filter(
-        (representation) => representation.contentType === accept,
-      ),
-      ReadonlyArray.head,
-      Option.getOrElse(() => representations[0]),
-    );
-  };
+  // TODO: this logic needs to be improved a lot!
+  return pipe(
+    representations,
+    ReadonlyArray.filter(
+      (representation) => representation.contentType === accept,
+    ),
+    ReadonlyArray.head,
+    Option.getOrElse(() => representations[0]),
+  );
 };
 
 const encodeContent = (schema: Schema.Schema<any>) => {
-  const encodeContent = Schema.encode(schema);
-  const { encode } = pipe(
-    HttpSchema.getContentCodecAnnotation(schema),
-    Option.getOrElse(() => HttpSchema.jsonContentCodec),
-  );
-  const contentType = createContentType(schema);
+  const encode = Schema.encode(schema);
 
-  return (content: unknown) => (response: ServerResponse.ServerResponse) =>
-    pipe(
-      encodeContent(content),
-      Effect.mapError((error) =>
-        createErrorResponse(
-          "Invalid response content",
-          formatParseError(error),
-        ),
-      ),
-      Effect.flatMap(
-        flow(
-          encode,
-          Effect.mapError((error) =>
-            createErrorResponse("Invalid response content", error.message),
+  return (content: unknown, representation: Representation.Representation) =>
+    (response: ServerResponse.ServerResponse) =>
+      pipe(
+        encode(content),
+        Effect.mapError((error) =>
+          createErrorResponse(
+            "Invalid response content",
+            formatParseError(error),
           ),
         ),
-      ),
-      Effect.map((content) =>
-        response.pipe(ServerResponse.setBody(Body.text(content, contentType))),
-      ),
-    );
+        Effect.flatMap(
+          flow(
+            representation.stringify,
+            Effect.mapError((error) =>
+              createErrorResponse("Invalid response content", error.message),
+            ),
+          ),
+        ),
+        Effect.map((content) =>
+          response.pipe(
+            ServerResponse.setBody(
+              Body.text(content, representation.contentType),
+            ),
+          ),
+        ),
+      );
 };
 
 const fromSchema = (schema: Schema.Schema<any>): ServerResponseEncoder => {
   const encode = encodeContent(schema);
+  const representation = Representation.json;
 
   return make((input) =>
-    ServerResponse.empty({ status: 200 }).pipe(encode(input)),
+    ServerResponse.empty({ status: 200 }).pipe(encode(input, representation)),
   );
 };
 
@@ -115,7 +112,7 @@ const fromResponseSchemaFullArray = (
     {} as Record<number, Api.ResponseSchemaFull>,
   );
 
-  return make((input: unknown) =>
+  return make((request, input) =>
     Effect.gen(function* (_) {
       const _input = yield* _(parseFullResponseInput(input), Effect.orDie);
 
@@ -123,9 +120,14 @@ const fromResponseSchemaFullArray = (
       const setContent = createContentSetter(schemas);
       const setHeaders = createHeadersSetter(schemas);
 
+      const representation = representationFromRequest(
+        schemas.representations,
+        request,
+      );
+
       return yield* _(
         ServerResponse.empty({ status: _input.status }).pipe(
-          setContent(_input),
+          setContent(_input, representation),
           Effect.flatMap(setHeaders(_input)),
         ),
       );
@@ -133,19 +135,12 @@ const fromResponseSchemaFullArray = (
   );
 };
 
-const createContentType = (schema: Schema.Schema<any> | undefined) =>
-  pipe(
-    Option.fromNullable(schema),
-    Option.flatMap(HttpSchema.getContentTypeAnnotation),
-    Option.getOrElse(() => "application/json"),
-  );
-
 const createContentSetter = (schema: Api.ResponseSchemaFull) => {
   const contentSchema =
     schema.content === Api.IgnoredSchemaId ? undefined : schema.content;
   const encode = contentSchema && encodeContent(contentSchema);
 
-  return (input: FullResponseInput) =>
+  return (input: FullResponseInput, representation: Representation.Representation) =>
     (response: ServerResponse.ServerResponse) => {
       if (encode === undefined && input.content !== undefined) {
         return Effect.die("Unexpected response content");
@@ -155,7 +150,7 @@ const createContentSetter = (schema: Api.ResponseSchemaFull) => {
         return Effect.succeed(response);
       }
 
-      return pipe(response, encode(input.content));
+      return pipe(response, encode(input.content, representation));
     };
 };
 
