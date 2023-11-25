@@ -227,7 +227,7 @@ describe("error reporting", () => {
     expect(await Effect.runPromise(response.json)).toEqual({
       error: "Request validation error",
       location: "body",
-      message: "must be a generic object, received null",
+      message: "must be an object, received null",
     });
   });
 
