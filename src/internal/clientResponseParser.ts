@@ -1,13 +1,13 @@
 import * as ClientResponse from "@effect/platform/Http/ClientResponse";
 import * as Schema from "@effect/schema/Schema";
-import { ReadonlyArray } from "effect";
-import { Representation } from "effect-http";
 import * as Api from "effect-http/Api";
 import * as ClientError from "effect-http/ClientError";
+import * as Representation from "effect-http/Representation";
 import * as utils from "effect-http/internal/utils";
 import * as Effect from "effect/Effect";
 import { flow, pipe } from "effect/Function";
 import * as Option from "effect/Option";
+import * as ReadonlyArray from "effect/ReadonlyArray";
 import * as Unify from "effect/Unify";
 
 interface ClientResponseParser {
@@ -126,7 +126,10 @@ const decodeBody = (
   const parse = Schema.parse(schema);
 
   return (response: ClientResponse.ClientResponse) => {
-    const representation = representationFromResponse(representations, response);
+    const representation = representationFromResponse(
+      representations,
+      response,
+    );
 
     return response.text.pipe(
       Effect.mapError((error) =>
@@ -150,7 +153,7 @@ const decodeBody = (
         ),
       ),
     );
-  }
+  };
 };
 
 const parseContent: (
@@ -158,7 +161,10 @@ const parseContent: (
   representations: ReadonlyArray.NonEmptyReadonlyArray<Representation.Representation>,
 ) => (
   response: ClientResponse.ClientResponse,
-) => Effect.Effect<never, ClientError.ClientError, any> = (schema, representations) => {
+) => Effect.Effect<never, ClientError.ClientError, any> = (
+  schema,
+  representations,
+) => {
   if (schema === Api.IgnoredSchemaId) {
     return () => Effect.succeed(undefined);
   }

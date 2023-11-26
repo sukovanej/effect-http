@@ -1,9 +1,9 @@
 import * as Body from "@effect/platform/Http/Body";
-import * as Headers from "@effect/platform/Http/Headers";
+import type * as Headers from "@effect/platform/Http/Headers";
 import type * as ServerRequest from "@effect/platform/Http/ServerRequest";
 import * as ServerResponse from "@effect/platform/Http/ServerResponse";
 import * as Schema from "@effect/schema/Schema";
-import { ReadonlyArray } from "effect";
+import * as ReadonlyArray from "effect/ReadonlyArray";
 import * as Api from "effect-http/Api";
 import * as Representation from "effect-http/Representation";
 import * as ServerError from "effect-http/ServerError";

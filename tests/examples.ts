@@ -1,6 +1,5 @@
 import * as Schema from "@effect/schema/Schema";
-import { Representation } from "effect-http";
-import * as Api from "effect-http/Api";
+import { Api, Representation } from "effect-http";
 
 // Example GET
 

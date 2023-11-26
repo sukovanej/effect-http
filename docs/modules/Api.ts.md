@@ -306,6 +306,8 @@ Added in v1.0.0
 
 ## FormData
 
+FormData schema
+
 **Signature**
 
 ```ts

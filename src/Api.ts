@@ -248,6 +248,8 @@ export const getEndpoint: <
 ) => Extract<A["endpoints"][number], { id: Id }> = internal.getEndpoint;
 
 /**
+ * FormData schema
+ *
  * @category schemas
  * @since 1.0.0
  */

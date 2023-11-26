@@ -1,7 +1,6 @@
 import * as ClientRequest from "@effect/platform/Http/ClientRequest";
 import { Effect, Option } from "effect";
-import { Testing } from "effect-http";
-import * as RouterBuilder from "effect-http/RouterBuilder";
+import { RouterBuilder, Testing } from "effect-http";
 import { apply } from "effect/Function";
 
 import {
