@@ -17,7 +17,7 @@ Added in v1.0.0
 - [constructors](#constructors)
   - [make](#make)
 - [models](#models)
-  - [MockClientOptions (type alias)](#mockclientoptions-type-alias)
+  - [Options (type alias)](#options-type-alias)
 
 ---
 
@@ -32,7 +32,7 @@ Derive mock client implementation from the `Api`
 ```ts
 export declare const make: <Endpoints extends Api.Endpoint>(
   api: Api.Api<Endpoints>,
-  option?: Partial<MockClientOptions<Endpoints>> | undefined
+  option?: Partial<Options<Endpoints>> | undefined
 ) => Client.Client<Endpoints>
 ```
 
@@ -40,12 +40,12 @@ Added in v1.0.0
 
 # models
 
-## MockClientOptions (type alias)
+## Options (type alias)
 
 **Signature**
 
 ```ts
-export type MockClientOptions<Endpoints extends Api.Endpoint> = {
+export type Options<Endpoints extends Api.Endpoint> = {
   responses: {
     [Id in Endpoints["id"]]: Client.ClientFunctionResponse<Extract<Endpoints, { id: Id }>["schemas"]["response"]>
   }
