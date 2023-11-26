@@ -16,7 +16,7 @@ import * as Option from "effect/Option";
 interface ServerResponseEncoder {
   encodeResponse: (
     request: ServerRequest.ServerRequest,
-    input: unknown,
+    inputResponse: unknown,
   ) => Effect.Effect<
     never,
     ServerError.ServerError,
@@ -43,7 +43,7 @@ export const create = (
   return fromResponseSchemaFullArray([responseSchema]);
 };
 
-export const representationFromRequest = (
+const representationFromRequest = (
   representations: ReadonlyArray.NonEmptyReadonlyArray<Representation.Representation>,
   request: ServerRequest.ServerRequest,
 ): Representation.Representation => {
@@ -99,8 +99,10 @@ const fromSchema = (schema: Schema.Schema<any>): ServerResponseEncoder => {
   const encode = encodeContent(schema);
   const representation = Representation.json;
 
-  return make((input) =>
-    ServerResponse.empty({ status: 200 }).pipe(encode(input, representation)),
+  return make((_, inputResponse) =>
+    ServerResponse.empty({ status: 200 }).pipe(
+      encode(inputResponse, representation),
+    ),
   );
 };
 
@@ -112,9 +114,12 @@ const fromResponseSchemaFullArray = (
     {} as Record<number, Api.ResponseSchemaFull>,
   );
 
-  return make((request, input) =>
+  return make((request, inputResponse) =>
     Effect.gen(function* (_) {
-      const _input = yield* _(parseFullResponseInput(input), Effect.orDie);
+      const _input = yield* _(
+        parseFullResponseInput(inputResponse),
+        Effect.orDie,
+      );
 
       const schemas = statusToSchema[_input.status];
       const setContent = createContentSetter(schemas);
@@ -140,17 +145,20 @@ const createContentSetter = (schema: Api.ResponseSchemaFull) => {
     schema.content === Api.IgnoredSchemaId ? undefined : schema.content;
   const encode = contentSchema && encodeContent(contentSchema);
 
-  return (input: FullResponseInput, representation: Representation.Representation) =>
+  return (
+      inputResponse: FullResponseInput,
+      representation: Representation.Representation,
+    ) =>
     (response: ServerResponse.ServerResponse) => {
-      if (encode === undefined && input.content !== undefined) {
+      if (encode === undefined && inputResponse.content !== undefined) {
         return Effect.die("Unexpected response content");
-      } else if (encode !== undefined && input.content === undefined) {
+      } else if (encode !== undefined && inputResponse.content === undefined) {
         return Effect.die("Response content not provided");
       } else if (encode === undefined) {
         return Effect.succeed(response);
       }
 
-      return pipe(response, encode(input.content, representation));
+      return pipe(response, encode(inputResponse.content, representation));
     };
 };
 
@@ -160,17 +168,20 @@ const createHeadersSetter = (schema: Api.ResponseSchemaFull) => {
       ? undefined
       : Schema.encode(schema.headers);
 
-  return (input: FullResponseInput) =>
+  return (inputResponse: FullResponseInput) =>
     (response: ServerResponse.ServerResponse) => {
-      if (parseHeaders === undefined && input.headers !== undefined) {
+      if (parseHeaders === undefined && inputResponse.headers !== undefined) {
         return Effect.die("Unexpected response headers");
-      } else if (parseHeaders !== undefined && input.headers === undefined) {
+      } else if (
+        parseHeaders !== undefined &&
+        inputResponse.headers === undefined
+      ) {
         return Effect.die("Response headers not provided");
       } else if (parseHeaders === undefined) {
         return Effect.succeed(response);
       }
 
-      return parseHeaders(input.headers).pipe(
+      return parseHeaders(inputResponse.headers).pipe(
         Effect.map((headers) =>
           response.pipe(ServerResponse.setHeaders(headers as Headers.Input)),
         ),

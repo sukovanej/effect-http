@@ -253,5 +253,6 @@ test("form data", async () => {
     runTestEffect,
   );
 
-  expect(response).toEqual("my file content");
+  expect(response.status).toEqual(200);
+  expect(response.content).toEqual("my file content");
 });

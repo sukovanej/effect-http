@@ -324,9 +324,7 @@ type ResponseSchemaFullFromInput<R extends InputResponseSchemaFull> = {
   status: R["status"];
   content: UndefinedToIgnoredSchema<R["content"]>;
   headers: UndefinedToIgnoredSchemaLowercased<R["headers"]>;
-  representations: ReadonlyArray.NonEmptyReadonlyArray<
-    Representation.Representation
-  >;
+  representations: ReadonlyArray.NonEmptyReadonlyArray<Representation.Representation>;
 };
 
 /** @ignore */
@@ -334,9 +332,7 @@ export interface ResponseSchemaFull {
   status: number;
   content: Schema.Schema<any> | IgnoredSchemaId;
   headers: Schema.Schema<any> | IgnoredSchemaId;
-  representations: ReadonlyArray.NonEmptyReadonlyArray<
-    Representation.Representation
-  >;
+  representations: ReadonlyArray.NonEmptyReadonlyArray<Representation.Representation>;
 }
 
 /** @ignore */
@@ -344,9 +340,7 @@ export interface InputResponseSchemaFull {
   status: number;
   content?: Schema.Schema<any>;
   headers?: Schema.Schema<any>;
-  representations?: ReadonlyArray.NonEmptyReadonlyArray<
-    Representation.Representation
-  >;
+  representations?: ReadonlyArray.NonEmptyReadonlyArray<Representation.Representation>;
 }
 
 /** @ignore */
