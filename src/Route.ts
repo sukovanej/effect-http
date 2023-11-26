@@ -3,19 +3,16 @@
  *
  * @since 1.0.0
  */
-import * as Method from "@effect/platform/Http/Method";
-import * as Router from "@effect/platform/Http/Router";
-import * as ServerRequest from "@effect/platform/Http/ServerRequest";
+import type * as Router from "@effect/platform/Http/Router";
 import type * as Schema from "@effect/schema/Schema";
-import * as Api from "effect-http/Api";
+import type * as Api from "effect-http/Api";
 import type * as RouterBuilder from "effect-http/RouterBuilder";
-import * as ServerError from "effect-http/ServerError";
-import * as ServerRequestParser from "effect-http/internal/serverRequestParser";
-import * as ServerResponseEncoder from "effect-http/internal/serverResponseEncoder";
-import * as Effect from "effect/Effect";
+import type * as ServerError from "effect-http/ServerError";
+import * as internal from "effect-http/internal/route";
+import type * as Effect from "effect/Effect";
 import type * as Types from "effect/Types";
 
-import { SchemaTo } from "./internal/utils";
+import type * as utils from "./internal/utils";
 
 /**
  * @category models
@@ -39,40 +36,7 @@ export const fromEndpoint: <Endpoint extends Api.Endpoint, R, E>(
 ) => (
   endpoint: Endpoint,
 ) => Router.Route<R, Exclude<E, ServerError.ServerError>> =
-  <Endpoint extends Api.Endpoint, R, E>(
-    fn: HandlerFunction<Endpoint, R, E>,
-    options?: RouterBuilder.Options,
-  ) =>
-  (endpoint) => {
-    const responseEncoder = ServerResponseEncoder.create(
-      endpoint.schemas.response,
-    );
-    const requestParser = ServerRequestParser.create(
-      endpoint,
-      options?.parseOptions,
-    );
-
-    return Router.makeRoute(
-      endpoint.method.toUpperCase() as Method.Method,
-      endpoint.path,
-      Effect.gen(function* (_) {
-        const request = yield* _(ServerRequest.ServerRequest);
-        const response = yield* _(
-          requestParser.parseRequest(request),
-          Effect.flatMap((input: any) => fn(input)),
-        );
-        return yield* _(responseEncoder.encodeResponse(request, response));
-      }).pipe(
-        Effect.catchAll((error) => {
-          if (ServerError.isServerError(error)) {
-            return error.toServerResponse();
-          }
-
-          return Effect.fail(error as Exclude<E, ServerError.ServerError>);
-        }),
-      ),
-    );
-  };
+  internal.fromEndpoint;
 
 /**
  * @category constructors
@@ -88,19 +52,11 @@ export const make: <
   fn: HandlerFunction<Extract<A["endpoints"][number], { id: Id }>, R, E>,
   options?: RouterBuilder.Options,
 ) => (api: A) => Router.Route<R, Exclude<E, ServerError.ServerError>> =
-  (id, fn, options) => (api) => {
-    const endpoint = Api.getEndpoint(api, id);
-
-    if (endpoint === undefined) {
-      throw new Error(`Operation id ${id} not found`);
-    }
-
-    return fromEndpoint(fn, options)(endpoint);
-  };
+  internal.make;
 
 /** @ignore */
 type EndpointResponseSchemaTo<S> = S extends Schema.Schema<any>
-  ? SchemaTo<S>
+  ? utils.SchemaTo<S>
   : S extends readonly Api.ResponseSchemaFull[]
     ? ResponseSchemaFullTo<S[number]>
     : S extends Api.ResponseSchemaFull
@@ -117,7 +73,7 @@ export type ResponseSchemaFullTo<S extends Api.ResponseSchemaFull> =
           [K in Exclude<
             RequiredFields<S>,
             "status" | "representations"
-          >]: S[K] extends Schema.Schema<any> ? SchemaTo<S[K]> : never;
+          >]: S[K] extends Schema.Schema<any> ? utils.SchemaTo<S[K]> : never;
         }
       >
     : never;
@@ -135,6 +91,6 @@ export type EndpointSchemasTo<E extends Api.Endpoint["schemas"]> =
       [K in Extract<
         keyof E["request"],
         RequiredFields<E["request"]>
-      >]: SchemaTo<E["request"][K]>;
+      >]: utils.SchemaTo<E["request"][K]>;
     };
   }>;
