@@ -16,6 +16,8 @@ Added in v1.0.0
 
 - [combinators](#combinators)
   - [listen](#listen)
+- [models](#models)
+  - [Options (interface)](#options-interface)
 
 ---
 
@@ -38,6 +40,20 @@ export declare const listen: (
   ServeError.ServeError,
   never
 >
+```
+
+Added in v1.0.0
+
+# models
+
+## Options (interface)
+
+**Signature**
+
+```ts
+export interface Options {
+  port: number | undefined
+}
 ```
 
 Added in v1.0.0
