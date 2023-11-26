@@ -1,3 +1,9 @@
+/**
+ * `Representation` is a data structure holding information about how to
+ * serialize and deserialize a server response for a given conten type.
+ *
+ * @since 1.0.0
+ */
 import * as internal from "effect-http/internal/representation";
 import type * as Cause from "effect/Cause";
 import type * as Effect from "effect/Effect";

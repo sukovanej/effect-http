@@ -1,7 +1,6 @@
 import * as ServerRequest from "@effect/platform/Http/ServerRequest";
 import type * as AST from "@effect/schema/AST";
 import * as Schema from "@effect/schema/Schema";
-import * as HttpSchema from "effect-http/HttpSchema";
 import * as Api from "effect-http/Api";
 import * as ServerError from "effect-http/ServerError";
 import { formatParseError } from "effect-http/internal/formatParseError";
@@ -66,7 +65,7 @@ const createBodyParser = (
   const parse = Schema.parse(schema);
 
   return Unify.unify((request: ServerRequest.ServerRequest) => {
-    if (schema === HttpSchema.FormData) {
+    if (schema === Api.FormData) {
       // TODO
       return Effect.succeed(undefined);
     }

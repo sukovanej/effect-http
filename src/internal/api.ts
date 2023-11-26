@@ -263,3 +263,8 @@ class ApiGroupImpl<Endpoints extends Api.Endpoint>
     return Pipeable.pipeArguments(this, arguments);
   }
 }
+
+export const formDataSchema = Schema.instanceOf(FormData).pipe(
+  Schema.jsonSchema({ type: "string" }),
+  Schema.description("Multipart form data"),
+);

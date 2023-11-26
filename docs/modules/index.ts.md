@@ -1,6 +1,6 @@
 ---
 title: index.ts
-nav_order: 6
+nav_order: 5
 parent: Modules
 ---
 
@@ -19,11 +19,11 @@ Added in v1.0.0
   - [From "effect-http/Client"](#from-effect-httpclient)
   - [From "effect-http/ClientError"](#from-effect-httpclienterror)
   - [From "effect-http/ExampleServer"](#from-effect-httpexampleserver)
-  - [From "effect-http/HttpSchema"](#from-effect-httphttpschema)
   - [From "effect-http/Middlewares"](#from-effect-httpmiddlewares)
   - [From "effect-http/MockClient"](#from-effect-httpmockclient)
   - [From "effect-http/NodeServer"](#from-effect-httpnodeserver)
   - [From "effect-http/OpenApi"](#from-effect-httpopenapi)
+  - [From "effect-http/Representation"](#from-effect-httprepresentation)
   - [From "effect-http/Route"](#from-effect-httproute)
   - [From "effect-http/RouterBuilder"](#from-effect-httprouterbuilder)
   - [From "effect-http/ServerError"](#from-effect-httpservererror)
@@ -82,18 +82,6 @@ export * as ExampleServer from "effect-http/ExampleServer"
 
 Added in v1.0.0
 
-## From "effect-http/HttpSchema"
-
-Re-exports all named exports from the "effect-http/HttpSchema" module as `HttpSchema`.
-
-**Signature**
-
-```ts
-export * as HttpSchema from "effect-http/HttpSchema"
-```
-
-Added in v1.0.0
-
 ## From "effect-http/Middlewares"
 
 Re-exports all named exports from the "effect-http/Middlewares" module as `Middlewares`.
@@ -138,6 +126,18 @@ Re-exports all named exports from the "effect-http/OpenApi" module as `OpenApi`.
 
 ```ts
 export * as OpenApi from "effect-http/OpenApi"
+```
+
+Added in v1.0.0
+
+## From "effect-http/Representation"
+
+Re-exports all named exports from the "effect-http/Representation" module as `Representation`.
+
+**Signature**
+
+```ts
+export * as Representation from "effect-http/Representation"
 ```
 
 Added in v1.0.0

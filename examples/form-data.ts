@@ -5,7 +5,6 @@ import { Schema } from "@effect/schema";
 import { Effect, pipe } from "effect";
 import {
   Api,
-  HttpSchema,
   NodeServer,
   Representation,
   RouterBuilder,
@@ -18,11 +17,11 @@ const api = pipe(
   Api.api(),
   Api.post("upload", "/upload", {
     request: {
-      body: HttpSchema.FormData,
+      body: Api.FormData,
     },
     response: {
-      content: Schema.string,
       status: 200,
+      content: Schema.string,
       representations: [Representation.plainText],
     },
   }),
@@ -38,13 +37,12 @@ const app = pipe(
       const file = formData["file"];
 
       if (typeof file === "string") {
-        return yield* _(ServerError.badRequest('Expected "file"'));
+        return yield* _(ServerError.badRequest("File not found"));
       }
 
       const fs = yield* _(FileSystem.FileSystem);
       const content = yield* _(fs.readFileString(file[0].path));
-
-      return { content, status: 200 as const };
+      return { status: 200 as const, content };
     }).pipe(Effect.scoped),
   ),
   RouterBuilder.build,

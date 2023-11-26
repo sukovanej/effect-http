@@ -247,6 +247,12 @@ export const getEndpoint: <
   id: Id,
 ) => Extract<A["endpoints"][number], { id: Id }> = internal.getEndpoint;
 
+/**
+ * @category schemas
+ * @since 1.0.0
+ */
+export const FormData: Schema.Schema<FormData> = internal.formDataSchema;
+
 // Internal type helpers
 
 /** @ignore */

@@ -43,6 +43,8 @@ Added in v1.0.0
 - [refinements](#refinements)
   - [isApi](#isapi)
   - [isApiGroup](#isapigroup)
+- [schemas](#schemas)
+  - [FormData](#formdata)
 - [type id](#type-id)
   - [ApiGroupTypeId](#apigrouptypeid)
   - [ApiGroupTypeId (type alias)](#apigrouptypeid-type-alias)
@@ -296,6 +298,18 @@ Added in v1.0.0
 
 ```ts
 export declare const isApiGroup: (u: unknown) => u is ApiGroup<any>
+```
+
+Added in v1.0.0
+
+# schemas
+
+## FormData
+
+**Signature**
+
+```ts
+export declare const FormData: Schema.Schema<FormData, FormData>
 ```
 
 Added in v1.0.0
