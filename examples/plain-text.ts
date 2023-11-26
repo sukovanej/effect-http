@@ -1,13 +1,7 @@
 import { runMain } from "@effect/platform-node/Runtime";
 import { Schema } from "@effect/schema";
 import { Effect } from "effect";
-import {
-  Api,
-  Middlewares,
-  NodeServer,
-  Representation,
-  RouterBuilder,
-} from "effect-http";
+import { Api, NodeServer, Representation, RouterBuilder } from "effect-http";
 import { PrettyLogger } from "effect-log";
 
 export const api = Api.api({ title: "Example API" }).pipe(
@@ -25,7 +19,6 @@ export const app = RouterBuilder.make(api).pipe(
     Effect.succeed({ content: { hello: "world" }, status: 200 as const }),
   ),
   RouterBuilder.build,
-  Middlewares.errorLog,
 );
 
 const program = app.pipe(

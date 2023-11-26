@@ -36,10 +36,10 @@ breaking changes and the internals and the public API are still evolving and cha
   - [Example API with conflict API error](#example-api-with-conflict-api-error)
 - [Grouping endpoints](#grouping-endpoints)
 - [Descriptions in OpenApi](#descriptions-in-openapi)
+- [Representations](#representations)
 - [API on the client side](#api-on-the-client-side)
   - [Example server](#example-server)
   - [Mock client](#mock-client)
-  - [Common headers](#common-headers)
 - [Compatibility](#compatibility)
 
 Install together with `effect`, `@effect/platform` and `@effect/platform-node` using
@@ -600,6 +600,86 @@ const app = RouterBuilder.make(api).pipe(
 );
 
 app.pipe(NodeServer.listen({ port: 3000 }), runMain);
+```
+
+## Representations
+
+By default, the `effect-http` client and server will attempt the serialize/deserialize
+messages as JSONs. This means that whenever you return something from a handler, the
+internal logic will serialize it as a JSON onto a string and send the response along
+with `content-type: application/json` header.
+
+This behaviour is a result of a default [Representation.json](https://sukovanej.github.io/effect-http/modules/Representation.ts.html#json).
+The default representation of the content can be changed by specifying `representations`
+field in the `response` API specification.
+
+For example, the following API specification states that the response of `/test` endpoint
+will be always a string represent as a plain text. Therefore, the HTTP message
+will contain `content-type: text/plain` header.
+
+```ts
+export const api = Api.api().pipe(
+  Api.get("myHandler", "/test", {
+    response: {
+      content: Schema.string,
+      status: 200,
+      representations: [Representation.plainText],
+    },
+  }),
+);
+```
+
+The `representations` is a list and if it contains multiple possible represetations
+of the data it internal server logic will respect incomming `Accept` header to decide
+which representation to use.
+
+The following example uses `plainText` and `json` representations. The order of
+representations is respected by the logic that decides which representation should
+be used, and if there is no representation matching the incomming `Accept` media type,
+it will choose the first representation in the list.
+
+```ts
+import { runMain } from "@effect/platform-node/Runtime";
+import { Schema } from "@effect/schema";
+import { Effect } from "effect";
+import { Api, NodeServer, Representation, RouterBuilder } from "effect-http";
+import { PrettyLogger } from "effect-log";
+
+export const api = Api.api({ title: "Example API" }).pipe(
+  Api.get("root", "/", {
+    response: {
+      content: Schema.unknown,
+      status: 200,
+      representations: [Representation.plainText, Representation.json],
+    },
+  }),
+);
+
+export const app = RouterBuilder.make(api).pipe(
+  RouterBuilder.handle("root", () =>
+    Effect.succeed({ content: { hello: "world" }, status: 200 as const }),
+  ),
+  RouterBuilder.build,
+);
+
+const program = app.pipe(
+  NodeServer.listen({ port: 3000 }),
+  Effect.provide(PrettyLogger.layer()),
+);
+
+runMain(program);
+```
+
+Try running the server above and call the root path with different
+`Accept` headers. You should see the response content-type reflecting
+the incomming `Accept` header.
+
+``` bash
+# JSON
+curl localhost:3000/ -H 'accept: application/json' -v
+
+# Plain text
+curl localhost:3000/ -H 'accept: text/plain' -v
 ```
 
 ## API on the client side
