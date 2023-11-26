@@ -194,7 +194,7 @@ test("failing after unauthorized middleware", async () => {
     RouterBuilder.handle("hello", () => Effect.succeed(1)),
     RouterBuilder.build,
     Middleware.make(() =>
-      ServerError.unauthorizedError("sorry bro").toServerResponse(),
+      ServerError.toServerResponse(ServerError.unauthorizedError("sorry bro")),
     ),
   );
 

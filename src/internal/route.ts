@@ -45,7 +45,7 @@ export const fromEndpoint: <Endpoint extends Api.Endpoint, R, E>(
       }).pipe(
         Effect.catchAll((error) => {
           if (ServerError.isServerError(error)) {
-            return error.toServerResponse();
+            return ServerError.toServerResponse(error);
           }
 
           return Effect.fail(error as Exclude<E, ServerError.ServerError>);

@@ -124,7 +124,7 @@ export const buildPartial = <R, E, RemainingEndpoints extends Api.Endpoint>(
   const swaggerRouter = SwaggerRouter.make(OpenApi.make(builder.api));
   return Router.concat(builder.router, swaggerRouter).pipe(
     Effect.catchTag("RouteNotFound", () =>
-      ServerError.make(404, "Not Found").toServerResponse(),
+      ServerError.toServerResponse(ServerError.make(404, "Not Found")),
     ),
   );
 };
