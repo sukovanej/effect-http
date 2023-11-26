@@ -362,7 +362,9 @@ test("representations", async () => {
     RouterBuilder.getRouter,
   );
 
-  const [textResponse, jsonResponse] = await Testing.makeRaw(app).pipe(
+  const [textResponse, jsonResponse, xmlResponse] = await Testing.makeRaw(
+    app,
+  ).pipe(
     Effect.flatMap((client) =>
       Effect.all([
         client(
@@ -371,6 +373,11 @@ test("representations", async () => {
         client(
           ClientRequest.post("/test").pipe(
             ClientRequest.accept("application/json"),
+          ),
+        ),
+        client(
+          ClientRequest.post("/test").pipe(
+            ClientRequest.accept("application/xml"),
           ),
         ),
       ]),
@@ -385,4 +392,9 @@ test("representations", async () => {
   expect(await Effect.runPromise(jsonResponse.json)).toEqual("test");
   expect(jsonResponse.status).toEqual(200);
   expect(jsonResponse.headers["content-type"]).toEqual("application/json");
+
+  // if no representation content-type matches the `Accept` header just use the first one
+  expect(await Effect.runPromise(xmlResponse.text)).toEqual("test");
+  expect(xmlResponse.status).toEqual(200);
+  expect(xmlResponse.headers["content-type"]).toEqual("text/plain");
 });
