@@ -6,6 +6,7 @@ import { Context, Effect, Predicate, pipe } from "effect";
 import {
   Api,
   ClientError,
+  Representation,
   RouterBuilder,
   ServerError,
   Testing,
@@ -208,7 +209,11 @@ test("form data", async () => {
       request: {
         body: Api.FormData,
       },
-      response: Schema.string,
+      response: {
+        content: Schema.string,
+        status: 200,
+        representations: [Representation.plainText],
+      },
     }),
   );
 
@@ -229,9 +234,10 @@ test("form data", async () => {
         }
 
         const fs = yield* _(FileSystem.FileSystem);
+        const content = yield* _(fs.readFileString(file[0].path));
 
-        return yield* _(fs.readFileString(file[0].path));
-      }),
+        return { content, status: 200 as const };
+      }).pipe(Effect.scoped),
     ),
     RouterBuilder.build,
   );
@@ -246,5 +252,6 @@ test("form data", async () => {
     runTestEffect,
   );
 
-  expect(response).toEqual("my file content");
+  expect(response.status).toEqual(200);
+  expect(response.content).toEqual("my file content");
 });

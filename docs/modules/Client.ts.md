@@ -80,7 +80,7 @@ Added in v1.0.0
 ```ts
 export type Client<Endpoints extends Api.Endpoint> = {
   [Id in Endpoints["id"]]: EndpointClient<Extract<Endpoints, { id: Id }>>
-} & Pipeable.Pipeable
+}
 ```
 
 Added in v1.0.0

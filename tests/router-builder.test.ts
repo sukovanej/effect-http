@@ -1,7 +1,6 @@
 import * as ClientRequest from "@effect/platform/Http/ClientRequest";
 import { Effect, Option } from "effect";
-import { Testing } from "effect-http";
-import * as RouterBuilder from "effect-http/RouterBuilder";
+import { RouterBuilder, Testing } from "effect-http";
 import { apply } from "effect/Function";
 
 import {
@@ -12,6 +11,7 @@ import {
   exampleApiGetQueryParameter,
   exampleApiParams,
   exampleApiPostNullableField,
+  exampleApiRepresentations,
   exampleApiRequestBody,
   exampleApiRequestHeaders,
 } from "./examples";
@@ -313,7 +313,7 @@ describe("error reporting", () => {
 
     expect(response.status).toEqual(500);
     expect(await Effect.runPromise(response.json)).toEqual({
-      error: "Invalid response body",
+      error: "Invalid response content",
       message: "must be string, received 1",
     });
   });
@@ -335,20 +335,15 @@ test("single full response", async () => {
     RouterBuilder.getRouter,
   );
 
-  const result = await Testing.makeRaw(app).pipe(
+  const [response1, response2] = await Testing.makeRaw(app).pipe(
     Effect.flatMap((client) =>
-      Effect.all(
-        [ClientRequest.post("/hello"), ClientRequest.post("/another")].map(
-          client,
-        ),
-      ),
+      Effect.all([
+        client(ClientRequest.post("/hello")),
+        client(ClientRequest.post("/another")),
+      ]),
     ),
     runTestEffect,
   );
-
-  expect(result).toHaveLength(2);
-
-  const [response1, response2] = result;
 
   expect(response1.status).toEqual(200);
   expect(await Effect.runPromise(response1.json)).toEqual(12);
@@ -356,4 +351,38 @@ test("single full response", async () => {
 
   expect(await Effect.runPromise(response2.json)).toEqual(12);
   expect(response2.status).toEqual(200);
+});
+
+test("representations", async () => {
+  const app = exampleApiRepresentations.pipe(
+    RouterBuilder.make,
+    RouterBuilder.handle("test", () =>
+      Effect.succeed({ content: "test", status: 200 as const }),
+    ),
+    RouterBuilder.getRouter,
+  );
+
+  const [textResponse, jsonResponse] = await Testing.makeRaw(app).pipe(
+    Effect.flatMap((client) =>
+      Effect.all([
+        client(
+          ClientRequest.post("/test").pipe(ClientRequest.accept("text/plain")),
+        ),
+        client(
+          ClientRequest.post("/test").pipe(
+            ClientRequest.accept("application/json"),
+          ),
+        ),
+      ]),
+    ),
+    runTestEffect,
+  );
+
+  expect(textResponse.status).toEqual(200);
+  expect(await Effect.runPromise(textResponse.text)).toEqual("test");
+  expect(textResponse.headers["content-type"]).toEqual("text/plain");
+
+  expect(await Effect.runPromise(jsonResponse.json)).toEqual("test");
+  expect(jsonResponse.status).toEqual(200);
+  expect(jsonResponse.headers["content-type"]).toEqual("application/json");
 });

@@ -1,5 +1,5 @@
 import * as Schema from "@effect/schema/Schema";
-import * as Api from "effect-http/Api";
+import { Api, Representation } from "effect-http";
 
 // Example GET
 
@@ -237,6 +237,16 @@ export const exampleApiMultipleQueryValues = Api.api().pipe(
         value: Schema.literal("x", "y"),
         another: Schema.string,
       }),
+    },
+  }),
+);
+
+export const exampleApiRepresentations = Api.api().pipe(
+  Api.post("test", "/test", {
+    response: {
+      content: Schema.string,
+      status: 200,
+      representations: [Representation.plainText, Representation.json],
     },
   }),
 );

@@ -1,6 +1,6 @@
 ---
 title: ServerError.ts
-nav_order: 12
+nav_order: 13
 parent: Modules
 ---
 
@@ -30,9 +30,11 @@ Added in v1.0.0
   - [tooManyRequestsError](#toomanyrequestserror)
   - [unauthorizedError](#unauthorizederror)
   - [unsupportedMediaTypeError](#unsupportedmediatypeerror)
-- [errors](#errors)
-  - [ServerError (class)](#servererror-class)
-    - [toServerResponse (method)](#toserverresponse-method)
+- [conversions](#conversions)
+  - [toServerResponse](#toserverresponse)
+- [models](#models)
+  - [ServerError (interface)](#servererror-interface)
+- [refinements](#refinements)
   - [isServerError](#isservererror)
 
 ---
@@ -189,27 +191,36 @@ export declare const unsupportedMediaTypeError: (body: unknown) => ServerError
 
 Added in v1.0.0
 
-# errors
+# conversions
 
-## ServerError (class)
-
-**Signature**
-
-```ts
-export declare class ServerError
-```
-
-Added in v1.0.0
-
-### toServerResponse (method)
+## toServerResponse
 
 **Signature**
 
 ```ts
-toServerResponse()
+export declare const toServerResponse: (error: ServerError) => ServerResponse.ServerResponse
 ```
 
 Added in v1.0.0
+
+# models
+
+## ServerError (interface)
+
+**Signature**
+
+```ts
+export interface ServerError extends Cause.YieldableError, Pipeable.Pipeable {
+  _tag: "ServerError"
+  status: number
+  text?: string
+  json?: unknown
+}
+```
+
+Added in v1.0.0
+
+# refinements
 
 ## isServerError
 

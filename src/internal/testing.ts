@@ -81,7 +81,6 @@ export const makeRaw = <R, E>(
       Effect.map((url) =>
         PlatformClient.fetch().pipe(
           PlatformClient.mapRequest(ClientRequest.prependUrl(url)),
-          PlatformClient.tapRequest(Effect.logInfo),
         ),
       ),
     );

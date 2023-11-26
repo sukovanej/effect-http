@@ -9,8 +9,10 @@
  * @since 1.0.0
  */
 import type * as Schema from "@effect/schema/Schema";
+import type * as Representation from "effect-http/Representation";
 import * as internal from "effect-http/internal/api";
 import type * as Pipeable from "effect/Pipeable";
+import type * as ReadonlyArray from "effect/ReadonlyArray";
 import type * as Types from "effect/Types";
 
 /**
@@ -233,18 +235,25 @@ export const addGroup: <E2 extends Endpoint>(
   apiGroup: ApiGroup<E2>,
 ) => <E1 extends Endpoint>(api: Api<E1>) => Api<E1 | E2> = internal.addGroup;
 
-const formDataSchema: Schema.Schema<FormData, FormData> =
-  internal.formDataSchema;
+/**
+ * @category utils
+ * @since 1.0.0
+ */
+export const getEndpoint: <
+  A extends Api,
+  Id extends A["endpoints"][number]["id"],
+>(
+  api: A,
+  id: Id,
+) => Extract<A["endpoints"][number], { id: Id }> = internal.getEndpoint;
 
-export {
-  /**
-   * FormData schema
-   *
-   * @category schemas
-   * @since 1.0.0
-   */
-  formDataSchema as FormData,
-};
+/**
+ * FormData schema
+ *
+ * @category schemas
+ * @since 1.0.0
+ */
+export const FormData: Schema.Schema<FormData> = internal.formDataSchema;
 
 // Internal type helpers
 
@@ -264,6 +273,7 @@ type ResponseSchemaFromInput<S extends InputEndpointSchemas["response"]> =
         ? ResponseSchemaFullFromInput<S>
         : never;
 
+/** @ignore */
 type GetOptional<
   A extends Record<string, unknown> | undefined,
   K extends keyof Exclude<A, undefined>,
@@ -322,6 +332,7 @@ type ResponseSchemaFullFromInput<R extends InputResponseSchemaFull> = {
   status: R["status"];
   content: UndefinedToIgnoredSchema<R["content"]>;
   headers: UndefinedToIgnoredSchemaLowercased<R["headers"]>;
+  representations: ReadonlyArray.NonEmptyReadonlyArray<Representation.Representation>;
 };
 
 /** @ignore */
@@ -329,6 +340,7 @@ export interface ResponseSchemaFull {
   status: number;
   content: Schema.Schema<any> | IgnoredSchemaId;
   headers: Schema.Schema<any> | IgnoredSchemaId;
+  representations: ReadonlyArray.NonEmptyReadonlyArray<Representation.Representation>;
 }
 
 /** @ignore */
@@ -336,6 +348,7 @@ export interface InputResponseSchemaFull {
   status: number;
   content?: Schema.Schema<any>;
   headers?: Schema.Schema<any>;
+  representations?: ReadonlyArray.NonEmptyReadonlyArray<Representation.Representation>;
 }
 
 /** @ignore */
@@ -361,15 +374,3 @@ type CreateEndpointFromInput<
   groupName: string;
   description?: string;
 };
-
-/**
- * @category utils
- * @since 1.0.0
- */
-export const getEndpoint: <
-  A extends Api,
-  Id extends A["endpoints"][number]["id"],
->(
-  api: A,
-  id: Id,
-) => Extract<A["endpoints"][number], { id: Id }> = internal.getEndpoint;

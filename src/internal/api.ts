@@ -1,5 +1,6 @@
 import * as Schema from "@effect/schema/Schema";
 import type * as Api from "effect-http/Api";
+import * as Representation from "effect-http/Representation";
 import * as utils from "effect-http/internal/utils";
 import * as Equivalence from "effect/Equivalence";
 import { pipe } from "effect/Function";
@@ -18,6 +19,7 @@ const composeResponseSchema = (
         status: r.status,
         headers: (r.headers && fieldsToLowerCase(r.headers)) ?? IgnoredSchemaId,
         content: r.content ?? IgnoredSchemaId,
+        representations: r.representations ?? [Representation.json],
       }) as const,
   );
 
@@ -226,11 +228,6 @@ export const IgnoredSchemaId: Api.IgnoredSchemaId = Symbol.for(
   "effect-http/ignore-schema-id",
 ) as Api.IgnoredSchemaId;
 
-export const formDataSchema = Schema.instanceOf(FormData).pipe(
-  Schema.jsonSchema({ type: "string" }),
-  Schema.description("Multipart form data"),
-);
-
 /** @internal */
 class ApiImpl<Endpoints extends Api.Endpoint> implements Api.Api<Endpoints> {
   readonly [ApiTypeId]: Api.ApiTypeId;
@@ -266,3 +263,8 @@ class ApiGroupImpl<Endpoints extends Api.Endpoint>
     return Pipeable.pipeArguments(this, arguments);
   }
 }
+
+export const formDataSchema = Schema.instanceOf(FormData).pipe(
+  Schema.jsonSchema({ type: "string" }),
+  Schema.description("Multipart form data"),
+);

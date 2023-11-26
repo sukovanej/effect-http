@@ -63,7 +63,7 @@ export const errorLog = Middleware.make((app) =>
   Effect.gen(function* (_) {
     const request = yield* _(ServerRequest.ServerRequest);
 
-    const response = yield* _(app);
+    const response = yield* _(app, Effect.tapErrorCause(Effect.logError));
 
     if (response.status >= 400 && response.status < 500) {
       yield* _(
@@ -111,7 +111,7 @@ export const basicAuth = <R, _>(
       if (authHeader === undefined) {
         return ServerError.unauthorizedError(
           `Expected header ${headerName}`,
-        ).toServerResponse();
+        ).pipe(ServerError.toServerResponse);
       }
 
       const authorizationParts = authHeader.split(" ");
@@ -119,13 +119,13 @@ export const basicAuth = <R, _>(
       if (authorizationParts.length !== 2) {
         return ServerError.unauthorizedError(
           'Incorrect auhorization scheme. Expected "Basic <credentials>"',
-        ).toServerResponse();
+        ).pipe(ServerError.toServerResponse);
       }
 
       if (authorizationParts[0] !== "Basic") {
         return ServerError.unauthorizedError(
           `Incorrect auhorization type. Expected "Basic", got "${authorizationParts[0]}"`,
-        ).toServerResponse();
+        ).pipe(ServerError.toServerResponse);
       }
 
       const credentialsBuffer = Buffer.from(authorizationParts[1], "base64");
@@ -135,7 +135,7 @@ export const basicAuth = <R, _>(
       if (credentialsParts.length !== 2) {
         return ServerError.unauthorizedError(
           'Incorrect basic auth credentials format. Expected base64 encoded "<user>:<pass>".',
-        ).toServerResponse();
+        ).pipe(ServerError.toServerResponse);
       }
 
       const check = yield* _(
@@ -147,7 +147,7 @@ export const basicAuth = <R, _>(
       );
 
       if (Either.isLeft(check)) {
-        return check.left.toServerResponse();
+        return ServerError.toServerResponse(check.left);
       }
 
       return yield* _(app);

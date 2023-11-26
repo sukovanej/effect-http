@@ -1,8 +1,7 @@
 import * as ClientRequest from "@effect/platform/Http/ClientRequest";
 import * as HttpServer from "@effect/platform/HttpServer";
 import { Effect, Option } from "effect";
-import { Testing } from "effect-http";
-import * as Route from "effect-http/Route";
+import { Route, Testing } from "effect-http";
 import { apply } from "effect/Function";
 
 import {
@@ -281,7 +280,7 @@ describe("error reporting", () => {
 
     expect(response.status).toEqual(500);
     expect(await Effect.runPromise(response.json)).toEqual({
-      error: "Invalid response body",
+      error: "Invalid response content",
       message: "must be string, received 1",
     });
   });

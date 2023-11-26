@@ -1,16 +1,22 @@
 import * as Body from "@effect/platform/Http/Body";
-import * as Headers from "@effect/platform/Http/Headers";
+import type * as Headers from "@effect/platform/Http/Headers";
+import type * as ServerRequest from "@effect/platform/Http/ServerRequest";
 import * as ServerResponse from "@effect/platform/Http/ServerResponse";
 import * as Schema from "@effect/schema/Schema";
+import * as ReadonlyArray from "effect/ReadonlyArray";
 import * as Api from "effect-http/Api";
+import * as Representation from "effect-http/Representation";
 import * as ServerError from "effect-http/ServerError";
 import { formatParseError } from "effect-http/internal/formatParseError";
 import * as utils from "effect-http/internal/utils";
 import * as Effect from "effect/Effect";
+import { flow, pipe } from "effect/Function";
+import * as Option from "effect/Option";
 
 interface ServerResponseEncoder {
   encodeResponse: (
-    input: unknown,
+    request: ServerRequest.ServerRequest,
+    inputResponse: unknown,
   ) => Effect.Effect<
     never,
     ServerError.ServerError,
@@ -37,9 +43,67 @@ export const create = (
   return fromResponseSchemaFullArray([responseSchema]);
 };
 
+const representationFromRequest = (
+  representations: ReadonlyArray.NonEmptyReadonlyArray<Representation.Representation>,
+  request: ServerRequest.ServerRequest,
+): Representation.Representation => {
+  if (representations.length === 0) {
+    representations[0];
+  }
+
+  const accept = request.headers["accept"];
+
+  // TODO: this logic needs to be improved a lot!
+  return pipe(
+    representations,
+    ReadonlyArray.filter(
+      (representation) => representation.contentType === accept,
+    ),
+    ReadonlyArray.head,
+    Option.getOrElse(() => representations[0]),
+  );
+};
+
+const encodeContent = (schema: Schema.Schema<any>) => {
+  const encode = Schema.encode(schema);
+
+  return (content: unknown, representation: Representation.Representation) =>
+    (response: ServerResponse.ServerResponse) =>
+      pipe(
+        encode(content),
+        Effect.mapError((error) =>
+          createErrorResponse(
+            "Invalid response content",
+            formatParseError(error),
+          ),
+        ),
+        Effect.flatMap(
+          flow(
+            representation.stringify,
+            Effect.mapError((error) =>
+              createErrorResponse("Invalid response content", error.message),
+            ),
+          ),
+        ),
+        Effect.map((content) =>
+          response.pipe(
+            ServerResponse.setBody(
+              Body.text(content, representation.contentType),
+            ),
+          ),
+        ),
+      );
+};
+
 const fromSchema = (schema: Schema.Schema<any>): ServerResponseEncoder => {
-  const encode = ServerResponse.schemaJson(schema);
-  return make((body) => Effect.mapError(encode(body), convertBodyError));
+  const encode = encodeContent(schema);
+  const representation = Representation.json;
+
+  return make((_, inputResponse) =>
+    ServerResponse.empty({ status: 200 }).pipe(
+      encode(inputResponse, representation),
+    ),
+  );
 };
 
 const fromResponseSchemaFullArray = (
@@ -50,17 +114,25 @@ const fromResponseSchemaFullArray = (
     {} as Record<number, Api.ResponseSchemaFull>,
   );
 
-  return make((input: unknown) =>
+  return make((request, inputResponse) =>
     Effect.gen(function* (_) {
-      const _input = yield* _(parseFullResponseInput(input), Effect.orDie);
+      const _input = yield* _(
+        parseFullResponseInput(inputResponse),
+        Effect.orDie,
+      );
 
       const schemas = statusToSchema[_input.status];
       const setContent = createContentSetter(schemas);
       const setHeaders = createHeadersSetter(schemas);
 
+      const representation = representationFromRequest(
+        schemas.representations,
+        request,
+      );
+
       return yield* _(
         ServerResponse.empty({ status: _input.status }).pipe(
-          setContent(_input),
+          setContent(_input, representation),
           Effect.flatMap(setHeaders(_input)),
         ),
       );
@@ -69,24 +141,24 @@ const fromResponseSchemaFullArray = (
 };
 
 const createContentSetter = (schema: Api.ResponseSchemaFull) => {
-  const setBody =
-    schema.content === Api.IgnoredSchemaId
-      ? undefined
-      : ServerResponse.schemaJson(schema.content);
+  const contentSchema =
+    schema.content === Api.IgnoredSchemaId ? undefined : schema.content;
+  const encode = contentSchema && encodeContent(contentSchema);
 
-  return (input: FullResponseInput) =>
+  return (
+      inputResponse: FullResponseInput,
+      representation: Representation.Representation,
+    ) =>
     (response: ServerResponse.ServerResponse) => {
-      if (setBody === undefined && input.content !== undefined) {
+      if (encode === undefined && inputResponse.content !== undefined) {
         return Effect.die("Unexpected response content");
-      } else if (setBody !== undefined && input.content === undefined) {
+      } else if (encode !== undefined && inputResponse.content === undefined) {
         return Effect.die("Response content not provided");
-      } else if (setBody === undefined) {
+      } else if (encode === undefined) {
         return Effect.succeed(response);
       }
 
-      return setBody(input.content, response).pipe(
-        Effect.mapError(convertBodyError),
-      );
+      return pipe(response, encode(inputResponse.content, representation));
     };
 };
 
@@ -96,17 +168,20 @@ const createHeadersSetter = (schema: Api.ResponseSchemaFull) => {
       ? undefined
       : Schema.encode(schema.headers);
 
-  return (input: FullResponseInput) =>
+  return (inputResponse: FullResponseInput) =>
     (response: ServerResponse.ServerResponse) => {
-      if (parseHeaders === undefined && input.headers !== undefined) {
+      if (parseHeaders === undefined && inputResponse.headers !== undefined) {
         return Effect.die("Unexpected response headers");
-      } else if (parseHeaders !== undefined && input.headers === undefined) {
+      } else if (
+        parseHeaders !== undefined &&
+        inputResponse.headers === undefined
+      ) {
         return Effect.die("Response headers not provided");
       } else if (parseHeaders === undefined) {
         return Effect.succeed(response);
       }
 
-      return parseHeaders(input.headers).pipe(
+      return parseHeaders(inputResponse.headers).pipe(
         Effect.map((headers) =>
           response.pipe(ServerResponse.setHeaders(headers as Headers.Input)),
         ),
@@ -128,19 +203,3 @@ const FullResponseInput = Schema.struct({
 type FullResponseInput = Schema.Schema.To<typeof FullResponseInput>;
 
 const parseFullResponseInput = Schema.parse(FullResponseInput);
-
-const convertBodyError = (error: Body.BodyError) => {
-  if (error.reason._tag === "JsonError") {
-    return createErrorResponse(
-      "Invalid response body",
-      "Invalid response JSON",
-    );
-  } else if (error.reason._tag === "SchemaError") {
-    return createErrorResponse(
-      "Invalid response body",
-      formatParseError(error.reason.error),
-    );
-  }
-
-  throw new Error(`Handling of ${error} not implemented`);
-};

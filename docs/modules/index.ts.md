@@ -23,6 +23,7 @@ Added in v1.0.0
   - [From "effect-http/MockClient"](#from-effect-httpmockclient)
   - [From "effect-http/NodeServer"](#from-effect-httpnodeserver)
   - [From "effect-http/OpenApi"](#from-effect-httpopenapi)
+  - [From "effect-http/Representation"](#from-effect-httprepresentation)
   - [From "effect-http/Route"](#from-effect-httproute)
   - [From "effect-http/RouterBuilder"](#from-effect-httprouterbuilder)
   - [From "effect-http/ServerError"](#from-effect-httpservererror)
@@ -125,6 +126,18 @@ Re-exports all named exports from the "effect-http/OpenApi" module as `OpenApi`.
 
 ```ts
 export * as OpenApi from "effect-http/OpenApi"
+```
+
+Added in v1.0.0
+
+## From "effect-http/Representation"
+
+Re-exports all named exports from the "effect-http/Representation" module as `Representation`.
+
+**Signature**
+
+```ts
+export * as Representation from "effect-http/Representation"
 ```
 
 Added in v1.0.0

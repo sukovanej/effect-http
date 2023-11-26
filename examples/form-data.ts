@@ -3,7 +3,13 @@ import { HttpServer, NodeContext } from "@effect/platform-node";
 import { runMain } from "@effect/platform-node/Runtime";
 import { Schema } from "@effect/schema";
 import { Effect, pipe } from "effect";
-import { Api, NodeServer, RouterBuilder } from "effect-http";
+import {
+  Api,
+  NodeServer,
+  Representation,
+  RouterBuilder,
+  ServerError,
+} from "effect-http";
 
 import { debugLogger } from "./_utils";
 
@@ -13,7 +19,11 @@ const api = pipe(
     request: {
       body: Api.FormData,
     },
-    response: Schema.string,
+    response: {
+      status: 200,
+      content: Schema.string,
+      representations: [Representation.plainText],
+    },
   }),
 );
 
@@ -27,12 +37,12 @@ const app = pipe(
       const file = formData["file"];
 
       if (typeof file === "string") {
-        return file;
+        return yield* _(ServerError.badRequest("File not found"));
       }
 
       const fs = yield* _(FileSystem.FileSystem);
-
-      return yield* _(fs.readFileString(file[0].path));
+      const content = yield* _(fs.readFileString(file[0].path));
+      return { status: 200 as const, content };
     }).pipe(Effect.scoped),
   ),
   RouterBuilder.build,
