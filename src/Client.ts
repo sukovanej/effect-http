@@ -5,6 +5,7 @@
  *
  * @since 1.0.0
  */
+import type * as HttpClient from "@effect/platform/Http/Client";
 import type * as ClientRequest from "@effect/platform/Http/ClientRequest";
 import type * as Schema from "@effect/schema/Schema";
 import type * as Api from "effect-http/Api";
@@ -39,6 +40,7 @@ export interface Options {
   mapRequest?: (
     request: ClientRequest.ClientRequest,
   ) => ClientRequest.ClientRequest;
+  httpClient?: HttpClient.Client.Default;
   baseUrl: URL | string;
 }
 

@@ -8,7 +8,7 @@ import { identity, pipe } from "effect/Function";
 import type * as Client from "effect-http/Client";
 
 /** @internal */
-const httpClient = PlatformClient.fetch();
+const defaultHttpClient = PlatformClient.fetch();
 
 export const endpointClient = <
   Endpoints extends Api.Endpoint,
@@ -31,6 +31,8 @@ export const endpointClient = <
         : options.baseUrl.toString();
     mapRequest = ClientRequest.prependUrl(url);
   }
+
+  const httpClient = options.httpClient ?? defaultHttpClient;
 
   return (args: unknown) =>
     pipe(
