@@ -42,7 +42,7 @@ const layer2 = pipe(
 );
 
 test("layers", async () => {
-  const layer = Layer.provide(layer1, layer2);
+  const layer = Layer.provide(layer2, layer1);
 
   const app = RouterBuilder.make(exampleApiGet).pipe(
     RouterBuilder.handle("getValue", () =>
