@@ -117,7 +117,7 @@ const formatParseErrors = (
         _tag: "Unexpected",
         expected: [],
         position: [],
-        received: errors.actual,
+        received: "<unexpected>",
       },
     ];
   }
