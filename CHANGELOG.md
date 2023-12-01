@@ -1,5 +1,18 @@
 # effect-http
 
+## 0.42.0
+
+### Minor Changes
+
+- 24bce47: User-land content type handling.
+
+  - Add `Representation` module.
+  - Update response parsing and encoding so that it uses the `Representation` object to decide on the
+    serialization and deserialization of HTTP content.
+  - `ServerError` module exposes interface instead of class for the error model.
+
+- 80100bd: Update effect.
+
 ## 0.41.0
 
 ### Minor Changes
