@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.42.2
+
+### Patch Changes
+
+- 3464ad2: Update dependencies.
+
 ## 0.42.1
 
 ### Patch Changes
