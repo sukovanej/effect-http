@@ -1,5 +1,12 @@
 # effect-http
 
+## 0.42.3
+
+### Patch Changes
+
+- d47cde5: Fix internal modules imports.
+- 139e562: Update dependencies.
+
 ## 0.42.2
 
 ### Patch Changes
