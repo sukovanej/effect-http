@@ -9,10 +9,9 @@ import type * as Api from "effect-http/Api";
 import type * as RouterBuilder from "effect-http/RouterBuilder";
 import type * as ServerError from "effect-http/ServerError";
 import * as internal from "effect-http/internal/route";
+import type * as utils from "effect-http/internal/utils";
 import type * as Effect from "effect/Effect";
 import type * as Types from "effect/Types";
-
-import type * as utils from "./internal/utils";
 
 /**
  * @category models

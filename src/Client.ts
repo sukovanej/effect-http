@@ -11,10 +11,9 @@ import type * as Schema from "@effect/schema/Schema";
 import type * as Api from "effect-http/Api";
 import type * as ClientError from "effect-http/ClientError";
 import type * as Route from "effect-http/Route";
+import * as internal from "effect-http/internal/client";
 import type * as Effect from "effect/Effect";
 import type * as Types from "effect/Types";
-
-import * as internal from "./internal/client";
 
 /**
  * @category models
