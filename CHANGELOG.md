@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.43.0
+
+### Minor Changes
+
+- 940165a: Update effect.
+
 ## 0.42.3
 
 ### Patch Changes
