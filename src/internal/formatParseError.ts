@@ -73,7 +73,7 @@ type ValidationErrorMissing = ValidationErrorBase & { _tag: "Missing" };
 type ValidationError = ValidationErrorUnexpected | ValidationErrorMissing;
 
 const formatParseErrors = (
-  errors: ParseResult.ParseErrors,
+  errors: ParseResult.ParseIssue,
 ): readonly ValidationError[] => {
   if (errors._tag === "Key") {
     return errors.errors.flatMap((error) =>
@@ -135,8 +135,8 @@ const formatParseErrors = (
 const formatAST = (ast: AST.AST) => {
   const expected = getExpected(ast);
 
-  if (ast._tag === 'TypeLiteral') {
-    return 'an object';
+  if (ast._tag === "TypeLiteral") {
+    return "an object";
   }
 
   if (Option.isSome(expected)) {

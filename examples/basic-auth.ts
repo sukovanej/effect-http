@@ -87,10 +87,7 @@ const app = pipe(
 pipe(
   app,
   NodeServer.listen({ port: 3000 }),
-  Effect.provideServiceEffect(
-    CredentialsService,
-    Effect.config(ArrayOfCredentialsConfig),
-  ),
+  Effect.provideServiceEffect(CredentialsService, ArrayOfCredentialsConfig),
   Effect.provide(debugLogger),
   Effect.tapErrorCause(Effect.logError),
   runMain,
