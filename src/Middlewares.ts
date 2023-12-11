@@ -8,6 +8,8 @@ import type * as Effect from "effect/Effect"
 
 import * as internal from "./internal/middlewares.js"
 import type * as ServerError from "./ServerError.js"
+import * as PlatformError from "@effect/platform/Error";
+import * as Platform from "@effect/platform/Http/Platform";
 
 /**
  * Add access logs for handled requests. The log runs before each request.
@@ -101,3 +103,29 @@ export interface CorsOptions {
 export const cors: (
   options?: Partial<CorsOptions>
 ) => <R, E>(app: App.Default<R, E>) => App.Default<R, E> = internal.cors
+
+/**
+ * @category models
+ * @since 1.0.0
+ */
+export interface StaticOptions {
+  basePath?: string;
+  filePath: string;
+}
+
+const _static: (
+  options: StaticOptions,
+) => <R, E>(
+  app: App.Default<R, E>,
+) => App.Default<R | Platform.Platform, E | PlatformError.PlatformError> =
+  internal._static
+
+export {
+  /**
+   * Basic auth middleware.
+   *
+   * @category static files
+   * @since 1.0.0
+   */
+  _static as static,
+};

@@ -272,3 +272,19 @@ export const cors = (_options?: Partial<Middlewares.CorsOptions>) => {
     })
   )
 }
+
+export const _static = (options: Middlewares.StaticOptions) =>
+  Middleware.make((app) =>
+    Effect.gen(function* (_) {
+      const request = yield* _(ServerRequest.ServerRequest);
+      const basePath = options.basePath ?? "";
+
+      if (request.method !== "GET" || !request.url.startsWith(basePath)) {
+        return yield* _(app);
+      }
+
+      return yield* _(
+        ServerResponse.file(request.url.replace(basePath, options.filePath)),
+      );
+    }),
+  );
