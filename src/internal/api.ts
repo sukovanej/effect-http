@@ -264,7 +264,7 @@ class ApiGroupImpl<Endpoints extends Api.Endpoint>
   }
 }
 
-export const formDataSchema = Schema.instanceOf(FormData).pipe(
-  Schema.jsonSchema({ type: "string" }),
-  Schema.description("Multipart form data"),
-);
+export const formDataSchema = Schema.instanceOf(FormData, {
+  jsonSchema: { type: "string" },
+  description: "Multipart form data",
+});
