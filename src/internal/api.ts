@@ -1,3 +1,4 @@
+import type * as PlatformRouter from "@effect/platform/Http/Router";
 import * as Schema from "@effect/schema/Schema";
 import type * as Api from "effect-http/Api";
 import * as Representation from "effect-http/Representation";
@@ -91,7 +92,7 @@ export const endpoint =
   (method: Api.Method) =>
   <const Id extends string, const I extends Api.InputEndpointSchemas>(
     id: Id,
-    path: string,
+    path: PlatformRouter.PathInput,
     schemas: I,
     options?: Api.EndpointOptions,
   ) =>

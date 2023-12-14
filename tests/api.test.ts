@@ -80,7 +80,7 @@ test.each([
       another: Schema.optional(Schema.string),
     }),
   },
-])(
+] as const)(
   "Api path must match param schemas (%#)",
   ({ expectFailure, path, schema }) => {
     const createApi = () =>

@@ -1,6 +1,6 @@
-import { FileSystem } from "@effect/platform";
 import { HttpServer, NodeContext } from "@effect/platform-node";
 import { runMain } from "@effect/platform-node/Runtime";
+import * as FileSystem from "@effect/platform/FileSystem";
 import { Schema } from "@effect/schema";
 import { Effect, pipe } from "effect";
 import {

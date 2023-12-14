@@ -1,6 +1,6 @@
-import { HttpServer } from "@effect/platform";
 import { FileSystem, NodeContext } from "@effect/platform-node";
 import * as Router from "@effect/platform/Http/Router";
+import * as HttpServer from "@effect/platform/HttpServer";
 import { Schema } from "@effect/schema";
 import { Context, Effect, Predicate, pipe } from "effect";
 import {

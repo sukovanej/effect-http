@@ -7,6 +7,7 @@ import * as Client from "effect-http/Client";
 import * as SwaggerRouter from "effect-http/SwaggerRouter";
 import * as Deferred from "effect/Deferred";
 import * as Effect from "effect/Effect";
+import * as Layer from "effect/Layer";
 
 export const make = <R, E, Endpoints extends Api.Endpoint>(
   app: App.Default<R | SwaggerRouter.SwaggerFiles, E>,
@@ -33,7 +34,7 @@ export const make = <R, E, Endpoints extends Api.Endpoint>(
     yield* _(
       serverUrl,
       Effect.flatMap((url) => Deferred.succeed(allocatedUrl, url)),
-      Effect.flatMap(() => Server.serve(app)),
+      Effect.flatMap(() => Layer.launch(Server.serve(app))),
       Effect.provide(NodeServerLive),
       Effect.provide(SwaggerRouter.SwaggerFilesLive),
       Effect.provide(NodeContext.layer),
@@ -69,7 +70,7 @@ export const makeRaw = <R, E>(
     yield* _(
       serverUrl,
       Effect.flatMap((url) => Deferred.succeed(allocatedUrl, url)),
-      Effect.flatMap(() => Server.serve(app)),
+      Effect.flatMap(() => Layer.launch(Server.serve(app))),
       Effect.provide(NodeServerLive),
       Effect.provide(SwaggerRouter.SwaggerFilesLive),
       Effect.provide(NodeContext.layer),
