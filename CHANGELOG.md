@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.45.0
+
+### Minor Changes
+
+- 47c1fe7: Update @effect/platform.
+
 ## 0.44.0
 
 ### Minor Changes
