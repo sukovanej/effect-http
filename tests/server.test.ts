@@ -213,7 +213,7 @@ describe("type safe responses", () => {
     expect(() => {
       pipe(
         Api.api(),
-        Api.post("hello", "hello", {
+        Api.post("hello", "/hello", {
           response: [{ status: 201 }, { status: 201 }],
         }),
       );

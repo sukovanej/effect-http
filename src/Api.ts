@@ -8,6 +8,7 @@
  *
  * @since 1.0.0
  */
+import type * as PlatformRouter from "@effect/platform/Http/Router";
 import type * as Schema from "@effect/schema/Schema";
 import type * as Representation from "effect-http/Representation";
 import * as internal from "effect-http/internal/api";
@@ -87,7 +88,7 @@ export type Method =
  */
 export interface Endpoint {
   id: string;
-  path: string;
+  path: PlatformRouter.PathInput;
   method: Method;
   schemas: EndpointSchemas;
   groupName: string;
@@ -165,7 +166,7 @@ type EndpointSetter = <
   const I extends InputEndpointSchemas,
 >(
   id: Id,
-  path: string,
+  path: PlatformRouter.PathInput,
   schemas: I,
   options?: EndpointOptions,
 ) => <A extends Api | ApiGroup>(api: A) => AddEndpoint<A, Id, I>;
@@ -369,7 +370,7 @@ type CreateEndpointFromInput<
 > = {
   id: Id;
   schemas: CreateEndpointSchemasFromInput<Schemas>;
-  path: string;
+  path: PlatformRouter.PathInput;
   method: Method;
   groupName: string;
   description?: string;

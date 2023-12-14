@@ -3,11 +3,12 @@ import type * as Platform from "@effect/platform/Http/Platform";
 import * as Server from "@effect/platform/Http/Server";
 import type * as ServeError from "@effect/platform/Http/ServerError";
 import type * as ServerRequest from "@effect/platform/Http/ServerRequest";
+import type * as NodeServer from "effect-http/NodeServer";
 import * as SwaggerRouter from "effect-http/SwaggerRouter";
 import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
+import * as Layer from "effect/Layer";
 import type * as Scope from "effect/Scope";
-import type * as NodeServer from 'effect-http/NodeServer';
 
 const DEFAULT_LISTEN_OPTIONS: NodeServer.Options = {
   port: undefined,
@@ -58,7 +59,7 @@ export const listen =
 
             yield* _(Effect.log(`Listening on ${address}`));
           }),
-          Effect.flatMap(() => Server.serve(router)),
+          Effect.flatMap(() => Layer.launch(Server.serve(router))),
           Effect.scoped,
           Effect.provide(NodeServerLive),
           Effect.provide(SwaggerRouter.SwaggerFilesLive),
@@ -66,4 +67,3 @@ export const listen =
         ),
       );
     });
-
