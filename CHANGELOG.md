@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.45.1
+
+### Patch Changes
+
+- cc2dd9b: Add new `ExampleServer.handle` and `ExampleServer.handleRemaining` utils.
+
 ## 0.45.0
 
 ### Minor Changes
