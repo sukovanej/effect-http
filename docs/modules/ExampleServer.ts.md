@@ -19,16 +19,48 @@ Added in v1.0.0
 
 <h2 class="text-delta">Table of contents</h2>
 
-- [constructors](#constructors)
+- [utils](#utils)
+  - [handle](#handle)
+  - [handleRemaining](#handleremaining)
   - [make](#make)
 
 ---
 
-# constructors
+# utils
+
+## handle
+
+Create an example implementation for a single endpoint.
+
+**Signature**
+
+```ts
+export declare const handle: <RemainingEndpoints extends Api.Endpoint, Id extends RemainingEndpoints["id"]>(
+  id: Id
+) => <R, E>(
+  routerBuilder: RouterBuilder.RouterBuilder<R, E, RemainingEndpoints>
+) => RouterBuilder.RouterBuilder<R, E, Exclude<RemainingEndpoints, { id: Id }>>
+```
+
+Added in v1.0.0
+
+## handleRemaining
+
+Create an example implementation for all remaining endpoints.
+
+**Signature**
+
+```ts
+export declare const handleRemaining: <RemainingEndpoints extends Api.Endpoint, R, E>(
+  routerBuilder: RouterBuilder.RouterBuilder<R, E, RemainingEndpoints>
+) => RouterBuilder.RouterBuilder<R, E, never>
+```
+
+Added in v1.0.0
 
 ## make
 
-Generate an example Server implementation.
+Generate an example `RouterBuilder` implementation.
 
 **Signature**
 

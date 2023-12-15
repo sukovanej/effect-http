@@ -1,6 +1,6 @@
 import * as OpenApi from "schema-openapi";
 
-import type * as Api from "effect-http/Api";
+import * as Api from "effect-http/Api";
 import * as RouterBuilder from "effect-http/RouterBuilder";
 import * as ServerError from "effect-http/ServerError";
 import * as utils from "effect-http/internal/utils";
@@ -10,19 +10,43 @@ import * as ReadonlyArray from "effect/ReadonlyArray";
 
 export const make = <A extends Api.Api>(
   api: A,
-): RouterBuilder.RouterBuilder<never, never, never> => {
-  const _server = RouterBuilder.make(api);
+): RouterBuilder.RouterBuilder<never, never, never> =>
+  handleRemaining(RouterBuilder.make(api));
 
-  return pipe(
-    _server.remainingEndpoints,
-    ReadonlyArray.reduce(_server, (server, endpoint) =>
+export const handle =
+  <
+    RemainingEndpoints extends Api.Endpoint,
+    Id extends RemainingEndpoints["id"],
+  >(
+    id: Id,
+  ) =>
+  <R, E>(
+    routerBuilder: RouterBuilder.RouterBuilder<R, E, RemainingEndpoints>,
+  ): RouterBuilder.RouterBuilder<
+    R,
+    E,
+    Exclude<RemainingEndpoints, { id: Id }>
+  > => {
+    const endpoint = Api.getEndpoint(routerBuilder.api, id);
+
+    return pipe(
+      routerBuilder,
+      RouterBuilder.handle(id, createExampleHandler(endpoint)),
+    );
+  };
+
+export const handleRemaining = <RemainingEndpoints extends Api.Endpoint, R, E>(
+  routerBuilder: RouterBuilder.RouterBuilder<R, E, RemainingEndpoints>,
+): RouterBuilder.RouterBuilder<R, E, never> =>
+  pipe(
+    routerBuilder.remainingEndpoints,
+    ReadonlyArray.reduce(routerBuilder, (server, endpoint) =>
       pipe(
         server,
         RouterBuilder.handle(endpoint.id, createExampleHandler(endpoint)),
       ),
     ),
-  ) as any;
-};
+  ) as RouterBuilder.RouterBuilder<R, E, never>;
 
 const createExampleHandler = ({ schemas }: Api.Endpoint) => {
   const responseSchema = utils.createResponseSchema(schemas.response);
@@ -37,4 +61,3 @@ const createExampleHandler = ({ schemas }: Api.Endpoint) => {
       ),
     );
 };
-
