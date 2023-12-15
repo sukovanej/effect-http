@@ -212,7 +212,7 @@ Added in v1.0.0
 ```ts
 export interface Endpoint {
   id: string
-  path: string
+  path: PlatformRouter.PathInput
   method: Method
   schemas: EndpointSchemas
   groupName: string
