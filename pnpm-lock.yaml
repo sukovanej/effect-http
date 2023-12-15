@@ -14,8 +14,8 @@ dependencies:
 
 optionalDependencies:
   '@effect/platform-node':
-    specifier: ^0.37.0
-    version: 0.37.0(@effect/platform@0.37.0)(effect@2.0.0-next.60)
+    specifier: ^0.37.6
+    version: 0.37.6(@effect/platform@0.37.5)(effect@2.0.0-next.60)
 
 devDependencies:
   '@changesets/cli':
@@ -25,11 +25,11 @@ devDependencies:
     specifier: ^0.3.8
     version: 0.3.8(tsx@4.6.2)(typescript@5.3.3)
   '@effect/platform':
-    specifier: ^0.37.0
-    version: 0.37.0(@effect/schema@0.53.3)(effect@2.0.0-next.60)
+    specifier: ^0.37.5
+    version: 0.37.5(@effect/schema@0.53.3)(effect@2.0.0-next.60)
   '@effect/platform-bun':
-    specifier: ^0.25.0
-    version: 0.25.0(@effect/platform-node@0.37.0)(@effect/platform@0.37.0)(effect@2.0.0-next.60)
+    specifier: ^0.25.6
+    version: 0.25.6(@effect/platform-node@0.37.6)(@effect/platform@0.37.5)(effect@2.0.0-next.60)
   '@effect/schema':
     specifier: ^0.53.3
     version: 0.53.3(effect@2.0.0-next.60)(fast-check@3.14.0)
@@ -411,32 +411,32 @@ packages:
       typescript: 5.3.3
     dev: true
 
-  /@effect/platform-bun@0.25.0(@effect/platform-node@0.37.0)(@effect/platform@0.37.0)(effect@2.0.0-next.60):
-    resolution: {integrity: sha512-s3V7bTXHlLc8vabhtJx7+NiVKKyw463BmcZ/SG7mARVkcmbhlP9vlDd6YBDUqdCfSjsyWmFJHMCQc8pTkB9MEg==}
+  /@effect/platform-bun@0.25.6(@effect/platform-node@0.37.6)(@effect/platform@0.37.5)(effect@2.0.0-next.60):
+    resolution: {integrity: sha512-Nl9eiiekxVMrUQYUYOmBtV5I6y8RS/3B8OlQPxQI72c99qq9TOTbR/KhF46q/TP7GbNKNQUasbSn2QTI5YsShg==}
     peerDependencies:
-      '@effect/platform': 0.37.0
-      '@effect/platform-node': 0.37.0
+      '@effect/platform': 0.37.5
+      '@effect/platform-node': 0.37.6
       effect: 2.0.0-next.60
     dependencies:
-      '@effect/platform': 0.37.0(@effect/schema@0.53.3)(effect@2.0.0-next.60)
-      '@effect/platform-node': 0.37.0(@effect/platform@0.37.0)(effect@2.0.0-next.60)
+      '@effect/platform': 0.37.5(@effect/schema@0.53.3)(effect@2.0.0-next.60)
+      '@effect/platform-node': 0.37.6(@effect/platform@0.37.5)(effect@2.0.0-next.60)
       effect: 2.0.0-next.60
     dev: true
 
-  /@effect/platform-node@0.37.0(@effect/platform@0.37.0)(effect@2.0.0-next.60):
-    resolution: {integrity: sha512-/pXbIf+ZB3YdwoJ5WO9U8MVsvwh3LfSLt3MwRXK3n8xd+v7QHfLpQGUuyKI90fILMJJ+0baccEuUT7IAQhJrqg==}
+  /@effect/platform-node@0.37.6(@effect/platform@0.37.5)(effect@2.0.0-next.60):
+    resolution: {integrity: sha512-y58O0R5YfzMqscP3He9KetTi1StSofRvy0pa/j7iFEhVk9jaZbPBfehUtsjMbgPXPU3N1FelsYuii+lb3vd1+g==}
     requiresBuild: true
     peerDependencies:
-      '@effect/platform': 0.37.0
+      '@effect/platform': 0.37.5
       effect: 2.0.0-next.60
     dependencies:
-      '@effect/platform': 0.37.0(@effect/schema@0.53.3)(effect@2.0.0-next.60)
+      '@effect/platform': 0.37.5(@effect/schema@0.53.3)(effect@2.0.0-next.60)
       effect: 2.0.0-next.60
       mime: 3.0.0
       multipasta: 0.1.21
 
-  /@effect/platform@0.37.0(@effect/schema@0.53.3)(effect@2.0.0-next.60):
-    resolution: {integrity: sha512-zYXyL9+3LFhVeNXqIOnwBs+/Ur6f8EWHVMh9DTim5HK1Y+Gxv9U4nomJskiR9u6J3fiwK5+hugfIbrzPXoy4ng==}
+  /@effect/platform@0.37.5(@effect/schema@0.53.3)(effect@2.0.0-next.60):
+    resolution: {integrity: sha512-f42YLv9TKm/9ApqaQqMLXjZtfsAO3YBKutC+WnArLFd67prqWYKtDE9PKjxN/RuhalKil72PEyVsT5vAnvNGZw==}
     peerDependencies:
       '@effect/schema': ^0.53.1
       effect: 2.0.0-next.60
@@ -4373,7 +4373,7 @@ packages:
       debug: 4.3.4
       pathe: 1.1.1
       picocolors: 1.0.0
-      vite: 5.0.8(@types/node@20.10.4)
+      vite: 5.0.10(@types/node@20.10.4)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -4385,8 +4385,8 @@ packages:
       - terser
     dev: true
 
-  /vite@5.0.8(@types/node@20.10.4):
-    resolution: {integrity: sha512-jYMALd8aeqR3yS9xlHd0OzQJndS9fH5ylVgWdB+pxTwxLKdO1pgC5Dlb398BUxpfaBxa4M9oT7j1g503Gaj5IQ==}
+  /vite@5.0.10(@types/node@20.10.4):
+    resolution: {integrity: sha512-2P8J7WWgmc355HUMlFrwofacvr98DAjoE52BfdbwQtyLH06XKwaL/FMnmKM2crF0iX4MpmMKoDlNCB1ok7zHCw==}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
     peerDependencies:
@@ -4465,7 +4465,7 @@ packages:
       strip-literal: 1.3.0
       tinybench: 2.5.1
       tinypool: 0.8.1
-      vite: 5.0.8(@types/node@20.10.4)
+      vite: 5.0.10(@types/node@20.10.4)
       vite-node: 1.0.4(@types/node@20.10.4)
       why-is-node-running: 2.2.2
     transitivePeerDependencies:
