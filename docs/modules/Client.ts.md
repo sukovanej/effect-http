@@ -92,6 +92,7 @@ Added in v1.0.0
 ```ts
 export interface Options {
   mapRequest?: (request: ClientRequest.ClientRequest) => ClientRequest.ClientRequest
+  httpClient?: HttpClient.Client.Default
   baseUrl: URL | string
 }
 ```
