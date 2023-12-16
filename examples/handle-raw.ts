@@ -21,7 +21,7 @@ export const app = RouterBuilder.make(api).pipe(
     "root",
     Http.response.text("Hello World!", {
       status: 200 as const,
-      headers: { "content-type": "text/plain" },
+      headers: Http.headers.fromInput({ "content-type": "text/plain" }),
     }),
   ),
   RouterBuilder.build,

@@ -5,6 +5,7 @@
  */
 import * as crypto from "crypto";
 
+import * as Headers from "@effect/platform/Http/Headers";
 import * as Middleware from "@effect/platform/Http/Middleware";
 import * as ServerRequest from "@effect/platform/Http/ServerRequest";
 import * as ServerResponse from "@effect/platform/Http/ServerResponse";
@@ -266,7 +267,10 @@ export const cors = (_options?: Partial<Middlewares.CorsOptions>) => {
           ...maxAge,
         };
 
-        return ServerResponse.empty({ status: 204, headers: corsHeaders });
+        return ServerResponse.empty({
+          status: 204,
+          headers: Headers.fromInput(corsHeaders),
+        });
       }
 
       const response = yield* _(app);

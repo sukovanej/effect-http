@@ -4,6 +4,7 @@
  * @since 1.0.0
  */
 import * as FileSystem from "@effect/platform/FileSystem";
+import * as Headers from "@effect/platform/Http/Headers";
 import * as Router from "@effect/platform/Http/Router";
 import * as ServerResponse from "@effect/platform/Http/ServerResponse";
 import * as Path from "@effect/platform/Path";
@@ -110,14 +111,19 @@ const serverStaticDocsFile = (filename: string) => {
       const { files } = yield* _(SwaggerFiles);
       const content = files[filename];
 
-      return ServerResponse.text(content, { ...(headers && { headers }) });
+      return ServerResponse.text(content, {
+        headers: Headers.fromInput(headers),
+      });
     }),
   );
 };
 
 /** @internal */
 const redirect = (location: string) =>
-  ServerResponse.empty({ status: 301, headers: { location } });
+  ServerResponse.empty({
+    status: 301,
+    headers: Headers.fromInput({ location }),
+  });
 
 /**
  * @category constructors
@@ -140,7 +146,9 @@ export const make = (spec: unknown) => {
     Router.get(
       `/docs/swagger-initializer.js`,
       ServerResponse.text(swaggerInitialiser, {
-        headers: { "content-type": "application/javascript" },
+        headers: Headers.fromInput({
+          "content-type": "application/javascript",
+        }),
       }),
     ),
   );
