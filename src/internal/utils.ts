@@ -1,11 +1,6 @@
 import type * as Method from "@effect/platform/Http/Method";
-import type * as ParseResult from "@effect/schema/ParseResult";
 import * as Schema from "@effect/schema/Schema";
 import * as Api from "effect-http/Api";
-import * as ClientError from "effect-http/ClientError";
-import * as Effect from "effect/Effect";
-import { pipe } from "effect/Function";
-import * as Predicate from "effect/Predicate";
 
 /** @internal */
 export const getSchema = <A = Schema.Schema<any>>(
@@ -43,53 +38,6 @@ export const createResponseSchema = (
 };
 
 /** @internal */
-const parse = <A, E>(
-  a: A,
-  encode: (i: unknown) => Effect.Effect<never, ParseResult.ParseError, any>,
-  onError: (error: ParseResult.ParseError) => E,
-) =>
-  pipe(
-    a === Api.IgnoredSchemaId ? Effect.succeed(a) : encode(a),
-    Effect.mapError(onError),
-  );
-
-/** @internal */
-export const createRequestEncoder = (
-  requestSchemas: Api.Endpoint["schemas"]["request"],
-) => {
-  const encodeQuery = Schema.encode(getSchema(requestSchemas.query));
-  const encodeParams = Schema.encode(getSchema(requestSchemas.params));
-  const encodeBody = Schema.encode(getSchema(requestSchemas.body));
-  const encodeHeaders = Schema.encode(getSchema(requestSchemas.headers));
-
-  return (_args: any) => {
-    const args = _args ?? {};
-    return Effect.all({
-      query: parse(
-        args["query"],
-        encodeQuery,
-        ClientError.makeClientSideRequestValidation("query"),
-      ),
-      params: parse(
-        args["params"],
-        encodeParams,
-        ClientError.makeClientSideRequestValidation("params"),
-      ),
-      body: parse(
-        args["body"],
-        encodeBody,
-        ClientError.makeClientSideRequestValidation("body"),
-      ),
-      headers: parse(
-        args["headers"],
-        encodeHeaders,
-        ClientError.makeClientSideRequestValidation("headers"),
-      ),
-    });
-  };
-};
-
-/** @internal */
 export const getSchemaPropertySignatures = (schema: Schema.Schema<any>) => {
   let ast = schema.ast;
 
@@ -103,27 +51,6 @@ export const getSchemaPropertySignatures = (schema: Schema.Schema<any>) => {
 
   return ast.propertySignatures;
 };
-
-/** @internal */
-export const getResponseContent = (response: Response) =>
-  Effect.tryPromise(async () => {
-    const contentLength = response.headers.get("Content-Length");
-
-    if (contentLength && parseInt(contentLength, 10) === 0) {
-      return Promise.resolve(undefined);
-    }
-
-    const contentType = response.headers.get("Content-Type");
-    const isJson =
-      Predicate.isString(contentType) &&
-      contentType.startsWith("application/json");
-
-    if (isJson) {
-      return (await response.json()) as Promise<unknown>;
-    } else {
-      return await response.text();
-    }
-  });
 
 /** @internal */
 export const convertMethod = (method: Api.Method): Method.Method =>
