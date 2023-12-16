@@ -1,5 +1,12 @@
 # effect-http
 
+## 0.45.2
+
+### Patch Changes
+
+- 27af725: Fix: use `ClientRequestEncoder` for `MockClient`.
+- 27af725: Update @effect/platform.
+
 ## 0.45.1
 
 ### Patch Changes
