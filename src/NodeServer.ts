@@ -32,7 +32,7 @@ export const listen: (
 ) => Effect.Effect<
   Exclude<
     Exclude<
-      Exclude<Exclude<R, ServerRequest.ServerRequest>, Scope.Scope>,
+      Exclude<R, ServerRequest.ServerRequest | Scope.Scope>,
       Server.Server | Platform.Platform
     >,
     SwaggerRouter.SwaggerFiles
