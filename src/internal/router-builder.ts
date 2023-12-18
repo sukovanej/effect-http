@@ -10,6 +10,7 @@ import * as SwaggerRouter from "effect-http/SwaggerRouter";
 import * as utils from "effect-http/internal/utils";
 import * as Effect from "effect/Effect";
 import * as Pipeable from "effect/Pipeable";
+import type * as Scope from "effect/Scope";
 
 const DEFAULT_OPTIONS: RouterBuilder.Options = {
   parseOptions: { errors: "first", onExcessProperty: "ignore" },
@@ -42,7 +43,10 @@ export const handleRaw =
   <R1, E1>(
     builder: RouterBuilder.RouterBuilder<R1, E1, RemainingEndpoints>,
   ): RouterBuilder.RouterBuilder<
-    Exclude<R1 | R2, Router.RouteContext | ServerRequest.ServerRequest>,
+    Exclude<
+      R1 | R2,
+      Router.RouteContext | ServerRequest.ServerRequest | Scope.Scope
+    >,
     E1 | E2,
     Exclude<RemainingEndpoints, { id: Id }>
   > => {

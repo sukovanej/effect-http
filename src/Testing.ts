@@ -31,7 +31,7 @@ export const make: <R, E, Endpoints extends Api.Endpoint>(
   | Scope.Scope
   | Exclude<
       Exclude<
-        Exclude<R, ServerRequest.ServerRequest>,
+        Exclude<R, ServerRequest.ServerRequest | Scope.Scope>,
         Server.Server | Platform.Platform
       >,
       SwaggerRouter.SwaggerFiles
@@ -53,7 +53,7 @@ export const makeRaw: <R, E>(
   | Scope.Scope
   | Exclude<
       Exclude<
-        Exclude<R, ServerRequest.ServerRequest>,
+        Exclude<R, ServerRequest.ServerRequest | Scope.Scope>,
         Server.Server | Platform.Platform
       >,
       SwaggerRouter.SwaggerFiles

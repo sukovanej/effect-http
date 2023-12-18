@@ -13,6 +13,7 @@ import type * as ServerError from "effect-http/ServerError";
 import type * as SwaggerRouter from "effect-http/SwaggerRouter";
 import * as internal from "effect-http/internal/router-builder";
 import type * as Pipeable from "effect/Pipeable";
+import type * as Scope from "effect/Scope";
 
 /**
  * @category models
@@ -62,7 +63,10 @@ export const handleRaw: <
 ) => <R1, E1>(
   builder: RouterBuilder<R1, E1, RemainingEndpoints>,
 ) => RouterBuilder<
-  Exclude<R1 | R2, Router.RouteContext | ServerRequest.ServerRequest>,
+  Exclude<
+    R1 | R2,
+    Router.RouteContext | ServerRequest.ServerRequest | Scope.Scope
+  >,
   E1 | E2,
   Exclude<RemainingEndpoints, { id: Id }>
 > = internal.handleRaw;
