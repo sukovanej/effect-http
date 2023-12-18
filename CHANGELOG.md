@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.46.0
+
+### Minor Changes
+
+- 3457ae1: Update effect.
+
 ## 0.45.2
 
 ### Patch Changes
