@@ -1,0 +1,34 @@
+name: Test
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [master]
+  push:
+    branches: [master]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  node:
+    name: Node
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install dependencies
+        uses: ./.github/actions/setup
+      - run: pnpm test
+
+  bun:
+    name: Bun
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install dependencies
+        uses: ./.github/actions/setup
+      - name: Install bun
+        uses: oven-sh/setup-bun@v1
+      - run: bun vitest

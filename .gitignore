@@ -1,4 +1,9 @@
-node_modules
-dist
-coverage
-.idea
+coverage/
+*.tsbuildinfo
+node_modules/
+.DS_Store
+tmp/
+dist/
+build/
+docs/
+.direnv/

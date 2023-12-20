@@ -3,9 +3,9 @@
  *
  * @since 1.0.0
  */
-import type * as Api from "effect-http/Api";
-import type * as Client from "effect-http/Client";
-import * as internal from "effect-http/internal/mock-client";
+import type * as Api from "./Api.js"
+import type * as Client from "./Client.js"
+import * as internal from "./internal/mock-client.js"
 
 /**
  * @category models
@@ -15,9 +15,9 @@ export type Options<Endpoints extends Api.Endpoint> = {
   responses: {
     [Id in Endpoints["id"]]: Client.ClientFunctionResponse<
       Extract<Endpoints, { id: Id }>["schemas"]["response"]
-    >;
-  };
-};
+    >
+  }
+}
 
 /**
  * Derive mock client implementation from the `Api`
@@ -27,5 +27,5 @@ export type Options<Endpoints extends Api.Endpoint> = {
  */
 export const make: <Endpoints extends Api.Endpoint>(
   api: Api.Api<Endpoints>,
-  option?: Partial<Options<Endpoints>>,
-) => Client.Client<Endpoints> = internal.make;
+  option?: Partial<Options<Endpoints>>
+) => Client.Client<Endpoints> = internal.make

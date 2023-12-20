@@ -1,87 +1,84 @@
-import * as AST from "@effect/schema/AST";
-import * as ParseResult from "@effect/schema/ParseResult";
-import * as Equivalence from "effect/Equivalence";
-import { pipe } from "effect/Function";
-import * as Option from "effect/Option";
-import * as Order from "effect/Order";
-import * as ReadonlyArray from "effect/ReadonlyArray";
+import * as AST from "@effect/schema/AST"
+import type * as ParseResult from "@effect/schema/ParseResult"
+import * as Equivalence from "effect/Equivalence"
+import { pipe } from "effect/Function"
+import * as Option from "effect/Option"
+import * as Order from "effect/Order"
+import * as ReadonlyArray from "effect/ReadonlyArray"
 
 const getDescription = AST.getAnnotation<AST.DescriptionAnnotation>(
-  AST.DescriptionAnnotationId,
-);
+  AST.DescriptionAnnotationId
+)
 
-const getTitle = AST.getAnnotation<AST.TitleAnnotation>(AST.TitleAnnotationId);
+const getTitle = AST.getAnnotation<AST.TitleAnnotation>(AST.TitleAnnotationId)
 
 const getMessage = AST.getAnnotation<AST.MessageAnnotation<unknown>>(
-  AST.MessageAnnotationId,
-);
+  AST.MessageAnnotationId
+)
 
 const getIdentifier = AST.getAnnotation<AST.IdentifierAnnotation>(
-  AST.IdentifierAnnotationId,
-);
+  AST.IdentifierAnnotationId
+)
 
 const getExpected = (ast: AST.AST): Option.Option<string> =>
   getIdentifier(ast).pipe(
     Option.orElse(() => getTitle(ast)),
-    Option.orElse(() => getDescription(ast)),
-  );
+    Option.orElse(() => getDescription(ast))
+  )
 
 const stringifyExpected = (
-  error: Exclude<ValidationError, { _tag: "Missing" }>,
+  error: Exclude<ValidationError, { _tag: "Missing" }>
 ) => {
   const expected = Option.all({
     init: ReadonlyArray.init(error.expected),
-    last: ReadonlyArray.last(error.expected),
+    last: ReadonlyArray.last(error.expected)
   }).pipe(
-    Option.map(({ init, last }) =>
-      init.length === 0 ? last : `${init.join(", ")} or ${last}`,
-    ),
-    Option.getOrElse(() => error.expected.join(" or ")),
-  );
+    Option.map(({ init, last }) => init.length === 0 ? last : `${init.join(", ")} or ${last}`),
+    Option.getOrElse(() => error.expected.join(" or "))
+  )
 
-  return expected;
-};
+  return expected
+}
 
 const stringifyError = (error: ValidationError) => {
   if (error.message) {
-    return error.message;
+    return error.message
   }
 
-  const position =
-    error.position.length > 0 ? error.position.join(".") + " " : "";
+  const position = error.position.length > 0 ? error.position.join(".") + " " : ""
 
   if (error._tag === "Missing") {
-    return `${position}is missing`;
+    return `${position}is missing`
   }
 
-  const expected = stringifyExpected(error);
-  const received = JSON.stringify(error.received);
+  const expected = stringifyExpected(error)
+  const received = JSON.stringify(error.received)
 
-  return `${position}must be ${expected}, received ${received}`;
-};
+  return `${position}must be ${expected}, received ${received}`
+}
 
 type ValidationErrorBase = {
-  position: string[];
-  message?: string;
-};
+  position: Array<string>
+  message?: string
+}
 type ValidationErrorUnexpected = ValidationErrorBase & {
-  _tag: "Unexpected";
-  expected: string[];
-  received: unknown;
-};
-type ValidationErrorMissing = ValidationErrorBase & { _tag: "Missing" };
-type ValidationError = ValidationErrorUnexpected | ValidationErrorMissing;
+  _tag: "Unexpected"
+  expected: Array<string>
+  received: unknown
+}
+type ValidationErrorMissing = ValidationErrorBase & { _tag: "Missing" }
+type ValidationError = ValidationErrorUnexpected | ValidationErrorMissing
 
 const formatParseErrors = (
-  errors: ParseResult.ParseIssue,
-): readonly ValidationError[] => {
+  errors: ParseResult.ParseIssue
+): ReadonlyArray<ValidationError> => {
   if (errors._tag === "Key") {
     return errors.errors.flatMap((error) =>
       formatParseErrors(error).map((e) => ({
         ...e,
-        position: [errors.key.toString(), ...e.position],
-      })),
-    );
+        position: [errors.key.toString(), ...e.position]
+      }))
+    )
   } else if (errors._tag === "Type") {
     return [
       {
@@ -89,37 +86,37 @@ const formatParseErrors = (
         expected: [
           getMessage(errors.expected).pipe(
             Option.map((f) => f(errors.actual)),
-            Option.getOrElse(() => formatAST(errors.expected)),
-          ),
+            Option.getOrElse(() => formatAST(errors.expected))
+          )
         ],
         ...errors.message.pipe(
           Option.map((message) => ({ message })),
-          Option.getOrUndefined,
+          Option.getOrUndefined
         ),
         received: errors.actual,
-        position: [],
-      },
-    ];
+        position: []
+      }
+    ]
   } else if (errors._tag === "Missing") {
-    return [{ _tag: "Missing", position: [] }];
+    return [{ _tag: "Missing", position: [] }]
   } else if (errors._tag === "Index") {
     return errors.errors.flatMap((error) =>
       formatParseErrors(error).map((e) => ({
         ...e,
-        position: [`[${errors.index}]`, ...e.position],
-      })),
-    );
+        position: [`[${errors.index}]`, ...e.position]
+      }))
+    )
   } else if (errors._tag === "UnionMember") {
-    return errors.errors.flatMap(formatParseErrors);
+    return errors.errors.flatMap(formatParseErrors)
   } else if (errors._tag === "Unexpected") {
     return [
       {
         _tag: "Unexpected",
         expected: [],
         position: [],
-        received: "<unexpected>",
-      },
-    ];
+        received: "<unexpected>"
+      }
+    ]
   }
 
   return [
@@ -127,45 +124,45 @@ const formatParseErrors = (
       _tag: "Unexpected",
       expected: [],
       position: [],
-      received: "<unexpected>",
-    },
-  ];
-};
+      received: "<unexpected>"
+    }
+  ]
+}
 
 const formatAST = (ast: AST.AST) => {
-  const expected = getExpected(ast);
+  const expected = getExpected(ast)
 
   if (ast._tag === "TypeLiteral") {
-    return "an object";
+    return "an object"
   }
 
   if (Option.isSome(expected)) {
-    return expected.value as string;
+    return expected.value as string
   }
 
   if (ast._tag === "Literal") {
-    return JSON.stringify(ast.literal);
+    return JSON.stringify(ast.literal)
   }
 
-  return JSON.stringify(ast);
-};
+  return JSON.stringify(ast)
+}
 
 export const formatParseError = (
   error: ParseResult.ParseError,
-  parseOptions?: AST.ParseOptions,
+  parseOptions?: AST.ParseOptions
 ): string => {
-  const errors = ReadonlyArray.flatMap(error.errors, formatParseErrors);
+  const errors = ReadonlyArray.flatMap(error.errors, formatParseErrors)
 
   if (errors.length === 1) {
-    return stringifyError(errors[0]);
+    return stringifyError(errors[0])
   }
 
   if (parseOptions?.errors === "all") {
-    return errors.map(stringifyError).join(", ");
+    return errors.map(stringifyError).join(", ")
   }
 
   if (!ReadonlyArray.isNonEmptyArray(errors)) {
-    return `Unexpected validation errors: ${JSON.stringify(error)}`;
+    return `Unexpected validation errors: ${JSON.stringify(error)}`
   }
 
   const errorsWithMostPrecisePosition = pipe(
@@ -173,65 +170,65 @@ export const formatParseError = (
     ReadonlyArray.groupWith(
       pipe(
         Equivalence.array(Equivalence.string),
-        Equivalence.mapInput((e: ValidationError) => e.position),
-      ),
+        Equivalence.mapInput((e: ValidationError) => e.position)
+      )
     ),
     ReadonlyArray.max((a, b) => {
       // use errors with the longest position
       const longestPositionOrdering = Order.number(
         a[0].position.length,
-        b[0].position.length,
-      );
+        b[0].position.length
+      )
 
       if (longestPositionOrdering !== 0) {
-        return longestPositionOrdering;
+        return longestPositionOrdering
       }
 
       // use errors with the greatest number of union cases
-      const numberOfUnionMembersOrdering = Order.number(a.length, b.length);
+      const numberOfUnionMembersOrdering = Order.number(a.length, b.length)
 
       if (numberOfUnionMembersOrdering !== 0) {
-        return numberOfUnionMembersOrdering;
+        return numberOfUnionMembersOrdering
       }
 
-      const aContainsUnexpected = a.some((e) => e._tag === "Unexpected");
-      const bContainsUnexpected = b.some((e) => e._tag === "Unexpected");
+      const aContainsUnexpected = a.some((e) => e._tag === "Unexpected")
+      const bContainsUnexpected = b.some((e) => e._tag === "Unexpected")
 
       // use errors with the greatest number of union cases
       if (aContainsUnexpected && !bContainsUnexpected) {
-        return 1;
+        return 1
       } else if (!aContainsUnexpected && bContainsUnexpected) {
-        return -1;
+        return -1
       }
 
-      return 0;
-    }),
-  );
+      return 0
+    })
+  )
 
   const errorsByTag = pipe(
     errorsWithMostPrecisePosition,
-    ReadonlyArray.groupBy((error) => error._tag),
-  );
+    ReadonlyArray.groupBy((error) => error._tag)
+  )
 
   if ("Unexpected" in errorsByTag) {
     const unexpectedErrors = errorsByTag[
       "Unexpected"
-    ] as ValidationErrorUnexpected[];
+    ] as Array<ValidationErrorUnexpected>
 
-    const expected = unexpectedErrors.flatMap((e) => e.expected);
+    const expected = unexpectedErrors.flatMap((e) => e.expected)
 
     if (ReadonlyArray.isNonEmptyArray(unexpectedErrors)) {
-      return stringifyError({ ...unexpectedErrors[0], expected });
+      return stringifyError({ ...unexpectedErrors[0], expected })
     }
   }
 
   if ("Missing" in errorsByTag) {
-    const unexpectedErrors = errorsByTag["Missing"] as ValidationErrorMissing[];
+    const unexpectedErrors = errorsByTag["Missing"] as Array<ValidationErrorMissing>
 
     if (ReadonlyArray.isNonEmptyArray(unexpectedErrors)) {
-      return stringifyError(unexpectedErrors[0]);
+      return stringifyError(unexpectedErrors[0])
     }
   }
 
-  return `Unexpected validation errors: ${errors}`;
-};
+  return `Unexpected validation errors: ${errors}`
+}

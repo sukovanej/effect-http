@@ -1,20 +1,20 @@
-import { runMain } from "@effect/platform-node/Runtime";
-import * as Schema from "@effect/schema/Schema";
-import { Effect, pipe } from "effect";
-import { Api, NodeServer, RouterBuilder } from "effect-http";
+import { runMain } from "@effect/platform-node/Runtime"
+import * as Schema from "@effect/schema/Schema"
+import { Effect, pipe } from "effect"
+import { Api, NodeServer, RouterBuilder } from "effect-http"
 
-import { debugLogger } from "./_utils";
+import { debugLogger } from "./_utils.js"
 
 const responseSchema = pipe(
   Schema.struct({
     name: Schema.string,
-    id: pipe(Schema.number, Schema.int(), Schema.positive()),
+    id: pipe(Schema.number, Schema.int(), Schema.positive())
   }),
-  Schema.description("User"),
-);
+  Schema.description("User")
+)
 const querySchema = Schema.struct({
-  id: pipe(Schema.NumberFromString, Schema.description("User id")),
-});
+  id: pipe(Schema.NumberFromString, Schema.description("User id"))
+})
 
 const api = pipe(
   Api.api({ title: "Users API" }),
@@ -24,24 +24,22 @@ const api = pipe(
     {
       response: responseSchema,
       request: {
-        query: querySchema,
-      },
+        query: querySchema
+      }
     },
-    { description: "Returns a User by id" },
-  ),
-);
+    { description: "Returns a User by id" }
+  )
+)
 
 const app = pipe(
   RouterBuilder.make(api),
-  RouterBuilder.handle("getUser", ({ query }) =>
-    Effect.succeed({ name: "mike", id: query.id }),
-  ),
-  RouterBuilder.build,
-);
+  RouterBuilder.handle("getUser", ({ query }) => Effect.succeed({ name: "mike", id: query.id })),
+  RouterBuilder.build
+)
 
 pipe(
   app,
   NodeServer.listen({ port: 3000 }),
   Effect.provide(debugLogger),
-  runMain,
-);
+  runMain
+)

@@ -1,75 +1,110 @@
 /**
- * Reexport of all the submodules.
+ * `Api` represents the API specification. It doesn't hold information concerning the
+ * server or client side details. An instance of `Api` can be used to derive a client
+ * implementation (see `Client.ts`).
+ *
+ * The generated type of the `Api` is used during server implementation. The type safety
+ * guarantees the server-side implementation and the `Api` specification are compatible.
  *
  * @since 1.0.0
  */
+export * as Api from "./Api.js"
 
 /**
+ * This module exposes the `client` combinator which accepts an `Api` instance
+ * and it generates a client-side implementation. The generated implementation
+ * is type-safe and guarantees compatibility of the client and server side.
+ *
  * @since 1.0.0
  */
-export * as ClientError from "effect-http/ClientError";
+export * as Client from "./Client.js"
 
 /**
+ * Models for errors being created on the client side.
+ *
  * @since 1.0.0
  */
-export * as Api from "effect-http/Api";
+export * as ClientError from "./ClientError.js"
 
 /**
+ * The `exampleServer` function generates a `Server` implementation based
+ * on an instance of `Api`. The listening server will perform all the
+ * request and response validations similarly to a real implementation.
+ *
+ * Responses returned from the server are generated randomly using the
+ * response `Schema`.
+ *
  * @since 1.0.0
  */
-export * as Route from "effect-http/Route";
+export * as ExampleServer from "./ExampleServer.js"
 
 /**
+ * Mechanism for extendning behaviour of all handlers on the server.
+ *
  * @since 1.0.0
  */
-export * as RouterBuilder from "effect-http/RouterBuilder";
+export * as Middlewares from "./Middlewares.js"
 
 /**
+ * `Client` implementation derivation for testing purposes.
+ *
  * @since 1.0.0
  */
-export * as SwaggerRouter from "effect-http/SwaggerRouter";
+export * as MockClient from "./MockClient.js"
 
 /**
+ * Simplified way to run a node server.
+ *
  * @since 1.0.0
  */
-export * as ServerError from "effect-http/ServerError";
+export * as NodeServer from "./NodeServer.js"
 
 /**
+ * Derivation of `OpenApi` schema from an instance of `Api`.
+ *
  * @since 1.0.0
  */
-export * as NodeServer from "effect-http/NodeServer";
+export * as OpenApi from "./OpenApi.js"
 
 /**
+ * `Representation` is a data structure holding information about how to
+ * serialize and deserialize a server response for a given conten type.
+ *
  * @since 1.0.0
  */
-export * as ExampleServer from "effect-http/ExampleServer";
+export * as Representation from "./Representation.js"
 
 /**
+ * Create @effect/platform/Http/Router `Router`
+ *
  * @since 1.0.0
  */
-export * as OpenApi from "effect-http/OpenApi";
+export * as Route from "./Route.js"
 
 /**
+ * Build a `Router` satisfying an `Api.Api`.
+ *
  * @since 1.0.0
  */
-export * as Client from "effect-http/Client";
+export * as RouterBuilder from "./RouterBuilder.js"
 
 /**
+ * Server errors.
+ *
  * @since 1.0.0
  */
-export * as MockClient from "effect-http/MockClient";
+export * as ServerError from "./ServerError.js"
 
 /**
+ * Create a router serving Swagger files.
+ *
  * @since 1.0.0
  */
-export * as Testing from "effect-http/Testing";
+export * as SwaggerRouter from "./SwaggerRouter.js"
 
 /**
+ * Testing if the `Server` implementation.
+ *
  * @since 1.0.0
  */
-export * as Middlewares from "effect-http/Middlewares";
-
-/**
- * @since 1.0.0
- */
-export * as Representation from "effect-http/Representation";
+export * as Testing from "./Testing.js"
