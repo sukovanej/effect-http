@@ -3,17 +3,17 @@
  *
  * @since 1.0.0
  */
-import * as FileSystem from "@effect/platform/FileSystem";
-import * as Headers from "@effect/platform/Http/Headers";
-import * as Router from "@effect/platform/Http/Router";
-import * as ServerResponse from "@effect/platform/Http/ServerResponse";
-import * as Path from "@effect/platform/Path";
-import type * as SwaggerRouter from "../SwaggerRouter.js";
-import * as Context from "effect/Context";
-import * as Effect from "effect/Effect";
-import { pipe } from "effect/Function";
-import * as Layer from "effect/Layer";
-import * as ReadonlyRecord from "effect/ReadonlyRecord";
+import * as FileSystem from "@effect/platform/FileSystem"
+import * as Headers from "@effect/platform/Http/Headers"
+import * as Router from "@effect/platform/Http/Router"
+import * as ServerResponse from "@effect/platform/Http/ServerResponse"
+import * as Path from "@effect/platform/Path"
+import * as Context from "effect/Context"
+import * as Effect from "effect/Effect"
+import { pipe } from "effect/Function"
+import * as Layer from "effect/Layer"
+import * as ReadonlyRecord from "effect/ReadonlyRecord"
+import type * as SwaggerRouter from "../SwaggerRouter.js"
 
 /** @internal */
 const createSwaggerInitializer = (path: string) => `
@@ -32,13 +32,10 @@ window.onload = function() {
     layout: "StandaloneLayout"
   });
 };
-`;
+`
 
 /** @internal */
-const readFile = (path: string) =>
-  Effect.flatMap(FileSystem.FileSystem, (fs) =>
-    fs.readFileString(path, "utf-8"),
-  );
+const readFile = (path: string) => Effect.flatMap(FileSystem.FileSystem, (fs) => fs.readFileString(path, "utf-8"))
 
 const SWAGGER_FILE_NAMES = [
   "index.html",
@@ -47,98 +44,93 @@ const SWAGGER_FILE_NAMES = [
   "swagger-ui-bundle.js",
   "swagger-ui-standalone-preset.js",
   "favicon-32x32.png",
-  "favicon-16x16.png",
-];
+  "favicon-16x16.png"
+]
 
 /** @internal */
 const readSwaggerFile = (swaggerBasePath: string, file: string) =>
-  Effect.flatMap(Path.Path, (path) =>
-    readFile(path.resolve(swaggerBasePath, file)).pipe(Effect.orDie),
-  );
+  Effect.flatMap(Path.Path, (path) => readFile(path.resolve(swaggerBasePath, file)).pipe(Effect.orDie))
 
 /** @internal */
-export const SwaggerFiles = Context.Tag<SwaggerRouter.SwaggerFiles>();
+export const SwaggerFiles = Context.Tag<SwaggerRouter.SwaggerFiles>()
 
 /** @internal */
-export const SwaggerFilesLive = Effect.gen(function* (_) {
+export const SwaggerFilesLive = Effect.gen(function*(_) {
   const { getAbsoluteFSPath } = yield* _(
-    Effect.promise(() => import("swagger-ui-dist")),
-  );
+    Effect.promise(() => import("swagger-ui-dist"))
+  )
 
-  const absolutePath = getAbsoluteFSPath();
+  const absolutePath = getAbsoluteFSPath()
 
   const files = yield* _(
     SWAGGER_FILE_NAMES,
-    Effect.forEach((path) =>
-      Effect.zip(Effect.succeed(path), readSwaggerFile(absolutePath, path)),
-    ),
-    Effect.map(ReadonlyRecord.fromEntries),
-  );
+    Effect.forEach((path) => Effect.zip(Effect.succeed(path), readSwaggerFile(absolutePath, path))),
+    Effect.map(ReadonlyRecord.fromEntries)
+  )
 
   const size = Object.entries(files).reduce(
     (acc, [_, content]) => acc + content.length,
-    0,
-  );
-  const sizeMb = (size / 1024 / 1024).toFixed(1);
+    0
+  )
+  const sizeMb = (size / 1024 / 1024).toFixed(1)
 
-  yield* _(Effect.logDebug(`Static swagger UI files loaded (${sizeMb}MB)`));
+  yield* _(Effect.logDebug(`Static swagger UI files loaded (${sizeMb}MB)`))
 
-  return { files };
-}).pipe(Layer.effect(SwaggerFiles));
+  return { files }
+}).pipe(Layer.effect(SwaggerFiles))
 
 /** @internal */
 const createHeaders = (file: string) => {
   if (file.endsWith(".html")) {
-    return { "content-type": "text/html" };
+    return { "content-type": "text/html" }
   } else if (file.endsWith(".css")) {
-    return { "content-type": "text/css" };
+    return { "content-type": "text/css" }
   } else if (file.endsWith(".js")) {
-    return { "content-type": "application/javascript" };
+    return { "content-type": "application/javascript" }
   } else if (file.endsWith(".png")) {
-    return { "content-type": "image/png" };
+    return { "content-type": "image/png" }
   }
 
-  return undefined;
-};
+  return undefined
+}
 
 /** @internal */
 const serverStaticDocsFile = (filename: string) => {
-  const headers = createHeaders(filename);
+  const headers = createHeaders(filename)
 
   return Router.get(
     `/docs/${filename}`,
-    Effect.gen(function* (_) {
-      const { files } = yield* _(SwaggerFiles);
-      const content = files[filename];
+    Effect.gen(function*(_) {
+      const { files } = yield* _(SwaggerFiles)
+      const content = files[filename]
 
       return ServerResponse.text(content, {
-        headers: Headers.fromInput(headers),
-      });
-    }),
-  );
-};
+        headers: Headers.fromInput(headers)
+      })
+    })
+  )
+}
 
 /** @internal */
 const redirect = (location: string) =>
   ServerResponse.empty({
     status: 301,
-    headers: Headers.fromInput({ location }),
-  });
+    headers: Headers.fromInput({ location })
+  })
 
 /**
  * @category constructors
  * @since 1.0.0
  */
 export const make = (spec: unknown) => {
-  const openApiJsonPath = "/docs/openapi.json";
+  const openApiJsonPath = "/docs/openapi.json"
 
   let router = SWAGGER_FILE_NAMES.reduce(
-    (router, swaggerFileName) =>
-      router.pipe(serverStaticDocsFile(swaggerFileName)),
-    Router.empty as Router.Router<SwaggerRouter.SwaggerFiles, never>,
-  );
+    (router, swaggerFileName) => router.pipe(serverStaticDocsFile(swaggerFileName)),
+    Router.empty as Router.Router<SwaggerRouter.SwaggerFiles, never>
+  )
 
-  const swaggerInitialiser = createSwaggerInitializer(openApiJsonPath);
+  const swaggerInitialiser = createSwaggerInitializer(openApiJsonPath)
 
   router = router.pipe(
     Router.get("/docs", redirect("/docs/index.html")),
@@ -147,11 +139,11 @@ export const make = (spec: unknown) => {
       `/docs/swagger-initializer.js`,
       ServerResponse.text(swaggerInitialiser, {
         headers: Headers.fromInput({
-          "content-type": "application/javascript",
-        }),
-      }),
-    ),
-  );
+          "content-type": "application/javascript"
+        })
+      })
+    )
+  )
 
-  return router;
-};
+  return router
+}

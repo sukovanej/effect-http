@@ -8,9 +8,9 @@
  *
  * @since 1.0.0
  */
-import type * as Api from "./Api.js";
-import type * as RouterBuilder from "./RouterBuilder.js";
-import * as internal from "./internal/example-server.js";
+import type * as Api from "./Api.js"
+import * as internal from "./internal/example-server.js"
+import type * as RouterBuilder from "./RouterBuilder.js"
 
 /**
  * Generate an example `RouterBuilder` implementation.
@@ -19,8 +19,8 @@ import * as internal from "./internal/example-server.js";
  * @since 1.0.0
  */
 export const make: <A extends Api.Api>(
-  api: A,
-) => RouterBuilder.RouterBuilder<never, never, never> = internal.make;
+  api: A
+) => RouterBuilder.RouterBuilder<never, never, never> = internal.make
 
 /**
  * Create an example implementation for a single endpoint.
@@ -30,16 +30,16 @@ export const make: <A extends Api.Api>(
  */
 export const handle: <
   RemainingEndpoints extends Api.Endpoint,
-  Id extends RemainingEndpoints["id"],
+  Id extends RemainingEndpoints["id"]
 >(
-  id: Id,
+  id: Id
 ) => <R, E>(
-  routerBuilder: RouterBuilder.RouterBuilder<R, E, RemainingEndpoints>,
+  routerBuilder: RouterBuilder.RouterBuilder<R, E, RemainingEndpoints>
 ) => RouterBuilder.RouterBuilder<
   R,
   E,
   Exclude<RemainingEndpoints, { id: Id }>
-> = internal.handle;
+> = internal.handle
 
 /**
  * Create an example implementation for all remaining endpoints.
@@ -48,5 +48,5 @@ export const handle: <
  * @since 1.0.0
  */
 export const handleRemaining: <RemainingEndpoints extends Api.Endpoint, R, E>(
-  routerBuilder: RouterBuilder.RouterBuilder<R, E, RemainingEndpoints>,
-) => RouterBuilder.RouterBuilder<R, E, never> = internal.handleRemaining;
+  routerBuilder: RouterBuilder.RouterBuilder<R, E, RemainingEndpoints>
+) => RouterBuilder.RouterBuilder<R, E, never> = internal.handleRemaining

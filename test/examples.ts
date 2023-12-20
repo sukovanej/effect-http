@@ -1,29 +1,29 @@
-import * as Schema from "@effect/schema/Schema";
-import { Api, Representation } from "effect-http";
+import * as Schema from "@effect/schema/Schema"
+import { Api, Representation } from "effect-http"
 
 // Example GET
 
 export const exampleApiGet = Api.api().pipe(
-  Api.get("getValue", "/get-value", { response: Schema.number }),
-);
+  Api.get("getValue", "/get-value", { response: Schema.number })
+)
 
 // Example GET, string response
 
 export const exampleApiGetStringResponse = Api.api().pipe(
-  Api.get("hello", "/hello", { response: Schema.number }),
-);
+  Api.get("hello", "/hello", { response: Schema.number })
+)
 
 // Example POST, nullable body field
 
 const ExampleSchemaNullableField = Schema.struct({
-  value: Schema.optionFromNullable(Schema.string),
-});
+  value: Schema.optionFromNullable(Schema.string)
+})
 
 export const exampleApiPostNullableField = Api.api().pipe(
   Api.post("test", "/test", {
-    response: ExampleSchemaNullableField,
-  }),
-);
+    response: ExampleSchemaNullableField
+  })
+)
 
 // Example GET, query parameter
 
@@ -31,12 +31,12 @@ export const exampleApiGetQueryParameter = Api.api().pipe(
   Api.get("hello", "/hello", {
     request: {
       query: Schema.struct({
-        country: Schema.string.pipe(Schema.pattern(/^[A-Z]{2}$/)),
-      }),
+        country: Schema.string.pipe(Schema.pattern(/^[A-Z]{2}$/))
+      })
     },
-    response: Schema.string,
-  }),
-);
+    response: Schema.string
+  })
+)
 
 // Example GET, headers
 
@@ -44,10 +44,10 @@ export const exampleApiGetHeaders = Api.api().pipe(
   Api.get("hello", "/hello", {
     response: Schema.struct({ clientIdHash: Schema.string }),
     request: {
-      headers: Schema.struct({ "X-Client-Id": Schema.string }),
-    },
-  }),
-);
+      headers: Schema.struct({ "X-Client-Id": Schema.string })
+    }
+  })
+)
 
 // Example GET, custom response with headers
 
@@ -57,28 +57,28 @@ export const exampleApiGetCustomResponseWithHeaders = Api.api().pipe(
       status: 201,
       content: Schema.struct({ value: Schema.string }),
       headers: Schema.struct({
-        "My-Header": Schema.literal("hello"),
-      }),
-    },
-  }),
-);
+        "My-Header": Schema.literal("hello")
+      })
+    }
+  })
+)
 
 // Example GET, option response field
 
 const ExampleSchemaOptionalField = Schema.struct({
-  foo: Schema.optional(Schema.string).toOption(),
-});
+  foo: Schema.optional(Schema.string).toOption()
+})
 
 export const exampleApiGetOptionalField = Api.api().pipe(
   Api.get("hello", "/hello", {
     response: ExampleSchemaOptionalField,
     request: {
       query: Schema.struct({
-        value: Schema.literal("on", "off"),
-      }),
-    },
-  }),
-);
+        value: Schema.literal("on", "off")
+      })
+    }
+  })
+)
 
 // Example Post, request body
 
@@ -87,11 +87,11 @@ export const exampleApiRequestBody = Api.api().pipe(
     response: Schema.string,
     request: {
       body: Schema.struct({
-        foo: Schema.string,
-      }),
-    },
-  }),
-);
+        foo: Schema.string
+      })
+    }
+  })
+)
 
 // Example Post, request headers
 
@@ -100,11 +100,11 @@ export const exampleApiRequestHeaders = Api.api().pipe(
     response: Schema.string,
     request: {
       headers: Schema.struct({
-        "X-HEADER": Schema.literal("a", "b"),
-      }),
-    },
-  }),
-);
+        "X-HEADER": Schema.literal("a", "b")
+      })
+    }
+  })
+)
 
 // Example Post, path headers
 
@@ -113,17 +113,17 @@ export const exampleApiParams = Api.api().pipe(
     response: Schema.string,
     request: {
       params: Schema.struct({
-        value: Schema.literal("a", "b"),
-      }),
-    },
-  }),
-);
+        value: Schema.literal("a", "b")
+      })
+    }
+  })
+)
 
 // Example PUT
 
 export const exampleApiPutResponse = Api.api().pipe(
-  Api.put("myOperation", "/my-operation", { response: Schema.string }),
-);
+  Api.put("myOperation", "/my-operation", { response: Schema.string })
+)
 
 // Example POST, multiple responses
 export const exampleApiMultipleResponses = Api.api().pipe(
@@ -131,27 +131,27 @@ export const exampleApiMultipleResponses = Api.api().pipe(
     response: [
       {
         status: 201,
-        content: Schema.number,
+        content: Schema.number
       },
       {
         status: 200,
         content: Schema.number,
         headers: Schema.struct({
-          "X-Another-200": Schema.NumberFromString,
-        }),
+          "X-Another-200": Schema.NumberFromString
+        })
       },
       {
         status: 204,
-        headers: Schema.struct({ "X-Another": Schema.NumberFromString }),
-      },
+        headers: Schema.struct({ "X-Another": Schema.NumberFromString })
+      }
     ],
     request: {
       query: Schema.struct({
-        value: Schema.NumberFromString,
-      }),
-    },
-  }),
-);
+        value: Schema.NumberFromString
+      })
+    }
+  })
+)
 
 // Example POST, all request locations optional
 
@@ -160,35 +160,35 @@ export const exampleApiOptional = Api.api().pipe(
     response: Schema.struct({
       query: Schema.struct({
         value: Schema.number,
-        another: Schema.optional(Schema.string),
+        another: Schema.optional(Schema.string)
       }),
       params: Schema.struct({
         value: Schema.number,
-        another: Schema.optional(Schema.string),
+        another: Schema.optional(Schema.string)
       }),
       headers: Schema.struct({
         value: Schema.number,
         another: Schema.optional(Schema.string),
-        hello: Schema.optional(Schema.string),
-      }),
+        hello: Schema.optional(Schema.string)
+      })
     }),
     request: {
       query: Schema.struct({
         value: Schema.NumberFromString,
-        another: Schema.optional(Schema.string),
+        another: Schema.optional(Schema.string)
       }),
       params: Schema.struct({
         value: Schema.NumberFromString,
-        another: Schema.optional(Schema.string),
+        another: Schema.optional(Schema.string)
       }),
       headers: Schema.struct({
         value: Schema.NumberFromString,
         another: Schema.optional(Schema.string),
-        hello: Schema.optional(Schema.string),
-      }),
-    },
-  }),
-);
+        hello: Schema.optional(Schema.string)
+      })
+    }
+  })
+)
 
 // Example POST, optional params
 
@@ -197,17 +197,17 @@ export const exampleApiOptionalParams = Api.api().pipe(
     response: Schema.struct({
       params: Schema.struct({
         value: Schema.number,
-        another: Schema.optional(Schema.string),
-      }),
+        another: Schema.optional(Schema.string)
+      })
     }),
     request: {
       params: Schema.struct({
         value: Schema.NumberFromString,
-        another: Schema.optional(Schema.string),
-      }),
-    },
-  }),
-);
+        another: Schema.optional(Schema.string)
+      })
+    }
+  })
+)
 
 // Example POSTs, full response
 
@@ -217,17 +217,17 @@ export const exampleApiFullResponse = Api.api().pipe(
       status: 200,
       content: Schema.number,
       headers: Schema.struct({
-        "My-Header": Schema.string,
-      }),
-    },
+        "My-Header": Schema.string
+      })
+    }
   }),
   Api.post("another", "/another", {
     response: {
       status: 200,
-      content: Schema.number,
-    },
-  }),
-);
+      content: Schema.number
+    }
+  })
+)
 
 export const exampleApiMultipleQueryValues = Api.api().pipe(
   Api.post("test", "/test", {
@@ -235,18 +235,18 @@ export const exampleApiMultipleQueryValues = Api.api().pipe(
     request: {
       query: Schema.struct({
         value: Schema.literal("x", "y"),
-        another: Schema.string,
-      }),
-    },
-  }),
-);
+        another: Schema.string
+      })
+    }
+  })
+)
 
 export const exampleApiRepresentations = Api.api().pipe(
   Api.post("test", "/test", {
     response: {
       content: Schema.string,
       status: 200,
-      representations: [Representation.plainText, Representation.json],
-    },
-  }),
-);
+      representations: [Representation.plainText, Representation.json]
+    }
+  })
+)

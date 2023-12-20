@@ -1,26 +1,21 @@
-import { Api } from "effect-http";
+import { Api } from "effect-http"
 
-import {
-  CreateItemRequest,
-  CreateItemResponse,
-  GetItemsQuery,
-  Items,
-} from "./schemas.js";
+import { CreateItemRequest, CreateItemResponse, GetItemsQuery, Items } from "./schemas.js"
 
 export const api = Api.api({ title: "Example TODO list API" }).pipe(
   Api.post("createItem", "/item", {
     request: {
-      body: CreateItemRequest,
+      body: CreateItemRequest
     },
     response: {
       status: 201,
-      content: CreateItemResponse,
-    },
+      content: CreateItemResponse
+    }
   }),
   Api.get("getItems", "/items", {
     request: {
-      query: GetItemsQuery,
+      query: GetItemsQuery
     },
-    response: Items,
-  }),
-);
+    response: Items
+  })
+)

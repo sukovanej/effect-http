@@ -3,23 +3,23 @@
  *
  * @since 1.0.0
  */
-import type * as App from "@effect/platform/Http/App";
-import type * as Platform from "@effect/platform/Http/Platform";
-import type * as Server from "@effect/platform/Http/Server";
-import type * as ServeError from "@effect/platform/Http/ServerError";
-import type * as ServerRequest from "@effect/platform/Http/ServerRequest";
-import type * as Effect from "effect/Effect";
-import type * as Scope from "effect/Scope";
+import type * as App from "@effect/platform/Http/App"
+import type * as Platform from "@effect/platform/Http/Platform"
+import type * as Server from "@effect/platform/Http/Server"
+import type * as ServeError from "@effect/platform/Http/ServerError"
+import type * as ServerRequest from "@effect/platform/Http/ServerRequest"
+import type * as Effect from "effect/Effect"
+import type * as Scope from "effect/Scope"
 
-import type * as SwaggerRouter from "./SwaggerRouter.js";
-import * as internal from "./internal/node-server.js";
+import * as internal from "./internal/node-server.js"
+import type * as SwaggerRouter from "./SwaggerRouter.js"
 
 /**
  * @category models
  * @since 1.0.0
  */
 export interface Options {
-  port: number | undefined;
+  port: number | undefined
 }
 
 /**
@@ -27,9 +27,9 @@ export interface Options {
  * @since 1.0.0
  */
 export const listen: (
-  options?: Partial<Options>,
+  options?: Partial<Options>
 ) => <R, E>(
-  router: App.Default<R, E>,
+  router: App.Default<R, E>
 ) => Effect.Effect<
   Exclude<
     Exclude<
@@ -40,4 +40,4 @@ export const listen: (
   >,
   ServeError.ServeError,
   never
-> = internal.listen;
+> = internal.listen

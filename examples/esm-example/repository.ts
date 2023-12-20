@@ -1,19 +1,19 @@
-import { Context, Effect, Layer, Option, ReadonlyArray, Ref } from "effect";
+import { Context, Effect, Layer, Option, ReadonlyArray, Ref } from "effect"
 
-import { CreateItemRequest, GetItemsQuery, Item, Items } from "./schemas.js";
+import type { CreateItemRequest, GetItemsQuery, Item, Items } from "./schemas.js"
 
 export interface ItemRepository {
-  getItems: (query: GetItemsQuery) => Effect.Effect<never, never, Items>;
-  createItem: (item: CreateItemRequest) => Effect.Effect<never, never, Item>;
+  getItems: (query: GetItemsQuery) => Effect.Effect<never, never, Items>
+  createItem: (item: CreateItemRequest) => Effect.Effect<never, never, Item>
 }
 
-export const ItemRepository = Context.Tag<ItemRepository>();
+export const ItemRepository = Context.Tag<ItemRepository>()
 
 export const getItems = (...args: Parameters<ItemRepository["getItems"]>) =>
-  Effect.flatMap(ItemRepository, ({ getItems }) => getItems(...args));
+  Effect.flatMap(ItemRepository, ({ getItems }) => getItems(...args))
 
 export const createItem = (...args: Parameters<ItemRepository["createItem"]>) =>
-  Effect.flatMap(ItemRepository, ({ createItem }) => createItem(...args));
+  Effect.flatMap(ItemRepository, ({ createItem }) => createItem(...args))
 
 export const ItemRepositoryInMemory = Ref.make([] as Items).pipe(
   Effect.map((memory) =>
@@ -22,36 +22,33 @@ export const ItemRepositoryInMemory = Ref.make([] as Items).pipe(
         Ref.get(memory).pipe(
           Effect.map(
             ReadonlyArray.filter((item) => {
-              const matchesId =
-                query.id === undefined ? true : item.id === query.id;
-              const matchesTitle =
-                query.title === undefined
-                  ? true
-                  : item.title.includes(query.title);
-              const matchesContent =
-                query.content === undefined
-                  ? true
-                  : item.content.includes(query.content);
+              const matchesId = query.id === undefined ? true : item.id === query.id
+              const matchesTitle = query.title === undefined
+                ? true
+                : item.title.includes(query.title)
+              const matchesContent = query.content === undefined
+                ? true
+                : item.content.includes(query.content)
 
-              return matchesId && matchesTitle && matchesContent;
-            }),
-          ),
+              return matchesId && matchesTitle && matchesContent
+            })
+          )
         ),
       createItem: (item) =>
-        Effect.gen(function* (_) {
-          const items = yield* _(Ref.get(memory));
+        Effect.gen(function*(_) {
+          const items = yield* _(Ref.get(memory))
 
           const newItem = {
             ...item,
             id: items.length + 1,
             createdAt: new Date(),
-            updatedAt: Option.none(),
-          };
+            updatedAt: Option.none()
+          }
 
-          yield* _(Ref.update(memory, ReadonlyArray.append(newItem)));
-          return newItem;
-        }),
-    }),
+          yield* _(Ref.update(memory, ReadonlyArray.append(newItem)))
+          return newItem
+        })
+    })
   ),
-  Layer.effect(ItemRepository),
-);
+  Layer.effect(ItemRepository)
+)

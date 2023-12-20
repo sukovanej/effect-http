@@ -8,7 +8,7 @@
  *
  * @since 1.0.0
  */
-export * as Api from "./Api.js";
+export * as Api from "./Api.js"
 
 /**
  * This module exposes the `client` combinator which accepts an `Api` instance
@@ -17,14 +17,14 @@ export * as Api from "./Api.js";
  *
  * @since 1.0.0
  */
-export * as Client from "./Client.js";
+export * as Client from "./Client.js"
 
 /**
  * Models for errors being created on the client side.
  *
  * @since 1.0.0
  */
-export * as ClientError from "./ClientError.js";
+export * as ClientError from "./ClientError.js"
 
 /**
  * The `exampleServer` function generates a `Server` implementation based
@@ -36,35 +36,35 @@ export * as ClientError from "./ClientError.js";
  *
  * @since 1.0.0
  */
-export * as ExampleServer from "./ExampleServer.js";
+export * as ExampleServer from "./ExampleServer.js"
 
 /**
  * Mechanism for extendning behaviour of all handlers on the server.
  *
  * @since 1.0.0
  */
-export * as Middlewares from "./Middlewares.js";
+export * as Middlewares from "./Middlewares.js"
 
 /**
  * `Client` implementation derivation for testing purposes.
  *
  * @since 1.0.0
  */
-export * as MockClient from "./MockClient.js";
+export * as MockClient from "./MockClient.js"
 
 /**
  * Simplified way to run a node server.
  *
  * @since 1.0.0
  */
-export * as NodeServer from "./NodeServer.js";
+export * as NodeServer from "./NodeServer.js"
 
 /**
  * Derivation of `OpenApi` schema from an instance of `Api`.
  *
  * @since 1.0.0
  */
-export * as OpenApi from "./OpenApi.js";
+export * as OpenApi from "./OpenApi.js"
 
 /**
  * `Representation` is a data structure holding information about how to
@@ -72,39 +72,39 @@ export * as OpenApi from "./OpenApi.js";
  *
  * @since 1.0.0
  */
-export * as Representation from "./Representation.js";
+export * as Representation from "./Representation.js"
 
 /**
  * Create @effect/platform/Http/Router `Router`
  *
  * @since 1.0.0
  */
-export * as Route from "./Route.js";
+export * as Route from "./Route.js"
 
 /**
  * Build a `Router` satisfying an `Api.Api`.
  *
  * @since 1.0.0
  */
-export * as RouterBuilder from "./RouterBuilder.js";
+export * as RouterBuilder from "./RouterBuilder.js"
 
 /**
  * Server errors.
  *
  * @since 1.0.0
  */
-export * as ServerError from "./ServerError.js";
+export * as ServerError from "./ServerError.js"
 
 /**
  * Create a router serving Swagger files.
  *
  * @since 1.0.0
  */
-export * as SwaggerRouter from "./SwaggerRouter.js";
+export * as SwaggerRouter from "./SwaggerRouter.js"
 
 /**
  * Testing if the `Server` implementation.
  *
  * @since 1.0.0
  */
-export * as Testing from "./Testing.js";
+export * as Testing from "./Testing.js"

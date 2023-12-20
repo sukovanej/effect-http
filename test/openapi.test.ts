@@ -1,6 +1,7 @@
-import { Schema } from "@effect/schema";
-import { pipe } from "effect";
-import { Api, OpenApi } from "effect-http";
+import { Schema } from "@effect/schema"
+import { pipe } from "effect"
+import { Api, OpenApi } from "effect-http"
+import { expect, test } from "vitest"
 
 test("description", () => {
   const api = pipe(
@@ -9,38 +10,38 @@ test("description", () => {
       "myOperation",
       "/my-operation",
       { response: Schema.string },
-      { description: "my description" },
-    ),
-  );
+      { description: "my description" }
+    )
+  )
 
-  const openApi = OpenApi.make(api);
+  const openApi = OpenApi.make(api)
 
   expect(openApi.paths["/my-operation"].put?.description).toEqual(
-    "my description",
-  );
-});
+    "my description"
+  )
+})
 
 test("reference and schema component", () => {
   const responseSchema = pipe(
     Schema.struct({ someString: Schema.string }),
-    Schema.identifier("ResponseSchema"),
-  );
+    Schema.identifier("ResponseSchema")
+  )
   const api = pipe(
     Api.api(),
     Api.put(
       "myOperation",
       "/my-operation",
       { response: responseSchema },
-      { description: "my description" },
-    ),
-  );
+      { description: "my description" }
+    )
+  )
 
-  const openApi = OpenApi.make(api);
+  const openApi = OpenApi.make(api)
   expect(openApi).toStrictEqual({
     openapi: "3.0.3",
     info: {
       title: "Api",
-      version: "1.0.0",
+      version: "1.0.0"
     },
     paths: {
       "/my-operation": {
@@ -52,16 +53,16 @@ test("reference and schema component", () => {
               content: {
                 "application/json": {
                   schema: {
-                    $ref: "#/components/schemas/ResponseSchema",
-                  },
-                },
+                    $ref: "#/components/schemas/ResponseSchema"
+                  }
+                }
               },
-              description: "Response",
-            },
+              description: "Response"
+            }
           },
-          description: "my description",
-        },
-      },
+          description: "my description"
+        }
+      }
     },
     components: {
       schemas: {
@@ -70,23 +71,23 @@ test("reference and schema component", () => {
           properties: {
             someString: {
               type: "string",
-              description: "a string",
-            },
+              description: "a string"
+            }
           },
-          required: ["someString"],
-        },
-      },
-    },
-  });
-});
+          required: ["someString"]
+        }
+      }
+    }
+  })
+})
 
 test("full info object", () => {
   const api = Api.api({
     title: "My awesome pets API",
     version: "1.0.0",
     description: "my description",
-    license: { name: "MIT" },
-  });
+    license: { name: "MIT" }
+  })
 
   expect(OpenApi.make(api)).toEqual({
     openapi: "3.0.3",
@@ -94,8 +95,8 @@ test("full info object", () => {
       title: "My awesome pets API",
       version: "1.0.0",
       description: "my description",
-      license: { name: "MIT" },
+      license: { name: "MIT" }
     },
-    paths: {},
-  });
-});
+    paths: {}
+  })
+})

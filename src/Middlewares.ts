@@ -3,11 +3,11 @@
  *
  * @since 1.0.0
  */
-import type * as App from "@effect/platform/Http/App";
-import type * as Effect from "effect/Effect";
+import type * as App from "@effect/platform/Http/App"
+import type * as Effect from "effect/Effect"
 
-import type * as ServerError from "./ServerError.js";
-import * as internal from "./internal/middlewares.js";
+import * as internal from "./internal/middlewares.js"
+import type * as ServerError from "./ServerError.js"
 
 /**
  * Add access logs for handled requests. The log runs before each request.
@@ -18,8 +18,8 @@ import * as internal from "./internal/middlewares.js";
  * @since 1.0.0
  */
 export const accessLog: (
-  level?: "Info" | "Warning" | "Debug",
-) => <R, E>(app: App.Default<R, E>) => App.Default<R, E> = internal.accessLog;
+  level?: "Info" | "Warning" | "Debug"
+) => <R, E>(app: App.Default<R, E>) => App.Default<R, E> = internal.accessLog
 
 /**
  * Annotate request logs using generated UUID. The default annotation key is `requestId`.
@@ -32,9 +32,8 @@ export const accessLog: (
  * @since 1.0.0
  */
 export const uuidLogAnnotation: (
-  logAnnotationKey?: string,
-) => <R, E>(app: App.Default<R, E>) => App.Default<R, E> =
-  internal.uuidLogAnnotation;
+  logAnnotationKey?: string
+) => <R, E>(app: App.Default<R, E>) => App.Default<R, E> = internal.uuidLogAnnotation
 
 /**
  * Measure how many times each endpoint was called in a
@@ -44,8 +43,8 @@ export const uuidLogAnnotation: (
  * @since 1.0.0
  */
 export const endpointCallsMetric: () => <R, E>(
-  app: App.Default<R, E>,
-) => App.Default<R, E> = internal.endpointCallsMetric;
+  app: App.Default<R, E>
+) => App.Default<R, E> = internal.endpointCallsMetric
 
 /**
  * Logs out a handler failure.
@@ -53,16 +52,15 @@ export const endpointCallsMetric: () => <R, E>(
  * @category logging
  * @since 1.0.0
  */
-export const errorLog: <R, E>(app: App.Default<R, E>) => App.Default<R, E> =
-  internal.errorLog;
+export const errorLog: <R, E>(app: App.Default<R, E>) => App.Default<R, E> = internal.errorLog
 
 /**
  * @category models
  * @since 1.0.0
  */
 export interface BasicAuthCredentials {
-  user: string;
-  password: string;
+  user: string
+  password: string
 }
 
 /**
@@ -73,26 +71,25 @@ export interface BasicAuthCredentials {
  */
 export const basicAuth: <R2, _>(
   checkCredentials: (
-    credentials: BasicAuthCredentials,
+    credentials: BasicAuthCredentials
   ) => Effect.Effect<R2, ServerError.ServerError, _>,
   options?: Partial<{
-    headerName: string;
-    skipPaths: readonly string[];
-  }>,
-) => <R1, E>(app: App.Default<R1, E>) => App.Default<R1 | R2, E> =
-  internal.basicAuth;
+    headerName: string
+    skipPaths: ReadonlyArray<string>
+  }>
+) => <R1, E>(app: App.Default<R1, E>) => App.Default<R1 | R2, E> = internal.basicAuth
 
 /**
  * @category models
  * @since 1.0.0
  */
 export interface CorsOptions {
-  allowedOrigins: readonly string[];
-  allowedMethods: readonly string[];
-  allowedHeaders: readonly string[];
-  exposedHeaders: readonly string[];
-  maxAge: number;
-  credentials: boolean;
+  allowedOrigins: ReadonlyArray<string>
+  allowedMethods: ReadonlyArray<string>
+  allowedHeaders: ReadonlyArray<string>
+  exposedHeaders: ReadonlyArray<string>
+  maxAge: number
+  credentials: boolean
 }
 
 /**
@@ -102,5 +99,5 @@ export interface CorsOptions {
  * @since 1.0.0
  */
 export const cors: (
-  options?: Partial<CorsOptions>,
-) => <R, E>(app: App.Default<R, E>) => App.Default<R, E> = internal.cors;
+  options?: Partial<CorsOptions>
+) => <R, E>(app: App.Default<R, E>) => App.Default<R, E> = internal.cors
