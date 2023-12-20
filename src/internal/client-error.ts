@@ -1,6 +1,6 @@
 import type * as ParseResult from "@effect/schema/ParseResult";
-import type * as ClientError from "effect-http/ClientError";
-import { formatParseError } from "effect-http/internal/formatParseError";
+import type * as ClientError from "../ClientError.js";
+import { formatParseError } from "./formatParseError.js";
 import * as Data from "effect/Data";
 
 export class ClientErrorImpl

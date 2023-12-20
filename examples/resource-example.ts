@@ -11,7 +11,7 @@ import {
 } from "effect";
 import { Api, NodeServer, RouterBuilder, ServerError } from "effect-http";
 
-import { FileNotFoundError, debugLogger, readFile } from "./_utils";
+import { FileNotFoundError, debugLogger, readFile } from "./_utils.js";
 
 const MyValue = Context.Tag<Resource.Resource<FileNotFoundError, string>>();
 

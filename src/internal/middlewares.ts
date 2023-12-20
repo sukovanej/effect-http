@@ -3,14 +3,14 @@
  *
  * @since 1.0.0
  */
-import * as crypto from "crypto";
+import * as crypto from "node:crypto";
 
 import * as Headers from "@effect/platform/Http/Headers";
 import * as Middleware from "@effect/platform/Http/Middleware";
 import * as ServerRequest from "@effect/platform/Http/ServerRequest";
 import * as ServerResponse from "@effect/platform/Http/ServerResponse";
-import type * as Middlewares from "effect-http/Middlewares";
-import * as ServerError from "effect-http/ServerError";
+import type * as Middlewares from "../Middlewares.js";
+import * as ServerError from "../ServerError.js";
 import * as Effect from "effect/Effect";
 import * as Either from "effect/Either";
 import * as FiberRef from "effect/FiberRef";

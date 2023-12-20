@@ -4,8 +4,9 @@
  * @since 1.0.0
  */
 import type * as ParseResult from "@effect/schema/ParseResult";
-import * as internal from "effect-http/internal/client-error";
 import type * as Cause from "effect/Cause";
+
+import * as internal from "./internal/client-error.js";
 
 /**
  * @category models

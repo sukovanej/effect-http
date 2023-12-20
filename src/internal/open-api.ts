@@ -2,8 +2,8 @@ import * as SchemaOpenApi from "schema-openapi";
 
 import * as AST from "@effect/schema/AST";
 import * as Schema from "@effect/schema/Schema";
-import * as Api from "effect-http/Api";
-import * as utils from "effect-http/internal/utils";
+import * as Api from "../Api.js";
+import * as utils from "./utils.js";
 import { identity, pipe } from "effect/Function";
 import * as Option from "effect/Option";
 

@@ -1,12 +1,12 @@
 import type * as Method from "@effect/platform/Http/Method";
 import * as Router from "@effect/platform/Http/Router";
 import * as ServerRequest from "@effect/platform/Http/ServerRequest";
-import * as Api from "effect-http/Api";
-import type * as Route from "effect-http/Route";
-import type * as RouterBuilder from "effect-http/RouterBuilder";
-import * as ServerError from "effect-http/ServerError";
-import * as ServerRequestParser from "effect-http/internal/serverRequestParser";
-import * as ServerResponseEncoder from "effect-http/internal/serverResponseEncoder";
+import * as Api from "../Api.js";
+import type * as Route from "../Route.js";
+import type * as RouterBuilder from "../RouterBuilder.js";
+import * as ServerError from "../ServerError.js";
+import * as ServerRequestParser from "./serverRequestParser.js";
+import * as ServerResponseEncoder from "./serverResponseEncoder.js";
 import * as Effect from "effect/Effect";
 
 /**

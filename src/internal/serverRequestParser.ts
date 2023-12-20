@@ -1,9 +1,9 @@
 import * as ServerRequest from "@effect/platform/Http/ServerRequest";
 import type * as AST from "@effect/schema/AST";
 import * as Schema from "@effect/schema/Schema";
-import * as Api from "effect-http/Api";
-import * as ServerError from "effect-http/ServerError";
-import { formatParseError } from "effect-http/internal/formatParseError";
+import * as Api from "../Api.js";
+import * as ServerError from "../ServerError.js";
+import { formatParseError } from "./formatParseError.js";
 import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
 import * as Option from "effect/Option";

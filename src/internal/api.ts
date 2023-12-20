@@ -1,8 +1,8 @@
 import type * as PlatformRouter from "@effect/platform/Http/Router";
 import * as Schema from "@effect/schema/Schema";
-import type * as Api from "effect-http/Api";
-import * as Representation from "effect-http/Representation";
-import * as utils from "effect-http/internal/utils";
+import type * as Api from "../Api.js";
+import * as Representation from "../Representation.js";
+import * as utils from "./utils.js";
 import * as Equivalence from "effect/Equivalence";
 import { pipe } from "effect/Function";
 import * as HashSet from "effect/HashSet";

@@ -1,5 +1,5 @@
 import * as ServerResponse from "@effect/platform/Http/ServerResponse";
-import type * as ServerError from "effect-http/ServerError";
+import type * as ServerError from "../ServerError.js";
 import * as Data from "effect/Data";
 import * as Pipeable from "effect/Pipeable";
 import * as Predicate from "effect/Predicate";

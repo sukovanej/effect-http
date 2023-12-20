@@ -1,4 +1,8 @@
 node_modules
 dist
+build
+docs
 coverage
 .idea
+.direnv
+*.tsbuildinfo

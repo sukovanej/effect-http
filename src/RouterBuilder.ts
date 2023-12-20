@@ -7,13 +7,14 @@ import type * as App from "@effect/platform/Http/App";
 import type * as Router from "@effect/platform/Http/Router";
 import type * as ServerRequest from "@effect/platform/Http/ServerRequest";
 import type * as AST from "@effect/schema/AST";
-import type * as Api from "effect-http/Api";
-import type * as Route from "effect-http/Route";
-import type * as ServerError from "effect-http/ServerError";
-import type * as SwaggerRouter from "effect-http/SwaggerRouter";
-import * as internal from "effect-http/internal/router-builder";
 import type * as Pipeable from "effect/Pipeable";
 import type * as Scope from "effect/Scope";
+
+import type * as Api from "./Api.js";
+import type * as Route from "./Route.js";
+import type * as ServerError from "./ServerError.js";
+import type * as SwaggerRouter from "./SwaggerRouter.js";
+import * as internal from "./internal/router-builder.js";
 
 /**
  * @category models

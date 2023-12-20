@@ -1,11 +1,11 @@
 import * as PlatformClient from "@effect/platform/Http/Client";
 import * as ClientRequest from "@effect/platform/Http/ClientRequest";
-import * as Api from "effect-http/Api";
-import * as ClientRequestEncoder from "effect-http/internal/clientRequestEncoder";
-import * as ClientResponseParser from "effect-http/internal/clientResponseParser";
+import * as Api from "../Api.js";
+import * as ClientRequestEncoder from "./clientRequestEncoder.js";
+import * as ClientResponseParser from "./clientResponseParser.js";
 import * as Effect from "effect/Effect";
 import { identity, pipe } from "effect/Function";
-import type * as Client from "effect-http/Client";
+import type * as Client from "../Client.js";
 
 /** @internal */
 const defaultHttpClient = PlatformClient.fetch();

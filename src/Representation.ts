@@ -4,10 +4,11 @@
  *
  * @since 1.0.0
  */
-import * as internal from "effect-http/internal/representation";
 import type * as Cause from "effect/Cause";
 import type * as Effect from "effect/Effect";
 import * as Pipeable from "effect/Pipeable";
+
+import * as internal from "./internal/representation.js";
 
 /**
  * @category type id

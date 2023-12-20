@@ -6,7 +6,12 @@ parent: Modules
 
 ## index overview
 
-Reexport of all the submodules.
+`Api` represents the API specification. It doesn't hold information concerning the
+server or client side details. An instance of `Api` can be used to derive a client
+implementation (see `Client.ts`).
+
+The generated type of the `Api` is used during server implementation. The type safety
+guarantees the server-side implementation and the `Api` specification are compatible.
 
 Added in v1.0.0
 
@@ -15,189 +20,202 @@ Added in v1.0.0
 <h2 class="text-delta">Table of contents</h2>
 
 - [exports](#exports)
-  - [From "effect-http/Api"](#from-effect-httpapi)
-  - [From "effect-http/Client"](#from-effect-httpclient)
-  - [From "effect-http/ClientError"](#from-effect-httpclienterror)
-  - [From "effect-http/ExampleServer"](#from-effect-httpexampleserver)
-  - [From "effect-http/Middlewares"](#from-effect-httpmiddlewares)
-  - [From "effect-http/MockClient"](#from-effect-httpmockclient)
-  - [From "effect-http/NodeServer"](#from-effect-httpnodeserver)
-  - [From "effect-http/OpenApi"](#from-effect-httpopenapi)
-  - [From "effect-http/Representation"](#from-effect-httprepresentation)
-  - [From "effect-http/Route"](#from-effect-httproute)
-  - [From "effect-http/RouterBuilder"](#from-effect-httprouterbuilder)
-  - [From "effect-http/ServerError"](#from-effect-httpservererror)
-  - [From "effect-http/SwaggerRouter"](#from-effect-httpswaggerrouter)
-  - [From "effect-http/Testing"](#from-effect-httptesting)
+  - [From "./Api.js"](#from-apijs)
+  - [From "./Client.js"](#from-clientjs)
+  - [From "./ClientError.js"](#from-clienterrorjs)
+  - [From "./ExampleServer.js"](#from-exampleserverjs)
+  - [From "./Middlewares.js"](#from-middlewaresjs)
+  - [From "./MockClient.js"](#from-mockclientjs)
+  - [From "./NodeServer.js"](#from-nodeserverjs)
+  - [From "./OpenApi.js"](#from-openapijs)
+  - [From "./Representation.js"](#from-representationjs)
+  - [From "./Route.js"](#from-routejs)
+  - [From "./RouterBuilder.js"](#from-routerbuilderjs)
+  - [From "./ServerError.js"](#from-servererrorjs)
+  - [From "./SwaggerRouter.js"](#from-swaggerrouterjs)
+  - [From "./Testing.js"](#from-testingjs)
 
 ---
 
 # exports
 
-## From "effect-http/Api"
+## From "./Api.js"
 
-Re-exports all named exports from the "effect-http/Api" module as `Api`.
+`Api` represents the API specification. It doesn't hold information concerning the
+server or client side details. An instance of `Api` can be used to derive a client
+implementation (see `Client.ts`).
+
+The generated type of the `Api` is used during server implementation. The type safety
+guarantees the server-side implementation and the `Api` specification are compatible.
 
 **Signature**
 
 ```ts
-export * as Api from "effect-http/Api"
+export * as Api from "./Api.js"
 ```
 
 Added in v1.0.0
 
-## From "effect-http/Client"
+## From "./Client.js"
 
-Re-exports all named exports from the "effect-http/Client" module as `Client`.
+This module exposes the `client` combinator which accepts an `Api` instance
+and it generates a client-side implementation. The generated implementation
+is type-safe and guarantees compatibility of the client and server side.
 
 **Signature**
 
 ```ts
-export * as Client from "effect-http/Client"
+export * as Client from "./Client.js"
 ```
 
 Added in v1.0.0
 
-## From "effect-http/ClientError"
+## From "./ClientError.js"
 
-Reexport of all the submodules.
+Models for errors being created on the client side.
 
 **Signature**
 
 ```ts
-export * as ClientError from "effect-http/ClientError"
+export * as ClientError from "./ClientError.js"
 ```
 
 Added in v1.0.0
 
-## From "effect-http/ExampleServer"
+## From "./ExampleServer.js"
 
-Re-exports all named exports from the "effect-http/ExampleServer" module as `ExampleServer`.
+The `exampleServer` function generates a `Server` implementation based
+on an instance of `Api`. The listening server will perform all the
+request and response validations similarly to a real implementation.
+
+Responses returned from the server are generated randomly using the
+response `Schema`.
 
 **Signature**
 
 ```ts
-export * as ExampleServer from "effect-http/ExampleServer"
+export * as ExampleServer from "./ExampleServer.js"
 ```
 
 Added in v1.0.0
 
-## From "effect-http/Middlewares"
+## From "./Middlewares.js"
 
-Re-exports all named exports from the "effect-http/Middlewares" module as `Middlewares`.
+Mechanism for extendning behaviour of all handlers on the server.
 
 **Signature**
 
 ```ts
-export * as Middlewares from "effect-http/Middlewares"
+export * as Middlewares from "./Middlewares.js"
 ```
 
 Added in v1.0.0
 
-## From "effect-http/MockClient"
+## From "./MockClient.js"
 
-Re-exports all named exports from the "effect-http/MockClient" module as `MockClient`.
+`Client` implementation derivation for testing purposes.
 
 **Signature**
 
 ```ts
-export * as MockClient from "effect-http/MockClient"
+export * as MockClient from "./MockClient.js"
 ```
 
 Added in v1.0.0
 
-## From "effect-http/NodeServer"
+## From "./NodeServer.js"
 
-Re-exports all named exports from the "effect-http/NodeServer" module as `NodeServer`.
+Simplified way to run a node server.
 
 **Signature**
 
 ```ts
-export * as NodeServer from "effect-http/NodeServer"
+export * as NodeServer from "./NodeServer.js"
 ```
 
 Added in v1.0.0
 
-## From "effect-http/OpenApi"
+## From "./OpenApi.js"
 
-Re-exports all named exports from the "effect-http/OpenApi" module as `OpenApi`.
+Derivation of `OpenApi` schema from an instance of `Api`.
 
 **Signature**
 
 ```ts
-export * as OpenApi from "effect-http/OpenApi"
+export * as OpenApi from "./OpenApi.js"
 ```
 
 Added in v1.0.0
 
-## From "effect-http/Representation"
+## From "./Representation.js"
 
-Re-exports all named exports from the "effect-http/Representation" module as `Representation`.
+`Representation` is a data structure holding information about how to
+serialize and deserialize a server response for a given conten type.
 
 **Signature**
 
 ```ts
-export * as Representation from "effect-http/Representation"
+export * as Representation from "./Representation.js"
 ```
 
 Added in v1.0.0
 
-## From "effect-http/Route"
+## From "./Route.js"
 
-Re-exports all named exports from the "effect-http/Route" module as `Route`.
+Create @effect/platform/Http/Router `Router`
 
 **Signature**
 
 ```ts
-export * as Route from "effect-http/Route"
+export * as Route from "./Route.js"
 ```
 
 Added in v1.0.0
 
-## From "effect-http/RouterBuilder"
+## From "./RouterBuilder.js"
 
-Re-exports all named exports from the "effect-http/RouterBuilder" module as `RouterBuilder`.
+Build a `Router` satisfying an `Api.Api`.
 
 **Signature**
 
 ```ts
-export * as RouterBuilder from "effect-http/RouterBuilder"
+export * as RouterBuilder from "./RouterBuilder.js"
 ```
 
 Added in v1.0.0
 
-## From "effect-http/ServerError"
+## From "./ServerError.js"
 
-Re-exports all named exports from the "effect-http/ServerError" module as `ServerError`.
+Server errors.
 
 **Signature**
 
 ```ts
-export * as ServerError from "effect-http/ServerError"
+export * as ServerError from "./ServerError.js"
 ```
 
 Added in v1.0.0
 
-## From "effect-http/SwaggerRouter"
+## From "./SwaggerRouter.js"
 
-Re-exports all named exports from the "effect-http/SwaggerRouter" module as `SwaggerRouter`.
+Create a router serving Swagger files.
 
 **Signature**
 
 ```ts
-export * as SwaggerRouter from "effect-http/SwaggerRouter"
+export * as SwaggerRouter from "./SwaggerRouter.js"
 ```
 
 Added in v1.0.0
 
-## From "effect-http/Testing"
+## From "./Testing.js"
 
-Re-exports all named exports from the "effect-http/Testing" module as `Testing`.
+Testing if the `Server` implementation.
 
 **Signature**
 
 ```ts
-export * as Testing from "effect-http/Testing"
+export * as Testing from "./Testing.js"
 ```
 
 Added in v1.0.0

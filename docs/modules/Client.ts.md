@@ -36,21 +36,20 @@ export declare const endpointClient: <Endpoints extends Api.Endpoint, Id extends
   id: Id,
   api: Api.Api<Endpoints>,
   options: Partial<Options>
-) => ClientFunction<
-  Extract<Endpoints, { id: Id }>,
-  MakeHeadersOptionIfAllPartial<{
-    [K in Extract<
-      keyof Extract<Endpoints, { id: Id }>["schemas"]["request"],
-      {
-        [K in keyof Extract<Endpoints, { id: Id }>["schemas"]["request"]]: Extract<
-          Endpoints,
-          { id: Id }
-        >["schemas"]["request"][K] extends typeof Api.IgnoredSchemaId
-          ? never
-          : K
-      }[keyof Extract<Endpoints, { id: Id }>["schemas"]["request"]]
-    >]: SchemaTo<Extract<Endpoints, { id: Id }>["schemas"]["request"][K]>
-  }>
+) => (
+  input?: any
+) => Effect.Effect<
+  never,
+  ClientError.ClientError,
+  Types.Simplify<
+    Extract<Endpoints, { id: Id }>["schemas"]["response"] extends Schema.Schema<any, infer A>
+      ? A
+      : Extract<Endpoints, { id: Id }>["schemas"]["response"] extends readonly Api.ResponseSchemaFull[]
+        ? Route.ResponseSchemaFullTo<S[number]>
+        : Extract<Endpoints, { id: Id }>["schemas"]["response"] extends Api.ResponseSchemaFull
+          ? Route.ResponseSchemaFullTo<S>
+          : never
+  >
 >
 ```
 

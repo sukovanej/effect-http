@@ -18,7 +18,7 @@ import {
   ServerError,
 } from "effect-http";
 
-import { debugLogger } from "./_utils";
+import { debugLogger } from "./_utils.js";
 
 export const CredentialsConfig = Config.mapOrFail(
   Config.string(),

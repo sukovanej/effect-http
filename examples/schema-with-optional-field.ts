@@ -3,7 +3,7 @@ import * as Schema from "@effect/schema/Schema";
 import { Effect, Option, pipe } from "effect";
 import { Api, NodeServer, RouterBuilder } from "effect-http";
 
-import { debugLogger } from "./_utils";
+import { debugLogger } from "./_utils.js";
 
 const Response = Schema.struct({
   foo: Schema.optional(Schema.string).toOption(),

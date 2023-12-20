@@ -1,9 +1,9 @@
 import * as ClientRequest from "@effect/platform/Http/ClientRequest";
 import * as Schema from "@effect/schema/Schema";
-import * as Api from "effect-http/Api";
-import * as ClientError from "effect-http/ClientError";
-import { formatParseError } from "effect-http/internal/formatParseError";
-import * as utils from "effect-http/internal/utils";
+import * as Api from "../Api.js";
+import * as ClientError from "../ClientError.js";
+import { formatParseError } from "./formatParseError.js";
+import * as utils from "./utils.js";
 import * as Effect from "effect/Effect";
 import { identity, pipe } from "effect/Function";
 import * as Predicate from "effect/Predicate";

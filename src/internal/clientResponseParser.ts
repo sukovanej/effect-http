@@ -1,9 +1,9 @@
 import * as ClientResponse from "@effect/platform/Http/ClientResponse";
 import * as Schema from "@effect/schema/Schema";
-import * as Api from "effect-http/Api";
-import * as ClientError from "effect-http/ClientError";
-import * as Representation from "effect-http/Representation";
-import * as utils from "effect-http/internal/utils";
+import * as Api from "../Api.js";
+import * as ClientError from "../ClientError.js";
+import * as Representation from "../Representation.js";
+import * as utils from "./utils.js";
 import * as Effect from "effect/Effect";
 import { flow, pipe } from "effect/Function";
 import * as Option from "effect/Option";

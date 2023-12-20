@@ -8,12 +8,13 @@
 import type * as HttpClient from "@effect/platform/Http/Client";
 import type * as ClientRequest from "@effect/platform/Http/ClientRequest";
 import type * as Schema from "@effect/schema/Schema";
-import type * as Api from "effect-http/Api";
-import type * as ClientError from "effect-http/ClientError";
-import type * as Route from "effect-http/Route";
-import * as internal from "effect-http/internal/client";
 import type * as Effect from "effect/Effect";
 import type * as Types from "effect/Types";
+
+import type * as Api from "./Api.js";
+import type * as ClientError from "./ClientError.js";
+import type * as Route from "./Route.js";
+import * as internal from "./internal/client.js";
 
 /**
  * @category models

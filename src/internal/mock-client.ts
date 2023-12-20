@@ -1,10 +1,10 @@
 import * as OpenApi from "schema-openapi";
 
-import type * as Api from "effect-http/Api";
-import type * as Client from "effect-http/Client";
-import type * as MockClient from "effect-http/MockClient";
-import * as ClientRequestEncoder from "effect-http/internal/clientRequestEncoder";
-import * as utils from "effect-http/internal/utils";
+import type * as Api from "../Api.js";
+import type * as Client from "../Client.js";
+import type * as MockClient from "../MockClient.js";
+import * as ClientRequestEncoder from "./clientRequestEncoder.js";
+import * as utils from "./utils.js";
 import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
 

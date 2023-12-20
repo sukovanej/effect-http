@@ -3,7 +3,7 @@ import { Schema } from "@effect/schema";
 import { Effect, Metric, pipe } from "effect";
 import { Api, Middlewares, NodeServer, RouterBuilder } from "effect-http";
 
-import { debugLogger } from "./_utils";
+import { debugLogger } from "./_utils.js";
 
 const api = pipe(
   Api.api({ title: "Users API" }),

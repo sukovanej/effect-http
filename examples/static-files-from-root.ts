@@ -4,7 +4,7 @@ import { Schema } from "@effect/schema";
 import { Effect } from "effect";
 import { Api, NodeServer, RouterBuilder } from "effect-http";
 
-import { debugLogger } from "./_utils";
+import { debugLogger } from "./_utils.js";
 
 const api = Api.api().pipe(
   Api.get("handle", "/api/handle", {

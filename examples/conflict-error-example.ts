@@ -9,7 +9,7 @@ import {
   ServerError,
 } from "effect-http";
 
-import { debugLogger } from "./_utils";
+import { debugLogger } from "./_utils.js";
 
 const api = pipe(
   Api.api({ title: "Users API" }),

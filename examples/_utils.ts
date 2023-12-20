@@ -1,4 +1,4 @@
-import fs from "fs";
+import * as fs from "node:fs";
 
 import { Data, Effect, Layer, LogLevel, Logger, pipe } from "effect";
 import { PrettyLogger } from "effect-log";

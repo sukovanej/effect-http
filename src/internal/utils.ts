@@ -1,6 +1,6 @@
 import type * as Method from "@effect/platform/Http/Method";
 import * as Schema from "@effect/schema/Schema";
-import * as Api from "effect-http/Api";
+import * as Api from "../Api.js";
 
 /** @internal */
 export const getSchema = <A = Schema.Schema<any>>(

@@ -1,4 +1,4 @@
-import path from "path";
+import * as path from "node:path";
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
@@ -9,7 +9,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      "effect-http": path.resolve(__dirname, "/src"),
+      "effect-http": path.resolve(__dirname, "src"),
     },
   },
 });

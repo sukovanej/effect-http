@@ -3,10 +3,7 @@ remote_theme: mikearnaldi/just-the-docs
 # Enable or disable the site search
 search_enabled: true
 
-plugins:
-  - jemoji
-
 # Aux links for the upper right navigation
 aux_links:
-  'GitHub':
-    - 'https://github.com/sukovanej/effect-http'
+'effect-http on GitHub':
+  - 'https://sukovanej.github.io/effect-http'

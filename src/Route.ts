@@ -5,13 +5,14 @@
  */
 import type * as Router from "@effect/platform/Http/Router";
 import type * as Schema from "@effect/schema/Schema";
-import type * as Api from "effect-http/Api";
-import type * as RouterBuilder from "effect-http/RouterBuilder";
-import type * as ServerError from "effect-http/ServerError";
-import * as internal from "effect-http/internal/route";
-import type * as utils from "effect-http/internal/utils";
 import type * as Effect from "effect/Effect";
 import type * as Types from "effect/Types";
+
+import type * as Api from "./Api.js";
+import type * as RouterBuilder from "./RouterBuilder.js";
+import type * as ServerError from "./ServerError.js";
+import * as internal from "./internal/route.js";
+import type * as utils from "./internal/utils.js";
 
 /**
  * @category models

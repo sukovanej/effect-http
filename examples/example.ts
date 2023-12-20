@@ -3,7 +3,7 @@ import * as Schema from "@effect/schema/Schema";
 import { Context, Effect, Layer, pipe } from "effect";
 import { Api, NodeServer, RouterBuilder } from "effect-http";
 
-import { debugLogger } from "./_utils";
+import { debugLogger } from "./_utils.js";
 
 // Schemas
 

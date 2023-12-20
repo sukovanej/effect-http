@@ -32,11 +32,11 @@ Create a testing client for the `Server`.
 export declare const make: <R, E, Endpoints extends Api.Endpoint>(
   app: App.Default<R, E>,
   api: Api.Api<Endpoints>,
-  options?: Partial<Client.Options>
+  options?: any
 ) => Effect.Effect<
   | Scope.Scope
   | Exclude<
-      Exclude<Exclude<R, ServerRequest.ServerRequest>, Server.Server | Platform.Platform>,
+      Exclude<Exclude<R, Scope.Scope | ServerRequest.ServerRequest>, Server.Server | Platform.Platform>,
       SwaggerRouter.SwaggerFiles
     >,
   never,
@@ -59,7 +59,7 @@ export declare const makeRaw: <R, E>(
 ) => Effect.Effect<
   | Scope.Scope
   | Exclude<
-      Exclude<Exclude<R, ServerRequest.ServerRequest>, Server.Server | Platform.Platform>,
+      Exclude<Exclude<R, Scope.Scope | ServerRequest.ServerRequest>, Server.Server | Platform.Platform>,
       SwaggerRouter.SwaggerFiles
     >,
   never,

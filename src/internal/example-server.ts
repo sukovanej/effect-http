@@ -1,9 +1,9 @@
 import * as OpenApi from "schema-openapi";
 
-import * as Api from "effect-http/Api";
-import * as RouterBuilder from "effect-http/RouterBuilder";
-import * as ServerError from "effect-http/ServerError";
-import * as utils from "effect-http/internal/utils";
+import * as Api from "../Api.js";
+import * as RouterBuilder from "../RouterBuilder.js";
+import * as ServerError from "../ServerError.js";
+import * as utils from "./utils.js";
 import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
 import * as ReadonlyArray from "effect/ReadonlyArray";

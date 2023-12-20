@@ -1,4 +1,4 @@
-import type * as Representation from "effect-http/Representation";
+import type * as Representation from "../Representation.js";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import * as Pipeable from "effect/Pipeable";

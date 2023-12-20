@@ -8,7 +8,7 @@ import * as Headers from "@effect/platform/Http/Headers";
 import * as Router from "@effect/platform/Http/Router";
 import * as ServerResponse from "@effect/platform/Http/ServerResponse";
 import * as Path from "@effect/platform/Path";
-import type * as SwaggerRouter from "effect-http/SwaggerRouter";
+import type * as SwaggerRouter from "../SwaggerRouter.js";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";

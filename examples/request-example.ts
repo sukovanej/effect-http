@@ -13,7 +13,7 @@ import {
 } from "effect";
 import { Api, NodeServer, RouterBuilder, ServerError } from "effect-http";
 
-import { FileNotFoundError, debugLogger, readFile } from "./_utils";
+import { FileNotFoundError, debugLogger, readFile } from "./_utils.js";
 
 interface GetValue extends Request.Request<FileNotFoundError, string> {
   readonly _tag: "GetValue";

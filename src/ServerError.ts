@@ -4,9 +4,10 @@
  * @since 1.0.0
  */
 import type * as ServerResponse from "@effect/platform/Http/ServerResponse";
-import * as internal from "effect-http/internal/server-error";
 import type * as Cause from "effect/Cause";
 import type * as Pipeable from "effect/Pipeable";
+
+import * as internal from "./internal/server-error.js";
 
 /**
  * @category models

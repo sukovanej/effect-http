@@ -34,7 +34,7 @@ export declare const listen: (
   router: App.Default<R, E>
 ) => Effect.Effect<
   Exclude<
-    Exclude<Exclude<Exclude<R, ServerRequest.ServerRequest>, Scope.Scope>, Server.Server | Platform.Platform>,
+    Exclude<Exclude<R, Scope.Scope | ServerRequest.ServerRequest>, Server.Server | Platform.Platform>,
     SwaggerRouter.SwaggerFiles
   >,
   ServeError.ServeError,

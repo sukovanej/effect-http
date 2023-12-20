@@ -64,9 +64,7 @@ Create an `App` instance.
 **Signature**
 
 ```ts
-export declare const build: <R, E>(
-  builder: RouterBuilder<R, E, never>
-) => App.Default<SwaggerRouter.SwaggerFiles | R, E>
+export declare const build: <R, E>(builder: RouterBuilder<R, E, never>) => App.Default<any, E>
 ```
 
 Added in v1.0.0
@@ -83,7 +81,7 @@ a running server might not conform the given Api spec.
 ```ts
 export declare const buildPartial: <R, E, RemainingEndpoints extends Api.Endpoint>(
   builder: RouterBuilder<R, E, RemainingEndpoints>
-) => App.Default<SwaggerRouter.SwaggerFiles | R, E>
+) => App.Default<any, E>
 ```
 
 Added in v1.0.0
@@ -115,8 +113,8 @@ export declare const handleRaw: <R2, E2, RemainingEndpoints extends Api.Endpoint
 ) => <R1, E1>(
   builder: RouterBuilder<R1, E1, RemainingEndpoints>
 ) => RouterBuilder<
-  | Exclude<R2, ServerRequest.ServerRequest | Router.RouteContext>
-  | Exclude<R1, ServerRequest.ServerRequest | Router.RouteContext>,
+  | Exclude<R2, Scope.Scope | ServerRequest.ServerRequest | Router.RouteContext>
+  | Exclude<R1, Scope.Scope | ServerRequest.ServerRequest | Router.RouteContext>,
   E2 | E1,
   Exclude<RemainingEndpoints, { id: Id }>
 >
@@ -131,7 +129,7 @@ Create a new unimplemeted `RouterBuilder` from an `Api`.
 **Signature**
 
 ```ts
-export declare const make: <Api extends Api.Api<Api.Endpoint>>(
+export declare const make: <Api extends Api.Api>(
   api: Api,
   options?: Partial<Options>
 ) => RouterBuilder<never, never, Api["endpoints"][number]>

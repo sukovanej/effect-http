@@ -8,10 +8,11 @@ import type * as Platform from "@effect/platform/Http/Platform";
 import type * as Server from "@effect/platform/Http/Server";
 import type * as ServeError from "@effect/platform/Http/ServerError";
 import type * as ServerRequest from "@effect/platform/Http/ServerRequest";
-import type * as SwaggerRouter from "effect-http/SwaggerRouter";
-import * as internal from "effect-http/internal/node-server";
 import type * as Effect from "effect/Effect";
 import type * as Scope from "effect/Scope";
+
+import type * as SwaggerRouter from "./SwaggerRouter.js";
+import * as internal from "./internal/node-server.js";
 
 /**
  * @category models

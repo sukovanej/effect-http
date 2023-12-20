@@ -10,11 +10,12 @@
  */
 import type * as PlatformRouter from "@effect/platform/Http/Router";
 import type * as Schema from "@effect/schema/Schema";
-import type * as Representation from "effect-http/Representation";
-import * as internal from "effect-http/internal/api";
 import type * as Pipeable from "effect/Pipeable";
 import type * as ReadonlyArray from "effect/ReadonlyArray";
 import type * as Types from "effect/Types";
+
+import type * as Representation from "./Representation.js";
+import * as internal from "./internal/api.js";
 
 /**
  * @since 1.0.0

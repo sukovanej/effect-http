@@ -1,13 +1,6 @@
 {
-  "exclude": ["src/internal/**/*.ts"],
-  "parseCompilerOptions": {
-    "noEmit": true,
-    "strict": true,
-    "target": "es2015",
-    "lib": ["es2015"],
-    "paths": {
-      "effect-http": ["src/index.ts"],
-      "effect-http/*": ["src/*"]
-    }
-  }
+  "$schema": "node_modules/@effect/docgen/schema.json",
+  "exclude": [
+    "src/internal/**/*.ts"
+  ]
 }

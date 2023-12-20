@@ -3,7 +3,7 @@ import { Schema } from "@effect/schema";
 import { Effect, pipe } from "effect";
 import { Api, ExampleServer, NodeServer, RouterBuilder } from "effect-http";
 
-import { debugLogger } from "./_utils";
+import { debugLogger } from "./_utils.js";
 
 const responseSchema = Schema.struct({
   name: Schema.string,

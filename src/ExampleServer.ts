@@ -8,9 +8,9 @@
  *
  * @since 1.0.0
  */
-import type * as Api from "effect-http/Api";
-import type * as RouterBuilder from "effect-http/RouterBuilder";
-import * as internal from "effect-http/internal/example-server";
+import type * as Api from "./Api.js";
+import type * as RouterBuilder from "./RouterBuilder.js";
+import * as internal from "./internal/example-server.js";
 
 /**
  * Generate an example `RouterBuilder` implementation.

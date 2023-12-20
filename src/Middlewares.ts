@@ -4,9 +4,10 @@
  * @since 1.0.0
  */
 import type * as App from "@effect/platform/Http/App";
-import type * as ServerError from "effect-http/ServerError";
-import * as internal from "effect-http/internal/middlewares";
 import type * as Effect from "effect/Effect";
+
+import type * as ServerError from "./ServerError.js";
+import * as internal from "./internal/middlewares.js";
 
 /**
  * Add access logs for handled requests. The log runs before each request.

@@ -65,7 +65,7 @@ Generate an example `RouterBuilder` implementation.
 **Signature**
 
 ```ts
-export declare const make: <A extends Api.Api<Api.Endpoint>>(api: A) => RouterBuilder.RouterBuilder<never, never, never>
+export declare const make: <A extends Api.Api>(api: A) => RouterBuilder.RouterBuilder<never, never, never>
 ```
 
 Added in v1.0.0
