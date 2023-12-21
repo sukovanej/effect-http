@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.46.2
+
+### Patch Changes
+
+- 3b4a08c: Update effect + @effect/schema.
+
 ## 0.46.1
 
 ### Patch Changes
