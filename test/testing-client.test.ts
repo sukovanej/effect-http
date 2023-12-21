@@ -207,7 +207,7 @@ test("form data", async () => {
     RouterBuilder.handle("upload", () =>
       Effect.gen(function*(_) {
         const request = yield* _(HttpServer.request.ServerRequest)
-        const body = yield* _(request.formData)
+        const body = yield* _(request.multipart)
         const file = body["file"]
 
         if (file === null) {

@@ -26,7 +26,7 @@ const app = pipe(
   RouterBuilder.handle("upload", () =>
     Effect.gen(function*(_) {
       const request = yield* _(HttpServer.request.ServerRequest)
-      const formData = yield* _(request.formData)
+      const formData = yield* _(request.multipart)
 
       const file = formData["file"]
 

@@ -66,7 +66,7 @@ export const exampleApiGetCustomResponseWithHeaders = Api.api().pipe(
 // Example GET, option response field
 
 const ExampleSchemaOptionalField = Schema.struct({
-  foo: Schema.optional(Schema.string).toOption()
+  foo: Schema.optional(Schema.string, { as: "Option" })
 })
 
 export const exampleApiGetOptionalField = Api.api().pipe(
