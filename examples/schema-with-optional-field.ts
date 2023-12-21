@@ -6,7 +6,7 @@ import { Api, NodeServer, RouterBuilder } from "effect-http"
 import { debugLogger } from "./_utils.js"
 
 const Response = Schema.struct({
-  foo: Schema.optional(Schema.string).toOption(),
+  foo: Schema.optional(Schema.string, { as: "Option" }),
   bar: Schema.option(Schema.string)
 })
 
