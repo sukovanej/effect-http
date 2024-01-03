@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.47.0
+
+### Minor Changes
+
+- fa10e8a: Update effect.
+
 ## 0.46.2
 
 ### Patch Changes
