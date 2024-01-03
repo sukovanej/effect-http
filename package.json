@@ -36,7 +36,7 @@
   },
   "devDependencies": {
     "@babel/cli": "^7.23.4",
-    "@babel/core": "^7.23.6",
+    "@babel/core": "^7.23.7",
     "@babel/plugin-transform-export-namespace-from": "^7.23.4",
     "@babel/plugin-transform-modules-commonjs": "^7.23.3",
     "@changesets/cli": "^2.27.1",
@@ -44,17 +44,17 @@
     "@effect/docgen": "^0.3.8",
     "@effect/eslint-plugin": "^0.1.2",
     "@effect/language-service": "^0.1.0",
-    "@effect/platform": "^0.39.0",
-    "@effect/platform-bun": "^0.27.0",
-    "@effect/platform-node": "^0.39.0",
-    "@effect/schema": "^0.56.0",
-    "@types/node": "^20.10.5",
+    "@effect/platform": "^0.40.0",
+    "@effect/platform-bun": "^0.28.0",
+    "@effect/platform-node": "^0.40.0",
+    "@effect/schema": "^0.57.0",
+    "@types/node": "^20.10.6",
     "@types/swagger-ui-dist": "^3.30.4",
-    "@typescript-eslint/eslint-plugin": "^6.15.0",
-    "@typescript-eslint/parser": "^6.15.0",
+    "@typescript-eslint/eslint-plugin": "^6.17.0",
+    "@typescript-eslint/parser": "^6.17.0",
     "babel-plugin-annotate-pure-calls": "^0.4.0",
-    "effect": "2.0.0-next.62",
-    "effect-log": "^0.24.5",
+    "effect": "2.0.0",
+    "effect-log": "^0.25.0",
     "eslint": "^8.56.0",
     "eslint-import-resolver-typescript": "^3.6.1",
     "eslint-plugin-codegen": "^0.21.0",
@@ -68,15 +68,15 @@
     "tsx": "^4.7.0",
     "typescript": "^5.3.3",
     "vite": "^5.0.10",
-    "vitest": "^1.1.0"
+    "vitest": "^1.1.1"
   },
   "dependencies": {
-    "schema-openapi": "^0.26.3",
+    "schema-openapi": "^0.27.0",
     "swagger-ui-dist": "^5.10.5"
   },
   "peerDependencies": {
-    "@effect/platform": "^0.39.0",
-    "@effect/schema": "^0.56.0",
-    "effect": "2.0.0-next.62"
+    "@effect/platform": "^0.40.0",
+    "@effect/schema": "^0.57.0",
+    "effect": "^2.0.0"
   }
 }

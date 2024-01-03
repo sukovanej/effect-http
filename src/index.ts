@@ -103,7 +103,7 @@ export * as ServerError from "./ServerError.js"
 export * as SwaggerRouter from "./SwaggerRouter.js"
 
 /**
- * Testing if the `Server` implementation.
+ * Testing of the `Server` implementation.
  *
  * @since 1.0.0
  */

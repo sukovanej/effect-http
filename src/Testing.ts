@@ -1,5 +1,5 @@
 /**
- * Testing if the `Server` implementation.
+ * Testing of the `Server` implementation.
  *
  * @since 1.0.0
  */
