@@ -13,7 +13,7 @@
   "bugs": {
     "url": "https://github.com/sukovanej/effect-http/issues"
   },
-  "packageManager": "pnpm@8.12.1",
+  "packageManager": "pnpm@8.14.0",
   "publishConfig": {
     "access": "public",
     "directory": "dist"
