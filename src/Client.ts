@@ -41,7 +41,7 @@ export interface Options {
     request: ClientRequest.ClientRequest
   ) => ClientRequest.ClientRequest
   httpClient?: HttpClient.Client.Default
-  baseUrl: URL | string
+  baseUrl: string
 }
 
 /**

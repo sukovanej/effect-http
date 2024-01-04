@@ -1,9 +1,8 @@
+import type * as Router from "@effect/platform/Http/Router"
 import type * as ServerRequest from "@effect/platform/Http/ServerRequest"
 import type * as AST from "@effect/schema/AST"
 import * as Schema from "@effect/schema/Schema"
 import * as Effect from "effect/Effect"
-import { pipe } from "effect/Function"
-import * as Option from "effect/Option"
 import * as Unify from "effect/Unify"
 import * as Api from "../Api.js"
 import * as ServerError from "../ServerError.js"
@@ -11,7 +10,8 @@ import { formatParseError } from "./formatParseError.js"
 
 interface ServerRequestParser {
   parseRequest: (
-    input: ServerRequest.ServerRequest
+    request: ServerRequest.ServerRequest,
+    context: Router.RouteContext
   ) => Effect.Effect<
     never,
     ServerError.ServerError,
@@ -42,11 +42,11 @@ export const create = (
   const parseHeaders = createHeadersParser(endpoint, parseOptions)
   const parseParams = createParamsParser(endpoint, parseOptions)
 
-  return make((request) =>
+  return make((request, context) =>
     Effect.all({
       body: parseBody(request),
-      query: parseQuery(request),
-      params: parseParams(request),
+      query: parseQuery(context),
+      params: parseParams(context),
       headers: parseHeaders(request)
     })
   )
@@ -99,16 +99,8 @@ const createQueryParser = (
 
   const parse = Schema.parse(schema)
 
-  return (request: ServerRequest.ServerRequest) => {
-    // TODO
-    const url = new URL(request.url, "http://localhost")
-    return parse(
-      Array.from(url.searchParams.entries()).reduce(
-        (acc, [name, value]) => ({ ...acc, [name]: value }),
-        {}
-      ),
-      parseOptions
-    ).pipe(
+  return (context: Router.RouteContext) => {
+    return parse(context.searchParams, parseOptions).pipe(
       Effect.mapError((error) => createError("query", formatParseError(error, parseOptions)))
     )
   }
@@ -143,38 +135,9 @@ const createParamsParser = (
   }
 
   const parse = Schema.parse(schema)
-  const getRequestParams = createParamsMatcher(endpoint.path)
 
-  return (request: ServerRequest.ServerRequest) => {
-    // TODO
-    const url = new URL(request.url, "http://localhost")
-    const params = getRequestParams(url)
-    return parse(params, parseOptions).pipe(
+  return (ctx: Router.RouteContext) =>
+    parse(ctx.params, parseOptions).pipe(
       Effect.mapError((error) => createError("path", formatParseError(error, parseOptions)))
     )
-  }
-}
-
-export const createParamsMatcher = (path: string) => {
-  // based on https://github.com/kwhitley/itty-router/blob/73148972bf2e205a4969e85672e1c0bfbf249c27/src/itty-router.js
-  const matcher = RegExp(
-    `^${
-      path
-        .replace(/(\/?)\*/g, "($1.*)?")
-        .replace(/\/$/, "")
-        .replace(/:(\w+)(\?)?(\.)?/g, "$2(?<$1>[^/]+)$2$3")
-        .replace(/\.(?=[\w(])/, "\\.")
-        .replace(/\)\.\?\(([^[]+)\[\^/g, "?)\\.?($1(?<=\\.)[^\\.")
-    }/*$`
-  )
-  return (url: URL): Record<string, string> => {
-    const match = url.pathname.match(matcher)
-    return pipe(
-      Option.fromNullable(match),
-      Option.flatMap(({ groups }) => Option.fromNullable(groups)),
-      Option.map((groups) => Object.entries(groups).filter(([_, value]) => value !== undefined)),
-      Option.map(Object.fromEntries),
-      Option.getOrElse(() => ({}))
-    )
-  }
 }

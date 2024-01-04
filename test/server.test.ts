@@ -272,25 +272,6 @@ test("optional headers / query / params fields", async () => {
   expect(result).toStrictEqual(params)
 })
 
-// TODO
-// test.each([
-//  { path: "/users", input: "/users", expected: {} },
-//  { path: "/users/:name", input: "/users/hello", expected: { name: "hello" } },
-//  {
-//    path: "/users/:name/:another?",
-//    input: "/users/hello",
-//    expected: { name: "hello" },
-//  },
-//  {
-//    path: "/users/:name/hello/:another?",
-//    input: "/users/test/hello/another",
-//    expected: { name: "test", another: "another" },
-//  },
-// ])("params matcher %#", ({ path, input, expected }) => {
-//  const matcher = Http.createParamsMatcher(path);
-//  expect(matcher(new URL(input, "http://localhost:3000/"))).toEqual(expected);
-// });
-
 test("optional parameters", async () => {
   const app = pipe(
     RouterBuilder.make(exampleApiOptionalParams),

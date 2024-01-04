@@ -29,9 +29,7 @@ app.pipe(NodeServer.listen({ port: 3000 }), runMain)
 
 // Another file
 
-const client = Client.make(api, {
-  baseUrl: new URL("http://localhost:3000")
-})
+const client = Client.make(api, { baseUrl: "http://localhost:3000" })
 
 const program = pipe(
   client.getUser({ query: { id: 12 } }),
