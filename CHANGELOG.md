@@ -1,5 +1,12 @@
 # effect-http
 
+## 0.48.0
+
+### Minor Changes
+
+- 97e1307: Use raw strings instead of URL. Use @effect/platform query and path parameters.
+- 97e1307: Add `enableDocs` RouterBuiler option.
+
 ## 0.47.0
 
 ### Minor Changes
