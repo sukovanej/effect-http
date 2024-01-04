@@ -25,10 +25,7 @@ export const endpointClient = <
   let mapRequest = options.mapRequest ?? identity
 
   if (options.baseUrl) {
-    const url = typeof options.baseUrl === "string"
-      ? options.baseUrl
-      : options.baseUrl.toString()
-    mapRequest = ClientRequest.prependUrl(url)
+    mapRequest = ClientRequest.prependUrl(options.baseUrl)
   }
 
   const httpClient = options.httpClient ?? defaultHttpClient

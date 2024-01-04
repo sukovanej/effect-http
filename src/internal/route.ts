@@ -36,8 +36,9 @@ export const fromEndpoint: <Endpoint extends Api.Endpoint, R, E>(
     endpoint.path,
     Effect.gen(function*(_) {
       const request = yield* _(ServerRequest.ServerRequest)
+      const context = yield* _(Router.RouteContext)
       const response = yield* _(
-        requestParser.parseRequest(request),
+        requestParser.parseRequest(request, context),
         Effect.flatMap((input: any) => fn(input))
       )
       return yield* _(responseEncoder.encodeResponse(request, response))

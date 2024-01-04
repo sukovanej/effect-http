@@ -16,9 +16,7 @@ export const api = pipe(
   })
 )
 
-const client = Client.make(api, {
-  baseUrl: new URL("http://localhost:3000")
-})
+const client = Client.make(api, { baseUrl: "http://localhost:3000" })
 
 Effect.all(
   client.hello({ body: { value: 1 }, headers: { "x-client-id": "abc" } }).pipe(

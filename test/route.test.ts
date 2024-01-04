@@ -45,7 +45,7 @@ const exampleMultipleQueryAllErrors = exampleApiMultipleQueryValues.pipe(
   Route.make(
     "test",
     ({ query }) => Effect.succeed(`${query.value}, ${query.value}`),
-    { parseOptions: { errors: "all" } }
+    { parseOptions: { errors: "all" }, enableDocs: true }
   )
 )
 

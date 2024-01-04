@@ -76,9 +76,7 @@ const app = pipe(
 Now, we can generate an object providing the HTTP client interface using `Client.make`.
 
 ```typescript
-const client = Client.make(api, {
-  baseUrl: new URL("http://localhost:3000"),
-});
+const client = Client.make(api, { baseUrl: "http://localhost:3000" });
 ```
 
 Spawn the server on port 3000,
