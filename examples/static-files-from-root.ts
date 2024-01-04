@@ -27,7 +27,7 @@ const StaticFilesMiddleware = Http.middleware.make((app) =>
   })
 )
 
-const app = RouterBuilder.make(api).pipe(
+const app = RouterBuilder.make(api, { enableDocs: true }).pipe(
   RouterBuilder.handle("handle", () => Effect.succeed("Hello World")),
   RouterBuilder.build,
   StaticFilesMiddleware
