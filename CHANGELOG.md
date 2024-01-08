@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.48.1
+
+### Patch Changes
+
+- 4c57801: Add `summary` OpenApi option for `Api. @KhraksMamtsov
+
 ## 0.48.0
 
 ### Minor Changes
