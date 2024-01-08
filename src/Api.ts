@@ -91,8 +91,11 @@ export interface Endpoint {
   path: PlatformRouter.PathInput
   method: Method
   schemas: EndpointSchemas
-  groupName: string
-  description?: string
+  options: {
+    groupName: string
+    description?: string
+    summary?: string
+  }
 }
 
 /**
@@ -153,6 +156,7 @@ export const api: (options?: Partial<Api["options"]>) => Api<never> = internal.a
  */
 export interface EndpointOptions {
   description?: string
+  summary?: string
 }
 
 /**
@@ -359,6 +363,9 @@ type CreateEndpointFromInput<
   schemas: CreateEndpointSchemasFromInput<Schemas>
   path: PlatformRouter.PathInput
   method: Method
-  groupName: string
-  description?: string
+  options: {
+    groupName: string
+    description?: string
+    summary?: string
+  }
 }
