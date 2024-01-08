@@ -10,7 +10,7 @@ export const make = (
   api: Api.Api
 ): SchemaOpenApi.OpenAPISpec<SchemaOpenApi.OpenAPISchemaType> => {
   const pathSpecs = api.endpoints.map(
-    ({ description, groupName, id, method, path, schemas }) => {
+    ({ id, method, options, path, schemas }) => {
       const operationSpec = []
 
       const responseSchema = schemas.response
@@ -65,8 +65,12 @@ export const make = (
         operationSpec.push(SchemaOpenApi.jsonRequest(body, descriptionSetter(body)))
       }
 
-      if (description) {
-        operationSpec.push(SchemaOpenApi.description(description))
+      if (options.description !== undefined) {
+        operationSpec.push(SchemaOpenApi.description(options.description))
+      }
+
+      if (options.summary !== undefined) {
+        operationSpec.push(SchemaOpenApi.summary(options.summary))
       }
 
       return SchemaOpenApi.path(
@@ -74,7 +78,7 @@ export const make = (
         SchemaOpenApi.operation(
           method,
           SchemaOpenApi.operationId(id),
-          SchemaOpenApi.tags(groupName),
+          SchemaOpenApi.tags(options.groupName),
           ...operationSpec
         )
       )

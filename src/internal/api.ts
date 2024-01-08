@@ -135,8 +135,10 @@ export const endpoint = (method: Api.Method) =>
     id,
     path,
     method,
-    groupName: "groupName" in api ? api.groupName : "default",
-    ...options
+    options: {
+      ...options,
+      groupName: "groupName" in api ? api.groupName : "default"
+    }
   }
 
   if (isApi(api)) {
