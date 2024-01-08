@@ -20,8 +20,8 @@ const DEFAULT_OPTIONS: RouterBuilder.Options = {
 export const make = <A extends Api.Api>(
   api: A,
   options?: Partial<RouterBuilder.Options>
-): RouterBuilder.RouterBuilder<never, never, A["endpoints"][number]> => ({
-  remainingEndpoints: api.endpoints,
+): RouterBuilder.RouterBuilder<never, never, A["groups"][number]["endpoints"][number]> => ({
+  remainingEndpoints: api.groups.flatMap((x) => x.endpoints),
   router: Router.empty,
   api,
   options: { ...DEFAULT_OPTIONS, ...options },

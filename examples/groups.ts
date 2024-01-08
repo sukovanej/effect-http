@@ -7,11 +7,22 @@ import { debugLogger } from "./_utils.js"
 
 const responseSchema = Schema.struct({ name: Schema.string })
 
-const testApi = Api.apiGroup("test").pipe(
+const testApi = Api.apiGroup("test", {
+  description: "Test description",
+  externalDocs: {
+    description: "Test external doc",
+    url: "https://www.google.com/search?q=effect-http"
+  }
+}).pipe(
   Api.get("test", "/test", { response: responseSchema })
 )
 
-const userApi = Api.apiGroup("Users").pipe(
+const userApi = Api.apiGroup("Users", {
+  description: "All about users",
+  externalDocs: {
+    description: "No documentation :("
+  }
+}).pipe(
   Api.get("getUser", "/user", { response: responseSchema }),
   Api.post("storeUser", "/user", { response: responseSchema }),
   Api.put("updateUser", "/user", { response: responseSchema }),

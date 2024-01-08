@@ -9,65 +9,66 @@ import * as Api from "../Api.js"
 export const make = (
   api: Api.Api
 ): SchemaOpenApi.OpenAPISpec<SchemaOpenApi.OpenAPISchemaType> => {
-  const pathSpecs = api.endpoints.map(
+  const pathSpecs = api.groups.flatMap((g) =>
+      g.endpoints.map(
     ({ id, method, options, path, schemas }) => {
       const operationSpec = []
 
-      const responseSchema = schemas.response
+        const responseSchema = schemas.response
 
-      if (Schema.isSchema(responseSchema)) {
-        operationSpec.push(
-          SchemaOpenApi.jsonResponse(
-            200,
-            responseSchema,
-            "Response",
-            descriptionSetter(responseSchema)
-          )
-        )
-      } else {
-        ;(Array.isArray(responseSchema) ? responseSchema : [responseSchema]).map(
-          ({ content, headers, status }) => {
-            const schema = content === Api.IgnoredSchemaId ? undefined : content
-            const setHeaders = headers === Api.IgnoredSchemaId
-              ? identity
-              : SchemaOpenApi.responseHeaders(
-                createResponseHeadersSchemaMap(headers)
-              )
-
-            operationSpec.push(
-              SchemaOpenApi.jsonResponse(
-                status as SchemaOpenApi.OpenAPISpecStatusCode,
-                schema,
-                `Response ${status}`,
-                schema ? descriptionSetter(schema) : identity,
-                setHeaders
-              )
+        if (Schema.isSchema(responseSchema)) {
+          operationSpec.push(
+            SchemaOpenApi.jsonResponse(
+              200,
+              responseSchema,
+              "Response",
+              descriptionSetter(responseSchema)
             )
-          }
-        )
-      }
+          )
+        } else {
+          ;(Array.isArray(responseSchema) ? responseSchema : [responseSchema]).map(
+            ({ content, headers, status }) => {
+              const schema = content === Api.IgnoredSchemaId ? undefined : content
+              const setHeaders = headers === Api.IgnoredSchemaId
+                ? identity
+                : SchemaOpenApi.responseHeaders(
+                  createResponseHeadersSchemaMap(headers)
+                )
 
-      const { body, headers, params, query } = schemas.request
+              operationSpec.push(
+                SchemaOpenApi.jsonResponse(
+                  status as SchemaOpenApi.OpenAPISpecStatusCode,
+                  schema,
+                  `Response ${status}`,
+                  schema ? descriptionSetter(schema) : identity,
+                  setHeaders
+                )
+              )
+            }
+          )
+        }
 
-      if (params !== Api.IgnoredSchemaId) {
-        operationSpec.push(...createParameterSetters("path", params))
-      }
+        const { body, headers, params, query } = schemas.request
 
-      if (query !== Api.IgnoredSchemaId) {
-        operationSpec.push(...createParameterSetters("query", query))
-      }
+        if (params !== Api.IgnoredSchemaId) {
+          operationSpec.push(...createParameterSetters("path", params))
+        }
 
-      if (headers !== Api.IgnoredSchemaId) {
-        operationSpec.push(...createParameterSetters("header", headers))
-      }
+        if (query !== Api.IgnoredSchemaId) {
+          operationSpec.push(...createParameterSetters("query", query))
+        }
 
-      if (body !== Api.IgnoredSchemaId) {
-        operationSpec.push(SchemaOpenApi.jsonRequest(body, descriptionSetter(body)))
-      }
+        if (headers !== Api.IgnoredSchemaId) {
+          operationSpec.push(...createParameterSetters("header", headers))
+        }
 
-      if (options.description !== undefined) {
-        operationSpec.push(SchemaOpenApi.description(options.description))
-      }
+        if (body !== Api.IgnoredSchemaId) {
+          operationSpec.push(SchemaOpenApi.jsonRequest(body, descriptionSetter(body)))
+        }
+
+        if (options.description !== undefined) {
+          operationSpec.push(SchemaOpenApi.description(options.description))
+        }
 
       if (options.summary !== undefined) {
         operationSpec.push(SchemaOpenApi.summary(options.summary))
@@ -82,7 +83,7 @@ export const make = (
         SchemaOpenApi.operation(
           method,
           SchemaOpenApi.operationId(id),
-          SchemaOpenApi.tags(options.groupName),
+            SchemaOpenApi.tags(g.options.name),
           ...operationSpec
         )
       )

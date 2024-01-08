@@ -47,7 +47,7 @@ export type ApiGroupTypeId = typeof ApiGroupTypeId
  */
 export interface Api<E extends Endpoint = Endpoint> extends Pipeable.Pipeable {
   [ApiTypeId]: ApiTypeId
-  endpoints: Array<E>
+  groups: Array<ApiGroup<E>>
   options: {
     title: string
     version: string
@@ -66,7 +66,14 @@ export interface Api<E extends Endpoint = Endpoint> extends Pipeable.Pipeable {
 export interface ApiGroup<E extends Endpoint = Endpoint> extends Pipeable.Pipeable {
   [ApiGroupTypeId]: ApiGroupTypeId
   endpoints: Array<E>
-  groupName: string
+  options: {
+    name: string
+    description?: string
+    externalDocs?: {
+      description: string
+      url?: string
+    }
+  }
 }
 
 /**
@@ -224,7 +231,8 @@ export const options: EndpointSetter = internal.endpoint("options")
  * @category constructors
  * @since 1.0.0
  */
-export const apiGroup: (groupName: string) => ApiGroup<never> = internal.apiGroup
+export const apiGroup: (name: string, options?: Omit<ApiGroup["options"], "name">) => ApiGroup<never> =
+  internal.apiGroup
 
 /**
  * Merge the Api `Group` with an `Api`
@@ -242,11 +250,11 @@ export const addGroup: <E2 extends Endpoint>(
  */
 export const getEndpoint: <
   A extends Api,
-  Id extends A["endpoints"][number]["id"]
+  Id extends A["groups"][number]["endpoints"][number]["id"]
 >(
   api: A,
   id: Id
-) => Extract<A["endpoints"][number], { id: Id }> = internal.getEndpoint
+) => Extract<A["groups"][number]["endpoints"][number], { id: Id }> = internal.getEndpoint
 
 /**
  * FormData schema
