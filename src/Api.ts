@@ -98,9 +98,7 @@ export interface Endpoint {
   path: PlatformRouter.PathInput
   method: Method
   schemas: EndpointSchemas
-  options: EndpointOptions & {
-    groupName: string
-  }
+  options: EndpointOptions
 }
 
 /**

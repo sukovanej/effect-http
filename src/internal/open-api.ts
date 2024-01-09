@@ -10,9 +10,9 @@ export const make = (
   api: Api.Api
 ): SchemaOpenApi.OpenAPISpec<SchemaOpenApi.OpenAPISchemaType> => {
   const pathSpecs = api.groups.flatMap((g) =>
-      g.endpoints.map(
-    ({ id, method, options, path, schemas }) => {
-      const operationSpec = []
+    g.endpoints.map(
+      ({ id, method, options, path, schemas }) => {
+        const operationSpec = []
 
         const responseSchema = schemas.response
 
@@ -70,24 +70,25 @@ export const make = (
           operationSpec.push(SchemaOpenApi.description(options.description))
         }
 
-      if (options.summary !== undefined) {
-        operationSpec.push(SchemaOpenApi.summary(options.summary))
-      }
+        if (options.summary !== undefined) {
+          operationSpec.push(SchemaOpenApi.summary(options.summary))
+        }
 
-      if (options.deprecated) {
-        operationSpec.push(SchemaOpenApi.deprecated)
-      }
+        if (options.deprecated) {
+          operationSpec.push(SchemaOpenApi.deprecated)
+        }
 
-      return SchemaOpenApi.path(
-        createPath(path),
-        SchemaOpenApi.operation(
-          method,
-          SchemaOpenApi.operationId(id),
+        return SchemaOpenApi.path(
+          createPath(path),
+          SchemaOpenApi.operation(
+            method,
+            SchemaOpenApi.operationId(id),
             SchemaOpenApi.tags(g.options.name),
-          ...operationSpec
+            ...operationSpec
+          )
         )
-      )
-    }
+      }
+    )
   )
 
   const openApi = SchemaOpenApi.openAPI(

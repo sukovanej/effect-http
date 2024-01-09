@@ -134,15 +134,12 @@ export const endpoint = (method: Api.Method) =>
 
   checkPathPatternMatchesSchema(id, path, schemas.request?.params)
 
-  const newEndpoint = {
+  const newEndpoint: Api.Endpoint = {
     schemas: createSchemasFromInput(schemas),
     id,
     path,
     method,
-    options: {
-      ...options,
-      groupName: "groupName" in api ? api.groupName : "default"
-    }
+    options: options ?? {}
   }
 
   if (isApiGroup(api)) {
@@ -153,7 +150,6 @@ export const endpoint = (method: Api.Method) =>
   } else {
     const defaultGroup = api.groups.find((x) => x.options.name === "default") ?? apiGroup("default")
     const groupsWithoutDefault = api.groups.filter((x) => x.options.name !== "default")
-
     const newDefaultGroup = pipe(defaultGroup, endpoint(method)(id, path, schemas, options))
 
     return new ApiImpl(
