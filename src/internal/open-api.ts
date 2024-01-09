@@ -73,6 +73,12 @@ export const make = (
         operationSpec.push(SchemaOpenApi.summary(options.summary))
       }
 
+      if (options.deprecated !== undefined) {
+        operationSpec.push(SchemaOpenApi.deprecated({
+          deprecated: options.deprecated
+        }))
+      }
+
       return SchemaOpenApi.path(
         createPath(path),
         SchemaOpenApi.operation(
