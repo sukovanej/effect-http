@@ -203,7 +203,7 @@ describe("error reporting", () => {
     expect(await Effect.runPromise(response.json)).toEqual({
       error: "Request validation error",
       location: "body",
-      message: "must be an object, received null"
+      message: "value must be an object, received null"
     })
   })
 
@@ -233,7 +233,7 @@ describe("error reporting", () => {
     expect(await Effect.runPromise(response.json)).toEqual({
       error: "Request validation error",
       location: "body",
-      message: "foo must be string, received 1"
+      message: "foo must be a string, received 1"
     })
   })
 
@@ -278,7 +278,7 @@ describe("error reporting", () => {
     expect(response.status).toEqual(500)
     expect(await Effect.runPromise(response.json)).toEqual({
       error: "Invalid response content",
-      message: "must be string, received 1"
+      message: "value must be a string, received 1"
     })
   })
 

@@ -21,9 +21,9 @@ const getIdentifier = AST.getAnnotation<AST.IdentifierAnnotation>(
 )
 
 const getExpected = (ast: AST.AST): Option.Option<string> =>
-  getIdentifier(ast).pipe(
+  getDescription(ast).pipe(
     Option.orElse(() => getTitle(ast)),
-    Option.orElse(() => getDescription(ast))
+    Option.orElse(() => getIdentifier(ast))
   )
 
 const stringifyExpected = (
@@ -45,21 +45,26 @@ const stringifyError = (error: ValidationError) => {
     return error.message
   }
 
-  const position = error.position.length > 0 ? error.position.join(".") + " " : ""
+  const position = error.position.reduce((prev, curr) => {
+    if (typeof curr === "number") {
+      return prev + `[${curr}]`
+    }
+    return prev + (prev ? "." : "") + curr
+  }, "") || "value"
 
   if (error._tag === "Missing") {
-    return `${position}is missing`
+    return `${position} is missing`
   }
 
   const expected = stringifyExpected(error)
   const received = JSON.stringify(error.received)
 
-  return `${position}must be ${expected}, received ${received}`
+  return `${position} must be ${expected}, received ${received}`
 }
 
 type ValidationErrorBase = {
-  position: Array<string>
-  message?: string
+  position: Array<string | number>
+  message?: string | undefined
 }
 type ValidationErrorUnexpected = ValidationErrorBase & {
   _tag: "Unexpected"
@@ -67,65 +72,88 @@ type ValidationErrorUnexpected = ValidationErrorBase & {
   received: unknown
 }
 type ValidationErrorMissing = ValidationErrorBase & { _tag: "Missing" }
+
+const validationErrorUnexpected = (
+  position: Array<string | number>,
+  expected: Array<string>,
+  received: unknown,
+  message?: string | undefined
+): ValidationErrorUnexpected => ({
+  _tag: "Unexpected",
+  position,
+  expected,
+  received,
+  message
+})
+
+const validationErrorMissing = (
+  position: Array<string | number>,
+  message?: string | undefined
+): ValidationErrorMissing => ({
+  _tag: "Missing",
+  position,
+  message
+})
+
 type ValidationError = ValidationErrorUnexpected | ValidationErrorMissing
 
 const formatParseErrors = (
-  errors: ParseResult.ParseIssue
+  parseIssue: ParseResult.ParseIssue
 ): ReadonlyArray<ValidationError> => {
-  if (errors._tag === "Key") {
-    return errors.errors.flatMap((error) =>
-      formatParseErrors(error).map((e) => ({
+  if (parseIssue._tag === "TypeLiteral") {
+    return parseIssue.errors.flatMap((error) => {
+      if (error.error._tag === "Missing") {
+        return [validationErrorMissing([error.key.toString()])]
+      } else if (error.error._tag === "Unexpected") {
+        return [validationErrorUnexpected([], [], "<unexpected>")]
+      }
+
+      return formatParseErrors(error.error).map((e) => ({
         ...e,
-        position: [errors.key.toString(), ...e.position]
+        position: [error.key.toString(), ...e.position]
       }))
-    )
-  } else if (errors._tag === "Type") {
+    })
+  } else if (parseIssue._tag === "Type") {
     return [
-      {
-        _tag: "Unexpected",
-        expected: [
-          getMessage(errors.expected).pipe(
-            Option.map((f) => f(errors.actual)),
-            Option.getOrElse(() => formatAST(errors.expected))
+      validationErrorUnexpected(
+        [],
+        [
+          getMessage(parseIssue.ast).pipe(
+            Option.map((f) => f(parseIssue.actual)),
+            Option.getOrElse(() => formatAST(parseIssue.ast))
           )
         ],
-        ...errors.message.pipe(
-          Option.map((message) => ({ message })),
-          Option.getOrUndefined
-        ),
-        received: errors.actual,
-        position: []
-      }
+        parseIssue.actual,
+        Option.getOrUndefined(parseIssue.message)
+      )
     ]
-  } else if (errors._tag === "Missing") {
-    return [{ _tag: "Missing", position: [] }]
-  } else if (errors._tag === "Index") {
-    return errors.errors.flatMap((error) =>
-      formatParseErrors(error).map((e) => ({
+  } else if (parseIssue._tag === "Tuple") {
+    return parseIssue.errors.flatMap((error) => {
+      if (error.error._tag === "Missing") {
+        return [{ _tag: "Missing", position: [error.index] }]
+      } else if (error.error._tag === "Unexpected") {
+        return [validationErrorUnexpected([error.index], [], "<unexpected>")]
+      }
+
+      return formatParseErrors(error.error).map((e) => ({
         ...e,
-        position: [`[${errors.index}]`, ...e.position]
+        position: [error.index, ...e.position]
       }))
-    )
-  } else if (errors._tag === "UnionMember") {
-    return errors.errors.flatMap(formatParseErrors)
-  } else if (errors._tag === "Unexpected") {
-    return [
-      {
-        _tag: "Unexpected",
-        expected: [],
-        position: [],
-        received: "<unexpected>"
+    })
+  } else if (parseIssue._tag === "Union") {
+    return parseIssue.errors.flatMap((error) => {
+      if (error._tag === "Member") {
+        return formatParseErrors(error.error)
       }
-    ]
+
+      return formatParseErrors(error)
+    })
+  } else if (parseIssue._tag === "Refinement") {
+    return formatParseErrors(parseIssue.error)
   }
 
   return [
-    {
-      _tag: "Unexpected",
-      expected: [],
-      position: [],
-      received: "<unexpected>"
-    }
+    validationErrorUnexpected([], [], "<unexpected>")
   ]
 }
 
@@ -151,7 +179,7 @@ export const formatParseError = (
   error: ParseResult.ParseError,
   parseOptions?: AST.ParseOptions
 ): string => {
-  const errors = ReadonlyArray.flatMap(error.errors, formatParseErrors)
+  const errors = formatParseErrors(error.error)
 
   if (errors.length === 1) {
     return stringifyError(errors[0])
@@ -161,7 +189,7 @@ export const formatParseError = (
     return errors.map(stringifyError).join(", ")
   }
 
-  if (!ReadonlyArray.isNonEmptyArray(errors)) {
+  if (!ReadonlyArray.isNonEmptyReadonlyArray(errors)) {
     return `Unexpected validation errors: ${JSON.stringify(error)}`
   }
 
@@ -169,7 +197,7 @@ export const formatParseError = (
     errors,
     ReadonlyArray.groupWith(
       pipe(
-        Equivalence.array(Equivalence.string),
+        Equivalence.array(Equivalence.strict()),
         Equivalence.mapInput((e: ValidationError) => e.position)
       )
     ),
