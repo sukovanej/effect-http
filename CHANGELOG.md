@@ -1,5 +1,15 @@
 # effect-http
 
+## 0.49.0
+
+### Minor Changes
+
+- f96ed25: Update @effect/schema.
+
+### Patch Changes
+
+- 7537645: Add deprecated option to endpoint
+
 ## 0.48.1
 
 ### Patch Changes
