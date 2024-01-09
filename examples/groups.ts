@@ -20,7 +20,7 @@ const testApi = Api.apiGroup("test", {
 const userApi = Api.apiGroup("Users", {
   description: "All about users",
   externalDocs: {
-    description: "No documentation :("
+    url: "https://www.google.com/search?q=effect-http"
   }
 }).pipe(
   Api.get("getUser", "/user", { response: responseSchema }),

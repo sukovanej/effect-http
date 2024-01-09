@@ -70,8 +70,8 @@ export interface ApiGroup<E extends Endpoint = Endpoint> extends Pipeable.Pipeab
     name: string
     description?: string
     externalDocs?: {
-      description: string
-      url?: string
+      description?: string
+      url: string
     }
   }
 }

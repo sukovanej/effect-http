@@ -4,6 +4,7 @@ import * as AST from "@effect/schema/AST"
 import * as Schema from "@effect/schema/Schema"
 import { identity, pipe } from "effect/Function"
 import * as Option from "effect/Option"
+import * as ReadonlyArray from "effect/ReadonlyArray"
 import * as Api from "../Api.js"
 
 export const make = (
@@ -90,6 +91,12 @@ export const make = (
       }
     )
   )
+
+  if (ReadonlyArray.isNonEmptyArray(api.groups)) {
+    const [firstGlobalTag, ...restGlobalTags] = ReadonlyArray.map(api.groups, (x) => x.options)
+
+    pathSpecs.push(SchemaOpenApi.globalTags(firstGlobalTag, ...restGlobalTags))
+  }
 
   const openApi = SchemaOpenApi.openAPI(
     api.options.title,
