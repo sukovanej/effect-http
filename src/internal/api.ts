@@ -113,7 +113,11 @@ export const endpoint = (method: Api.Method) =>
     throw new Error(`Invalid ${id} endpoint. GET request cant have a body.`)
   }
 
-  if (api.endpoints.find((endpoint) => endpoint.id === id) !== undefined) {
+  if (isApiGroup(api) && api.endpoints.find((endpoint) => endpoint.id === id) !== undefined) {
+    throw new Error(`Endpoint with operation id ${id} already exists`)
+  }
+
+  if (isApi(api) && api.groups.find((group) => group.endpoints.find((endpoint) => endpoint.id === id)) !== undefined) {
     throw new Error(`Endpoint with operation id ${id} already exists`)
   }
 
@@ -130,25 +134,29 @@ export const endpoint = (method: Api.Method) =>
 
   checkPathPatternMatchesSchema(id, path, schemas.request?.params)
 
-  const newEndpoint = {
+  const newEndpoint: Api.Endpoint = {
     schemas: createSchemasFromInput(schemas),
     id,
     path,
     method,
-    options: {
-      ...options,
-      groupName: "groupName" in api ? api.groupName : "default"
-    }
+    options: options ?? {}
   }
 
-  if (isApi(api)) {
-    return new ApiImpl([...api.endpoints, newEndpoint], api.options) as any
-  }
+  if (isApiGroup(api)) {
+    return new ApiGroupImpl(
+      [...api.endpoints, newEndpoint],
+      api.options
+    ) as any
+  } else {
+    const defaultGroup = api.groups.find((x) => x.options.name === "default") ?? apiGroup("default")
+    const groupsWithoutDefault = api.groups.filter((x) => x.options.name !== "default")
+    const newDefaultGroup = pipe(defaultGroup, endpoint(method)(id, path, schemas, options))
 
-  return new ApiGroupImpl(
-    [...api.endpoints, newEndpoint],
-    api.groupName
-  ) as any
+    return new ApiImpl(
+      [...groupsWithoutDefault, newDefaultGroup],
+      api.options
+    ) as any
+  }
 }
 
 /** Headers are case-insensitive, internally we deal with them as lowercase
@@ -180,16 +188,30 @@ const DEFAULT_OPTIONS: Api.Api["options"] = {
   version: "1.0.0"
 }
 
-export const apiGroup = (groupName: string): Api.ApiGroup<never> => new ApiGroupImpl([], groupName)
+export const apiGroup = (
+  name: Api.ApiGroup["options"]["name"],
+  options?: Omit<Api.ApiGroup["options"], "name">
+): Api.ApiGroup<never> => new ApiGroupImpl([], { name, ...options })
 
 export const getEndpoint = <
   A extends Api.Api,
-  Id extends A["endpoints"][number]["id"]
+  Id extends A["groups"][number]["endpoints"][number]["id"]
 >(
   api: A,
   id: Id
-): Extract<A["endpoints"][number], { id: Id }> => {
-  const endpoint = api.endpoints.find(({ id: _id }) => _id === id)
+): Extract<A["groups"][number]["endpoints"][number], { id: Id }> => {
+  let endpoint: Api.Endpoint | undefined = undefined
+
+  api.groups.find((g) =>
+    g.endpoints.find((e) => {
+      if (e.id === id) {
+        endpoint = e
+        return true
+      } else {
+        return false
+      }
+    })
+  )
 
   // This operation is type-safe and non-existing ids are forbidden
   if (endpoint === undefined) {
@@ -208,7 +230,7 @@ export const getEndpoint = <
 export const addGroup =
   <E2 extends Api.Endpoint>(apiGroup: Api.ApiGroup<E2>) =>
   <E1 extends Api.Endpoint>(api: Api.Api<E1>): Api.Api<E1 | E2> => {
-    const existingIds = HashSet.make(...api.endpoints.map(({ id }) => id))
+    const existingIds = HashSet.make(...api.groups.flatMap((x) => x.endpoints).map(({ id }) => id))
     const newIds = HashSet.make(...apiGroup.endpoints.map(({ id }) => id))
     const duplicates = HashSet.intersection(existingIds, newIds)
 
@@ -217,8 +239,9 @@ export const addGroup =
         `Api group introduces already existing operation ids: ${duplicates}`
       )
     }
+    const newGroups: Array<Api.ApiGroup<E1 | E2>> = [...api.groups, apiGroup]
 
-    return new ApiImpl([...api.endpoints, ...apiGroup.endpoints], api.options)
+    return new ApiImpl(newGroups, api.options)
   }
 
 export const api = (options?: Partial<Api.Api["options"]>): Api.Api<never> =>
@@ -246,13 +269,12 @@ export const IgnoredSchemaId: Api.IgnoredSchemaId = Symbol.for(
 
 /** @internal */
 class ApiImpl<Endpoints extends Api.Endpoint> implements Api.Api<Endpoints> {
-  readonly [ApiTypeId]: Api.ApiTypeId
+  readonly [ApiTypeId]: Api.ApiTypeId = ApiTypeId
 
   constructor(
-    readonly endpoints: Array<Endpoints>,
+    readonly groups: Array<Api.ApiGroup<Endpoints>>,
     readonly options: Api.Api["options"]
   ) {
-    this[ApiTypeId] = ApiTypeId
   }
 
   pipe() {
@@ -263,13 +285,12 @@ class ApiImpl<Endpoints extends Api.Endpoint> implements Api.Api<Endpoints> {
 
 /** @internal */
 class ApiGroupImpl<Endpoints extends Api.Endpoint> implements Api.ApiGroup<Endpoints> {
-  readonly [ApiGroupTypeId]: Api.ApiGroupTypeId
+  readonly [ApiGroupTypeId]: Api.ApiGroupTypeId = ApiGroupTypeId
 
   constructor(
     readonly endpoints: Array<Endpoints>,
-    readonly groupName: string
+    readonly options: Api.ApiGroup["options"]
   ) {
-    this[ApiGroupTypeId] = ApiGroupTypeId
   }
 
   pipe() {

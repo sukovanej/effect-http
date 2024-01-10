@@ -45,7 +45,7 @@ export interface Options {
 export const make: <Api extends Api.Api>(
   api: Api,
   options?: Partial<Options>
-) => RouterBuilder<never, never, Api["endpoints"][number]> = internal.make
+) => RouterBuilder<never, never, Api["groups"][number]["endpoints"][number]> = internal.make
 
 /**
  * Handle an endpoint using a raw `Router.Route.Handler`.

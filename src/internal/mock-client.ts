@@ -12,7 +12,7 @@ export const make = <Endpoints extends Api.Endpoint>(
   api: Api.Api<Endpoints>,
   option?: Partial<MockClient.Options<Endpoints>>
 ): Client.Client<Endpoints> =>
-  api.endpoints.reduce((client, endpoint) => {
+  api.groups.flatMap((x) => x.endpoints).reduce((client, endpoint) => {
     const requestEncoder = ClientRequestEncoder.create(endpoint)
     const responseSchema = utils.createResponseSchema(
       endpoint.schemas.response

@@ -5,7 +5,8 @@ import { expect, test } from "vitest"
 import { simpleApi1 } from "./example-apis.js"
 
 test("fillDefaultSchemas", () => {
-  expect(simpleApi1.endpoints).toHaveLength(1)
+  expect(simpleApi1.groups).toHaveLength(1)
+  expect(simpleApi1.groups.flatMap((x) => x.endpoints)).toHaveLength(1)
 })
 
 test("Attempt to declare duplicate operation id should fail as a safe guard", () => {

@@ -43,12 +43,12 @@ export const fromEndpoint: <Endpoint extends Api.Endpoint, R, E>(
  */
 export const make: <
   A extends Api.Api,
-  Id extends A["endpoints"][number]["id"],
+  Id extends A["groups"][number]["endpoints"][number]["id"],
   R,
   E
 >(
   id: Id,
-  fn: HandlerFunction<Extract<A["endpoints"][number], { id: Id }>, R, E>,
+  fn: HandlerFunction<Extract<A["groups"][number]["endpoints"][number], { id: Id }>, R, E>,
   options?: RouterBuilder.Options
 ) => (api: A) => Router.Route<R, Exclude<E, ServerError.ServerError>> = internal.make
 

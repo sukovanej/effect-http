@@ -4,90 +4,99 @@ import * as AST from "@effect/schema/AST"
 import * as Schema from "@effect/schema/Schema"
 import { identity, pipe } from "effect/Function"
 import * as Option from "effect/Option"
+import * as ReadonlyArray from "effect/ReadonlyArray"
 import * as Api from "../Api.js"
 
 export const make = (
   api: Api.Api
 ): SchemaOpenApi.OpenAPISpec<SchemaOpenApi.OpenAPISchemaType> => {
-  const pathSpecs = api.endpoints.map(
-    ({ id, method, options, path, schemas }) => {
-      const operationSpec = []
+  const pathSpecs = api.groups.flatMap((g) =>
+    g.endpoints.map(
+      ({ id, method, options, path, schemas }) => {
+        const operationSpec = []
 
-      const responseSchema = schemas.response
+        const responseSchema = schemas.response
 
-      if (Schema.isSchema(responseSchema)) {
-        operationSpec.push(
-          SchemaOpenApi.jsonResponse(
-            200,
-            responseSchema,
-            "Response",
-            descriptionSetter(responseSchema)
+        if (Schema.isSchema(responseSchema)) {
+          operationSpec.push(
+            SchemaOpenApi.jsonResponse(
+              200,
+              responseSchema,
+              "Response",
+              descriptionSetter(responseSchema)
+            )
+          )
+        } else {
+          ;(Array.isArray(responseSchema) ? responseSchema : [responseSchema]).map(
+            ({ content, headers, status }) => {
+              const schema = content === Api.IgnoredSchemaId ? undefined : content
+              const setHeaders = headers === Api.IgnoredSchemaId
+                ? identity
+                : SchemaOpenApi.responseHeaders(
+                  createResponseHeadersSchemaMap(headers)
+                )
+
+              operationSpec.push(
+                SchemaOpenApi.jsonResponse(
+                  status as SchemaOpenApi.OpenAPISpecStatusCode,
+                  schema,
+                  `Response ${status}`,
+                  schema ? descriptionSetter(schema) : identity,
+                  setHeaders
+                )
+              )
+            }
+          )
+        }
+
+        const { body, headers, params, query } = schemas.request
+
+        if (params !== Api.IgnoredSchemaId) {
+          operationSpec.push(...createParameterSetters("path", params))
+        }
+
+        if (query !== Api.IgnoredSchemaId) {
+          operationSpec.push(...createParameterSetters("query", query))
+        }
+
+        if (headers !== Api.IgnoredSchemaId) {
+          operationSpec.push(...createParameterSetters("header", headers))
+        }
+
+        if (body !== Api.IgnoredSchemaId) {
+          operationSpec.push(SchemaOpenApi.jsonRequest(body, descriptionSetter(body)))
+        }
+
+        if (options.description !== undefined) {
+          operationSpec.push(SchemaOpenApi.description(options.description))
+        }
+
+        if (options.summary !== undefined) {
+          operationSpec.push(SchemaOpenApi.summary(options.summary))
+        }
+
+        if (options.deprecated) {
+          operationSpec.push(SchemaOpenApi.deprecated)
+        }
+
+        return SchemaOpenApi.path(
+          createPath(path),
+          SchemaOpenApi.operation(
+            method,
+            SchemaOpenApi.operationId(id),
+            SchemaOpenApi.tags(g.options.name),
+            ...operationSpec
           )
         )
-      } else {
-        ;(Array.isArray(responseSchema) ? responseSchema : [responseSchema]).map(
-          ({ content, headers, status }) => {
-            const schema = content === Api.IgnoredSchemaId ? undefined : content
-            const setHeaders = headers === Api.IgnoredSchemaId
-              ? identity
-              : SchemaOpenApi.responseHeaders(
-                createResponseHeadersSchemaMap(headers)
-              )
-
-            operationSpec.push(
-              SchemaOpenApi.jsonResponse(
-                status as SchemaOpenApi.OpenAPISpecStatusCode,
-                schema,
-                `Response ${status}`,
-                schema ? descriptionSetter(schema) : identity,
-                setHeaders
-              )
-            )
-          }
-        )
       }
-
-      const { body, headers, params, query } = schemas.request
-
-      if (params !== Api.IgnoredSchemaId) {
-        operationSpec.push(...createParameterSetters("path", params))
-      }
-
-      if (query !== Api.IgnoredSchemaId) {
-        operationSpec.push(...createParameterSetters("query", query))
-      }
-
-      if (headers !== Api.IgnoredSchemaId) {
-        operationSpec.push(...createParameterSetters("header", headers))
-      }
-
-      if (body !== Api.IgnoredSchemaId) {
-        operationSpec.push(SchemaOpenApi.jsonRequest(body, descriptionSetter(body)))
-      }
-
-      if (options.description !== undefined) {
-        operationSpec.push(SchemaOpenApi.description(options.description))
-      }
-
-      if (options.summary !== undefined) {
-        operationSpec.push(SchemaOpenApi.summary(options.summary))
-      }
-
-      if (options.deprecated) {
-        operationSpec.push(SchemaOpenApi.deprecated)
-      }
-
-      return SchemaOpenApi.path(
-        createPath(path),
-        SchemaOpenApi.operation(
-          method,
-          SchemaOpenApi.operationId(id),
-          SchemaOpenApi.tags(options.groupName),
-          ...operationSpec
-        )
-      )
-    }
+    )
   )
+
+  if (ReadonlyArray.isNonEmptyArray(api.groups)) {
+    const [firstGlobalTag, ...restGlobalTags] = ReadonlyArray.map(api.groups, (x) => x.options)
+
+    pathSpecs.push(SchemaOpenApi.globalTags(firstGlobalTag, ...restGlobalTags))
+  }
 
   const openApi = SchemaOpenApi.openAPI(
     api.options.title,

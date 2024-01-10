@@ -43,6 +43,7 @@ test("reference and schema component", () => {
       title: "Api",
       version: "1.0.0"
     },
+    tags: [{ "name": "default" }],
     paths: {
       "/my-operation": {
         put: {
@@ -98,5 +99,107 @@ test("full info object", () => {
       license: { name: "MIT" }
     },
     paths: {}
+  })
+})
+
+test("group info", () => {
+  const responseSchema = pipe(
+    Schema.struct({ someString: Schema.string }),
+    Schema.identifier("ResponseSchema")
+  )
+
+  const api = Api.api().pipe(
+    Api.put(
+      "operationWithoutGroup",
+      "/operation-without-group",
+      { response: responseSchema },
+      { description: "my description" }
+    ),
+    Api.addGroup(
+      Api.apiGroup("test group", {
+        description: "test description",
+        externalDocs: {
+          url: "http://localhost:8080",
+          description: "Test external Docs description"
+        }
+      }).pipe(
+        Api.put(
+          "myOperation",
+          "/my-operation",
+          { response: responseSchema },
+          { description: "my description" }
+        )
+      )
+    )
+  )
+
+  expect(OpenApi.make(api)).toEqual({
+    openapi: "3.0.3",
+    info: {
+      title: "Api",
+      version: "1.0.0"
+    },
+    tags: [{ name: "default" }, {
+      name: "test group",
+      description: "test description",
+      externalDocs: {
+        url: "http://localhost:8080",
+        description: "Test external Docs description"
+      }
+    }],
+    paths: {
+      "/operation-without-group": {
+        put: {
+          operationId: "operationWithoutGroup",
+          tags: ["default"],
+          responses: {
+            "200": {
+              content: {
+                "application/json": {
+                  schema: {
+                    $ref: "#/components/schemas/ResponseSchema"
+                  }
+                }
+              },
+              description: "Response"
+            }
+          },
+          description: "my description"
+        }
+      },
+      "/my-operation": {
+        put: {
+          operationId: "myOperation",
+          tags: ["test group"],
+          responses: {
+            "200": {
+              content: {
+                "application/json": {
+                  schema: {
+                    $ref: "#/components/schemas/ResponseSchema"
+                  }
+                }
+              },
+              description: "Response"
+            }
+          },
+          description: "my description"
+        }
+      }
+    },
+    components: {
+      schemas: {
+        ResponseSchema: {
+          type: "object",
+          properties: {
+            someString: {
+              type: "string",
+              description: "a string"
+            }
+          },
+          required: ["someString"]
+        }
+      }
+    }
   })
 })
