@@ -1,5 +1,12 @@
 # effect-http
 
+## 0.49.1
+
+### Patch Changes
+
+- 7b1e612: add real groups for storing options used in openapi generation
+- 2730164: Update dependencies.
+
 ## 0.49.0
 
 ### Minor Changes
