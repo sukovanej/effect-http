@@ -26,6 +26,7 @@
     "build-annotate": "babel build --plugins annotate-pure-calls --out-dir build --source-maps",
     "clean": "rimraf build dist coverage .tsbuildinfo",
     "check": "tsc -b tsconfig.json",
+    "check:watch": "tsc -b tsconfig.json --watch",
     "test": "vitest",
     "watch": "tsc -b -w",
     "coverage": "vitest --run --coverage related",
