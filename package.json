@@ -45,16 +45,16 @@
     "@effect/docgen": "^0.3.8",
     "@effect/eslint-plugin": "^0.1.2",
     "@effect/language-service": "^0.1.0",
-    "@effect/platform": "^0.40.4",
-    "@effect/platform-bun": "^0.28.4",
-    "@effect/platform-node": "^0.40.4",
-    "@effect/schema": "^0.59.0",
-    "@types/node": "^20.10.7",
+    "@effect/platform": "^0.41.0",
+    "@effect/platform-bun": "^0.29.0",
+    "@effect/platform-node": "^0.41.0",
+    "@effect/schema": "^0.59.1",
+    "@types/node": "^20.10.8",
     "@types/swagger-ui-dist": "^3.30.4",
     "@typescript-eslint/eslint-plugin": "^6.18.1",
     "@typescript-eslint/parser": "^6.18.1",
     "babel-plugin-annotate-pure-calls": "^0.4.0",
-    "effect": "2.0.2",
+    "effect": "2.0.3",
     "effect-log": "^0.25.0",
     "eslint": "^8.56.0",
     "eslint-import-resolver-typescript": "^3.6.1",
@@ -76,7 +76,7 @@
     "swagger-ui-dist": "^5.11.0"
   },
   "peerDependencies": {
-    "@effect/platform": "^0.40.0",
+    "@effect/platform": "^0.41.0",
     "@effect/schema": "^0.59.0",
     "effect": "^2.0.0"
   }
