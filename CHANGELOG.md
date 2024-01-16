@@ -1,5 +1,17 @@
 # effect-http
 
+## 0.49.3
+
+### Patch Changes
+
+- 4f5a138: Update effect.
+
+## 0.49.2
+
+### Patch Changes
+
+- 07bd2ac: Update dependencies.
+
 ## 0.49.1
 
 ### Patch Changes
