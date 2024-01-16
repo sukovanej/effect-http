@@ -46,17 +46,17 @@
     "@effect/docgen": "^0.3.8",
     "@effect/eslint-plugin": "^0.1.2",
     "@effect/language-service": "^0.1.0",
-    "@effect/platform": "^0.42.1",
-    "@effect/platform-bun": "^0.29.2",
-    "@effect/platform-node": "^0.41.2",
-    "@effect/schema": "^0.60.1",
-    "@types/node": "^20.11.1",
+    "@effect/platform": "^0.42.2",
+    "@effect/platform-bun": "^0.29.3",
+    "@effect/platform-node": "^0.41.3",
+    "@effect/schema": "^0.60.2",
+    "@types/node": "^20.11.3",
     "@types/swagger-ui-dist": "^3.30.4",
-    "@typescript-eslint/eslint-plugin": "^6.18.1",
-    "@typescript-eslint/parser": "^6.18.1",
+    "@typescript-eslint/eslint-plugin": "^6.19.0",
+    "@typescript-eslint/parser": "^6.19.0",
     "babel-plugin-annotate-pure-calls": "^0.4.0",
-    "effect": "2.0.5",
-    "effect-log": "^0.25.0",
+    "effect": "2.1.0",
+    "effect-log": "^0.25.1",
     "eslint": "^8.56.0",
     "eslint-import-resolver-typescript": "^3.6.1",
     "eslint-plugin-codegen": "^0.21.0",
@@ -73,12 +73,12 @@
     "vitest": "^1.2.0"
   },
   "dependencies": {
-    "schema-openapi": "^0.28.1",
+    "schema-openapi": "^0.28.3",
     "swagger-ui-dist": "^5.11.0"
   },
   "peerDependencies": {
     "@effect/platform": "^0.42.0",
     "@effect/schema": "^0.60.0",
-    "effect": "^2.0.0"
+    "effect": "^2.1.0"
   }
 }
