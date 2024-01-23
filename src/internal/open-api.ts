@@ -134,41 +134,29 @@ const descriptionSetter = <A extends { description?: string }>(
     Option.match({ onNone: () => identity<A>, onSome: SchemaOpenApi.description })
   )
 
-const createParameterSetters = (
-  type: "query" | "header" | "path",
-  schema: Schema.Schema<any>
-) => {
-  let ast = schema.ast
-  let properties: ReadonlyArray<AST.PropertySignature> = []
-
+const getPropertySignatures = (
+  openApiType: "query" | "header" | "path",
+  ast: AST.AST
+): ReadonlyArray<AST.PropertySignature> => {
   if (ast._tag === "Transform") {
-    ast = ast.from
+    return getPropertySignatures(openApiType, ast.from)
   }
 
-  if (ast._tag !== "TypeLiteral" && ast._tag !== "Union") {
-    throw new Error(
-      `${type} parameter must be a type literal schema, found ${ast._tag}`
-    )
+  if (ast._tag === "TypeLiteral") {
+    return ast.propertySignatures
   }
 
   if (ast._tag === "Union") {
     const requiredPropertyNamesInUnions = pipe(
       ast.types,
       ReadonlyArray.map((type) =>
-        type._tag === "TypeLiteral" ? type.propertySignatures.filter((ps) => !ps.isOptional).map((ps) => ps.name) : []
+        getPropertySignatures(openApiType, type).filter((ps) => !ps.isOptional).map((ps) => ps.name)
       )
     )
 
-    properties = pipe(
+    return pipe(
       ast.types,
-      ReadonlyArray.flatMap((type) => {
-        if (type._tag !== "TypeLiteral") {
-          throw new Error(
-            `${type} parameter can be only a union of type literals, found ${ast._tag}`
-          )
-        }
-        return type.propertySignatures
-      }),
+      ReadonlyArray.flatMap((type) => getPropertySignatures(openApiType, type)),
       ReadonlyArray.groupBy((ps) => String(ps.name)),
       ReadonlyRecord.toEntries,
       ReadonlyArray.map(([_, ps]) => {
@@ -182,11 +170,18 @@ const createParameterSetters = (
         )
       })
     )
-  } else {
-    properties = ast.propertySignatures
   }
 
-  return properties.map((ps) => {
+  throw new Error(
+    `${ast._tag} is not supported for ${openApiType} parameter.`
+  )
+}
+
+const createParameterSetters = (
+  type: "query" | "header" | "path",
+  schema: Schema.Schema<any>
+) => {
+  return getPropertySignatures(type, schema.ast).map((ps) => {
     if (typeof ps.name !== "string") {
       throw new Error(`${type} parameter struct fields must be strings`)
     }
