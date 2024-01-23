@@ -2,6 +2,7 @@ import * as SchemaOpenApi from "schema-openapi"
 
 import * as AST from "@effect/schema/AST"
 import * as Schema from "@effect/schema/Schema"
+import { ReadonlyRecord } from "effect"
 import { identity, pipe } from "effect/Function"
 import * as Option from "effect/Option"
 import * as ReadonlyArray from "effect/ReadonlyArray"
@@ -138,18 +139,54 @@ const createParameterSetters = (
   schema: Schema.Schema<any>
 ) => {
   let ast = schema.ast
+  let properties: ReadonlyArray<AST.PropertySignature> = []
 
   if (ast._tag === "Transform") {
     ast = ast.from
   }
 
-  if (ast._tag !== "TypeLiteral") {
+  if (ast._tag !== "TypeLiteral" && ast._tag !== "Union") {
     throw new Error(
       `${type} parameter must be a type literal schema, found ${ast._tag}`
     )
   }
 
-  return ast.propertySignatures.map((ps) => {
+  if (ast._tag === "Union") {
+    const requiredPropertyNamesInUnions = pipe(
+      ast.types,
+      ReadonlyArray.map((type) =>
+        type._tag === "TypeLiteral" ? type.propertySignatures.filter((ps) => !ps.isOptional).map((ps) => ps.name) : []
+      )
+    )
+
+    properties = pipe(
+      ast.types,
+      ReadonlyArray.flatMap((type) => {
+        if (type._tag !== "TypeLiteral") {
+          throw new Error(
+            `${type} parameter can be only a union of type literals, found ${ast._tag}`
+          )
+        }
+        return type.propertySignatures
+      }),
+      ReadonlyArray.groupBy((ps) => String(ps.name)),
+      ReadonlyRecord.toEntries,
+      ReadonlyArray.map(([_, ps]) => {
+        const [first, ...rest] = ps
+        return AST.createPropertySignature(
+          first.name,
+          AST.createUnion(ps.map((ps) => ps.type)),
+          !requiredPropertyNamesInUnions.every((names) => names.includes(first.name)),
+          rest.reduce((acc, cur) => acc || cur.isReadonly, first.isReadonly),
+          first.annotations
+        )
+      })
+    )
+  } else {
+    properties = ast.propertySignatures
+  }
+
+  return properties.map((ps) => {
     if (typeof ps.name !== "string") {
       throw new Error(`${type} parameter struct fields must be strings`)
     }
