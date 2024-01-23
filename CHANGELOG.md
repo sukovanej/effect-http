@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.49.7
+
+### Patch Changes
+
+- 0fe0008: Add `server` OpenAPI option.
+
 ## 0.49.6
 
 ### Patch Changes
