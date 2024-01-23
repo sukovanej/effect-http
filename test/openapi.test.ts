@@ -216,7 +216,9 @@ test("union in query params", () => {
           query: Schema.union(
             Schema.struct({ a: Schema.string }),
             Schema.struct({ a: Schema.number, b: Schema.string }),
-            Schema.struct({ a: Schema.number, c: Schema.string })
+            Schema.struct({ a: Schema.number, c: Schema.string }).pipe(
+              Schema.attachPropertySignature("_tag", "Case2")
+            )
           )
         }
       }
