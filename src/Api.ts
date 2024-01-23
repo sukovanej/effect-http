@@ -13,6 +13,7 @@ import type * as Schema from "@effect/schema/Schema"
 import type * as Pipeable from "effect/Pipeable"
 import type * as ReadonlyArray from "effect/ReadonlyArray"
 import type * as Types from "effect/Types"
+import type * as OpenApi from "schema-openapi/types"
 
 import * as internal from "./internal/api.js"
 import type * as Representation from "./Representation.js"
@@ -52,6 +53,7 @@ export interface Api<E extends Endpoint = Endpoint> extends Pipeable.Pipeable {
     title: string
     version: string
     description?: string
+    servers?: ReadonlyArray<OpenApi.OpenAPISpecServer | string>
     license?: {
       name: string
       url?: string
