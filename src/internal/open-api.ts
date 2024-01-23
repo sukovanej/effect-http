@@ -99,6 +99,19 @@ export const make = (
     pathSpecs.push(SchemaOpenApi.globalTags(firstGlobalTag, ...restGlobalTags))
   }
 
+  if (api.options.servers) {
+    pathSpecs.push(
+      ...api.options.servers.map((server) =>
+        typeof server === "string"
+          ? SchemaOpenApi.server(server)
+          : SchemaOpenApi.server(
+            server.url,
+            (_s) => ({ ..._s, ...server })
+          )
+      )
+    )
+  }
+
   const openApi = SchemaOpenApi.openAPI(
     api.options.title,
     api.options.version,
