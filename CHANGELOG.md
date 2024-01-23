@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.49.4
+
+### Patch Changes
+
+- a414555: Update effect.
+
 ## 0.49.3
 
 ### Patch Changes
