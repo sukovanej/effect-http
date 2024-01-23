@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.49.6
+
+### Patch Changes
+
+- cf7b958: Fix OpenAPI parameters generations.
+
 ## 0.49.5
 
 ### Patch Changes
