@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.49.5
+
+### Patch Changes
+
+- b8a357e: Support `Schema.union` for OpenAPI parameters.
+
 ## 0.49.4
 
 ### Patch Changes
