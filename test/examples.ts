@@ -66,7 +66,7 @@ export const exampleApiGetCustomResponseWithHeaders = Api.api().pipe(
 // Example GET, option response field
 
 const ExampleSchemaOptionalField = Schema.struct({
-  foo: Schema.optional(Schema.string, { as: "Option" })
+  foo: Schema.optional(Schema.string, { as: "Option", exact: true })
 })
 
 export const exampleApiGetOptionalField = Api.api().pipe(
@@ -160,31 +160,31 @@ export const exampleApiOptional = Api.api().pipe(
     response: Schema.struct({
       query: Schema.struct({
         value: Schema.number,
-        another: Schema.optional(Schema.string)
+        another: Schema.optional(Schema.string, { exact: true })
       }),
       params: Schema.struct({
         value: Schema.number,
-        another: Schema.optional(Schema.string)
+        another: Schema.optional(Schema.string, { exact: true })
       }),
       headers: Schema.struct({
         value: Schema.number,
-        another: Schema.optional(Schema.string),
-        hello: Schema.optional(Schema.string)
+        another: Schema.optional(Schema.string, { exact: true }),
+        hello: Schema.optional(Schema.string, { exact: true })
       })
     }),
     request: {
       query: Schema.struct({
         value: Schema.NumberFromString,
-        another: Schema.optional(Schema.string)
+        another: Schema.optional(Schema.string, { exact: true })
       }),
       params: Schema.struct({
         value: Schema.NumberFromString,
-        another: Schema.optional(Schema.string)
+        another: Schema.optional(Schema.string, { exact: true })
       }),
       headers: Schema.struct({
         value: Schema.NumberFromString,
-        another: Schema.optional(Schema.string),
-        hello: Schema.optional(Schema.string)
+        another: Schema.optional(Schema.string, { exact: true }),
+        hello: Schema.optional(Schema.string, { exact: true })
       })
     }
   })
@@ -197,13 +197,13 @@ export const exampleApiOptionalParams = Api.api().pipe(
     response: Schema.struct({
       params: Schema.struct({
         value: Schema.number,
-        another: Schema.optional(Schema.string)
+        another: Schema.optional(Schema.string, { exact: true })
       })
     }),
     request: {
       params: Schema.struct({
         value: Schema.NumberFromString,
-        another: Schema.optional(Schema.string)
+        another: Schema.optional(Schema.string, { exact: true })
       })
     }
   })
