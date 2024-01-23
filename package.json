@@ -46,20 +46,20 @@
     "@effect/docgen": "^0.3.8",
     "@effect/eslint-plugin": "^0.1.2",
     "@effect/language-service": "^0.1.0",
-    "@effect/platform": "^0.42.4",
-    "@effect/platform-bun": "^0.29.5",
-    "@effect/platform-node": "^0.41.5",
-    "@effect/schema": "^0.60.4",
+    "@effect/platform": "^0.42.7",
+    "@effect/platform-bun": "^0.29.8",
+    "@effect/platform-node": "^0.41.8",
+    "@effect/schema": "^0.60.7",
     "@types/node": "^20.11.5",
     "@types/swagger-ui-dist": "^3.30.4",
-    "@typescript-eslint/eslint-plugin": "^6.19.0",
-    "@typescript-eslint/parser": "^6.19.0",
+    "@typescript-eslint/eslint-plugin": "^6.19.1",
+    "@typescript-eslint/parser": "^6.19.1",
     "babel-plugin-annotate-pure-calls": "^0.4.0",
-    "effect": "2.1.1",
-    "effect-log": "^0.25.1",
+    "effect": "2.2.0",
+    "effect-log": "^0.25.2",
     "eslint": "^8.56.0",
     "eslint-import-resolver-typescript": "^3.6.1",
-    "eslint-plugin-codegen": "^0.21.0",
+    "eslint-plugin-codegen": "^0.22.1",
     "eslint-plugin-deprecation": "^2.0.0",
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-simple-import-sort": "^10.0.0",
@@ -69,16 +69,16 @@
     "rimraf": "^5.0.5",
     "tsx": "^4.7.0",
     "typescript": "^5.3.3",
-    "vite": "^5.0.11",
+    "vite": "^5.0.12",
     "vitest": "^1.2.1"
   },
   "dependencies": {
-    "schema-openapi": "^0.28.3",
+    "schema-openapi": "^0.28.4",
     "swagger-ui-dist": "^5.11.0"
   },
   "peerDependencies": {
     "@effect/platform": "^0.42.0",
     "@effect/schema": "^0.60.0",
-    "effect": "^2.1.0"
+    "effect": "^2.2.0"
   }
 }
