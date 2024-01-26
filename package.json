@@ -77,7 +77,7 @@
     "swagger-ui-dist": "^5.11.1"
   },
   "peerDependencies": {
-    "@effect/platform": "^0.42.0",
+    "@effect/platform": "^0.43.0",
     "@effect/schema": "^0.60.0",
     "effect": "^2.2.0"
   }
