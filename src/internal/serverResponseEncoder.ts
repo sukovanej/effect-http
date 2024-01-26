@@ -33,7 +33,7 @@ export const create = (
   responseSchema: Api.EndpointSchemas["response"]
 ): ServerResponseEncoder => {
   if (Schema.isSchema(responseSchema)) {
-    return fromSchema(responseSchema)
+    return fromSchema(responseSchema as Schema.Schema<never, any>)
   } else if (Array.isArray(responseSchema)) {
     return fromResponseSchemaFullArray(responseSchema)
   }
@@ -62,7 +62,7 @@ const representationFromRequest = (
   )
 }
 
-const encodeContent = (schema: Schema.Schema<any>) => {
+const encodeContent = (schema: Schema.Schema<never, any>) => {
   const encode = Schema.encode(schema)
 
   return (content: unknown, representation: Representation.Representation) =>
@@ -91,7 +91,7 @@ const encodeContent = (schema: Schema.Schema<any>) => {
     )
 }
 
-const fromSchema = (schema: Schema.Schema<any>): ServerResponseEncoder => {
+const fromSchema = (schema: Schema.Schema<never, any>): ServerResponseEncoder => {
   const encode = encodeContent(schema)
   const representation = Representation.json
 
@@ -138,7 +138,7 @@ const fromResponseSchemaFullArray = (
 
 const createContentSetter = (schema: Api.ResponseSchemaFull) => {
   const contentSchema = schema.content === Api.IgnoredSchemaId ? undefined : schema.content
-  const encode = contentSchema && encodeContent(contentSchema)
+  const encode = contentSchema && encodeContent(contentSchema as Schema.Schema<never, any>)
 
   return (
     inputResponse: FullResponseInput,
@@ -160,7 +160,7 @@ const createContentSetter = (schema: Api.ResponseSchemaFull) => {
 const createHeadersSetter = (schema: Api.ResponseSchemaFull) => {
   const parseHeaders = schema.headers === Api.IgnoredSchemaId
     ? undefined
-    : Schema.encode(schema.headers)
+    : Schema.encode(schema.headers as Schema.Schema<never, any>)
 
   return (inputResponse: FullResponseInput) => (response: ServerResponse.ServerResponse) => {
     if (parseHeaders === undefined && inputResponse.headers !== undefined) {
@@ -193,4 +193,4 @@ const FullResponseInput = Schema.struct({
 })
 type FullResponseInput = Schema.Schema.To<typeof FullResponseInput>
 
-const parseFullResponseInput = Schema.parse(FullResponseInput)
+const parseFullResponseInput = Schema.decodeUnknown(FullResponseInput)

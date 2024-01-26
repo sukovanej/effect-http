@@ -62,7 +62,7 @@ const createBodyParser = (
     return () => Effect.succeed(undefined)
   }
 
-  const parse = Schema.parse(schema)
+  const parse = Schema.decodeUnknown(schema as Schema.Schema<never, any>)
 
   return Unify.unify((request: ServerRequest.ServerRequest) => {
     if (schema === Api.FormData) {
@@ -97,7 +97,7 @@ const createQueryParser = (
     return () => Effect.succeed(undefined)
   }
 
-  const parse = Schema.parse(schema)
+  const parse = Schema.decodeUnknown(schema as Schema.Schema<never, any>)
 
   return (context: Router.RouteContext) => {
     return parse(context.searchParams, parseOptions).pipe(
@@ -116,7 +116,7 @@ const createHeadersParser = (
     return () => Effect.succeed(undefined)
   }
 
-  const parse = Schema.parse(schema)
+  const parse = Schema.decodeUnknown(schema as Schema.Schema<never, any>)
 
   return (request: ServerRequest.ServerRequest) =>
     parse(request.headers, parseOptions).pipe(
@@ -134,7 +134,7 @@ const createParamsParser = (
     return () => Effect.succeed(undefined)
   }
 
-  const parse = Schema.parse(schema)
+  const parse = Schema.decodeUnknown(schema as Schema.Schema<never, any>)
 
   return (ctx: Router.RouteContext) =>
     parse(ctx.params, parseOptions).pipe(

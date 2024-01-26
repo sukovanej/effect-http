@@ -23,7 +23,7 @@ export const create = (
   responseSchema: Api.EndpointSchemas["response"]
 ): ClientResponseParser => {
   if (Schema.isSchema(responseSchema)) {
-    return fromSchema(responseSchema)
+    return fromSchema(responseSchema as Schema.Schema<never, any>)
   } else if (Array.isArray(responseSchema)) {
     return fromResponseSchemaFullArray(responseSchema)
   }
@@ -45,7 +45,7 @@ const handleUnsucessful = Unify.unify(
   }
 )
 
-const fromSchema = (schema: Schema.Schema<any>): ClientResponseParser => {
+const fromSchema = (schema: Schema.Schema<never, any>): ClientResponseParser => {
   const decode = decodeBody(schema, [Representation.json])
 
   return make((response) => handleUnsucessful(response).pipe(Effect.flatMap(() => decode(response))))
@@ -74,14 +74,14 @@ const fromResponseSchemaFullArray = (
       }
 
       const schemas = statusToSchema[response.status]
-      const parseBody = parseContent(schemas.content, schemas.representations)
+      const parseBody = parseContent(schemas.content as Schema.Schema<never, any>, schemas.representations)
       const content = yield* _(parseBody(response))
 
       const headers = schemas.headers === Api.IgnoredSchemaId
         ? undefined
         : yield* _(
           response.headers,
-          Schema.parse(schemas.headers),
+          Schema.decodeUnknown(schemas.headers as Schema.Schema<never, any>),
           Effect.mapError(
             ClientError.makeClientSideResponseValidation("headers")
           )
@@ -114,10 +114,10 @@ const representationFromResponse = (
 }
 
 const decodeBody = (
-  schema: Schema.Schema<any>,
+  schema: Schema.Schema<never, any>,
   representations: ReadonlyArray.NonEmptyReadonlyArray<Representation.Representation>
 ) => {
-  const parse = Schema.parse(schema)
+  const parse = Schema.decodeUnknown(schema)
 
   return (response: ClientResponse.ClientResponse) => {
     const representation = representationFromResponse(
@@ -149,7 +149,7 @@ const decodeBody = (
 }
 
 const parseContent: (
-  schema: Schema.Schema<any> | Api.IgnoredSchemaId,
+  schema: Schema.Schema<never, any> | Api.IgnoredSchemaId,
   representations: ReadonlyArray.NonEmptyReadonlyArray<Representation.Representation>
 ) => (
   response: ClientResponse.ClientResponse

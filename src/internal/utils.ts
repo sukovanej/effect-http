@@ -4,9 +4,9 @@ import type * as Api from "../Api.js"
 import { IgnoredSchemaId } from "./api.js"
 
 /** @internal */
-export const getSchema = <A = Schema.Schema<any>>(
-  input: Schema.Schema<any> | Api.IgnoredSchemaId,
-  defaultSchema: Schema.Schema<any> | A = Schema.unknown
+export const getSchema = <A = Schema.Schema<any, any>>(
+  input: Schema.Schema<any, any> | Api.IgnoredSchemaId,
+  defaultSchema: Schema.Schema<any, any> | A = Schema.unknown
 ) => (input == IgnoredSchemaId ? defaultSchema : input)
 
 /** @internal */
@@ -32,7 +32,7 @@ export const createResponseSchema = (
   )
 }
 
-export type SchemaTo<S> = S extends Schema.Schema<any, infer A> ? A : never
+export type SchemaTo<S> = S extends Schema.Schema<any, any, infer A> ? A : never
 
 /** @internal */
 export const convertMethod = (method: Api.Method): Method.Method => method.toUpperCase() as Method.Method

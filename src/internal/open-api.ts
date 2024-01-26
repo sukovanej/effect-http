@@ -139,7 +139,7 @@ const createPath = (path: string) =>
     .replace(/:(\w+)$/g, "{$1}")
 
 const descriptionSetter = <A extends { description?: string }>(
-  schema: Schema.Schema<any, any>
+  schema: Schema.Schema<any, any, any>
 ) =>
   pipe(
     schema.ast,
@@ -192,14 +192,14 @@ const getPropertySignatures = (
 
 const createParameterSetters = (
   type: "query" | "header" | "path",
-  schema: Schema.Schema<any>
+  schema: Schema.Schema<any, any>
 ) => {
   return getPropertySignatures(type, schema.ast).map((ps) => {
     if (typeof ps.name !== "string") {
       throw new Error(`${type} parameter struct fields must be strings`)
     }
 
-    const schema = Schema.make(ps.type)
+    const schema = Schema.make<never, unknown, unknown>(ps.type)
 
     return SchemaOpenApi.parameter(
       ps.name,
@@ -211,7 +211,7 @@ const createParameterSetters = (
   })
 }
 
-const createResponseHeadersSchemaMap = (schema: Schema.Schema<any>) => {
+const createResponseHeadersSchemaMap = (schema: Schema.Schema<any, any>) => {
   let ast = schema.ast
 
   if (ast._tag === "Transform") {
@@ -225,7 +225,7 @@ const createResponseHeadersSchemaMap = (schema: Schema.Schema<any>) => {
   return Object.fromEntries(
     ast.propertySignatures.map((ps) => [
       ps.name,
-      Schema.make<string, unknown>(ps.type)
+      Schema.make<never, string, unknown>(ps.type)
     ])
   )
 }

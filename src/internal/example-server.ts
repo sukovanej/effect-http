@@ -10,18 +10,20 @@ import * as utils from "./utils.js"
 
 export const make = <A extends Api.Api>(
   api: A
-): RouterBuilder.RouterBuilder<never, never, never> => handleRemaining(RouterBuilder.make(api))
+): RouterBuilder.RouterBuilder<
+  Api.ApiRequirements<A>,
+  never,
+  never
+> => handleRemaining(RouterBuilder.make(api))
 
 export const handle = <
   RemainingEndpoints extends Api.Endpoint,
   Id extends RemainingEndpoints["id"]
->(
-  id: Id
-) =>
+>(id: Id) =>
 <R, E>(
   routerBuilder: RouterBuilder.RouterBuilder<R, E, RemainingEndpoints>
 ): RouterBuilder.RouterBuilder<
-  R,
+  R | Api.EndpointRequirements<Extract<RemainingEndpoints, { id: Id }>>,
   E,
   Exclude<RemainingEndpoints, { id: Id }>
 > => {
@@ -35,15 +37,22 @@ export const handle = <
 
 export const handleRemaining = <RemainingEndpoints extends Api.Endpoint, R, E>(
   routerBuilder: RouterBuilder.RouterBuilder<R, E, RemainingEndpoints>
-): RouterBuilder.RouterBuilder<R, E, never> =>
+): RouterBuilder.RouterBuilder<R | Api.EndpointRequirements<RemainingEndpoints>, E, never> =>
   pipe(
     routerBuilder.remainingEndpoints,
-    ReadonlyArray.reduce(routerBuilder, (server, endpoint) =>
-      pipe(
-        server,
-        RouterBuilder.handle(endpoint.id, createExampleHandler(endpoint))
-      ))
-  ) as RouterBuilder.RouterBuilder<R, E, never>
+    ReadonlyArray.reduce(
+      routerBuilder as RouterBuilder.RouterBuilder<
+        R | Api.EndpointRequirements<RemainingEndpoints>,
+        E,
+        RemainingEndpoints
+      >,
+      (server, endpoint) =>
+        pipe(
+          server,
+          RouterBuilder.handle(endpoint.id, createExampleHandler(endpoint))
+        )
+    )
+  ) as RouterBuilder.RouterBuilder<R | Api.EndpointRequirements<RemainingEndpoints>, E, never>
 
 const createExampleHandler = ({ schemas }: Api.Endpoint) => {
   const responseSchema = utils.createResponseSchema(schemas.response)
