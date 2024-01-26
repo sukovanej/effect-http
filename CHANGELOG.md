@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.50.1
+
+### Patch Changes
+
+- 8cf21d6: Update @effect/platform.
+
 ## 0.50.0
 
 ### Minor Changes
