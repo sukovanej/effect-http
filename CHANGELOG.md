@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.50.0
+
+### Minor Changes
+
+- 48b6938: Update @effect/schema.
+
 ## 0.49.7
 
 ### Patch Changes
