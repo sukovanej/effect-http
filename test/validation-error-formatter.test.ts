@@ -12,8 +12,8 @@ const expectError = <E>(self: Either.Either<E, unknown>): E =>
     }
   })
 
-const evaluate = (value: unknown) => (schema: Schema.Schema<any, any>) =>
-  pipe(Schema.parseEither(schema)(value), expectError, formatParseError)
+const evaluate = (value: unknown) => (schema: Schema.Schema<never, any, any>) =>
+  pipe(Schema.decodeUnknownEither(schema)(value), expectError, formatParseError)
 
 describe("struct", () => {
   test("simple string", () => {
@@ -108,11 +108,11 @@ test("pattern", () => {
 })
 
 const getErrorOrThrow = <From, To>(
-  schema: Schema.Schema<From, To>,
+  schema: Schema.Schema<never, From, To>,
   value: unknown
 ) =>
   pipe(
-    Schema.parseEither(schema),
+    Schema.decodeUnknownEither(schema),
     apply(value),
     Either.flip,
     Either.getOrThrow,

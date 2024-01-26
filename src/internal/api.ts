@@ -6,6 +6,7 @@ import * as HashSet from "effect/HashSet"
 import * as Order from "effect/Order"
 import * as Pipeable from "effect/Pipeable"
 import * as ReadonlyArray from "effect/ReadonlyArray"
+import * as OpenApi from "schema-openapi/compiler"
 import type * as Api from "../Api.js"
 import * as Representation from "../Representation.js"
 
@@ -54,7 +55,7 @@ const tupleEquivalence = Equivalence.tuple(
 const arrayOfTupleEquals = ReadonlyArray.getEquivalence(tupleEquivalence)
 
 /** @internal */
-const getSchemaPropertySignatures = (schema: Schema.Schema<any>) => {
+const getSchemaPropertySignatures = (schema: Schema.Schema<any, any>) => {
   let ast = schema.ast
 
   if (ast._tag === "Transform") {
@@ -72,7 +73,7 @@ const getSchemaPropertySignatures = (schema: Schema.Schema<any>) => {
 const checkPathPatternMatchesSchema = (
   id: string,
   path: string,
-  schema?: Schema.Schema<any>
+  schema?: Schema.Schema<any, any>
 ) => {
   const fromSchema = pipe(
     schema === undefined ? [] : getSchemaPropertySignatures(schema),
@@ -164,7 +165,7 @@ export const endpoint = (method: Api.Method) =>
  *
  *  @internal
  */
-export const fieldsToLowerCase = (s: Schema.Schema<any>) => {
+export const fieldsToLowerCase = (s: Schema.Schema<any, any>) => {
   const ast = s.ast
 
   if (ast._tag !== "TypeLiteral") {
@@ -300,6 +301,5 @@ class ApiGroupImpl<Endpoints extends Api.Endpoint> implements Api.ApiGroup<Endpo
 }
 
 export const formDataSchema = Schema.instanceOf(FormData, {
-  jsonSchema: { type: "string" },
   description: "Multipart form data"
-})
+}).pipe(OpenApi.annotate({}))

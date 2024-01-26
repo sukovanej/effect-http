@@ -37,8 +37,8 @@
     "docgen": "docgen"
   },
   "devDependencies": {
-    "@babel/cli": "^7.23.4",
-    "@babel/core": "^7.23.7",
+    "@babel/cli": "^7.23.9",
+    "@babel/core": "^7.23.9",
     "@babel/plugin-transform-export-namespace-from": "^7.23.4",
     "@babel/plugin-transform-modules-commonjs": "^7.23.3",
     "@changesets/cli": "^2.27.1",
@@ -46,16 +46,16 @@
     "@effect/docgen": "^0.3.8",
     "@effect/eslint-plugin": "^0.1.2",
     "@effect/language-service": "^0.1.0",
-    "@effect/platform": "^0.42.7",
-    "@effect/platform-bun": "^0.29.8",
-    "@effect/platform-node": "^0.41.8",
-    "@effect/schema": "^0.60.7",
-    "@types/node": "^20.11.5",
+    "@effect/platform": "^0.43.3",
+    "@effect/platform-bun": "^0.30.3",
+    "@effect/platform-node": "^0.42.3",
+    "@effect/schema": "^0.61.3",
+    "@types/node": "^20.11.7",
     "@types/swagger-ui-dist": "^3.30.4",
     "@typescript-eslint/eslint-plugin": "^6.19.1",
     "@typescript-eslint/parser": "^6.19.1",
     "babel-plugin-annotate-pure-calls": "^0.4.0",
-    "effect": "2.2.0",
+    "effect": "2.2.2",
     "effect-log": "^0.25.2",
     "eslint": "^8.56.0",
     "eslint-import-resolver-typescript": "^3.6.1",
@@ -70,11 +70,11 @@
     "tsx": "^4.7.0",
     "typescript": "^5.3.3",
     "vite": "^5.0.12",
-    "vitest": "^1.2.1"
+    "vitest": "^1.2.2"
   },
   "dependencies": {
-    "schema-openapi": "^0.28.4",
-    "swagger-ui-dist": "^5.11.0"
+    "schema-openapi": "^0.29.2",
+    "swagger-ui-dist": "^5.11.1"
   },
   "peerDependencies": {
     "@effect/platform": "^0.42.0",

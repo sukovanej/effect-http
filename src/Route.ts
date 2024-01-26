@@ -53,7 +53,7 @@ export const make: <
 ) => (api: A) => Router.Route<R, Exclude<E, ServerError.ServerError>> = internal.make
 
 /** @ignore */
-type EndpointResponseSchemaTo<S> = S extends Schema.Schema<any> ? utils.SchemaTo<S>
+type EndpointResponseSchemaTo<S> = S extends Schema.Schema<any, any> ? utils.SchemaTo<S>
   : S extends ReadonlyArray<Api.ResponseSchemaFull> ? ResponseSchemaFullTo<S[number]>
   : S extends Api.ResponseSchemaFull ? ResponseSchemaFullTo<S>
   : never
@@ -69,7 +69,7 @@ export type ResponseSchemaFullTo<S extends Api.ResponseSchemaFull> = S extends a
           RequiredFields<S>,
           "status" | "representations"
         >
-      ]: S[K] extends Schema.Schema<any> ? utils.SchemaTo<S[K]> : never
+      ]: S[K] extends Schema.Schema<any, any> ? utils.SchemaTo<S[K]> : never
     }
   >
   : never
