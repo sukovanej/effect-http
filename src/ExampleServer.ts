@@ -20,7 +20,7 @@ import type * as RouterBuilder from "./RouterBuilder.js"
  */
 export const make: <A extends Api.Api>(
   api: A
-) => RouterBuilder.RouterBuilder<never, never, never> = internal.make
+) => RouterBuilder.RouterBuilder<Api.ApiRequirements<A>, never, never> = internal.make
 
 /**
  * Create an example implementation for a single endpoint.
@@ -36,7 +36,7 @@ export const handle: <
 ) => <R, E>(
   routerBuilder: RouterBuilder.RouterBuilder<R, E, RemainingEndpoints>
 ) => RouterBuilder.RouterBuilder<
-  R,
+  R | Api.EndpointRequirements<Extract<RemainingEndpoints, { id: Id }>>,
   E,
   Exclude<RemainingEndpoints, { id: Id }>
 > = internal.handle
@@ -49,4 +49,4 @@ export const handle: <
  */
 export const handleRemaining: <RemainingEndpoints extends Api.Endpoint, R, E>(
   routerBuilder: RouterBuilder.RouterBuilder<R, E, RemainingEndpoints>
-) => RouterBuilder.RouterBuilder<R, E, never> = internal.handleRemaining
+) => RouterBuilder.RouterBuilder<R | Api.EndpointRequirements<RemainingEndpoints>, E, never> = internal.handleRemaining

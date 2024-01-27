@@ -93,12 +93,17 @@ export const handle = <
   Id extends RemainingEndpoints["id"]
 >(
   id: Id,
-  fn: Route.HandlerFunction<Extract<RemainingEndpoints, { id: Id }>, R2, E2>
+  fn: Route.HandlerFunction<
+    Extract<RemainingEndpoints, { id: Id }>,
+    R2,
+    E2
+  >
 ) =>
 <R1, E1>(
   builder: RouterBuilder.RouterBuilder<R1, E1, RemainingEndpoints>
 ): RouterBuilder.RouterBuilder<
-  Exclude<R1 | R2, Router.RouteContext | ServerRequest.ServerRequest>,
+  | Exclude<R1 | R2, Router.RouteContext | ServerRequest.ServerRequest>
+  | Api.EndpointRequirements<Extract<RemainingEndpoints, { id: Id }>>,
   E1 | Exclude<E2, ServerError.ServerError>,
   Exclude<RemainingEndpoints, { id: Id }>
 > => {

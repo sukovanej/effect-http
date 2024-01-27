@@ -11,7 +11,7 @@ const responseSchema = Schema.struct({
 })
 
 const api = pipe(
-  Api.api(),
+  Api.api({ servers: ["http://localhost:3000", { description: "hello", url: "/api/" }] }),
   Api.get("test", "/test", { response: responseSchema })
 )
 

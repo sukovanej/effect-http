@@ -1,5 +1,47 @@
 # effect-http
 
+## 0.50.2
+
+### Patch Changes
+
+- fd33667: Update @effect/schema peer dependency.
+
+## 0.50.1
+
+### Patch Changes
+
+- 8cf21d6: Update @effect/platform.
+
+## 0.50.0
+
+### Minor Changes
+
+- 48b6938: Update @effect/schema.
+
+## 0.49.7
+
+### Patch Changes
+
+- 0fe0008: Add `server` OpenAPI option.
+
+## 0.49.6
+
+### Patch Changes
+
+- cf7b958: Fix OpenAPI parameters generations.
+
+## 0.49.5
+
+### Patch Changes
+
+- b8a357e: Support `Schema.union` for OpenAPI parameters.
+
+## 0.49.4
+
+### Patch Changes
+
+- a414555: Update effect.
+
 ## 0.49.3
 
 ### Patch Changes

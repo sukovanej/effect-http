@@ -73,7 +73,7 @@ const createBodyEncoder = (endpoint: Api.Endpoint) => {
     return ignoredSchemaEncoder("body")
   }
 
-  const encode = Schema.encode(schema)
+  const encode = Schema.encode(schema as Schema.Schema<never, any>)
 
   return (body: unknown) => {
     return encode(body).pipe(
@@ -98,7 +98,7 @@ const createQueryEncoder = (endpoint: Api.Endpoint) => {
     return ignoredSchemaEncoder("query")
   }
 
-  const encode = Schema.encode(schema)
+  const encode = Schema.encode(schema as Schema.Schema<never, any>)
 
   return (query: unknown) => {
     return encode(query).pipe(
@@ -115,7 +115,7 @@ const createQueryEncoder = (endpoint: Api.Endpoint) => {
 const createHeadersEncoder = (endpoint: Api.Endpoint) => {
   const schema = endpoint.schemas.request.headers
 
-  const encode = schema == Api.IgnoredSchemaId ? undefined : Schema.encode(schema)
+  const encode = schema == Api.IgnoredSchemaId ? undefined : Schema.encode(schema as Schema.Schema<never, any>)
 
   return (headers: unknown) => {
     if (!isRecordOrUndefined(headers)) {
@@ -140,7 +140,7 @@ const createParamsEncoder = (endpoint: Api.Endpoint) => {
     return ignoredSchemaEncoder("params")
   }
 
-  const encode = Schema.encode(schema)
+  const encode = Schema.encode(schema as Schema.Schema<never, any>)
 
   return (params: unknown) => {
     return encode(params).pipe(

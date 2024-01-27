@@ -203,3 +203,65 @@ test("group info", () => {
     }
   })
 })
+
+test("union in query params", () => {
+  const api = pipe(
+    Api.api(),
+    Api.post(
+      "myOperation",
+      "/my-operation",
+      {
+        response: Schema.string,
+        request: {
+          query: Schema.union(
+            Schema.struct({ a: Schema.string }),
+            Schema.struct({ a: Schema.number, b: Schema.string }),
+            Schema.struct({ a: Schema.number, c: Schema.string }).pipe(
+              Schema.attachPropertySignature("_tag", "Case2")
+            )
+          )
+        }
+      }
+    )
+  )
+
+  const openApi = OpenApi.make(api)
+
+  expect(openApi.paths["/my-operation"].post?.parameters).toEqual([
+    {
+      "in": "query",
+      "name": "a",
+      "required": true,
+      "schema": {
+        "oneOf": [
+          {
+            "description": "a number",
+            "type": "number"
+          },
+          {
+            "description": "a string",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "description": "a string",
+      "in": "query",
+      "name": "b",
+      "schema": {
+        "description": "a string",
+        "type": "string"
+      }
+    },
+    {
+      "description": "a string",
+      "in": "query",
+      "name": "c",
+      "schema": {
+        "description": "a string",
+        "type": "string"
+      }
+    }
+  ])
+})
