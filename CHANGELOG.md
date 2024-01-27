@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.50.2
+
+### Patch Changes
+
+- fd33667: Update @effect/schema peer dependency.
+
 ## 0.50.1
 
 ### Patch Changes
