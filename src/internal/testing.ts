@@ -43,7 +43,12 @@ export const make = <R, E, Endpoints extends Api.Endpoint>(
 
     return yield* _(
       Deferred.await(allocatedUrl),
-      Effect.map((url) => Client.make(api, { baseUrl: url, ...options }))
+      Effect.map((url) =>
+        Client.make(
+          api,
+          { baseUrl: url, ...options, httpClient: PlatformClient.fetch({ keepalive: false }) }
+        )
+      )
     )
   })
 
@@ -80,7 +85,7 @@ export const makeRaw = <R, E>(
     return yield* _(
       Deferred.await(allocatedUrl),
       Effect.map((url) =>
-        PlatformClient.fetch().pipe(
+        PlatformClient.fetch({ keepalive: false }).pipe(
           PlatformClient.mapRequest(ClientRequest.prependUrl(url))
         )
       )
