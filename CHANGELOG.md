@@ -1,5 +1,12 @@
 # effect-http
 
+## 0.50.3
+
+### Patch Changes
+
+- 65e09c5: Update schema-openapi.
+- 5b25320: Disable keep-alive for the testing client.
+
 ## 0.50.2
 
 ### Patch Changes
