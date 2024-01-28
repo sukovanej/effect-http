@@ -73,7 +73,7 @@
     "vitest": "^1.2.2"
   },
   "dependencies": {
-    "schema-openapi": "^0.29.2",
+    "schema-openapi": "^0.30.0",
     "swagger-ui-dist": "^5.11.1"
   },
   "peerDependencies": {

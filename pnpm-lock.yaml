@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   schema-openapi:
-    specifier: ^0.29.2
-    version: 0.29.2(@effect/schema@0.61.3)(effect@2.2.2)
+    specifier: ^0.30.0
+    version: 0.30.0(@effect/schema@0.61.3)(effect@2.2.2)
   swagger-ui-dist:
     specifier: ^5.11.1
     version: 5.11.1
@@ -1790,7 +1790,7 @@ packages:
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
     hasBin: true
     dependencies:
-      caniuse-lite: 1.0.30001580
+      caniuse-lite: 1.0.30001581
       electron-to-chromium: 1.4.648
       node-releases: 2.0.14
       update-browserslist-db: 1.0.13(browserslist@4.22.3)
@@ -1839,8 +1839,8 @@ packages:
     engines: {node: '>=6'}
     dev: true
 
-  /caniuse-lite@1.0.30001580:
-    resolution: {integrity: sha512-mtj5ur2FFPZcCEpXFy8ADXbDACuNFXg6mxVDqp7tqooX6l3zwm+d8EPoeOSIFRDvHs8qu7/SLFOGniULkcH2iA==}
+  /caniuse-lite@1.0.30001581:
+    resolution: {integrity: sha512-whlTkwhqV2tUmP3oYhtNfaWGYHDdS3JYFQBKXxcUR9qqPWsRhFHhoISO2Xnl/g0xyKzht9mI1LZpiNWfMzHixQ==}
     dev: true
 
   /chai@4.4.1:
@@ -4948,8 +4948,8 @@ packages:
       commander: 2.20.3
     dev: true
 
-  /schema-openapi@0.29.2(@effect/schema@0.61.3)(effect@2.2.2):
-    resolution: {integrity: sha512-Tiu+Y0oIUmS+DG/usdRqPghgluJlj499nPQSdkX1JoeSBP8e+0FkzF1hSp6Ez90eQu2Q/YvoWsMkWc+7nOzddw==}
+  /schema-openapi@0.30.0(@effect/schema@0.61.3)(effect@2.2.2):
+    resolution: {integrity: sha512-uMk5l+Gs5ScL9jMCW2jacT8zWFHzP7KJsi9taEMJ+N/C5VgBxqwhlJ4nUkI8+j9oxv4onJB63pW6dwPKPLk9jQ==}
     peerDependencies:
       '@effect/schema': ^0.61.0
       effect: ^2.2.0
