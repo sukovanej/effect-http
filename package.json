@@ -1,7 +1,7 @@
 {
   "name": "effect-http",
   "type": "module",
-  "version": "0.50.2",
+  "version": "0.50.3",
   "license": "MIT",
   "author": "Milan Suk <Milansuk@email.cz>",
   "description": "High-level declarative HTTP API for effect-ts",
@@ -13,7 +13,7 @@
   "bugs": {
     "url": "https://github.com/sukovanej/effect-http/issues"
   },
-  "packageManager": "pnpm@8.14.0",
+  "packageManager": "pnpm@8.15.0",
   "publishConfig": {
     "access": "public",
     "directory": "dist"
@@ -50,13 +50,13 @@
     "@effect/platform-bun": "^0.30.3",
     "@effect/platform-node": "^0.42.3",
     "@effect/schema": "^0.61.3",
-    "@types/node": "^20.11.7",
+    "@types/node": "^20.11.9",
     "@types/swagger-ui-dist": "^3.30.4",
     "@typescript-eslint/eslint-plugin": "^6.19.1",
     "@typescript-eslint/parser": "^6.19.1",
     "babel-plugin-annotate-pure-calls": "^0.4.0",
     "effect": "2.2.2",
-    "effect-log": "^0.25.2",
+    "effect-log": "^0.27.0",
     "eslint": "^8.56.0",
     "eslint-import-resolver-typescript": "^3.6.1",
     "eslint-plugin-codegen": "^0.22.1",
@@ -73,7 +73,7 @@
     "vitest": "^1.2.2"
   },
   "dependencies": {
-    "schema-openapi": "^0.29.2",
+    "schema-openapi": "^0.30.0",
     "swagger-ui-dist": "^5.11.1"
   },
   "peerDependencies": {
