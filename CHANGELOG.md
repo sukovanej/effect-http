@@ -1,5 +1,12 @@
 # effect-http
 
+## 0.50.4
+
+### Patch Changes
+
+- 03a9d8c: Disable keep-alive for the testing client.
+- 03a9d8c: Update swagger-ui-dist and schema-openapi.
+
 ## 0.50.3
 
 ### Patch Changes
