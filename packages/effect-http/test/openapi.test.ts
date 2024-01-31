@@ -265,3 +265,50 @@ test("union in query params", () => {
     }
   ])
 })
+
+test("http security scheme", () => {
+  const api = pipe(
+    Api.api(),
+    Api.post(
+      "myOperation",
+      "/my-operation",
+      {
+        response: Schema.string,
+        request: {
+          query: Schema.union(
+            Schema.struct({ a: Schema.string }),
+            Schema.struct({ a: Schema.number, b: Schema.string }),
+            Schema.struct({ a: Schema.number, c: Schema.string }).pipe(
+              Schema.attachPropertySignature("_tag", "Case2")
+            )
+          )
+        }
+      },
+      { description: "options" },
+      {
+        mayAwesomeAuth: {
+          decodeSchema: Schema.Secret,
+          type: "http",
+          scheme: {
+            scheme: "bearer",
+            bearerFormat: "jwt",
+            description: "mayAwesomeAuth description"
+          }
+        }
+      }
+    )
+  )
+
+  const openApi = OpenApi.make(api)
+  console.dir(openApi.security, { depth: 100 })
+
+  expect(openApi.paths["/my-operation"].post?.security).toEqual([{ mayAwesomeAuth: [] }])
+  expect(openApi.components?.securitySchemes).toEqual({
+    mayAwesomeAuth: {
+      type: "http",
+      scheme: "bearer",
+      description: "mayAwesomeAuth description",
+      bearerFormat: "jwt"
+    }
+  })
+})

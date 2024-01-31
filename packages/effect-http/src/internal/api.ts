@@ -6,6 +6,7 @@ import * as HashSet from "effect/HashSet"
 import * as Order from "effect/Order"
 import * as Pipeable from "effect/Pipeable"
 import * as ReadonlyArray from "effect/ReadonlyArray"
+import type * as ReadonlyRecord from "effect/ReadonlyRecord"
 import { OpenApiCompiler } from "schema-openapi"
 import type * as Api from "../Api.js"
 import * as Representation from "../Representation.js"
@@ -102,13 +103,18 @@ const checkPathPatternMatchesSchema = (
 
 /** @internal */
 export const endpoint = (method: Api.Method) =>
-<const Id extends string, const I extends Api.InputEndpointSchemas>(
+<
+  const Id extends string,
+  const I extends Api.InputEndpointSchemas,
+  const S extends ReadonlyRecord.ReadonlyRecord<Api.SecurityScheme> | undefined = undefined
+>(
   id: Id,
   path: PlatformRouter.PathInput,
   schemas: I,
-  options?: Api.EndpointOptions
+  options?: Api.EndpointOptions,
+  security?: ReadonlyRecord.ReadonlyRecord<Api.SecurityScheme>
 ) =>
-<A extends Api.Api | Api.ApiGroup>(api: A): Api.AddEndpoint<A, Id, I> => {
+<A extends Api.Api | Api.ApiGroup>(api: A): Api.AddEndpoint<A, Id, I, S> => {
   if (method === "get" && schemas.request?.body !== undefined) {
     throw new Error(`Invalid ${id} endpoint. GET request cant have a body.`)
   }
@@ -117,7 +123,9 @@ export const endpoint = (method: Api.Method) =>
     throw new Error(`Endpoint with operation id ${id} already exists`)
   }
 
-  if (isApi(api) && api.groups.find((group) => group.endpoints.find((endpoint) => endpoint.id === id)) !== undefined) {
+  if (
+    isApi(api) && api.groups.find((group) => group.endpoints.find((endpoint) => endpoint.id === id)) !== undefined
+  ) {
     throw new Error(`Endpoint with operation id ${id} already exists`)
   }
 
@@ -139,7 +147,8 @@ export const endpoint = (method: Api.Method) =>
     id,
     path,
     method,
-    options: options ?? {}
+    options: options ?? {},
+    security: security ?? {}
   }
 
   if (isApiGroup(api)) {
@@ -150,7 +159,7 @@ export const endpoint = (method: Api.Method) =>
   } else {
     const defaultGroup = api.groups.find((x) => x.options.name === "default") ?? apiGroup("default")
     const groupsWithoutDefault = api.groups.filter((x) => x.options.name !== "default")
-    const newDefaultGroup = pipe(defaultGroup, endpoint(method)(id, path, schemas, options))
+    const newDefaultGroup = pipe(defaultGroup, endpoint(method)(id, path, schemas, options, security))
 
     return new ApiImpl(
       [...groupsWithoutDefault, newDefaultGroup],

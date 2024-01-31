@@ -13,12 +13,16 @@ import { runTestEffect } from "./utils.js"
 test("testing query", async () => {
   const api = pipe(
     Api.api(),
-    Api.get("hello", "/hello", {
-      response: Schema.string,
-      request: {
-        query: Schema.struct({ input: Schema.NumberFromString })
+    Api.get(
+      "hello",
+      "/hello",
+      {
+        response: Schema.string,
+        request: {
+          query: Schema.struct({ input: Schema.NumberFromString })
+        }
       }
-    })
+    )
   )
 
   const app = pipe(

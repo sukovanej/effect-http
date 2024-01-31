@@ -39,7 +39,10 @@ export const fromEndpoint: <Endpoint extends Api.Endpoint, R, E>(
       const context = yield* _(Router.RouteContext)
       const response = yield* _(
         requestParser.parseRequest(request, context),
-        Effect.flatMap((input: any) => fn(input))
+        Effect.flatMap((input: any) => {
+          const { security, ...restInput } = input
+          return fn(restInput, security)
+        })
       )
       return yield* _(responseEncoder.encodeResponse(request, response))
     }).pipe(

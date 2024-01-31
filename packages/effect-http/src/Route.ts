@@ -4,8 +4,10 @@
  * @since 1.0.0
  */
 import type * as Router from "@effect/platform/Http/Router"
+import type * as ParseResult from "@effect/schema/ParseResult"
 import type * as Schema from "@effect/schema/Schema"
 import type * as Effect from "effect/Effect"
+import type * as Either from "effect/Either"
 import type * as Types from "effect/Types"
 
 import type * as Api from "./Api.js"
@@ -19,7 +21,8 @@ import type * as ServerError from "./ServerError.js"
  * @since 1.0.0
  */
 export type HandlerFunction<Endpoint extends Api.Endpoint, R, E> = (
-  input: Types.Simplify<EndpointSchemasTo<Endpoint["schemas"]>["request"]>
+  input: Types.Simplify<EndpointSchemasTo<Endpoint["schemas"]>["request"]>,
+  security: Types.Simplify<EndpointSecurityTo<Endpoint["security"]>>
 ) => Effect.Effect<
   EndpointResponseSchemaTo<Endpoint["schemas"]["response"]>,
   E,
@@ -91,3 +94,14 @@ export type EndpointSchemasTo<E extends Api.Endpoint["schemas"]> = Types.Simplif
     ]: utils.SchemaTo<E["request"][K]>
   }
 }>
+
+/** @ignore */
+export type EndpointSecurityTo<Security extends Api.Endpoint["security"]> = Types.Simplify<
+  {
+    [K in keyof Security]: Security[K] extends infer SS extends Api.SecurityScheme ? {
+        token: Either.Either<ParseResult.ParseError, Schema.Schema.To<SS["decodeSchema"]>>
+        securityScheme: SS
+      } :
+      never
+  }
+>

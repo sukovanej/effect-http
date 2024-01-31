@@ -10,6 +10,7 @@
  */
 import type * as PlatformRouter from "@effect/platform/Http/Router"
 import type * as Schema from "@effect/schema/Schema"
+import type { ReadonlyRecord } from "effect"
 import type * as Pipeable from "effect/Pipeable"
 import type * as ReadonlyArray from "effect/ReadonlyArray"
 import type * as Types from "effect/Types"
@@ -104,6 +105,7 @@ export interface Endpoint {
   method: Method
   schemas: EndpointSchemas
   options: EndpointOptions
+  security: ReadonlyRecord.ReadonlyRecord<SecurityScheme>
 }
 
 /** @ignore */
@@ -138,6 +140,12 @@ export interface EndpointSchemas {
     body: Schema.Schema<any, any, any> | IgnoredSchemaId
     headers: Schema.Schema<any, any, any> | IgnoredSchemaId
   }
+}
+
+export type SecurityScheme = {
+  type: OpenApi.OpenAPIHTTPSecurityScheme["type"]
+  scheme: Omit<OpenApi.OpenAPIHTTPSecurityScheme, "type">
+  decodeSchema: Schema.Schema<any, string, any>
 }
 
 /**
@@ -191,13 +199,15 @@ export interface EndpointOptions {
  */
 type EndpointSetter = <
   const Id extends string,
-  const I extends InputEndpointSchemas
+  const I extends InputEndpointSchemas,
+  const S extends ReadonlyRecord.ReadonlyRecord<SecurityScheme> | undefined = undefined
 >(
   id: Id,
   path: PlatformRouter.PathInput,
   schemas: I,
-  options?: EndpointOptions
-) => <A extends Api | ApiGroup>(api: A) => AddEndpoint<A, Id, I>
+  options?: EndpointOptions,
+  security?: S
+) => <A extends Api | ApiGroup>(api: A) => AddEndpoint<A, Id, I, S>
 
 /**
  * @category methods
@@ -377,17 +387,20 @@ export interface InputResponseSchemaFull {
 export type AddEndpoint<
   A extends Api | ApiGroup,
   Id extends string,
-  Schemas extends InputEndpointSchemas
-> = A extends Api<infer E> ? Api<E | Types.Simplify<CreateEndpointFromInput<Id, Schemas>>>
-  : A extends ApiGroup<infer E> ? ApiGroup<E | Types.Simplify<CreateEndpointFromInput<Id, Schemas>>>
+  Schemas extends InputEndpointSchemas,
+  S extends ReadonlyRecord.ReadonlyRecord<SecurityScheme> | undefined
+> = A extends Api<infer E> ? Api<E | Types.Simplify<CreateEndpointFromInput<Id, Schemas, S>>>
+  : A extends ApiGroup<infer E> ? ApiGroup<E | Types.Simplify<CreateEndpointFromInput<Id, Schemas, S>>>
   : never
 
 /** @ignore */
 type CreateEndpointFromInput<
   Id extends string,
-  Schemas extends InputEndpointSchemas
+  Schemas extends InputEndpointSchemas,
+  S extends ReadonlyRecord.ReadonlyRecord<SecurityScheme> | undefined
 > = {
   id: Id
+  security: [S] extends [infer X extends ReadonlyRecord.ReadonlyRecord<any>] ? X : {}
   schemas: CreateEndpointSchemasFromInput<Schemas>
   path: PlatformRouter.PathInput
   method: Method
