@@ -142,6 +142,10 @@ export interface EndpointSchemas {
   }
 }
 
+/**
+ * @category models
+ * @since 1.0.0
+ */
 export type SecurityScheme = {
   type: OpenApi.OpenAPIHTTPSecurityScheme["type"]
   scheme: Omit<OpenApi.OpenAPIHTTPSecurityScheme, "type">

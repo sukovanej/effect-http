@@ -6,6 +6,12 @@ const BearerLiteral = "Bearer" as const
 type BearerLiteral = typeof BearerLiteral
 const isBearerLiteral = (x: string): x is BearerLiteral => x === BearerLiteral
 
+/**
+ * Creates bearer http security scheme auth description
+ *
+ * @category constructors
+ * @since 1.0.0
+ */
 export const bearer = <A>(args: {
   description?: string
   bearerFormat?: string
@@ -34,6 +40,12 @@ const BasicLiteral = "Basic" as const
 type BasicLiteral = typeof BasicLiteral
 const isBasicLiteral = (x: string): x is BasicLiteral => x === BasicLiteral
 
+/**
+ * Creates basic http security scheme auth description
+ *
+ * @category constructors
+ * @since 1.0.0
+ */
 export const basic = <A>(args: {
   description?: string
   tokenScheme: Schema.Schema<never, string, A>
