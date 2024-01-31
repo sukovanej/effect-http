@@ -147,7 +147,7 @@ const createSecurityParser = (
       securitySchemesWithDecode,
       ReadonlyRecord.map(({ decodeEither, securityScheme }) => {
         return {
-          token: decodeEither(request.headers),
+          token: decodeEither(request.headers).pipe(Either.map((x) => x.authorization)),
           securityScheme
         }
       })

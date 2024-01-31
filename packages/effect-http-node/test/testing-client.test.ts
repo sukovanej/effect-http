@@ -3,7 +3,7 @@ import { NodeContext } from "@effect/platform-node"
 import * as Router from "@effect/platform/Http/Router"
 import * as HttpServer from "@effect/platform/HttpServer"
 import { Schema } from "@effect/schema"
-import { Context, Effect, pipe, Predicate } from "effect"
+import { Context, Effect, Either, pipe, Predicate } from "effect"
 import { Api, ClientError, Representation, RouterBuilder, SecurityScheme, ServerError } from "effect-http"
 import { NodeTesting } from "effect-http-node"
 import { expect, test } from "vitest"
@@ -253,7 +253,10 @@ test("testing security", async () => {
       "hello",
       "/hello",
       {
-        response: Schema.string,
+        response: Schema.struct({
+          output: Schema.number,
+          security: Schema.tuple(Schema.string, Schema.string)
+        }),
         request: {
           query: Schema.struct({ input: Schema.NumberFromString })
         }
@@ -271,8 +274,15 @@ test("testing security", async () => {
 
   const app = pipe(
     RouterBuilder.make(api),
-    RouterBuilder.handle("hello", ({ query }) => {
-      return Effect.succeed(`${query.input + 1}`)
+    RouterBuilder.handle("hello", ({ query }, security) => {
+      return Effect.succeed({
+        output: query.input + 1,
+        security: security.myAwesomeBearer.token
+          .pipe(Either.match({
+            onLeft: () => ["myAwesomeBearer", "Left"] as const,
+            onRight: (x) => [x.toString(), "Right"] as const
+          }))
+      })
     }),
     RouterBuilder.build
   )
@@ -287,7 +297,7 @@ test("testing security", async () => {
     runTestEffect
   )
 
-  expect(response).toEqual("13")
+  expect(response).toEqual({ output: 13, security: ["22", "Right"] })
 })
 
 test("testing missing security", async () => {
@@ -316,7 +326,54 @@ test("testing missing security", async () => {
   const app = pipe(
     RouterBuilder.make(api),
     RouterBuilder.handle("hello", ({ query }, security) => {
-      console.dir(11, security)
+      return Effect.succeed(`${query.input + 1}`)
+    }),
+    RouterBuilder.build
+  )
+
+  const response = await pipe(
+    Testing.make(app, api),
+    Effect.flatMap((client) =>
+      // @ts-expect-error
+      client.hello({ query: { input: 12 } }, {})
+    ),
+    Effect.flip,
+    runTestEffect
+  )
+
+  expect(response).toEqual(ClientError.makeServerSide(
+    {},
+    400,
+    "Must provide at lest on secure scheme credential"
+  ))
+})
+
+test("testing security - several security cred with same type", async () => {
+  const api = pipe(
+    Api.api(),
+    Api.get(
+      "hello",
+      "/hello",
+      {
+        response: Schema.string,
+        request: {
+          query: Schema.struct({ input: Schema.NumberFromString })
+        }
+      },
+      {
+        description: "test description"
+      },
+      {
+        myAwesomeBearer: SecurityScheme.bearer({
+          tokenScheme: Schema.NumberFromString
+        })
+      }
+    )
+  )
+
+  const app = pipe(
+    RouterBuilder.make(api),
+    RouterBuilder.handle("hello", ({ query }) => {
       return Effect.succeed(`${query.input + 1}`)
     }),
     RouterBuilder.build
