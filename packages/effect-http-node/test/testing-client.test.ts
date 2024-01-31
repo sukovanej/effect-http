@@ -325,7 +325,7 @@ test("testing missing security", async () => {
 
   const app = pipe(
     RouterBuilder.make(api),
-    RouterBuilder.handle("hello", ({ query }, security) => {
+    RouterBuilder.handle("hello", ({ query }) => {
       return Effect.succeed(`${query.input + 1}`)
     }),
     RouterBuilder.build
