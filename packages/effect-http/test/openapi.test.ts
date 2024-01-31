@@ -2,6 +2,7 @@ import { Schema } from "@effect/schema"
 import { pipe } from "effect"
 import { Api, OpenApi } from "effect-http"
 import { expect, test } from "vitest"
+import { bearer } from "../src/SecurityScheme.js"
 
 test("description", () => {
   const api = pipe(
@@ -286,21 +287,16 @@ test("http security scheme", () => {
       },
       { description: "options" },
       {
-        mayAwesomeAuth: {
-          decodeSchema: Schema.Secret,
-          type: "http",
-          scheme: {
-            scheme: "bearer",
-            bearerFormat: "jwt",
-            description: "mayAwesomeAuth description"
-          }
-        }
+        mayAwesomeAuth: bearer({
+          tokenScheme: Schema.Secret,
+          bearerFormat: "jwt",
+          description: "mayAwesomeAuth description"
+        })
       }
     )
   )
 
   const openApi = OpenApi.make(api)
-  console.dir(openApi.security, { depth: 100 })
 
   expect(openApi.paths["/my-operation"].post?.security).toEqual([{ mayAwesomeAuth: [] }])
   expect(openApi.components?.securitySchemes).toEqual({
