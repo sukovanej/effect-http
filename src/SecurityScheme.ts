@@ -2,8 +2,22 @@ import * as Schema from "@effect/schema/Schema"
 import * as S from "effect/String"
 import type * as Api from "./Api.js"
 
+/**
+ * @category constants
+ * @since 1.0.0
+ */
 const BearerLiteral = "Bearer" as const
+
+/**
+ * @category models
+ * @since 1.0.0
+ */
 type BearerLiteral = typeof BearerLiteral
+
+/**
+ * @category refinements
+ * @since 1.0.0
+ */
 const isBearerLiteral = (x: string): x is BearerLiteral => x === BearerLiteral
 
 /**
@@ -36,8 +50,22 @@ export const bearer = <A>(args: {
     }
   }) satisfies Api.SecurityScheme
 
+/**
+ * @category constants
+ * @since 1.0.0
+ */
 const BasicLiteral = "Basic" as const
+
+/**
+ * @category models
+ * @since 1.0.0
+ */
 type BasicLiteral = typeof BasicLiteral
+
+/**
+ * @category refinements
+ * @since 1.0.0
+ */
 const isBasicLiteral = (x: string): x is BasicLiteral => x === BasicLiteral
 
 /**
