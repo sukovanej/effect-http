@@ -2,7 +2,7 @@ import type * as Router from "@effect/platform/Http/Router"
 import type * as ServerRequest from "@effect/platform/Http/ServerRequest"
 import type * as AST from "@effect/schema/AST"
 import * as Schema from "@effect/schema/Schema"
-import { Either, ReadonlyArray } from "effect"
+import { Either } from "effect"
 import * as Effect from "effect/Effect"
 import { pipe } from "effect/Function"
 import * as ReadonlyRecord from "effect/ReadonlyRecord"
@@ -153,16 +153,16 @@ const createSecurityParser = (
       })
     )
 
-    const noRight = pipe(
-      authResults,
-      ReadonlyRecord.toEntries,
-      ReadonlyArray.some(([_name, authResult]) => Either.isRight(authResult.token))
-    )
-
-    if (noRight) {
-      return Effect.fail(createError("headers", "Bad authorization header"))
-    } else {
+    if (ReadonlyRecord.size(authResults) === 0) {
       return Effect.succeed(authResults)
+    }
+
+    const hasRight = ReadonlyRecord.some(authResults, (authResult) => Either.isRight(authResult.token))
+
+    if (hasRight) {
+      return Effect.succeed(authResults)
+    } else {
+      return createError("headers", "Bad authorization header")
     }
   })
 }

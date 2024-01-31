@@ -1,5 +1,6 @@
 import * as Schema from "@effect/schema/Schema"
 import { Api, Representation } from "effect-http"
+import { bearer } from "../src/SecurityScheme.js"
 
 // Example GET
 
@@ -253,5 +254,16 @@ export const exampleApiRepresentations = Api.api().pipe(
       status: 200,
       representations: [Representation.plainText, Representation.json]
     }
+  })
+)
+export const exampleApiSecurityBearer = Api.api().pipe(
+  Api.post("test", "/test", { response: Schema.string }, {
+    description: "test description"
+  }, {
+    myAwesomeBearer: bearer({
+      bearerFormat: "test bearerFormat",
+      description: "My awesome http bearer description",
+      tokenScheme: Schema.Secret
+    })
   })
 )

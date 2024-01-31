@@ -1,4 +1,5 @@
 import * as Schema from "@effect/schema/Schema"
+import * as S from "effect/String"
 import type * as Api from "./Api.js"
 
 const BearerLiteral = "Bearer" as const
@@ -25,7 +26,7 @@ export const bearer = <A>(args: {
     scheme: {
       ...((args.description !== undefined) ? { description: args.description } : {}),
       ...((args.bearerFormat !== undefined) ? { bearerFormat: args.bearerFormat } : {}),
-      scheme: BearerLiteral.toLowerCase()
+      scheme: S.toLowerCase(BearerLiteral)
     }
   }) satisfies Api.SecurityScheme
 
@@ -51,6 +52,6 @@ export const basic = <A>(args: {
     ),
     scheme: {
       ...((args.description !== undefined) ? { description: args.description } : {}),
-      scheme: BasicLiteral.toLowerCase()
+      scheme: S.toLowerCase(BasicLiteral)
     }
   }) satisfies Api.SecurityScheme

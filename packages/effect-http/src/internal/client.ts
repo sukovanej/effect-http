@@ -30,14 +30,14 @@ export const endpointClient = <
 
   const httpClient = options.httpClient ?? defaultHttpClient
 
-  return (args: unknown) =>
+  return ((args: unknown, security: unknown) =>
     pipe(
-      requestEncoder.encodeRequest(args),
+      requestEncoder.encodeRequest(args, security),
       Effect.map(mapRequest),
       Effect.flatMap(httpClient),
       Effect.flatMap(responseParser.parseResponse),
       Effect.annotateLogs("clientOperationId", endpoint.id)
-    ) as any
+    )) as any
 }
 
 /**

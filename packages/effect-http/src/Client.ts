@@ -8,6 +8,7 @@
 import { type HttpClient } from "@effect/platform"
 import { type Schema } from "@effect/schema"
 import type { Effect, Types } from "effect"
+import type * as ReadonlyRecord from "effect/ReadonlyRecord"
 
 import type * as Api from "./Api.js"
 import type * as ClientError from "./ClientError.js"
@@ -85,20 +86,41 @@ export type ClientFunctionResponse<
   : never
 
 /** @ignore */
-type ClientFunction<Endpoint extends Api.Endpoint, I> = Record<
-  string,
-  never
-> extends I ? (
-    input?: I
+type ClientFunction<Endpoint extends Api.Endpoint, I> = Record<string, never> extends I ?
+  Record<string, never> extends Endpoint["security"] ? (
+      input?: I
+    ) => Effect.Effect<
+      Api.EndpointRequirements<Endpoint>,
+      ClientError.ClientError,
+      ClientFunctionResponse<Endpoint["schemas"]["response"]>
+    > :
+  (
+    input: I | undefined,
+    security: ClientSecurity<Endpoint["security"]>
   ) => Effect.Effect<
     ClientFunctionResponse<Endpoint["schemas"]["response"]>,
     ClientError.ClientError,
     Api.EndpointRequirements<Endpoint>
   >
-  : (
-    input: I
+  : Record<string, never> extends Endpoint["security"] ? (
+      input: I
+    ) => Effect.Effect<
+      Api.EndpointRequirements<Endpoint>,
+      ClientError.ClientError,
+      ClientFunctionResponse<Endpoint["schemas"]["response"]>
+    > :
+  (
+    input: I,
+    security: ClientSecurity<Endpoint["security"]>
   ) => Effect.Effect<
     ClientFunctionResponse<Endpoint["schemas"]["response"]>,
     ClientError.ClientError,
     Api.EndpointRequirements<Endpoint>
   >
+
+/** @ignore */
+type ClientSecurity<SS extends ReadonlyRecord.ReadonlyRecord<Api.SecurityScheme>> = keyof SS extends infer K ?
+  K extends (infer securitySchemeName extends keyof SS) ?
+    { [X in securitySchemeName]: Schema.Schema.To<SS[securitySchemeName]["decodeSchema"]> }
+  : never
+  : never

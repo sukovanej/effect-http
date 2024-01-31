@@ -4,7 +4,7 @@ import * as Router from "@effect/platform/Http/Router"
 import * as HttpServer from "@effect/platform/HttpServer"
 import { Schema } from "@effect/schema"
 import { Context, Effect, pipe, Predicate } from "effect"
-import { Api, ClientError, Representation, RouterBuilder, ServerError } from "effect-http"
+import { Api, ClientError, Representation, RouterBuilder, SecurityScheme, ServerError } from "effect-http"
 import { NodeTesting } from "effect-http-node"
 import { expect, test } from "vitest"
 
@@ -244,4 +244,97 @@ test("form data", async () => {
 
   expect(response.status).toEqual(200)
   expect(response.content).toEqual("my file content")
+})
+
+test("testing security", async () => {
+  const api = pipe(
+    Api.api(),
+    Api.get(
+      "hello",
+      "/hello",
+      {
+        response: Schema.string,
+        request: {
+          query: Schema.struct({ input: Schema.NumberFromString })
+        }
+      },
+      {
+        description: "test description"
+      },
+      {
+        myAwesomeBearer: SecurityScheme.bearer({
+          tokenScheme: Schema.NumberFromString
+        })
+      }
+    )
+  )
+
+  const app = pipe(
+    RouterBuilder.make(api),
+    RouterBuilder.handle("hello", ({ query }) => {
+      return Effect.succeed(`${query.input + 1}`)
+    }),
+    RouterBuilder.build
+  )
+
+  const response = await pipe(
+    Testing.make(app, api),
+    Effect.flatMap((client) =>
+      client.hello({ query: { input: 12 } }, {
+        myAwesomeBearer: 22
+      })
+    ),
+    runTestEffect
+  )
+
+  expect(response).toEqual("13")
+})
+
+test("testing missing security", async () => {
+  const api = pipe(
+    Api.api(),
+    Api.get(
+      "hello",
+      "/hello",
+      {
+        response: Schema.string,
+        request: {
+          query: Schema.struct({ input: Schema.NumberFromString })
+        }
+      },
+      {
+        description: "test description"
+      },
+      {
+        myAwesomeBearer: SecurityScheme.bearer({
+          tokenScheme: Schema.NumberFromString
+        })
+      }
+    )
+  )
+
+  const app = pipe(
+    RouterBuilder.make(api),
+    RouterBuilder.handle("hello", ({ query }, security) => {
+      console.dir(11, security)
+      return Effect.succeed(`${query.input + 1}`)
+    }),
+    RouterBuilder.build
+  )
+
+  const response = await pipe(
+    Testing.make(app, api),
+    Effect.flatMap((client) =>
+      // @ts-expect-error
+      client.hello({ query: { input: 12 } }, {})
+    ),
+    Effect.flip,
+    runTestEffect
+  )
+
+  expect(response).toEqual(ClientError.makeServerSide(
+    {},
+    400,
+    "Must provide at lest on secure scheme credential"
+  ))
 })

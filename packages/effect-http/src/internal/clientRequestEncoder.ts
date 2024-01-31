@@ -2,7 +2,10 @@ import * as ClientRequest from "@effect/platform/Http/ClientRequest"
 import * as Schema from "@effect/schema/Schema"
 import * as Effect from "effect/Effect"
 import { identity, pipe } from "effect/Function"
+import * as HashSet from "effect/HashSet"
+import * as Option from "effect/Option"
 import * as Predicate from "effect/Predicate"
+import * as ReadonlyRecord from "effect/ReadonlyRecord"
 import * as Api from "../Api.js"
 import * as ClientError from "../ClientError.js"
 import { formatParseError } from "./formatParseError.js"
@@ -10,7 +13,8 @@ import * as utils from "./utils.js"
 
 interface ClientRequestEncoder {
   encodeRequest: (
-    input: unknown
+    input: unknown,
+    security: Record<string, any> // | unknown
   ) => Effect.Effect<ClientRequest.ClientRequest, ClientError.ClientError>
 }
 
@@ -23,8 +27,9 @@ export const create = (endpoint: Api.Endpoint): ClientRequestEncoder => {
   const encodeQuery = createQueryEncoder(endpoint)
   const encodeHeaders = createHeadersEncoder(endpoint)
   const encodeParams = createParamsEncoder(endpoint)
+  const encodeSecurity = createSecurityEncoder(endpoint)
 
-  return make((input) =>
+  return make((input, security) =>
     Effect.gen(function*(_) {
       const _input = (input || {}) as Record<string, unknown>
 
@@ -32,6 +37,7 @@ export const create = (endpoint: Api.Endpoint): ClientRequestEncoder => {
       const query = yield* _(encodeQuery(_input["query"]))
       const params = yield* _(encodeParams(_input["params"]))
       const headers = yield* _(encodeHeaders(_input["headers"]))
+      const headersWithSecurity: any = yield* _(encodeSecurity(headers || {}, security || {}))
 
       const path = constructPath(params || {}, endpoint.path)
 
@@ -44,7 +50,7 @@ export const create = (endpoint: Api.Endpoint): ClientRequestEncoder => {
           ? ClientRequest.formDataBody(body)
           : ClientRequest.unsafeJsonBody(body),
         query ? ClientRequest.setUrlParams(query) : identity,
-        headers ? ClientRequest.setHeaders(headers) : identity
+        headersWithSecurity ? ClientRequest.setHeaders(headersWithSecurity) : identity
       )
 
       return request
@@ -125,6 +131,72 @@ const createHeadersEncoder = (endpoint: Api.Endpoint) => {
           `Failed to encode headers. ${formatParseError(error)}`
         )
       )
+    )
+  }
+}
+const createSecurityEncoder = (endpoint: Api.Endpoint) => {
+  const securitySchemesSchemas = pipe(
+    endpoint.security,
+    ReadonlyRecord.map((schema) => ({
+      schema,
+      encode: Schema.encode(schema.decodeSchema as Schema.Schema<never, string, any>)
+    }))
+  )
+
+  return (headers: Record<string, string>, security: Record<string, any>) => {
+    if (
+      (ReadonlyRecord.size(security) === 0) && (ReadonlyRecord.size(endpoint.security) !== 0)
+    ) {
+      return Effect.fail(ClientError.makeClientSide(
+        "Must provide at lest on secure scheme credential"
+      ))
+    }
+
+    const requestEncodeSecuritySchemes = pipe(
+      security,
+      ReadonlyRecord.map((tokenToEncode, securityName) =>
+        pipe(
+          securitySchemesSchemas,
+          ReadonlyRecord.get(securityName),
+          Option.map((x) => ({ ...x, tokenToEncode }))
+        )
+      ),
+      ReadonlyRecord.getSomes
+    )
+
+    if (
+      pipe(
+        requestEncodeSecuritySchemes,
+        ReadonlyRecord.map((x) => x.schema.type),
+        ReadonlyRecord.values,
+        (x) => HashSet.make(...x),
+        HashSet.size
+      ) !== ReadonlyRecord.size(requestEncodeSecuritySchemes)
+    ) {
+      return Effect.fail(ClientError.makeClientSide(
+        "Failed to encode several security schemes with same type"
+      ))
+    }
+
+    return pipe(
+      requestEncodeSecuritySchemes,
+      ReadonlyRecord.map((x) =>
+        x.encode(x.tokenToEncode).pipe(Effect.map((encodedToken) => ({
+          schema: x.schema,
+          encodedToken
+        })))
+      ),
+      Effect.all,
+      Effect.mapError((error) =>
+        ClientError.makeClientSide(
+          error,
+          `Failed to encode security token. ${formatParseError(error)}`
+        )
+      ),
+      Effect.map(ReadonlyRecord.reduce(headers, (acc, x) => ({
+        ...acc,
+        authorization: x.encodedToken
+      })))
     )
   }
 }
