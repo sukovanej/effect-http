@@ -77,7 +77,6 @@ const api = pipe(
 
 const app = pipe(
   RouterBuilder.make(api, { parseOptions: { errors: "all" } }),
-  (x) => x,
   RouterBuilder.handle("getLesnek", (xxx) =>
     pipe(
       Effect.succeed(`hello ${xxx.query.name}`),

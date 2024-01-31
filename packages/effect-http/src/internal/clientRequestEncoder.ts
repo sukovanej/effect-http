@@ -14,7 +14,7 @@ import * as utils from "./utils.js"
 interface ClientRequestEncoder {
   encodeRequest: (
     input: unknown,
-    security: Record<string, any> // | unknown
+    security: unknown
   ) => Effect.Effect<ClientRequest.ClientRequest, ClientError.ClientError>
 }
 
