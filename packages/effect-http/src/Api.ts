@@ -18,6 +18,7 @@ import type { OpenApiTypes } from "schema-openapi"
 
 import * as internal from "./internal/api.js"
 import type * as Representation from "./Representation.js"
+import type * as SecurityScheme from "./SecurityScheme.js"
 
 /**
  * @since 1.0.0
@@ -105,7 +106,7 @@ export interface Endpoint {
   method: Method
   schemas: EndpointSchemas
   options: EndpointOptions
-  security: ReadonlyRecord.ReadonlyRecord<SecurityScheme>
+  security: ReadonlyRecord.ReadonlyRecord<SecurityScheme.SecurityScheme>
 }
 
 /** @ignore */
@@ -140,16 +141,6 @@ export interface EndpointSchemas {
     body: Schema.Schema<any, any, any> | IgnoredSchemaId
     headers: Schema.Schema<any, any, any> | IgnoredSchemaId
   }
-}
-
-/**
- * @category models
- * @since 1.0.0
- */
-export type SecurityScheme = {
-  type: OpenApi.OpenAPIHTTPSecurityScheme["type"]
-  scheme: Omit<OpenApi.OpenAPIHTTPSecurityScheme, "type">
-  decodeSchema: Schema.Schema<any, string, any>
 }
 
 /**
@@ -204,7 +195,7 @@ export interface EndpointOptions {
 type EndpointSetter = <
   const Id extends string,
   const I extends InputEndpointSchemas,
-  const S extends ReadonlyRecord.ReadonlyRecord<SecurityScheme> | undefined = undefined
+  const S extends ReadonlyRecord.ReadonlyRecord<SecurityScheme.SecurityScheme> | undefined = undefined
 >(
   id: Id,
   path: PlatformRouter.PathInput,
@@ -392,7 +383,7 @@ export type AddEndpoint<
   A extends Api | ApiGroup,
   Id extends string,
   Schemas extends InputEndpointSchemas,
-  S extends ReadonlyRecord.ReadonlyRecord<SecurityScheme> | undefined
+  S extends ReadonlyRecord.ReadonlyRecord<SecurityScheme.SecurityScheme> | undefined
 > = A extends Api<infer E> ? Api<E | Types.Simplify<CreateEndpointFromInput<Id, Schemas, S>>>
   : A extends ApiGroup<infer E> ? ApiGroup<E | Types.Simplify<CreateEndpointFromInput<Id, Schemas, S>>>
   : never
@@ -401,7 +392,7 @@ export type AddEndpoint<
 type CreateEndpointFromInput<
   Id extends string,
   Schemas extends InputEndpointSchemas,
-  S extends ReadonlyRecord.ReadonlyRecord<SecurityScheme> | undefined
+  S extends ReadonlyRecord.ReadonlyRecord<SecurityScheme.SecurityScheme> | undefined
 > = {
   id: Id
   security: [S] extends [infer X extends ReadonlyRecord.ReadonlyRecord<any>] ? X : {}

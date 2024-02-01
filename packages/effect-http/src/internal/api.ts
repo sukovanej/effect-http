@@ -10,6 +10,7 @@ import type * as ReadonlyRecord from "effect/ReadonlyRecord"
 import { OpenApiCompiler } from "schema-openapi"
 import type * as Api from "../Api.js"
 import * as Representation from "../Representation.js"
+import type { SecurityScheme } from "../SecurityScheme.js"
 
 /** @internal */
 const composeResponseSchema = (
@@ -106,13 +107,13 @@ export const endpoint = (method: Api.Method) =>
 <
   const Id extends string,
   const I extends Api.InputEndpointSchemas,
-  const S extends ReadonlyRecord.ReadonlyRecord<Api.SecurityScheme> | undefined = undefined
+  const S extends ReadonlyRecord.ReadonlyRecord<SecurityScheme> | undefined = undefined
 >(
   id: Id,
   path: PlatformRouter.PathInput,
   schemas: I,
   options?: Api.EndpointOptions,
-  security?: ReadonlyRecord.ReadonlyRecord<Api.SecurityScheme>
+  security?: ReadonlyRecord.ReadonlyRecord<SecurityScheme>
 ) =>
 <A extends Api.Api | Api.ApiGroup>(api: A): Api.AddEndpoint<A, Id, I, S> => {
   if (method === "get" && schemas.request?.body !== undefined) {

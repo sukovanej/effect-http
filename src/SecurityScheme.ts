@@ -1,6 +1,20 @@
+/**
+ * A security scheme is a way to protect an API from unauthorized access.
+ * @since 1.0.0
+ */
 import * as Schema from "@effect/schema/Schema"
 import * as S from "effect/String"
-import type * as Api from "./Api.js"
+import type * as OpenApi from "schema-openapi/types"
+
+/**
+ * @category models
+ * @since 1.0.0
+ */
+export type SecurityScheme = {
+  type: OpenApi.OpenAPIHTTPSecurityScheme["type"]
+  scheme: Omit<OpenApi.OpenAPIHTTPSecurityScheme, "type">
+  decodeSchema: Schema.Schema<any, string, any>
+}
 
 /**
  * @category constants
@@ -48,7 +62,7 @@ export const bearer = <A>(args: {
       ...((args.bearerFormat !== undefined) ? { bearerFormat: args.bearerFormat } : {}),
       scheme: S.toLowerCase(BearerLiteral)
     }
-  }) satisfies Api.SecurityScheme
+  }) satisfies SecurityScheme
 
 /**
  * @category constants
@@ -94,4 +108,4 @@ export const basic = <A>(args: {
       ...((args.description !== undefined) ? { description: args.description } : {}),
       scheme: S.toLowerCase(BasicLiteral)
     }
-  }) satisfies Api.SecurityScheme
+  }) satisfies SecurityScheme
