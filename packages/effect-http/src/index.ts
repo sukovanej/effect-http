@@ -82,6 +82,13 @@ export * as Route from "./Route.js"
 export * as RouterBuilder from "./RouterBuilder.js"
 
 /**
+ * Some constructors for secure scheme.
+ *
+ * @since 1.0.0
+ */
+export * as SecurityScheme from "./SecurityScheme.js"
+
+/**
  * Server errors.
  *
  * @since 1.0.0
