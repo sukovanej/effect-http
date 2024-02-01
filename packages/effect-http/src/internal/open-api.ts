@@ -3,10 +3,10 @@ import { OpenApi } from "schema-openapi"
 
 import * as AST from "@effect/schema/AST"
 import * as Schema from "@effect/schema/Schema"
-import { absurd, ReadonlyRecord } from "effect"
-import { identity, pipe } from "effect/Function"
+import { absurd, identity, pipe } from "effect/Function"
 import * as Option from "effect/Option"
 import * as ReadonlyArray from "effect/ReadonlyArray"
+import * as ReadonlyRecord from "effect/ReadonlyRecord"
 import * as Api from "../Api.js"
 
 export const make = (
