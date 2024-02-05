@@ -28,7 +28,6 @@
     "check": "tsc -b tsconfig.json",
     "check:watch": "tsc -b tsconfig.json --watch",
     "test": "vitest",
-    "watch": "tsc -b -w",
     "coverage": "vitest --run --coverage related",
     "coverage-all": "vitest --run --coverage",
     "circular": "madge --extensions ts --circular --no-color --no-spinner --warning src",
