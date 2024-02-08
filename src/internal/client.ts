@@ -1,7 +1,7 @@
 import * as PlatformClient from "@effect/platform/Http/Client"
 import * as ClientRequest from "@effect/platform/Http/ClientRequest"
 import * as Effect from "effect/Effect"
-import { identity, pipe } from "effect/Function"
+import { flow, identity, pipe } from "effect/Function"
 import * as Api from "../Api.js"
 import type * as Client from "../Client.js"
 import * as ClientRequestEncoder from "./clientRequestEncoder.js"
@@ -25,7 +25,7 @@ export const endpointClient = <
   let mapRequest = options.mapRequest ?? identity
 
   if (options.baseUrl) {
-    mapRequest = ClientRequest.prependUrl(options.baseUrl)
+    mapRequest = flow(ClientRequest.prependUrl(options.baseUrl), mapRequest)
   }
 
   const httpClient = options.httpClient ?? defaultHttpClient
