@@ -10,4 +10,4 @@ export * as NodeServer from "./NodeServer.js"
  *
  * @since 1.0.0
  */
-export * as Testing from "./Testing.js"
+export * as NodeTesting from "./NodeTesting.js"

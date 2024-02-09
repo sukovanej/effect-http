@@ -5,7 +5,7 @@ import * as HttpServer from "@effect/platform/HttpServer"
 import { Schema } from "@effect/schema"
 import { Context, Effect, pipe, Predicate } from "effect"
 import { Api, ClientError, Representation, RouterBuilder, ServerError } from "effect-http"
-import { Testing } from "effect-http-node"
+import { NodeTesting } from "effect-http-node"
 import { expect, test } from "vitest"
 
 import { runTestEffect } from "./utils.js"
@@ -28,7 +28,7 @@ test("testing query", async () => {
   )
 
   const response = await pipe(
-    Testing.make(app, api),
+    NodeTesting.make(app, api),
     Effect.flatMap((client) => client.hello({ query: { input: 12 } })),
     runTestEffect
   )
@@ -51,7 +51,7 @@ test("testing failure", async () => {
   )
 
   const response = await pipe(
-    Testing.make(app, api),
+    NodeTesting.make(app, api),
     Effect.flatMap((client) => client.hello()),
     Effect.flip,
     runTestEffect
@@ -81,7 +81,7 @@ test("testing with dependencies", async () => {
   )
 
   const response = await pipe(
-    Testing.make(app, api),
+    NodeTesting.make(app, api),
     Effect.flatMap((client) => client.hello({ query: { input: 12 } })),
     Effect.provideService(MyService, 2),
     runTestEffect
@@ -108,7 +108,7 @@ test("testing params", async () => {
   )
 
   const response = await pipe(
-    Testing.make(app, api),
+    NodeTesting.make(app, api),
     Effect.flatMap((client) => client.hello({ params: { input: 12 } })),
     runTestEffect
   )
@@ -147,7 +147,7 @@ test("testing multiple responses", async () => {
   )
 
   const [response1, response2] = await pipe(
-    Testing.make(app, api),
+    NodeTesting.make(app, api),
     Effect.flatMap((client) =>
       Effect.all(
         [
@@ -181,7 +181,7 @@ test("testing body", async () => {
   )
 
   const response = await pipe(
-    Testing.make(app, api),
+    NodeTesting.make(app, api),
     Effect.flatMap((client) => client.hello({ body: { input: 12 } })),
     runTestEffect
   )
@@ -232,7 +232,7 @@ test("form data", async () => {
   formData.append("file", new Blob(["my file content"]))
 
   const response = await pipe(
-    Testing.make(app, api),
+    NodeTesting.make(app, api),
     Effect.flatMap((client) => client.upload({ body: formData })),
     Effect.provide(NodeContext.layer),
     runTestEffect
