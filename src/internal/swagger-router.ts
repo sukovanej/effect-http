@@ -8,6 +8,7 @@ import * as Headers from "@effect/platform/Http/Headers"
 import * as Router from "@effect/platform/Http/Router"
 import * as ServerResponse from "@effect/platform/Http/ServerResponse"
 import * as Path from "@effect/platform/Path"
+import { Option } from "effect"
 import * as Context from "effect/Context"
 import * as Effect from "effect/Effect"
 import { pipe } from "effect/Function"
@@ -34,11 +35,32 @@ window.onload = function() {
 };
 `
 
+const createIndex = (path: string) => `
+<!-- HTML for static distribution bundle build -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Swagger UI</title>
+    <link rel="stylesheet" type="text/css" href="${path}/swagger-ui.css" />
+    <link rel="stylesheet" type="text/css" href="${path}/index.css" />
+    <link rel="icon" type="image/png" href="${path}/favicon-32x32.png" sizes="32x32" />
+    <link rel="icon" type="image/png" href="${path}/favicon-16x16.png" sizes="16x16" />
+  </head>
+
+  <body>
+    <div id="swagger-ui"></div>
+    <script src="${path}/swagger-ui-bundle.js" charset="UTF-8"> </script>
+    <script src="${path}/swagger-ui-standalone-preset.js" charset="UTF-8"> </script>
+    <script src="${path}/swagger-initializer.js" charset="UTF-8"> </script>
+  </body>
+</html>
+`
+
 /** @internal */
 const readFile = (path: string) => Effect.flatMap(FileSystem.FileSystem, (fs) => fs.readFileString(path, "utf-8"))
 
 const SWAGGER_FILE_NAMES = [
-  "index.html",
   "index.css",
   "swagger-ui.css",
   "swagger-ui-bundle.js",
@@ -95,11 +117,11 @@ const createHeaders = (file: string) => {
 }
 
 /** @internal */
-const serverStaticDocsFile = (filename: string) => {
+const serverStaticDocsFile = (filename: string, path?: Router.PathInput) => {
   const headers = createHeaders(filename)
 
   return Router.get(
-    `/docs/${filename}`,
+    path ?? `/${filename}`,
     Effect.gen(function*(_) {
       const { files } = yield* _(SwaggerFiles)
       const content = files[filename]
@@ -111,38 +133,45 @@ const serverStaticDocsFile = (filename: string) => {
   )
 }
 
-/** @internal */
-const redirect = (location: string) =>
-  ServerResponse.empty({
-    status: 301,
-    headers: Headers.fromInput({ location })
-  })
-
 /**
  * @category constructors
  * @since 1.0.0
  */
 export const make = (spec: unknown) => {
-  const openApiJsonPath = "/docs/openapi.json"
+  const basePath = "/docs"
 
   let router = SWAGGER_FILE_NAMES.reduce(
-    (router, swaggerFileName) => router.pipe(serverStaticDocsFile(swaggerFileName)),
+    (router, swaggerFileName) => router.pipe(serverStaticDocsFile(swaggerFileName, `${basePath}/${swaggerFileName}`)),
     Router.empty as Router.Router<SwaggerRouter.SwaggerFiles, never>
   )
 
-  const swaggerInitialiser = createSwaggerInitializer(openApiJsonPath)
+  const serveIndex = Effect.gen(function*(_) {
+    const context = yield* _(Router.RouteContext)
+    const prefix = Option.getOrElse(context.route.prefix, () => "")
+    const index = createIndex(`${prefix}${basePath}`)
+    return ServerResponse.text(index, {
+      headers: Headers.fromInput({
+        "content-type": "text/html"
+      })
+    })
+  })
+
+  const serveSwaggerInitializer = Effect.gen(function*(_) {
+    const context = yield* _(Router.RouteContext)
+    const prefix = Option.getOrElse(context.route.prefix, () => "")
+    const swaggerInitialiser = createSwaggerInitializer(`${prefix}${basePath}/openapi.json`)
+    return ServerResponse.text(swaggerInitialiser, {
+      headers: Headers.fromInput({
+        "content-type": "application/javascript"
+      })
+    })
+  })
 
   router = router.pipe(
-    Router.get("/docs", redirect("/docs/index.html")),
-    Router.get(openApiJsonPath, pipe(ServerResponse.json(spec), Effect.orDie)),
-    Router.get(
-      `/docs/swagger-initializer.js`,
-      ServerResponse.text(swaggerInitialiser, {
-        headers: Headers.fromInput({
-          "content-type": "application/javascript"
-        })
-      })
-    )
+    Router.get(`${basePath}`, serveIndex),
+    Router.get(`${basePath}/index.html`, serveIndex),
+    Router.get(`${basePath}/openapi.json`, pipe(ServerResponse.json(spec), Effect.orDie)),
+    Router.get(`${basePath}/swagger-initializer.js`, serveSwaggerInitializer)
   )
 
   return router
