@@ -1,5 +1,5 @@
 ---
-"effect-http-node": minor
+"effect-http-node": patch
 "effect-http": minor
 ---
 
