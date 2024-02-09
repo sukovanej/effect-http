@@ -1,5 +1,5 @@
 ---
-"effect-http-node": patch
+"effect-http-node": minor
 ---
 
 Rename `Testing` -> `NodeTesting`.
