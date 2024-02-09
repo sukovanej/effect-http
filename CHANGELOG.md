@@ -1,5 +1,13 @@
 # effect-http
 
+## 0.50.5
+
+### Patch Changes
+
+- ff3f49d: Remove `Types.Simplify` on client response type.
+- 5d7c516: Improve swagger UI serving. It can be accessed from `/docs`, `/docs/`
+  and `/docs/index.html`. If used separately, it takes into account a route prefix.
+
 ## 0.50.4
 
 ### Patch Changes
