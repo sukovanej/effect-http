@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.51.1
+
+### Patch Changes
+
+- 4283373: Fix @effect/platform peer dependency version.
+
 ## 0.51.0
 
 ### Minor Changes
