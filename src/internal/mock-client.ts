@@ -1,4 +1,4 @@
-import * as OpenApi from "schema-openapi"
+import { ExampleCompiler } from "schema-openapi"
 
 import * as Effect from "effect/Effect"
 import { pipe } from "effect/Function"
@@ -27,7 +27,7 @@ export const make = <Endpoints extends Api.Endpoint>(
         Effect.flatMap(() =>
           customResponse !== undefined
             ? Effect.succeed(customResponse)
-            : OpenApi.randomExample(responseSchema)
+            : ExampleCompiler.randomExample(responseSchema)
         )
       )
     }

@@ -3,7 +3,7 @@
  *
  * @since 1.0.0
  */
-import type * as OpenApi from "schema-openapi"
+import type { OpenApiTypes } from "schema-openapi"
 
 import type * as Api from "./Api.js"
 import * as internal from "./internal/open-api.js"
@@ -16,4 +16,4 @@ import * as internal from "./internal/open-api.js"
  */
 export const make: (
   api: Api.Api
-) => OpenApi.OpenAPISpec<OpenApi.OpenAPISchemaType> = internal.make
+) => OpenApiTypes.OpenAPISpec<OpenApiTypes.OpenAPISchemaType> = internal.make

@@ -1,4 +1,4 @@
-import { runMain } from "@effect/platform-node/Runtime"
+import { NodeRuntime } from "@effect/platform-node"
 import { Schema } from "@effect/schema"
 import { Config, ConfigError, Context, Effect, Either, Option, pipe, ReadonlyArray } from "effect"
 import { Api, Middlewares, NodeServer, RouterBuilder, ServerError } from "effect-http"
@@ -31,7 +31,9 @@ export const ArrayOfCredentialsConfig = pipe(
   (credentialsConfig) => Config.array(credentialsConfig, "CREDENTIALS")
 )
 
-const CredentialsService = Context.Tag<ReadonlyArray<Middlewares.BasicAuthCredentials>>()
+const CredentialsService = Context.GenericTag<ReadonlyArray<Middlewares.BasicAuthCredentials>>(
+  "@services/CredentialsService"
+)
 
 const api = pipe(
   Api.api({ title: "Users API" }),
@@ -71,7 +73,7 @@ pipe(
   Effect.provideServiceEffect(CredentialsService, ArrayOfCredentialsConfig),
   Effect.provide(debugLogger),
   Effect.tapErrorCause(Effect.logError),
-  runMain
+  NodeRuntime.runMain
 )
 
 /**

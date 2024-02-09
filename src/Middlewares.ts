@@ -72,7 +72,7 @@ export interface BasicAuthCredentials {
 export const basicAuth: <R2, _>(
   checkCredentials: (
     credentials: BasicAuthCredentials
-  ) => Effect.Effect<R2, ServerError.ServerError, _>,
+  ) => Effect.Effect<_, ServerError.ServerError, R2>,
   options?: Partial<{
     headerName: string
     skipPaths: ReadonlyArray<string>

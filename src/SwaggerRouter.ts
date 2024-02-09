@@ -29,11 +29,8 @@ export const SwaggerFiles: Context.Tag<SwaggerFiles, SwaggerFiles> = internal.Sw
  * @category context
  * @since 1.0.0
  */
-export const SwaggerFilesLive: Layer.Layer<
-  FileSystem.FileSystem | Path.Path,
-  never,
-  SwaggerFiles
-> = internal.SwaggerFilesLive
+export const SwaggerFilesLive: Layer.Layer<SwaggerFiles, never, FileSystem.FileSystem | Path.Path> =
+  internal.SwaggerFilesLive
 
 /**
  * @category constructors

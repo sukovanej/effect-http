@@ -1,4 +1,5 @@
-import * as SchemaOpenApi from "schema-openapi"
+import type { OpenApiTypes } from "schema-openapi"
+import { OpenApi } from "schema-openapi"
 
 import * as AST from "@effect/schema/AST"
 import * as Schema from "@effect/schema/Schema"
@@ -10,7 +11,7 @@ import * as Api from "../Api.js"
 
 export const make = (
   api: Api.Api
-): SchemaOpenApi.OpenAPISpec<SchemaOpenApi.OpenAPISchemaType> => {
+): OpenApiTypes.OpenAPISpec<OpenApiTypes.OpenAPISchemaType> => {
   const pathSpecs = api.groups.flatMap((g) =>
     g.endpoints.map(
       ({ id, method, options, path, schemas }) => {
@@ -20,7 +21,7 @@ export const make = (
 
         if (Schema.isSchema(responseSchema)) {
           operationSpec.push(
-            SchemaOpenApi.jsonResponse(
+            OpenApi.jsonResponse(
               200,
               responseSchema,
               "Response",
@@ -33,13 +34,13 @@ export const make = (
               const schema = content === Api.IgnoredSchemaId ? undefined : content
               const setHeaders = headers === Api.IgnoredSchemaId
                 ? identity
-                : SchemaOpenApi.responseHeaders(
+                : OpenApi.responseHeaders(
                   createResponseHeadersSchemaMap(headers)
                 )
 
               operationSpec.push(
-                SchemaOpenApi.jsonResponse(
-                  status as SchemaOpenApi.OpenAPISpecStatusCode,
+                OpenApi.jsonResponse(
+                  status as OpenApiTypes.OpenAPISpecStatusCode,
                   schema,
                   `Response ${status}`,
                   schema ? descriptionSetter(schema) : identity,
@@ -65,27 +66,27 @@ export const make = (
         }
 
         if (body !== Api.IgnoredSchemaId) {
-          operationSpec.push(SchemaOpenApi.jsonRequest(body, descriptionSetter(body)))
+          operationSpec.push(OpenApi.jsonRequest(body, descriptionSetter(body)))
         }
 
         if (options.description !== undefined) {
-          operationSpec.push(SchemaOpenApi.description(options.description))
+          operationSpec.push(OpenApi.description(options.description))
         }
 
         if (options.summary !== undefined) {
-          operationSpec.push(SchemaOpenApi.summary(options.summary))
+          operationSpec.push(OpenApi.summary(options.summary))
         }
 
         if (options.deprecated) {
-          operationSpec.push(SchemaOpenApi.deprecated)
+          operationSpec.push(OpenApi.deprecated)
         }
 
-        return SchemaOpenApi.path(
+        return OpenApi.path(
           createPath(path),
-          SchemaOpenApi.operation(
+          OpenApi.operation(
             method,
-            SchemaOpenApi.operationId(id),
-            SchemaOpenApi.tags(g.options.name),
+            OpenApi.operationId(id),
+            OpenApi.tags(g.options.name),
             ...operationSpec
           )
         )
@@ -96,15 +97,15 @@ export const make = (
   if (ReadonlyArray.isNonEmptyArray(api.groups)) {
     const [firstGlobalTag, ...restGlobalTags] = ReadonlyArray.map(api.groups, (x) => x.options)
 
-    pathSpecs.push(SchemaOpenApi.globalTags(firstGlobalTag, ...restGlobalTags))
+    pathSpecs.push(OpenApi.globalTags(firstGlobalTag, ...restGlobalTags))
   }
 
   if (api.options.servers) {
     pathSpecs.push(
       ...api.options.servers.map((server) =>
         typeof server === "string"
-          ? SchemaOpenApi.server(server)
-          : SchemaOpenApi.server(
+          ? OpenApi.server(server)
+          : OpenApi.server(
             server.url,
             (_s) => ({ ..._s, ...server })
           )
@@ -112,7 +113,7 @@ export const make = (
     )
   }
 
-  const openApi = SchemaOpenApi.openAPI(
+  const openApi = OpenApi.openAPI(
     api.options.title,
     api.options.version,
     ...pathSpecs
@@ -144,7 +145,7 @@ const descriptionSetter = <A extends { description?: string }>(
   pipe(
     schema.ast,
     AST.getAnnotation<AST.DescriptionAnnotation>(AST.DescriptionAnnotationId),
-    Option.match({ onNone: () => identity<A>, onSome: SchemaOpenApi.description })
+    Option.match({ onNone: () => identity<A>, onSome: OpenApi.description })
   )
 
 const getPropertySignatures = (
@@ -192,21 +193,21 @@ const getPropertySignatures = (
 
 const createParameterSetters = (
   type: "query" | "header" | "path",
-  schema: Schema.Schema<any, any>
+  schema: Schema.Schema<any, any, any>
 ) => {
   return getPropertySignatures(type, schema.ast).map((ps) => {
     if (typeof ps.name !== "string") {
       throw new Error(`${type} parameter struct fields must be strings`)
     }
 
-    const schema = Schema.make<never, unknown, unknown>(ps.type)
+    const schema = Schema.make<unknown, unknown, never>(ps.type)
 
-    return SchemaOpenApi.parameter(
+    return OpenApi.parameter(
       ps.name,
       type,
       schema,
       descriptionSetter(schema),
-      ps.isOptional ? identity : SchemaOpenApi.required
+      ps.isOptional ? identity : OpenApi.required
     )
   })
 }
@@ -225,7 +226,7 @@ const createResponseHeadersSchemaMap = (schema: Schema.Schema<any, any>) => {
   return Object.fromEntries(
     ast.propertySignatures.map((ps) => [
       ps.name,
-      Schema.make<never, string, unknown>(ps.type)
+      Schema.make<unknown, string, never>(ps.type)
     ])
   )
 }

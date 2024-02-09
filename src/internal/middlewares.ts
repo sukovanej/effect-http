@@ -85,7 +85,7 @@ export const errorLog = Middleware.make((app) =>
 export const basicAuth = <R, _>(
   checkCredentials: (
     credentials: Middlewares.BasicAuthCredentials
-  ) => Effect.Effect<R, ServerError.ServerError, _>,
+  ) => Effect.Effect<_, ServerError.ServerError, R>,
   options?: Partial<{
     headerName: string
     skipPaths: ReadonlyArray<string>

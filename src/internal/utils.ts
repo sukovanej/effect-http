@@ -32,7 +32,7 @@ export const createResponseSchema = (
   )
 }
 
-export type SchemaTo<S> = S extends Schema.Schema<any, any, infer A> ? A : never
+export type SchemaTo<S> = S extends Schema.Schema<infer A, any, any> ? A : never
 
 /** @internal */
 export const convertMethod = (method: Api.Method): Method.Method => method.toUpperCase() as Method.Method

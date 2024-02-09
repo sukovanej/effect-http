@@ -13,6 +13,8 @@ import type * as ServerRequest from "@effect/platform/Http/ServerRequest"
 import type * as Effect from "effect/Effect"
 import type * as Scope from "effect/Scope"
 
+import type * as NodeContext from "@effect/platform-node/NodeContext"
+import type * as Etag from "@effect/platform/Http/Etag"
 import type * as Api from "./Api.js"
 import type * as Client from "./Client.js"
 import * as internal from "./internal/testing.js"
@@ -29,16 +31,19 @@ export const make: <R, E, Endpoints extends Api.Endpoint>(
   api: Api.Api<Endpoints>,
   options?: Partial<Client.Options>
 ) => Effect.Effect<
+  Client.Client<Endpoints>,
+  never,
   | Scope.Scope
   | Exclude<
     Exclude<
-      Exclude<R, ServerRequest.ServerRequest | Scope.Scope>,
-      Server.Server | Platform.Platform
+      Exclude<
+        Exclude<R, ServerRequest.ServerRequest | Scope.Scope>,
+        Server.Server | Platform.Platform | Etag.Generator | NodeContext.NodeContext
+      >,
+      SwaggerRouter.SwaggerFiles
     >,
-    SwaggerRouter.SwaggerFiles
-  >,
-  never,
-  Client.Client<Endpoints>
+    NodeContext.NodeContext
+  >
 > = internal.make
 
 /**
@@ -51,18 +56,21 @@ export const make: <R, E, Endpoints extends Api.Endpoint>(
 export const makeRaw: <R, E>(
   app: App.Default<R, E>
 ) => Effect.Effect<
-  | Scope.Scope
-  | Exclude<
-    Exclude<
-      Exclude<R, ServerRequest.ServerRequest | Scope.Scope>,
-      Server.Server | Platform.Platform
-    >,
-    SwaggerRouter.SwaggerFiles
-  >,
-  never,
   PlatformClient.Client<
     never,
     PlatformClientError.HttpClientError,
     ClientResponse.ClientResponse
+  >,
+  never,
+  | Scope.Scope
+  | Exclude<
+    Exclude<
+      Exclude<
+        Exclude<R, ServerRequest.ServerRequest | Scope.Scope>,
+        Server.Server | Platform.Platform | Etag.Generator | NodeContext.NodeContext
+      >,
+      SwaggerRouter.SwaggerFiles
+    >,
+    NodeContext.NodeContext
   >
 > = internal.makeRaw

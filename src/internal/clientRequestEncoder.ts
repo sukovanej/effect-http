@@ -11,11 +11,7 @@ import * as utils from "./utils.js"
 interface ClientRequestEncoder {
   encodeRequest: (
     input: unknown
-  ) => Effect.Effect<
-    never,
-    ClientError.ClientError,
-    ClientRequest.ClientRequest
-  >
+  ) => Effect.Effect<ClientRequest.ClientRequest, ClientError.ClientError>
 }
 
 const make = (
@@ -73,7 +69,7 @@ const createBodyEncoder = (endpoint: Api.Endpoint) => {
     return ignoredSchemaEncoder("body")
   }
 
-  const encode = Schema.encode(schema as Schema.Schema<never, any>)
+  const encode = Schema.encode(schema as Schema.Schema<any, any, never>)
 
   return (body: unknown) => {
     return encode(body).pipe(
@@ -98,7 +94,7 @@ const createQueryEncoder = (endpoint: Api.Endpoint) => {
     return ignoredSchemaEncoder("query")
   }
 
-  const encode = Schema.encode(schema as Schema.Schema<never, any>)
+  const encode = Schema.encode(schema as Schema.Schema<any, any, never>)
 
   return (query: unknown) => {
     return encode(query).pipe(
@@ -115,7 +111,7 @@ const createQueryEncoder = (endpoint: Api.Endpoint) => {
 const createHeadersEncoder = (endpoint: Api.Endpoint) => {
   const schema = endpoint.schemas.request.headers
 
-  const encode = schema == Api.IgnoredSchemaId ? undefined : Schema.encode(schema as Schema.Schema<never, any>)
+  const encode = schema == Api.IgnoredSchemaId ? undefined : Schema.encode(schema as Schema.Schema<any, any, never>)
 
   return (headers: unknown) => {
     if (!isRecordOrUndefined(headers)) {
@@ -140,7 +136,7 @@ const createParamsEncoder = (endpoint: Api.Endpoint) => {
     return ignoredSchemaEncoder("params")
   }
 
-  const encode = Schema.encode(schema as Schema.Schema<never, any>)
+  const encode = Schema.encode(schema as Schema.Schema<any, any, never>)
 
   return (params: unknown) => {
     return encode(params).pipe(

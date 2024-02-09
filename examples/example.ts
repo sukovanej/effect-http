@@ -1,8 +1,8 @@
-import { runMain } from "@effect/platform-node/Runtime"
-import * as Schema from "@effect/schema/Schema"
+import { Schema } from "@effect/schema"
 import { Context, Effect, Layer, pipe } from "effect"
 import { Api, NodeServer, RouterBuilder } from "effect-http"
 
+import { NodeRuntime } from "@effect/platform-node"
 import { debugLogger } from "./_utils.js"
 
 // Schemas
@@ -17,7 +17,7 @@ const Standa = Schema.record(
   Schema.union(Schema.string, Schema.number)
 )
 
-const StuffService = Context.Tag<{ value: number }>()
+const StuffService = Context.GenericTag<{ value: number }>("@services/StuffService")
 
 const dummyStuff = pipe(
   Effect.succeed({ value: 42 }),
@@ -82,5 +82,5 @@ pipe(
   NodeServer.listen({ port: 4000 }),
   Effect.provide(dummyStuff),
   Effect.provide(debugLogger),
-  runMain
+  NodeRuntime.runMain
 )

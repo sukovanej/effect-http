@@ -1,4 +1,6 @@
+import type * as NodeContext from "@effect/platform-node/NodeContext"
 import type * as App from "@effect/platform/Http/App"
+import type * as Etag from "@effect/platform/Http/Etag"
 import type * as Platform from "@effect/platform/Http/Platform"
 import * as Server from "@effect/platform/Http/Server"
 import type * as ServeError from "@effect/platform/Http/ServerError"
@@ -22,15 +24,18 @@ export const listen = (options?: Partial<NodeServer.Options>) =>
 <R, E>(
   router: App.Default<R, E>
 ): Effect.Effect<
+  never,
+  ServeError.ServeError,
   Exclude<
     Exclude<
-      Exclude<R, ServerRequest.ServerRequest | Scope.Scope>,
-      Server.Server | Platform.Platform
+      Exclude<
+        Exclude<Exclude<R, ServerRequest.ServerRequest | Scope.Scope>, Scope.Scope>,
+        Server.Server | Platform.Platform | Etag.Generator | NodeContext.NodeContext
+      >,
+      SwaggerRouter.SwaggerFiles
     >,
-    SwaggerRouter.SwaggerFiles
-  >,
-  ServeError.ServeError,
-  never
+    NodeContext.NodeContext
+  >
 > =>
   Effect.gen(function*(_) {
     const _options = { ...DEFAULT_LISTEN_OPTIONS, ...options }

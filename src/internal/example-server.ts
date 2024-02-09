@@ -1,4 +1,4 @@
-import * as OpenApi from "schema-openapi"
+import { ExampleCompiler } from "schema-openapi"
 
 import * as Effect from "effect/Effect"
 import { pipe } from "effect/Function"
@@ -59,7 +59,7 @@ const createExampleHandler = ({ schemas }: Api.Endpoint) => {
 
   return () =>
     pipe(
-      OpenApi.randomExample(responseSchema),
+      ExampleCompiler.randomExample(responseSchema),
       Effect.mapError((error) =>
         ServerError.internalServerError(
           `Sorry, I don't have any example response. ${JSON.stringify(error)}`

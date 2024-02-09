@@ -43,7 +43,7 @@ export const exampleApiGetQueryParameter = Api.api().pipe(
 const _ExampleResponse = Schema.struct({ clientIdHash: Schema.string })
 interface ExampleResponseFrom extends Schema.Schema.From<typeof _ExampleResponse> {}
 interface ExampleResponse extends Schema.Schema.To<typeof _ExampleResponse> {}
-const ExampleResponse: Schema.Schema<never, ExampleResponseFrom, ExampleResponse> = _ExampleResponse
+const ExampleResponse: Schema.Schema<ExampleResponse, ExampleResponseFrom> = _ExampleResponse
 
 export const exampleApiGetHeaders = Api.api().pipe(
   Api.get("hello", "/hello", {

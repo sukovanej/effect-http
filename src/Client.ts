@@ -81,7 +81,7 @@ type MakeHeadersOptionIfAllPartial<I> = I extends { headers: any } ? Types.Simpl
 /** @ignore */
 export type ClientFunctionResponse<
   S extends Api.Endpoint["schemas"]["response"]
-> = S extends Schema.Schema<any, any, infer A> ? A
+> = S extends Schema.Schema<infer A, any, any> ? A
   : S extends ReadonlyArray<Api.ResponseSchemaFull> ? Route.ResponseSchemaFullTo<S[number]>
   : S extends Api.ResponseSchemaFull ? Route.ResponseSchemaFullTo<S>
   : never
@@ -93,14 +93,14 @@ type ClientFunction<Endpoint extends Api.Endpoint, I> = Record<
 > extends I ? (
     input?: I
   ) => Effect.Effect<
-    Api.EndpointRequirements<Endpoint>,
+    ClientFunctionResponse<Endpoint["schemas"]["response"]>,
     ClientError.ClientError,
-    ClientFunctionResponse<Endpoint["schemas"]["response"]>
+    Api.EndpointRequirements<Endpoint>
   >
   : (
     input: I
   ) => Effect.Effect<
-    Api.EndpointRequirements<Endpoint>,
+    ClientFunctionResponse<Endpoint["schemas"]["response"]>,
     ClientError.ClientError,
-    ClientFunctionResponse<Endpoint["schemas"]["response"]>
+    Api.EndpointRequirements<Endpoint>
   >

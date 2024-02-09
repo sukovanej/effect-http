@@ -16,11 +16,7 @@ interface ServerResponseEncoder {
   encodeResponse: (
     request: ServerRequest.ServerRequest,
     inputResponse: unknown
-  ) => Effect.Effect<
-    never,
-    ServerError.ServerError,
-    ServerResponse.ServerResponse
-  >
+  ) => Effect.Effect<ServerResponse.ServerResponse, ServerError.ServerError>
 }
 
 const createErrorResponse = (error: string, message: string) => ServerError.makeJson(500, { error, message })
@@ -33,7 +29,7 @@ export const create = (
   responseSchema: Api.EndpointSchemas["response"]
 ): ServerResponseEncoder => {
   if (Schema.isSchema(responseSchema)) {
-    return fromSchema(responseSchema as Schema.Schema<never, any>)
+    return fromSchema(responseSchema as Schema.Schema<any, any, never>)
   } else if (Array.isArray(responseSchema)) {
     return fromResponseSchemaFullArray(responseSchema)
   }
@@ -62,7 +58,7 @@ const representationFromRequest = (
   )
 }
 
-const encodeContent = (schema: Schema.Schema<never, any>) => {
+const encodeContent = (schema: Schema.Schema<any, any, never>) => {
   const encode = Schema.encode(schema)
 
   return (content: unknown, representation: Representation.Representation) =>
@@ -91,7 +87,7 @@ const encodeContent = (schema: Schema.Schema<never, any>) => {
     )
 }
 
-const fromSchema = (schema: Schema.Schema<never, any>): ServerResponseEncoder => {
+const fromSchema = (schema: Schema.Schema<any, any, never>): ServerResponseEncoder => {
   const encode = encodeContent(schema)
   const representation = Representation.json
 
@@ -138,7 +134,7 @@ const fromResponseSchemaFullArray = (
 
 const createContentSetter = (schema: Api.ResponseSchemaFull) => {
   const contentSchema = schema.content === Api.IgnoredSchemaId ? undefined : schema.content
-  const encode = contentSchema && encodeContent(contentSchema as Schema.Schema<never, any>)
+  const encode = contentSchema && encodeContent(contentSchema as Schema.Schema<any, any, never>)
 
   return (
     inputResponse: FullResponseInput,
@@ -160,7 +156,7 @@ const createContentSetter = (schema: Api.ResponseSchemaFull) => {
 const createHeadersSetter = (schema: Api.ResponseSchemaFull) => {
   const parseHeaders = schema.headers === Api.IgnoredSchemaId
     ? undefined
-    : Schema.encode(schema.headers as Schema.Schema<never, any>)
+    : Schema.encode(schema.headers as Schema.Schema<any, any, never>)
 
   return (inputResponse: FullResponseInput) => (response: ServerResponse.ServerResponse) => {
     if (parseHeaders === undefined && inputResponse.headers !== undefined) {

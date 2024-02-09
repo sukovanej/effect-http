@@ -21,9 +21,9 @@ import type * as ServerError from "./ServerError.js"
 export type HandlerFunction<Endpoint extends Api.Endpoint, R, E> = (
   input: Types.Simplify<EndpointSchemasTo<Endpoint["schemas"]>["request"]>
 ) => Effect.Effect<
-  R,
+  EndpointResponseSchemaTo<Endpoint["schemas"]["response"]>,
   E,
-  EndpointResponseSchemaTo<Endpoint["schemas"]["response"]>
+  R
 >
 
 /**

@@ -13,7 +13,7 @@ import type * as Schema from "@effect/schema/Schema"
 import type * as Pipeable from "effect/Pipeable"
 import type * as ReadonlyArray from "effect/ReadonlyArray"
 import type * as Types from "effect/Types"
-import type * as OpenApi from "schema-openapi/types"
+import type { OpenApiTypes } from "schema-openapi"
 
 import * as internal from "./internal/api.js"
 import type * as Representation from "./Representation.js"
@@ -53,7 +53,7 @@ export interface Api<E extends Endpoint = Endpoint> extends Pipeable.Pipeable {
     title: string
     version: string
     description?: string
-    servers?: ReadonlyArray<OpenApi.OpenAPISpecServer | string>
+    servers?: ReadonlyArray<OpenApiTypes.OpenAPISpecServer | string>
     license?: {
       name: string
       url?: string
@@ -112,13 +112,13 @@ type EndpointAllSchema<E extends Endpoint> =
   | EndpointResponseAllSchemas<E["schemas"]["response"]>
 
 /** @ignore */
-type EndpointResponseAllSchemas<R extends EndpointSchemas["response"]> = R extends Schema.Schema<any, any> ? R
+type EndpointResponseAllSchemas<R extends EndpointSchemas["response"]> = R extends Schema.Schema<any, any, any> ? R
   : R extends ResponseSchemaFull ? R[keyof ResponseSchemaFull]
   : R extends ReadonlyArray<ResponseSchemaFull> ? R[number][keyof ResponseSchemaFull]
   : never
 
 /** @ignore */
-type FilterSchemas<X> = X extends Schema.Schema<infer R, any> ? R : never
+type FilterSchemas<X> = X extends Schema.Schema<any, any, infer R> ? R : never
 
 /** @ignore */
 export type EndpointRequirements<E extends Endpoint> = FilterSchemas<EndpointAllSchema<E>>
@@ -129,14 +129,14 @@ export type EndpointRequirements<E extends Endpoint> = FilterSchemas<EndpointAll
  */
 export interface EndpointSchemas {
   response:
-    | Schema.Schema<any, any>
+    | Schema.Schema<any, any, any>
     | ResponseSchemaFull
     | ReadonlyArray<ResponseSchemaFull>
   request: {
-    query: Schema.Schema<any, any> | IgnoredSchemaId
-    params: Schema.Schema<any, any> | IgnoredSchemaId
-    body: Schema.Schema<any, any> | IgnoredSchemaId
-    headers: Schema.Schema<any, any> | IgnoredSchemaId
+    query: Schema.Schema<any, any, any> | IgnoredSchemaId
+    params: Schema.Schema<any, any, any> | IgnoredSchemaId
+    body: Schema.Schema<any, any, any> | IgnoredSchemaId
+    headers: Schema.Schema<any, any, any> | IgnoredSchemaId
   }
 }
 
@@ -282,7 +282,7 @@ export const getEndpoint: <
  * @category schemas
  * @since 1.0.0
  */
-export const FormData: Schema.Schema<never, FormData> = internal.formDataSchema
+export const FormData: Schema.Schema<FormData> = internal.formDataSchema
 
 // Internal type helpers
 
@@ -324,9 +324,9 @@ type UndefinedToIgnoredSchema<S extends unknown | undefined> = S extends Schema.
 
 /** @ignore */
 type UndefinedToIgnoredSchemaLowercased<S extends unknown | undefined> = S extends
-  Schema.Schema<infer R, infer I, infer O>
+  Schema.Schema<infer O, infer I, infer R>
   ? O extends Record<string, any>
-    ? I extends Record<string, any> ? Schema.Schema<R, LowercaseFields<I>, LowercaseFields<O>>
+    ? I extends Record<string, any> ? Schema.Schema<LowercaseFields<O>, LowercaseFields<I>, R>
     : never
   : never
   : IgnoredSchemaId
@@ -360,16 +360,16 @@ type ResponseSchemaFullFromInput<R extends InputResponseSchemaFull> = {
 /** @ignore */
 export interface ResponseSchemaFull {
   status: number
-  content: Schema.Schema<any, any> | IgnoredSchemaId
-  headers: Schema.Schema<any, any> | IgnoredSchemaId
+  content: Schema.Schema<any, any, any> | IgnoredSchemaId
+  headers: Schema.Schema<any, any, any> | IgnoredSchemaId
   representations: ReadonlyArray.NonEmptyReadonlyArray<Representation.Representation>
 }
 
 /** @ignore */
 export interface InputResponseSchemaFull {
   status: number
-  content?: Schema.Schema<any, any>
-  headers?: Schema.Schema<any, any>
+  content?: Schema.Schema<any, any, any>
+  headers?: Schema.Schema<any, any, any>
   representations?: ReadonlyArray.NonEmptyReadonlyArray<Representation.Representation>
 }
 
