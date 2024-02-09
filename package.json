@@ -61,7 +61,7 @@
     "eslint-plugin-codegen": "^0.23.0",
     "eslint-plugin-deprecation": "^2.0.0",
     "eslint-plugin-import": "^2.29.1",
-    "eslint-plugin-simple-import-sort": "^10.0.0",
+    "eslint-plugin-simple-import-sort": "^11.0.0",
     "eslint-plugin-sort-destructure-keys": "^1.5.0",
     "madge": "^6.1.0",
     "prettier": "^3.2.5",
