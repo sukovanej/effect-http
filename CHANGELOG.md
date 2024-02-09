@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.51.0
+
+### Minor Changes
+
+- 275073e: Effect minor update.
+
 ## 0.50.5
 
 ### Patch Changes
