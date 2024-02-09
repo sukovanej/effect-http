@@ -6,7 +6,7 @@ import * as HashSet from "effect/HashSet"
 import * as Order from "effect/Order"
 import * as Pipeable from "effect/Pipeable"
 import * as ReadonlyArray from "effect/ReadonlyArray"
-import * as OpenApi from "schema-openapi/compiler"
+import { OpenApiCompiler } from "schema-openapi"
 import type * as Api from "../Api.js"
 import * as Representation from "../Representation.js"
 
@@ -15,32 +15,31 @@ const composeResponseSchema = (
   response: ReadonlyArray<Api.InputResponseSchemaFull>
 ) =>
   response.map(
-    (r) =>
-      ({
-        status: r.status,
-        headers: (r.headers && fieldsToLowerCase(r.headers)) ?? IgnoredSchemaId,
-        content: r.content ?? IgnoredSchemaId,
-        representations: r.representations ?? [Representation.json]
-      }) as const
+    (r) => (({
+      status: r.status,
+      headers: (r.headers && fieldsToLowerCase(r.headers)) ?? IgnoredSchemaId,
+      content: r.content ?? IgnoredSchemaId,
+      representations: r.representations ?? [Representation.json]
+    }) as const)
   )
 
 /** @internal */
 const createSchemasFromInput = <I extends Api.InputEndpointSchemas>({
   request,
   response
-}: I): Api.CreateEndpointSchemasFromInput<I> =>
-  ({
-    response: Schema.isSchema(response)
-      ? response
-      : composeResponseSchema(Array.isArray(response) ? response : [response]),
-    request: {
-      query: request?.query ?? IgnoredSchemaId,
-      params: request?.params ?? IgnoredSchemaId,
-      body: request?.body ?? IgnoredSchemaId,
-      headers: (request?.headers && fieldsToLowerCase(request?.headers)) ??
-        IgnoredSchemaId
-    }
-  }) as Api.CreateEndpointSchemasFromInput<I>
+}: I): Api.CreateEndpointSchemasFromInput<I> => (({
+  response: Schema.isSchema(response)
+    ? response
+    : composeResponseSchema(Array.isArray(response) ? response : [response]),
+
+  request: {
+    query: request?.query ?? IgnoredSchemaId,
+    params: request?.params ?? IgnoredSchemaId,
+    body: request?.body ?? IgnoredSchemaId,
+    headers: (request?.headers && fieldsToLowerCase(request?.headers)) ??
+      IgnoredSchemaId
+  }
+}) as Api.CreateEndpointSchemasFromInput<I>)
 
 /** @internal */
 const tupleOrder = Order.tuple(Order.string, Order.boolean)
@@ -165,7 +164,7 @@ export const endpoint = (method: Api.Method) =>
  *
  *  @internal
  */
-export const fieldsToLowerCase = (s: Schema.Schema<any, any>) => {
+export const fieldsToLowerCase = (s: Schema.Schema<any, any, any>) => {
   const ast = s.ast
 
   if (ast._tag !== "TypeLiteral") {
@@ -302,4 +301,4 @@ class ApiGroupImpl<Endpoints extends Api.Endpoint> implements Api.ApiGroup<Endpo
 
 export const formDataSchema = Schema.instanceOf(FormData, {
   description: "Multipart form data"
-}).pipe(OpenApi.annotate({}))
+}).pipe(OpenApiCompiler.annotate({}))

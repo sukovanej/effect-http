@@ -1,6 +1,6 @@
-import * as BunContext from "@effect/platform-bun/BunContext"
-import * as Http from "@effect/platform-bun/HttpServer"
-import { runMain } from "@effect/platform-bun/Runtime"
+import { HttpServer } from "@effect/platform"
+import { BunContext, BunHttpServer } from "@effect/platform-bun"
+import { NodeRuntime } from "@effect/platform-node"
 import { Schema } from "@effect/schema"
 import { Effect, Layer, pipe } from "effect"
 import { Api, RouterBuilder, SwaggerRouter } from "effect-http"
@@ -28,12 +28,12 @@ const app = pipe(
 )
 
 const server = pipe(
-  Http.server.serve(app),
+  HttpServer.server.serve(app),
   Layer.provide(SwaggerRouter.SwaggerFilesLive),
-  Layer.provide(Http.server.layer({ port: 3000 })),
+  Layer.provide(BunHttpServer.server.layer({ port: 3000 })),
   Layer.provide(BunContext.layer),
   Layer.launch,
   Effect.scoped
 )
 
-runMain(server)
+NodeRuntime.runMain(server)

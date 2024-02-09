@@ -5,7 +5,7 @@ const setLogger = Logger.replace(Logger.defaultLogger, Logger.none)
 // import { PrettyLogger } from "effect-log";
 // const setLogger = PrettyLogger.layer();
 
-export const runTestEffect = <E, A>(self: Effect.Effect<Scope.Scope, E, A>) =>
+export const runTestEffect = <E, A>(self: Effect.Effect<A, E, Scope.Scope>) =>
   pipe(
     self,
     Effect.provide(setLogger),

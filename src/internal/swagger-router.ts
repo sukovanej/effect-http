@@ -74,7 +74,7 @@ const readSwaggerFile = (swaggerBasePath: string, file: string) =>
   Effect.flatMap(Path.Path, (path) => readFile(path.resolve(swaggerBasePath, file)).pipe(Effect.orDie))
 
 /** @internal */
-export const SwaggerFiles = Context.Tag<SwaggerRouter.SwaggerFiles>()
+export const SwaggerFiles = Context.GenericTag<SwaggerRouter.SwaggerFiles>("@services/SwaggerFiles")
 
 /** @internal */
 export const SwaggerFilesLive = Effect.gen(function*(_) {

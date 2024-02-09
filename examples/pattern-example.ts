@@ -1,4 +1,4 @@
-import { runMain } from "@effect/platform-node/Runtime"
+import { NodeRuntime } from "@effect/platform-node"
 import * as Schema from "@effect/schema/Schema"
 import { Effect, pipe } from "effect"
 import { Api, NodeServer, RouterBuilder } from "effect-http"
@@ -27,5 +27,5 @@ pipe(
   app,
   NodeServer.listen({ port: 4000 }),
   Effect.provide(debugLogger),
-  runMain
+  NodeRuntime.runMain
 )

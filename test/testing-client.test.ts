@@ -1,4 +1,5 @@
-import { FileSystem, NodeContext } from "@effect/platform-node"
+import { FileSystem } from "@effect/platform"
+import { NodeContext } from "@effect/platform-node"
 import * as Router from "@effect/platform/Http/Router"
 import * as HttpServer from "@effect/platform/HttpServer"
 import { Schema } from "@effect/schema"
@@ -69,7 +70,7 @@ test("testing with dependencies", async () => {
     })
   )
 
-  const MyService = Context.Tag<number>()
+  const MyService = Context.GenericTag<number>("@services/MyService")
 
   const app = pipe(
     RouterBuilder.make(api),

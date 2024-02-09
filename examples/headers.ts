@@ -1,4 +1,4 @@
-import { runMain } from "@effect/platform-node/Runtime"
+import { NodeRuntime } from "@effect/platform-node"
 import { Schema } from "@effect/schema"
 import { Context, Effect, pipe, ReadonlyArray, Ref } from "effect"
 import { Api, Middlewares, NodeServer, RouterBuilder, ServerError } from "effect-http"
@@ -6,9 +6,9 @@ import { Api, Middlewares, NodeServer, RouterBuilder, ServerError } from "effect
 import { debugLogger } from "./_utils.js"
 
 interface Clients {
-  hasAccess: (clientId: string) => Effect.Effect<never, never, boolean>
-  getRemainingUsage: (clientId: string) => Effect.Effect<Usages, never, number>
-  recordUsage: (aipKey: string) => Effect.Effect<Usages, never, void>
+  hasAccess: (clientId: string) => Effect.Effect<boolean>
+  getRemainingUsage: (clientId: string) => Effect.Effect<number, never, Usages>
+  recordUsage: (aipKey: string) => Effect.Effect<void, never, Usages>
 }
 
 type ClientUsage = {
@@ -56,8 +56,8 @@ const clients = {
 
 type Usages = Ref.Ref<Array<ClientUsage>>
 
-const ClientsService = Context.Tag<Clients>()
-const UsagesService = Context.Tag<Usages>()
+const ClientsService = Context.GenericTag<Clients>("@services/ClientsService")
+const UsagesService = Context.GenericTag<Usages>("@services/UsagesService")
 
 export const api = pipe(
   Api.api(),
@@ -99,5 +99,5 @@ pipe(
   Effect.provideService(ClientsService, clients),
   Effect.provideServiceEffect(UsagesService, Ref.make([] as Array<ClientUsage>)),
   Effect.provide(debugLogger),
-  runMain
+  NodeRuntime.runMain
 )

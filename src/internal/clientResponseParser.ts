@@ -12,7 +12,7 @@ import * as Representation from "../Representation.js"
 interface ClientResponseParser {
   parseResponse: (
     response: ClientResponse.ClientResponse
-  ) => Effect.Effect<never, ClientError.ClientError, any>
+  ) => Effect.Effect<any, ClientError.ClientError>
 }
 
 const make = (
@@ -23,7 +23,7 @@ export const create = (
   responseSchema: Api.EndpointSchemas["response"]
 ): ClientResponseParser => {
   if (Schema.isSchema(responseSchema)) {
-    return fromSchema(responseSchema as Schema.Schema<never, any>)
+    return fromSchema(responseSchema as Schema.Schema<any, any, never>)
   } else if (Array.isArray(responseSchema)) {
     return fromResponseSchemaFullArray(responseSchema)
   }
@@ -45,7 +45,7 @@ const handleUnsucessful = Unify.unify(
   }
 )
 
-const fromSchema = (schema: Schema.Schema<never, any>): ClientResponseParser => {
+const fromSchema = (schema: Schema.Schema<any, any, never>): ClientResponseParser => {
   const decode = decodeBody(schema, [Representation.json])
 
   return make((response) => handleUnsucessful(response).pipe(Effect.flatMap(() => decode(response))))
@@ -74,14 +74,14 @@ const fromResponseSchemaFullArray = (
       }
 
       const schemas = statusToSchema[response.status]
-      const parseBody = parseContent(schemas.content as Schema.Schema<never, any>, schemas.representations)
+      const parseBody = parseContent(schemas.content as Schema.Schema<any, any, never>, schemas.representations)
       const content = yield* _(parseBody(response))
 
       const headers = schemas.headers === Api.IgnoredSchemaId
         ? undefined
         : yield* _(
           response.headers,
-          Schema.decodeUnknown(schemas.headers as Schema.Schema<never, any>),
+          Schema.decodeUnknown(schemas.headers as Schema.Schema<any, any, never>),
           Effect.mapError(
             ClientError.makeClientSideResponseValidation("headers")
           )
@@ -114,7 +114,7 @@ const representationFromResponse = (
 }
 
 const decodeBody = (
-  schema: Schema.Schema<never, any>,
+  schema: Schema.Schema<any, any, never>,
   representations: ReadonlyArray.NonEmptyReadonlyArray<Representation.Representation>
 ) => {
   const parse = Schema.decodeUnknown(schema)
@@ -149,11 +149,11 @@ const decodeBody = (
 }
 
 const parseContent: (
-  schema: Schema.Schema<never, any> | Api.IgnoredSchemaId,
+  schema: Schema.Schema<any, any, never> | Api.IgnoredSchemaId,
   representations: ReadonlyArray.NonEmptyReadonlyArray<Representation.Representation>
 ) => (
   response: ClientResponse.ClientResponse
-) => Effect.Effect<never, ClientError.ClientError, any> = (
+) => Effect.Effect<any, ClientError.ClientError> = (
   schema,
   representations
 ) => {

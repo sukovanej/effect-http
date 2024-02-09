@@ -1,4 +1,4 @@
-import { runMain } from "@effect/platform-node/Runtime"
+import { NodeRuntime } from "@effect/platform-node"
 import { Schema } from "@effect/schema"
 import { pipe } from "effect"
 import { Api, ExampleServer, NodeServer, RouterBuilder } from "effect-http"
@@ -16,5 +16,5 @@ pipe(
   ExampleServer.make(api),
   RouterBuilder.build,
   NodeServer.listen({ port: 3000 }),
-  runMain
+  NodeRuntime.runMain
 )

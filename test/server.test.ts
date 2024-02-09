@@ -17,8 +17,8 @@ import {
 } from "./examples.js"
 import { runTestEffect } from "./utils.js"
 
-const Service1 = Context.Tag<number>()
-const Service2 = Context.Tag<string>()
+const Service1 = Context.GenericTag<number>("@services/Service1")
+const Service2 = Context.GenericTag<string>("@services/Service2")
 
 const layer1 = Layer.succeed(Service2, "hello world")
 const layer2 = pipe(

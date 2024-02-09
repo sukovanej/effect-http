@@ -1,17 +1,17 @@
-import { runMain } from "@effect/platform-node/Runtime"
-import * as Schema from "@effect/schema/Schema"
+import { NodeRuntime } from "@effect/platform-node"
+import { Schema } from "@effect/schema"
 import { Context, Duration, Effect, Logger, LogLevel, pipe, ReadonlyArray, Request, RequestResolver } from "effect"
 import { Api, NodeServer, RouterBuilder, ServerError } from "effect-http"
 
 import type { FileNotFoundError } from "./_utils.js"
 import { debugLogger, readFile } from "./_utils.js"
 
-interface GetValue extends Request.Request<FileNotFoundError, string> {
+interface GetValue extends Request.Request<string, FileNotFoundError> {
   readonly _tag: "GetValue"
 }
 const GetValue = Request.tagged<GetValue>("GetValue")
 
-const GetValueCache = Context.Tag<Request.Cache>()
+const GetValueCache = Context.GenericTag<Request.Cache>("@services/GetValueCache")
 
 const GetValueResolver = RequestResolver.fromEffect((_: GetValue) =>
   pipe(
@@ -57,5 +57,5 @@ pipe(
     Request.makeCache({ capacity: 100, timeToLive: Duration.seconds(5) })
   ),
   Effect.provide(debugLogger),
-  runMain
+  NodeRuntime.runMain
 )

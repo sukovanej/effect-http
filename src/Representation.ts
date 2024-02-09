@@ -30,10 +30,10 @@ export interface Representation extends Pipeable.Pipeable {
   readonly [TypeId]: TypeId
   readonly stringify: (
     input: unknown
-  ) => Effect.Effect<never, RepresentationError, string>
+  ) => Effect.Effect<string, RepresentationError>
   readonly parse: (
     input: string
-  ) => Effect.Effect<never, RepresentationError, unknown>
+  ) => Effect.Effect<unknown, RepresentationError>
   contentType: string
 }
 

@@ -1,4 +1,4 @@
-import { runMain } from "@effect/platform-node/Runtime"
+import { NodeRuntime } from "@effect/platform-node"
 import { Schema } from "@effect/schema"
 import { Effect } from "effect"
 import { Api, NodeServer, Representation, RouterBuilder } from "effect-http"
@@ -24,4 +24,4 @@ const program = app.pipe(
   Effect.provide(PrettyLogger.layer())
 )
 
-runMain(program)
+NodeRuntime.runMain(program)

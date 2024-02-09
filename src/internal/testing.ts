@@ -15,7 +15,7 @@ export const make = <R, E, Endpoints extends Api.Endpoint>(
   options?: Partial<Client.Options>
 ) =>
   Effect.gen(function*(_) {
-    const allocatedUrl = yield* _(Deferred.make<never, string>())
+    const allocatedUrl = yield* _(Deferred.make<string>())
 
     const { createServer } = yield* _(Effect.promise(() => import("http")))
 
@@ -56,7 +56,7 @@ export const makeRaw = <R, E>(
   app: App.Default<R | SwaggerRouter.SwaggerFiles, E>
 ) =>
   Effect.gen(function*(_) {
-    const allocatedUrl = yield* _(Deferred.make<never, string>())
+    const allocatedUrl = yield* _(Deferred.make<string>())
 
     const { createServer } = yield* _(Effect.promise(() => import("http")))
 
