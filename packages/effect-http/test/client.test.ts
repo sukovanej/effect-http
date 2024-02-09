@@ -1,7 +1,8 @@
 import { Schema } from "@effect/schema"
 import { Cause, Duration, Effect, Exit, Fiber, pipe } from "effect"
-import { Api, ClientError, ExampleServer, RouterBuilder, Testing } from "effect-http"
+import { Api, ClientError, ExampleServer, RouterBuilder } from "effect-http"
 import { expect, test, vi } from "vitest"
+import * as Testing from "./_testing.js"
 import { exampleApiGetQueryParameter } from "./examples.js"
 import { runTestEffect } from "./utils.js"
 

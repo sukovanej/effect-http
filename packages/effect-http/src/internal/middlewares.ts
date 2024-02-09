@@ -3,12 +3,9 @@
  *
  * @since 1.0.0
  */
-import * as crypto from "node:crypto"
 
-import * as Headers from "@effect/platform/Http/Headers"
-import * as Middleware from "@effect/platform/Http/Middleware"
-import * as ServerRequest from "@effect/platform/Http/ServerRequest"
-import * as ServerResponse from "@effect/platform/Http/ServerResponse"
+import { HttpServer } from "@effect/platform"
+import { Encoding } from "effect"
 import * as Effect from "effect/Effect"
 import * as Either from "effect/Either"
 import * as FiberRef from "effect/FiberRef"
@@ -19,16 +16,16 @@ import type * as Middlewares from "../Middlewares.js"
 import * as ServerError from "../ServerError.js"
 
 export const accessLog = (level: "Info" | "Warning" | "Debug" = "Info") =>
-  Middleware.make((app) =>
+  HttpServer.middleware.make((app) =>
     pipe(
-      ServerRequest.ServerRequest,
+      HttpServer.request.ServerRequest,
       Effect.flatMap((request) => Effect[`log${level}`](`${request.method} ${request.url}`)),
       Effect.flatMap(() => app)
     )
   )
 
 export const uuidLogAnnotation = (logAnnotationKey = "requestId") =>
-  Middleware.make((app) =>
+  HttpServer.middleware.make((app) =>
     pipe(
       Effect.sync(() => crypto.randomUUID()),
       Effect.flatMap((uuid) =>
@@ -44,9 +41,9 @@ export const uuidLogAnnotation = (logAnnotationKey = "requestId") =>
 export const endpointCallsMetric = () => {
   const endpointCalledCounter = Metric.counter("server.endpoint_calls")
 
-  return Middleware.make((app) =>
+  return HttpServer.middleware.make((app) =>
     Effect.gen(function*(_) {
-      const request = yield* _(ServerRequest.ServerRequest)
+      const request = yield* _(HttpServer.request.ServerRequest)
 
       yield* _(
         Metric.increment(endpointCalledCounter),
@@ -58,9 +55,9 @@ export const endpointCallsMetric = () => {
   )
 }
 
-export const errorLog = Middleware.make((app) =>
+export const errorLog = HttpServer.middleware.make((app) =>
   Effect.gen(function*(_) {
-    const request = yield* _(ServerRequest.ServerRequest)
+    const request = yield* _(HttpServer.request.ServerRequest)
 
     const response = yield* _(app, Effect.tapErrorCause(Effect.logError))
 
@@ -91,11 +88,11 @@ export const basicAuth = <R, _>(
     skipPaths: ReadonlyArray<string>
   }>
 ) =>
-  Middleware.make((app) =>
+  HttpServer.middleware.make((app) =>
     Effect.gen(function*(_) {
       const headerName = options?.headerName ?? "Authorization"
       const skippedPaths = options?.skipPaths ?? []
-      const request = yield* _(ServerRequest.ServerRequest)
+      const request = yield* _(HttpServer.request.ServerRequest)
 
       if (skippedPaths.includes(request.url)) {
         return yield* _(app)
@@ -123,8 +120,13 @@ export const basicAuth = <R, _>(
         ).pipe(ServerError.toServerResponse)
       }
 
-      const credentialsBuffer = Buffer.from(authorizationParts[1], "base64")
-      const credentialsText = credentialsBuffer.toString("utf-8")
+      const credentialsDecoded = Encoding.decodeBase64String(authorizationParts[1])
+
+      if (Either.isLeft(credentialsDecoded)) {
+        return ServerError.unauthorizedError("Invalid base64 encoding").pipe(ServerError.toServerResponse)
+      }
+
+      const credentialsText = credentialsDecoded.right
       const credentialsParts = credentialsText.split(":")
 
       if (credentialsParts.length !== 2) {
@@ -239,9 +241,9 @@ export const cors = (_options?: Partial<Middlewares.CorsOptions>) => {
     return undefined
   })()
 
-  return Middleware.make((app) =>
+  return HttpServer.middleware.make((app) =>
     Effect.gen(function*(_) {
-      const request = yield* _(ServerRequest.ServerRequest)
+      const request = yield* _(HttpServer.request.ServerRequest)
 
       const origin = request.headers["origin"]
       const accessControlRequestHeaders = request.headers["access-control-request-headers"]
@@ -260,15 +262,15 @@ export const cors = (_options?: Partial<Middlewares.CorsOptions>) => {
           ...maxAge
         }
 
-        return ServerResponse.empty({
+        return HttpServer.response.empty({
           status: 204,
-          headers: Headers.fromInput(corsHeaders)
+          headers: HttpServer.headers.fromInput(corsHeaders)
         })
       }
 
       const response = yield* _(app)
 
-      return response.pipe(ServerResponse.setHeaders(corsHeaders))
+      return response.pipe(HttpServer.response.setHeaders(corsHeaders))
     })
   )
 }

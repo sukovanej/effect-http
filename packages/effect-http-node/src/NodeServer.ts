@@ -13,8 +13,8 @@ import type * as ServerRequest from "@effect/platform/Http/ServerRequest"
 import type * as Effect from "effect/Effect"
 import type * as Scope from "effect/Scope"
 
+import type { SwaggerRouter } from "effect-http"
 import * as internal from "./internal/node-server.js"
-import type * as SwaggerRouter from "./SwaggerRouter.js"
 
 /**
  * @category models

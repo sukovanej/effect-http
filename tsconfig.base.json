@@ -12,7 +12,8 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "moduleResolution": "NodeNext",
-    "lib": ["ES2022", "DOM"],
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "types": [],
     "isolatedModules": true,
     "sourceMap": true,
     "declarationMap": true,
@@ -34,14 +35,12 @@
     "module": "NodeNext",
     "incremental": true,
     "removeComments": false,
+    "plugins": [{ "name": "@effect/language-service" }],
     "paths": {
-      "effect-http": ["./src/index.js"],
-      "effect-http/*": ["./src/*.js"]
-    },
-    "plugins": [
-      {
-        "name": "@effect/language-service"
-      }
-    ],
+      "effect-http": ["./packages/effect-http/src/index.js"],
+      "effect-http/*": ["./packages/effect-http/src/*.js"],
+      "effect-http-node": ["./packages/effect-http-node/src/index.js"],
+      "effect-http-node/*": ["./packages/effect-http-node/src/*.js"],
+    }
   }
 }

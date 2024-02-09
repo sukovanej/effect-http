@@ -1,8 +1,9 @@
 import * as Middleware from "@effect/platform/Http/Middleware"
 import { Context, Effect, Either, Layer, Option, pipe, ReadonlyArray } from "effect"
-import { Api, ClientError, RouterBuilder, ServerError, Testing } from "effect-http"
+import { Api, ClientError, RouterBuilder, ServerError } from "effect-http"
 import { createHash } from "node:crypto"
 import { describe, expect, test } from "vitest"
+import * as Testing from "./_testing.js"
 import {
   exampleApiFullResponse,
   exampleApiGet,

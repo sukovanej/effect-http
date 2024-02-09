@@ -1,9 +1,10 @@
 import * as ClientRequest from "@effect/platform/Http/ClientRequest"
 import { Schema } from "@effect/schema"
 import { Effect, identity, pipe } from "effect"
-import { Api, ClientError, Middlewares, RouterBuilder, ServerError, Testing } from "effect-http"
+import { Api, ClientError, Middlewares, RouterBuilder, ServerError } from "effect-http"
 import { apply } from "effect/Function"
 import { expect, test } from "vitest"
+import * as Testing from "./_testing.js"
 import { runTestEffect } from "./utils.js"
 
 const helloApi = pipe(
