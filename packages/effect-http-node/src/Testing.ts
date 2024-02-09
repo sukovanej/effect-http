@@ -15,10 +15,8 @@ import type * as Scope from "effect/Scope"
 
 import type * as NodeContext from "@effect/platform-node/NodeContext"
 import type * as Etag from "@effect/platform/Http/Etag"
-import type * as Api from "./Api.js"
-import type * as Client from "./Client.js"
+import type { Api, Client, SwaggerRouter } from "effect-http"
 import * as internal from "./internal/testing.js"
-import type * as SwaggerRouter from "./SwaggerRouter.js"
 
 /**
  * Create a testing client for the `Server`.

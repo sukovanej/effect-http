@@ -53,13 +53,6 @@ export * as Middlewares from "./Middlewares.js"
 export * as MockClient from "./MockClient.js"
 
 /**
- * Simplified way to run a node server.
- *
- * @since 1.0.0
- */
-export * as NodeServer from "./NodeServer.js"
-
-/**
  * Derivation of `OpenApi` schema from an instance of `Api`.
  *
  * @since 1.0.0
@@ -101,10 +94,3 @@ export * as ServerError from "./ServerError.js"
  * @since 1.0.0
  */
 export * as SwaggerRouter from "./SwaggerRouter.js"
-
-/**
- * Testing of the `Server` implementation.
- *
- * @since 1.0.0
- */
-export * as Testing from "./Testing.js"

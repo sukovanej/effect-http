@@ -1,6 +1,7 @@
 import { Effect, pipe } from "effect"
-import { ExampleServer, RouterBuilder, Testing } from "effect-http"
+import { ExampleServer, RouterBuilder } from "effect-http"
 import { expect, test } from "vitest"
+import * as Testing from "./_testing.js"
 import { simpleApi1 } from "./example-apis.js"
 import { exampleApiFullResponse } from "./examples.js"
 import { runTestEffect } from "./utils.js"

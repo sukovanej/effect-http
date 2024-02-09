@@ -1,9 +1,10 @@
 import * as ClientRequest from "@effect/platform/Http/ClientRequest"
 import * as HttpServer from "@effect/platform/HttpServer"
 import { Effect, Option } from "effect"
-import { Route, Testing } from "effect-http"
+import { Route } from "effect-http"
 import { apply } from "effect/Function"
 import { describe, expect, test } from "vitest"
+import * as Testing from "./_testing.js"
 import {
   exampleApiGet,
   exampleApiGetCustomResponseWithHeaders,

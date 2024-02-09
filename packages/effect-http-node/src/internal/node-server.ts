@@ -5,12 +5,12 @@ import type * as Platform from "@effect/platform/Http/Platform"
 import * as Server from "@effect/platform/Http/Server"
 import type * as ServeError from "@effect/platform/Http/ServerError"
 import type * as ServerRequest from "@effect/platform/Http/ServerRequest"
+import { SwaggerRouter } from "effect-http"
 import * as Effect from "effect/Effect"
 import { pipe } from "effect/Function"
 import * as Layer from "effect/Layer"
 import type * as Scope from "effect/Scope"
 import type * as NodeServer from "../NodeServer.js"
-import * as SwaggerRouter from "../SwaggerRouter.js"
 
 const DEFAULT_LISTEN_OPTIONS: NodeServer.Options = {
   port: undefined
