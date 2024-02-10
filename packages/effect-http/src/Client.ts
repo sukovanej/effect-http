@@ -14,7 +14,7 @@ import type * as Api from "./Api.js"
 import type * as ClientError from "./ClientError.js"
 import * as internal from "./internal/client.js"
 import type * as Route from "./Route.js"
-import type * as SS from "./SecurityScheme.js"
+import type * as SecurityScheme from "./SecurityScheme.js"
 
 /**
  * @category models
@@ -120,7 +120,8 @@ type ClientFunction<Endpoint extends Api.Endpoint, I> = Record<string, never> ex
   >
 
 /** @ignore */
-type ClientSecurity<SS extends ReadonlyRecord.ReadonlyRecord<SS.SecurityScheme<any>>> = keyof SS extends infer K ?
+type ClientSecurity<SS extends ReadonlyRecord.ReadonlyRecord<SecurityScheme.SecurityScheme<any>>> = keyof SS extends
+  infer K ?
   K extends (infer securitySchemeName extends keyof SS) ?
     { [X in securitySchemeName]: Schema.Schema.To<SS[securitySchemeName]["schema"]> }
   : never

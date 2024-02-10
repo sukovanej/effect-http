@@ -1,12 +1,12 @@
 import * as Schema from "@effect/schema/Schema"
 import * as S from "effect/String"
-import type * as SS from "../SecurityScheme.js"
+import type * as SecurityScheme from "../SecurityScheme.js"
 
-export const BearerLiteral: SS.BearerLiteral = "Bearer" as const
+export const BearerLiteral: SecurityScheme.BearerLiteral = "Bearer" as const
 
-export const isBearerLiteral = (u: unknown): u is SS.BearerLiteral => u === BearerLiteral
+export const isBearerLiteral = (u: unknown): u is SecurityScheme.BearerLiteral => u === BearerLiteral
 
-export const bearer: typeof SS.bearer = <A>(args: {
+export const bearer: typeof SecurityScheme.bearer = <A>(args: {
   description?: string
   bearerFormat?: string
   tokenSchema: Schema.Schema<A, string>
@@ -14,7 +14,7 @@ export const bearer: typeof SS.bearer = <A>(args: {
   type: "http",
   schema: Schema.split(" ").pipe(
     Schema.filter(
-      (x): x is readonly [SS.BearerLiteral, string] => x.length === 2 && isBearerLiteral(x[0])
+      (x): x is readonly [SecurityScheme.BearerLiteral, string] => x.length === 2 && isBearerLiteral(x[0])
     ),
     Schema.transform(
       args.tokenSchema,
@@ -29,11 +29,11 @@ export const bearer: typeof SS.bearer = <A>(args: {
   }
 })
 
-export const BasicLiteral: SS.BasicLiteral = "Basic" as const
+export const BasicLiteral: SecurityScheme.BasicLiteral = "Basic" as const
 
-export const isBasicLiteral = (u: unknown): u is SS.BasicLiteral => u === BasicLiteral
+export const isBasicLiteral = (u: unknown): u is SecurityScheme.BasicLiteral => u === BasicLiteral
 
-export const basic: typeof SS.basic = <A>(args: {
+export const basic: typeof SecurityScheme.basic = <A>(args: {
   tokenSchema: Schema.Schema<A, string>
   description?: string
 }) =>
@@ -41,7 +41,7 @@ export const basic: typeof SS.basic = <A>(args: {
     type: "http",
     schema: Schema.split(" ").pipe(
       Schema.filter(
-        (x): x is readonly [SS.BasicLiteral, string] => x.length === 2 && isBasicLiteral(x[0])
+        (x): x is readonly [SecurityScheme.BasicLiteral, string] => x.length === 2 && isBasicLiteral(x[0])
       ),
       Schema.transform(
         args.tokenSchema,
@@ -53,4 +53,4 @@ export const basic: typeof SS.basic = <A>(args: {
       ...((args.description !== undefined) ? { description: args.description } : {}),
       scheme: S.toLowerCase(BasicLiteral)
     }
-  }) satisfies SS.SecurityScheme<A>
+  }) satisfies SecurityScheme.SecurityScheme<A>

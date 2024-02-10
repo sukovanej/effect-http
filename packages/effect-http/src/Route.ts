@@ -14,7 +14,7 @@ import type * as Api from "./Api.js"
 import * as internal from "./internal/route.js"
 import type * as utils from "./internal/utils.js"
 import type * as RouterBuilder from "./RouterBuilder.js"
-import type * as SS from "./SecurityScheme.js"
+import type * as SecurityScheme from "./SecurityScheme.js"
 import type * as ServerError from "./ServerError.js"
 
 /**
@@ -99,7 +99,7 @@ export type EndpointSchemasTo<E extends Api.Endpoint["schemas"]> = Types.Simplif
 /** @ignore */
 export type EndpointSecurityTo<Security extends Api.Endpoint["security"]> = Types.Simplify<
   {
-    [K in keyof Security]: Security[K] extends infer SS extends SS.SecurityScheme<any> ? {
+    [K in keyof Security]: Security[K] extends infer SS extends SecurityScheme.SecurityScheme<any> ? {
         token: Either.Either<ParseResult.ParseError, Schema.Schema.To<SS["schema"]>>
         securityScheme: SS
       } :

@@ -18,7 +18,7 @@ import type { OpenApiTypes } from "schema-openapi"
 
 import * as internal from "./internal/api.js"
 import type * as Representation from "./Representation.js"
-import type * as SS from "./SecurityScheme.js"
+import type * as SecurityScheme from "./SecurityScheme.js"
 
 /**
  * @since 1.0.0
@@ -106,7 +106,7 @@ export interface Endpoint {
   method: Method
   schemas: EndpointSchemas
   options: EndpointOptions
-  security: ReadonlyRecord.ReadonlyRecord<SS.SecurityScheme<any>>
+  security: ReadonlyRecord.ReadonlyRecord<SecurityScheme.SecurityScheme<any>>
 }
 
 /** @ignore */
@@ -195,7 +195,7 @@ export interface EndpointOptions {
 type EndpointSetter = <
   const Id extends string,
   const Schemas extends InputEndpointSchemas,
-  const Security extends ReadonlyRecord.ReadonlyRecord<SS.SecurityScheme<any>> | undefined = undefined
+  const Security extends ReadonlyRecord.ReadonlyRecord<SecurityScheme.SecurityScheme<any>> | undefined = undefined
 >(
   id: Id,
   path: PlatformRouter.PathInput,
@@ -383,7 +383,7 @@ export type AddEndpoint<
   A extends Api | ApiGroup,
   Id extends string,
   Schemas extends InputEndpointSchemas,
-  Security extends ReadonlyRecord.ReadonlyRecord<SS.SecurityScheme<any>> | undefined
+  Security extends ReadonlyRecord.ReadonlyRecord<SecurityScheme.SecurityScheme<any>> | undefined
 > = A extends Api<infer E> ? Api<E | Types.Simplify<CreateEndpointFromInput<Id, Schemas, Security>>>
   : A extends ApiGroup<infer E> ? ApiGroup<E | Types.Simplify<CreateEndpointFromInput<Id, Schemas, Security>>>
   : never
@@ -392,7 +392,7 @@ export type AddEndpoint<
 type CreateEndpointFromInput<
   Id extends string,
   Schemas extends InputEndpointSchemas,
-  Security extends ReadonlyRecord.ReadonlyRecord<SS.SecurityScheme<any>> | undefined
+  Security extends ReadonlyRecord.ReadonlyRecord<SecurityScheme.SecurityScheme<any>> | undefined
 > = {
   id: Id
   security: [Security] extends [infer X extends ReadonlyRecord.ReadonlyRecord<any>] ? X : {}
