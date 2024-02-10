@@ -136,7 +136,7 @@ const createSecurityParser = (
     ReadonlyRecord.map((securityScheme) => ({
       securityScheme,
       decodeEither: Schema.decodeUnknownEither(
-        Schema.struct({ authorization: securityScheme.decodeSchema }) as Schema.Schema<never, unknown, any>,
+        Schema.struct({ authorization: securityScheme.decodeSchema }) as Schema.Schema<any, unknown>,
         parseOptions
       )
     }))

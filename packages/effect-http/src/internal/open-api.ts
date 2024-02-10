@@ -1,5 +1,5 @@
-import type { OpenApiTypes } from "schema-openapi"
 import { OpenApi } from "schema-openapi"
+import type * as OpenApiTypes from "schema-openapi/OpenApiTypes"
 
 import * as AST from "@effect/schema/AST"
 import * as Schema from "@effect/schema/Schema"
@@ -80,8 +80,8 @@ export const make = (
             },
             (result, [name, securityScheme]) => {
               if (securityScheme.type === "http") {
-                result.operationSetters.push(SchemaOpenApi.securityRequirement(name))
-                result.apiSetters.push(SchemaOpenApi.securityScheme(name, {
+                result.operationSetters.push(OpenApi.securityRequirement(name))
+                result.apiSetters.push(OpenApi.securityScheme(name, {
                   type: securityScheme.type,
                   scheme: securityScheme.scheme.scheme,
                   ...(securityScheme.scheme.description === undefined ? {} : {

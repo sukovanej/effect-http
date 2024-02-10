@@ -100,10 +100,3 @@ export * as ServerError from "./ServerError.js"
  * @since 1.0.0
  */
 export * as SwaggerRouter from "./SwaggerRouter.js"
-
-/**
- * Some constructors for secure scheme.
- *
- * @since 1.0.0
- */
-export * as SecurityScheme from "./SecurityScheme.js"

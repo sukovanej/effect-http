@@ -91,9 +91,9 @@ type ClientFunction<Endpoint extends Api.Endpoint, I> = Record<string, never> ex
   Record<string, never> extends Endpoint["security"] ? (
       input?: I
     ) => Effect.Effect<
-      Api.EndpointRequirements<Endpoint>,
+      ClientFunctionResponse<Endpoint["schemas"]["response"]>,
       ClientError.ClientError,
-      ClientFunctionResponse<Endpoint["schemas"]["response"]>
+      Api.EndpointRequirements<Endpoint>
     > :
   (
     input: I | undefined,
@@ -106,9 +106,9 @@ type ClientFunction<Endpoint extends Api.Endpoint, I> = Record<string, never> ex
   : Record<string, never> extends Endpoint["security"] ? (
       input: I
     ) => Effect.Effect<
-      Api.EndpointRequirements<Endpoint>,
+      ClientFunctionResponse<Endpoint["schemas"]["response"]>,
       ClientError.ClientError,
-      ClientFunctionResponse<Endpoint["schemas"]["response"]>
+      Api.EndpointRequirements<Endpoint>
     > :
   (
     input: I,
