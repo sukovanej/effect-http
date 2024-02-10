@@ -128,7 +128,7 @@ export const make = (
   )
 
   if (ReadonlyArray.isNonEmptyArray(api.groups)) {
-    const [firstGlobalTag, ...restGlobalTags] = ReadonlyArray.map(api.groups, (x) => x.options)
+    const [firstGlobalTag, ...restGlobalTags] = ReadonlyArray.map(api.groups, (group) => group.options)
 
     pathSpecs.push(OpenApi.globalTags(firstGlobalTag, ...restGlobalTags))
   }

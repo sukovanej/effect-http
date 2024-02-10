@@ -77,9 +77,9 @@ const api = pipe(
 
 const app = pipe(
   RouterBuilder.make(api, { parseOptions: { errors: "all" } }),
-  RouterBuilder.handle("getLesnek", (xxx) =>
+  RouterBuilder.handle("getLesnek", ({ query }) =>
     pipe(
-      Effect.succeed(`hello ${xxx.query.name}`),
+      Effect.succeed(`hello ${query.name}`),
       Effect.tap(() => Effect.logDebug("hello world"))
     )),
   RouterBuilder.handle("handleMilan", ({ body }) =>

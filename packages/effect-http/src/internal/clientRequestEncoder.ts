@@ -167,9 +167,9 @@ const createSecurityEncoder = (endpoint: Api.Endpoint) => {
     if (
       pipe(
         requestEncodeSecuritySchemes,
-        ReadonlyRecord.map((x) => x.schema.type),
+        ReadonlyRecord.map(({ schema }) => schema.type),
         ReadonlyRecord.values,
-        (x) => HashSet.make(...x),
+        (schemeTypes) => HashSet.make(...schemeTypes),
         HashSet.size
       ) !== ReadonlyRecord.size(requestEncodeSecuritySchemes)
     ) {
@@ -180,9 +180,9 @@ const createSecurityEncoder = (endpoint: Api.Endpoint) => {
 
     return pipe(
       requestEncodeSecuritySchemes,
-      ReadonlyRecord.map((x) =>
-        x.encode(x.tokenToEncode).pipe(Effect.map((encodedToken) => ({
-          schema: x.schema,
+      ReadonlyRecord.map(({ encode, schema, tokenToEncode }) =>
+        encode(tokenToEncode).pipe(Effect.map((encodedToken) => ({
+          schema,
           encodedToken
         })))
       ),
@@ -193,9 +193,9 @@ const createSecurityEncoder = (endpoint: Api.Endpoint) => {
           `Failed to encode security token. ${formatParseError(error)}`
         )
       ),
-      Effect.map(ReadonlyRecord.reduce(headers, (acc, x) => ({
+      Effect.map(ReadonlyRecord.reduce(headers, (acc, { encodedToken }) => ({
         ...acc,
-        authorization: x.encodedToken
+        authorization: encodedToken
       })))
     )
   }

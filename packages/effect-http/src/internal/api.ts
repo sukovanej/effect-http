@@ -158,8 +158,8 @@ export const endpoint = (method: Api.Method) =>
       api.options
     ) as any
   } else {
-    const defaultGroup = api.groups.find((x) => x.options.name === "default") ?? apiGroup("default")
-    const groupsWithoutDefault = api.groups.filter((x) => x.options.name !== "default")
+    const defaultGroup = api.groups.find((group) => group.options.name === "default") ?? apiGroup("default")
+    const groupsWithoutDefault = api.groups.filter((group) => group.options.name !== "default")
     const newDefaultGroup = pipe(defaultGroup, endpoint(method)(id, path, schemas, options, security))
 
     return new ApiImpl(
@@ -240,7 +240,7 @@ export const getEndpoint = <
 export const addGroup =
   <E2 extends Api.Endpoint>(apiGroup: Api.ApiGroup<E2>) =>
   <E1 extends Api.Endpoint>(api: Api.Api<E1>): Api.Api<E1 | E2> => {
-    const existingIds = HashSet.make(...api.groups.flatMap((x) => x.endpoints).map(({ id }) => id))
+    const existingIds = HashSet.make(...api.groups.flatMap((group) => group.endpoints).map(({ id }) => id))
     const newIds = HashSet.make(...apiGroup.endpoints.map(({ id }) => id))
     const duplicates = HashSet.intersection(existingIds, newIds)
 

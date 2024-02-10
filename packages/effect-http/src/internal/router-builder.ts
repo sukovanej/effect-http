@@ -21,7 +21,7 @@ export const make = <A extends Api.Api>(
   api: A,
   options?: Partial<RouterBuilder.Options>
 ): RouterBuilder.RouterBuilder<never, never, A["groups"][number]["endpoints"][number]> => ({
-  remainingEndpoints: api.groups.flatMap((x) => x.endpoints),
+  remainingEndpoints: api.groups.flatMap((group) => group.endpoints),
   router: Router.empty,
   api,
   options: { ...DEFAULT_OPTIONS, ...options },

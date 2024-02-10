@@ -280,7 +280,7 @@ test("testing security", async () => {
         security: security.myAwesomeBearer.token
           .pipe(Either.match({
             onLeft: () => ["myAwesomeBearer", "Left"] as const,
-            onRight: (x) => [x.toString(), "Right"] as const
+            onRight: (token) => [token.toString(), "Right"] as const
           }))
       })
     }),

@@ -50,7 +50,7 @@ export const make = <Endpoints extends Api.Endpoint>(
   api: Api.Api<Endpoints>,
   options?: Partial<Client.Options>
 ): Client.Client<Endpoints> =>
-  api.groups.flatMap((x) => x.endpoints).reduce(
+  api.groups.flatMap((group) => group.endpoints).reduce(
     (client, endpoint) => ({
       ...client,
       [endpoint.id]: endpointClient(endpoint.id, api, options ?? {})
