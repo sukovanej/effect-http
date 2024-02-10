@@ -1,5 +1,5 @@
-import { runMain } from "@effect/platform-node/Runtime"
-import * as Schema from "@effect/schema/Schema"
+import { NodeRuntime } from "@effect/platform-node"
+import { Schema } from "@effect/schema"
 import { Context, Effect, pipe } from "effect"
 import { Api, NodeServer, RouterBuilder } from "effect-http"
 
@@ -9,7 +9,7 @@ interface Resource {
   value: number
 }
 
-const ResourceService = Context.Tag<Resource>()
+const ResourceService = Context.GenericTag<Resource>("@services/ResourceService")
 
 const resource = Effect.acquireRelease(
   pipe(
@@ -36,5 +36,5 @@ pipe(
   Effect.provideServiceEffect(ResourceService, resource),
   Effect.scoped,
   Effect.provide(debugLogger),
-  runMain
+  NodeRuntime.runMain
 )

@@ -1,5 +1,5 @@
-import { runMain } from "@effect/platform-node/Runtime"
-import * as Schema from "@effect/schema/Schema"
+import { NodeRuntime } from "@effect/platform-node"
+import { Schema } from "@effect/schema"
 import { Context, Effect, pipe } from "effect"
 import { Api, Middlewares, NodeServer, RouterBuilder, ServerError } from "effect-http"
 
@@ -16,11 +16,11 @@ const api = pipe(
 )
 
 interface UserRepository {
-  existsByName: (name: string) => Effect.Effect<never, never, boolean>
-  store: (user: string) => Effect.Effect<never, never, void>
+  existsByName: (name: string) => Effect.Effect<boolean>
+  store: (user: string) => Effect.Effect<void>
 }
 
-const UserRepository = Context.Tag<UserRepository>()
+const UserRepository = Context.GenericTag<UserRepository>("@services/UserRepository")
 
 const mockUserRepository = UserRepository.of({
   existsByName: () => Effect.succeed(true),
@@ -46,5 +46,5 @@ app.pipe(
   NodeServer.listen({ port: 3000 }),
   Effect.provideService(UserRepository, mockUserRepository),
   Effect.provide(debugLogger),
-  runMain
+  NodeRuntime.runMain
 )

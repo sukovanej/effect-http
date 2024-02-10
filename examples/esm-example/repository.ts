@@ -3,11 +3,11 @@ import { Context, Effect, Layer, Option, ReadonlyArray, Ref } from "effect"
 import type { CreateItemRequest, GetItemsQuery, Item, Items } from "./schemas.js"
 
 export interface ItemRepository {
-  getItems: (query: GetItemsQuery) => Effect.Effect<never, never, Items>
-  createItem: (item: CreateItemRequest) => Effect.Effect<never, never, Item>
+  getItems: (query: GetItemsQuery) => Effect.Effect<Items>
+  createItem: (item: CreateItemRequest) => Effect.Effect<Item>
 }
 
-export const ItemRepository = Context.Tag<ItemRepository>()
+export const ItemRepository = Context.GenericTag<ItemRepository>("@services/ItemRepository")
 
 export const getItems = (...args: Parameters<ItemRepository["getItems"]>) =>
   Effect.flatMap(ItemRepository, ({ getItems }) => getItems(...args))

@@ -1,4 +1,4 @@
-import { NodeContext, Runtime } from "@effect/platform-node"
+import { NodeContext, NodeRuntime } from "@effect/platform-node"
 import * as Http from "@effect/platform/HttpServer"
 import { Schema } from "@effect/schema"
 import { Effect } from "effect"
@@ -37,5 +37,5 @@ app.pipe(
   NodeServer.listen({ port: 3000 }),
   Effect.provide(NodeContext.layer),
   Effect.provide(debugLogger),
-  Runtime.runMain
+  NodeRuntime.runMain
 )

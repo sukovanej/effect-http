@@ -1,12 +1,12 @@
-import { runMain } from "@effect/platform-node/Runtime"
-import * as Schema from "@effect/schema/Schema"
+import { NodeRuntime } from "@effect/platform-node"
+import { Schema } from "@effect/schema"
 import { Context, Duration, Effect, pipe, ReadonlyArray, Resource, Schedule } from "effect"
 import { Api, NodeServer, RouterBuilder, ServerError } from "effect-http"
 
 import type { FileNotFoundError } from "./_utils.js"
 import { debugLogger, readFile } from "./_utils.js"
 
-const MyValue = Context.Tag<Resource.Resource<FileNotFoundError, string>>()
+const MyValue = Context.GenericTag<Resource.Resource<string, FileNotFoundError>>("@services/MyValue")
 
 const readMyValue = Effect.flatMap(MyValue, Resource.get)
 
@@ -41,5 +41,5 @@ pipe(
   ),
   Effect.scoped,
   Effect.provide(debugLogger),
-  runMain
+  NodeRuntime.runMain
 )

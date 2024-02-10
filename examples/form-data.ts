@@ -1,10 +1,9 @@
-import { HttpServer, NodeContext } from "@effect/platform-node"
-import { runMain } from "@effect/platform-node/Runtime"
-import * as FileSystem from "@effect/platform/FileSystem"
+import { NodeContext, NodeRuntime } from "@effect/platform-node"
 import { Schema } from "@effect/schema"
 import { Effect, pipe } from "effect"
 import { Api, NodeServer, Representation, RouterBuilder, ServerError } from "effect-http"
 
+import { FileSystem, HttpServer } from "@effect/platform"
 import { debugLogger } from "./_utils.js"
 
 const api = pipe(
@@ -46,5 +45,5 @@ pipe(
   NodeServer.listen({ port: 3000 }),
   Effect.provide(debugLogger),
   Effect.provide(NodeContext.layer),
-  runMain
+  NodeRuntime.runMain
 )
