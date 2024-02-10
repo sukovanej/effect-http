@@ -1,8 +1,9 @@
 import { NodeRuntime } from "@effect/platform-node"
 import { Schema } from "@effect/schema"
 import { Context, Duration, Effect, pipe, ReadonlyArray, Resource, Schedule } from "effect"
-import { Api, NodeServer, RouterBuilder, ServerError } from "effect-http"
+import { Api, RouterBuilder, ServerError } from "effect-http"
 
+import { NodeServer } from "effect-http-node"
 import type { FileNotFoundError } from "./_utils.js"
 import { debugLogger, readFile } from "./_utils.js"
 

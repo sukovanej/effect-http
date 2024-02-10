@@ -1,7 +1,8 @@
 import { NodeRuntime } from "@effect/platform-node"
 import { Schema } from "@effect/schema"
 import { Effect } from "effect"
-import { Api, NodeServer, Representation, RouterBuilder } from "effect-http"
+import { Api, Representation, RouterBuilder } from "effect-http"
+import { NodeServer } from "effect-http-node"
 import { PrettyLogger } from "effect-log"
 
 export const api = Api.api({ title: "Example API" }).pipe(

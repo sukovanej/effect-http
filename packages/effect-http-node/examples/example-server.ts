@@ -1,8 +1,9 @@
 import { NodeRuntime } from "@effect/platform-node"
 import { Schema } from "@effect/schema"
 import { Effect, pipe } from "effect"
-import { Api, ExampleServer, NodeServer, RouterBuilder } from "effect-http"
+import { Api, ExampleServer, RouterBuilder } from "effect-http"
 
+import { NodeServer } from "effect-http-node"
 import { debugLogger } from "./_utils.js"
 
 const responseSchema = Schema.struct({

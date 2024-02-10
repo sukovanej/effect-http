@@ -36,11 +36,13 @@
     "effect-http": "workspace:^"
   },
   "devDependencies": {
-    "@effect/platform": "^0.44.1",
+    "@effect/platform": "^0.44.2",
+    "@effect/platform-bun": "^0.31.1",
     "@effect/platform-node": "^0.43.1",
     "@effect/schema": "^0.62.1",
     "@types/node": "^20.11.17",
     "effect": "^2.3.1",
-    "effect-http": "workspace:^"
+    "effect-http": "workspace:^",
+    "effect-log": "^0.29.0"
   }
 }

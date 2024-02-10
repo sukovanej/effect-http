@@ -1,7 +1,8 @@
 import { NodeRuntime } from "@effect/platform-node"
 import { Schema } from "@effect/schema"
 import { pipe } from "effect"
-import { Api, ExampleServer, NodeServer, RouterBuilder } from "effect-http"
+import { Api, ExampleServer, RouterBuilder } from "effect-http"
+import { NodeServer } from "effect-http-node"
 
 const api = Api.api().pipe(
   Api.get("hello", "/hello", {

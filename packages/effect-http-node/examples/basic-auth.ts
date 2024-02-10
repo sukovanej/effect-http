@@ -1,8 +1,9 @@
 import { NodeRuntime } from "@effect/platform-node"
 import { Schema } from "@effect/schema"
 import { Config, ConfigError, Context, Effect, Either, Option, pipe, ReadonlyArray } from "effect"
-import { Api, Middlewares, NodeServer, RouterBuilder, ServerError } from "effect-http"
+import { Api, Middlewares, RouterBuilder, ServerError } from "effect-http"
 
+import { NodeServer } from "effect-http-node"
 import { debugLogger } from "./_utils.js"
 
 export const CredentialsConfig = Config.mapOrFail(

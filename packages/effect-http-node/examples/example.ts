@@ -1,8 +1,9 @@
 import { Schema } from "@effect/schema"
 import { Context, Effect, Layer, pipe } from "effect"
-import { Api, NodeServer, RouterBuilder } from "effect-http"
+import { Api, RouterBuilder } from "effect-http"
 
 import { NodeRuntime } from "@effect/platform-node"
+import { NodeServer } from "effect-http-node"
 import { debugLogger } from "./_utils.js"
 
 // Schemas

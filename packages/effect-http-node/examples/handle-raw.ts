@@ -1,7 +1,8 @@
-import * as Http from "@effect/platform/HttpServer"
-import * as Schema from "@effect/schema/Schema"
+import { HttpServer } from "@effect/platform"
+import { Schema } from "@effect/schema"
 import { Effect } from "effect"
-import { Api, NodeServer, RouterBuilder } from "effect-http"
+import { Api, RouterBuilder } from "effect-http"
+import { NodeServer } from "effect-http-node"
 import { PrettyLogger } from "effect-log"
 
 export const api = Api.api({ title: "Example API" }).pipe(
@@ -17,9 +18,9 @@ export const api = Api.api({ title: "Example API" }).pipe(
 export const app = RouterBuilder.make(api).pipe(
   RouterBuilder.handleRaw(
     "root",
-    Http.response.text("Hello World!", {
+    HttpServer.response.text("Hello World!", {
       status: 200 as const,
-      headers: Http.headers.fromInput({ "content-type": "text/plain" })
+      headers: HttpServer.headers.fromInput({ "content-type": "text/plain" })
     })
   ),
   RouterBuilder.build

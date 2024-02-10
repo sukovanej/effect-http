@@ -1,8 +1,9 @@
 import { NodeRuntime } from "@effect/platform-node"
 import { Schema } from "@effect/schema"
-import { Context, Duration, Effect, Logger, LogLevel, pipe, ReadonlyArray, Request, RequestResolver } from "effect"
-import { Api, NodeServer, RouterBuilder, ServerError } from "effect-http"
+import { Context, Duration, Effect, pipe, ReadonlyArray, Request, RequestResolver } from "effect"
+import { Api, RouterBuilder, ServerError } from "effect-http"
 
+import { NodeServer } from "effect-http-node"
 import type { FileNotFoundError } from "./_utils.js"
 import { debugLogger, readFile } from "./_utils.js"
 
@@ -51,7 +52,6 @@ const app = pipe(
 pipe(
   app,
   NodeServer.listen({ port: 3000 }),
-  Logger.withMinimumLogLevel(LogLevel.All),
   Effect.provideServiceEffect(
     GetValueCache,
     Request.makeCache({ capacity: 100, timeToLive: Duration.seconds(5) })
