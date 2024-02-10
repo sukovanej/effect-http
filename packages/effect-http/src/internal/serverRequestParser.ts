@@ -131,6 +131,10 @@ const createSecurityParser = (
 ) => {
   const { security } = endpoint
 
+  if (ReadonlyRecord.size(endpoint.security) === 0) {
+    return () => Effect.succeed({})
+  }
+
   const securitySchemesWithDecode = pipe(
     security,
     ReadonlyRecord.map((securityScheme) => ({
@@ -152,10 +156,6 @@ const createSecurityParser = (
         }
       })
     )
-
-    if (ReadonlyRecord.size(authResults) === 0) {
-      return Effect.succeed(authResults)
-    }
 
     const hasRight = ReadonlyRecord.some(authResults, (authResult) => Either.isRight(authResult.token))
 
