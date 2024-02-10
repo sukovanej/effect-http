@@ -266,7 +266,7 @@ test("testing security", async () => {
       },
       {
         myAwesomeBearer: SecurityScheme.bearer({
-          tokenScheme: Schema.NumberFromString
+          tokenSchema: Schema.NumberFromString
         })
       }
     )
@@ -288,7 +288,7 @@ test("testing security", async () => {
   )
 
   const response = await pipe(
-    Testing.make(app, api),
+    NodeTesting.make(app, api),
     Effect.flatMap((client) =>
       client.hello({ query: { input: 12 } }, {
         myAwesomeBearer: 22
@@ -317,7 +317,7 @@ test("testing missing security", async () => {
       },
       {
         myAwesomeBearer: SecurityScheme.bearer({
-          tokenScheme: Schema.NumberFromString
+          tokenSchema: Schema.NumberFromString
         })
       }
     )
@@ -332,7 +332,7 @@ test("testing missing security", async () => {
   )
 
   const response = await pipe(
-    Testing.make(app, api),
+    NodeTesting.make(app, api),
     Effect.flatMap((client) =>
       // @ts-expect-error
       client.hello({ query: { input: 12 } }, {})
@@ -365,7 +365,7 @@ test("testing security - several security cred with same type", async () => {
       },
       {
         myAwesomeBearer: SecurityScheme.bearer({
-          tokenScheme: Schema.NumberFromString
+          tokenSchema: Schema.NumberFromString
         })
       }
     )
@@ -380,7 +380,7 @@ test("testing security - several security cred with same type", async () => {
   )
 
   const response = await pipe(
-    Testing.make(app, api),
+    NodeTesting.make(app, api),
     Effect.flatMap((client) =>
       // @ts-expect-error
       client.hello({ query: { input: 12 } }, {})
