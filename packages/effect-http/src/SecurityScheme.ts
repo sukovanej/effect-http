@@ -2,37 +2,43 @@
  * A security scheme is a way to protect an API from unauthorized access.
  * @since 1.0.0
  */
-import * as Schema from "@effect/schema/Schema"
-import * as S from "effect/String"
+import type * as Schema from "@effect/schema/Schema"
 import type * as OpenApi from "schema-openapi/OpenApiTypes"
+import * as internal from "./internal/security-scheme.js"
 
 /**
  * @category models
  * @since 1.0.0
  */
-export type SecurityScheme = {
+export type SecurityScheme<A> = HTTPSecurityScheme<A>
+
+/**
+ * @category models
+ * @since 1.0.0
+ */
+export type HTTPSecurityScheme<A> = {
   type: OpenApi.OpenAPIHTTPSecurityScheme["type"]
-  scheme: Omit<OpenApi.OpenAPIHTTPSecurityScheme, "type">
-  decodeSchema: Schema.Schema<any, string, any>
+  options: Omit<OpenApi.OpenAPIHTTPSecurityScheme, "type">
+  schema: Schema.Schema<A, string>
 }
 
 /**
  * @category constants
  * @since 1.0.0
  */
-const BearerLiteral = "Bearer" as const
+export const BearerLiteral: BearerLiteral = internal.BearerLiteral
 
 /**
  * @category models
  * @since 1.0.0
  */
-type BearerLiteral = typeof BearerLiteral
+export type BearerLiteral = "Bearer"
 
 /**
  * @category refinements
  * @since 1.0.0
  */
-const isBearerLiteral = (x: string): x is BearerLiteral => x === BearerLiteral
+export const isBearerLiteral: (u: unknown) => u is BearerLiteral = internal.isBearerLiteral
 
 /**
  * Creates bearer http security scheme auth description
@@ -40,47 +46,29 @@ const isBearerLiteral = (x: string): x is BearerLiteral => x === BearerLiteral
  * @category constructors
  * @since 1.0.0
  */
-export const bearer = <A>(args: {
+export const bearer: <A>(args: {
   description?: string
   bearerFormat?: string
-  tokenScheme: Schema.Schema<A, string>
-}) =>
-  ({
-    type: "http",
-    decodeSchema: Schema.split(" ").pipe(
-      Schema.filter(
-        (x): x is readonly [BearerLiteral, string] => x.length === 2 && isBearerLiteral(x[0])
-      ),
-      Schema.transform( //
-        args.tokenScheme,
-        ([_, token]) => token,
-        (token) => [BearerLiteral, token] as const
-      )
-    ),
-    scheme: {
-      ...((args.description !== undefined) ? { description: args.description } : {}),
-      ...((args.bearerFormat !== undefined) ? { bearerFormat: args.bearerFormat } : {}),
-      scheme: S.toLowerCase(BearerLiteral)
-    }
-  }) satisfies SecurityScheme
+  tokenSchema: Schema.Schema<A, string>
+}) => SecurityScheme<A> = internal.bearer
 
 /**
  * @category constants
  * @since 1.0.0
  */
-const BasicLiteral = "Basic" as const
+export const BasicLiteral: BasicLiteral = internal.BasicLiteral
 
 /**
  * @category models
  * @since 1.0.0
  */
-type BasicLiteral = typeof BasicLiteral
+export type BasicLiteral = "Basic"
 
 /**
  * @category refinements
  * @since 1.0.0
  */
-const isBasicLiteral = (x: string): x is BasicLiteral => x === BasicLiteral
+export const isBasicLiteral: (u: unknown) => u is BasicLiteral = internal.isBasicLiteral
 
 /**
  * Creates basic http security scheme auth description
@@ -88,24 +76,7 @@ const isBasicLiteral = (x: string): x is BasicLiteral => x === BasicLiteral
  * @category constructors
  * @since 1.0.0
  */
-export const basic = <A>(args: {
+export const basic: <A>(args: {
   description?: string
-  tokenScheme: Schema.Schema<A, string>
-}) =>
-  ({
-    type: "http",
-    decodeSchema: Schema.split(" ").pipe(
-      Schema.filter(
-        (x): x is readonly [BasicLiteral, string] => x.length === 2 && isBasicLiteral(x[0])
-      ),
-      Schema.transform(
-        args.tokenScheme,
-        ([_, token]) => token,
-        (token) => [BasicLiteral, token] as const
-      )
-    ),
-    scheme: {
-      ...((args.description !== undefined) ? { description: args.description } : {}),
-      scheme: S.toLowerCase(BasicLiteral)
-    }
-  }) satisfies SecurityScheme
+  tokenSchema: Schema.Schema<A, string>
+}) => SecurityScheme<A> = internal.basic

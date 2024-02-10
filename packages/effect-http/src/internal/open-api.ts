@@ -83,12 +83,12 @@ export const make = (
                 result.operationSetters.push(OpenApi.securityRequirement(name))
                 result.apiSetters.push(OpenApi.securityScheme(name, {
                   type: securityScheme.type,
-                  scheme: securityScheme.scheme.scheme,
-                  ...(securityScheme.scheme.description === undefined ? {} : {
-                    description: securityScheme.scheme.description
+                  scheme: securityScheme.options.scheme,
+                  ...(securityScheme.options.description === undefined ? {} : {
+                    description: securityScheme.options.description
                   }),
-                  ...((securityScheme.scheme.scheme.toLowerCase() === "bearer")
-                    ? { bearerFormat: securityScheme.scheme.bearerFormat }
+                  ...((securityScheme.options.scheme.toLowerCase() === "bearer")
+                    ? { bearerFormat: securityScheme.options.bearerFormat }
                     : {})
                 }))
 

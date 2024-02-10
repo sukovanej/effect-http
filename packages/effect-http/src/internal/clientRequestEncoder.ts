@@ -139,7 +139,7 @@ const createSecurityEncoder = (endpoint: Api.Endpoint) => {
     endpoint.security,
     ReadonlyRecord.map((schema) => ({
       schema,
-      encode: Schema.encode(schema.decodeSchema as Schema.Schema<any, string>)
+      encode: Schema.encode(schema.schema as Schema.Schema<any, string>)
     }))
   )
 

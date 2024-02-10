@@ -264,11 +264,11 @@ export const exampleApiSecurityBearerAndBasic = Api.api().pipe(
     myAwesomeBearer: bearer({
       bearerFormat: "test bearerFormat",
       description: "My awesome http bearer description",
-      tokenScheme: Schema.Secret
+      tokenSchema: Schema.Secret
     }),
     myAwesomeBearer2: basic({
       description: "My awesome http bearer description 2",
-      tokenScheme: Schema.NumberFromString
+      tokenSchema: Schema.NumberFromString
     })
   })
 )

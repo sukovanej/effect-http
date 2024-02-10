@@ -107,13 +107,13 @@ export const endpoint = (method: Api.Method) =>
 <
   const Id extends string,
   const I extends Api.InputEndpointSchemas,
-  const S extends ReadonlyRecord.ReadonlyRecord<SecurityScheme> | undefined = undefined
+  const S extends ReadonlyRecord.ReadonlyRecord<SecurityScheme<any>> | undefined = undefined
 >(
   id: Id,
   path: PlatformRouter.PathInput,
   schemas: I,
   options?: Api.EndpointOptions,
-  security?: ReadonlyRecord.ReadonlyRecord<SecurityScheme>
+  security?: ReadonlyRecord.ReadonlyRecord<SecurityScheme<any>>
 ) =>
 <A extends Api.Api | Api.ApiGroup>(api: A): Api.AddEndpoint<A, Id, I, S> => {
   if (method === "get" && schemas.request?.body !== undefined) {

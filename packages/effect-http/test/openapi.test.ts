@@ -288,7 +288,7 @@ test("http security scheme", () => {
       { description: "options" },
       {
         mayAwesomeAuth: bearer({
-          tokenScheme: Schema.Secret,
+          tokenSchema: Schema.Secret,
           bearerFormat: "jwt",
           description: "mayAwesomeAuth description"
         })
