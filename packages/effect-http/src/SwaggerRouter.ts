@@ -3,11 +3,8 @@
  *
  * @since 1.0.0
  */
-import type * as FileSystem from "@effect/platform/FileSystem"
-import type * as Router from "@effect/platform/Http/Router"
-import type * as Path from "@effect/platform/Path"
-import type * as Context from "effect/Context"
-import type * as Layer from "effect/Layer"
+import type { HttpServer } from "@effect/platform"
+import type { Context } from "effect"
 
 import * as internal from "./internal/swagger-router.js"
 
@@ -26,14 +23,7 @@ export interface SwaggerFiles {
 export const SwaggerFiles: Context.Tag<SwaggerFiles, SwaggerFiles> = internal.SwaggerFiles
 
 /**
- * @category context
- * @since 1.0.0
- */
-export const SwaggerFilesLive: Layer.Layer<SwaggerFiles, never, FileSystem.FileSystem | Path.Path> =
-  internal.SwaggerFilesLive
-
-/**
  * @category constructors
  * @since 1.0.0
  */
-export const make: (spec: unknown) => Router.Router<SwaggerFiles, never> = internal.make
+export const make: (spec: unknown) => HttpServer.router.Router<SwaggerFiles, never> = internal.make

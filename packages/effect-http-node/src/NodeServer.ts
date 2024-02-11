@@ -3,16 +3,10 @@
  *
  * @since 1.0.0
  */
-import type * as NodeContext from "@effect/platform-node/NodeContext"
-import type * as App from "@effect/platform/Http/App"
-import type * as Etag from "@effect/platform/Http/Etag"
-import type * as Platform from "@effect/platform/Http/Platform"
-import type * as Server from "@effect/platform/Http/Server"
-import type * as ServeError from "@effect/platform/Http/ServerError"
-import type * as ServerRequest from "@effect/platform/Http/ServerRequest"
-import type * as Effect from "effect/Effect"
-import type * as Scope from "effect/Scope"
+import type { Effect, Scope } from "effect"
 
+import type { HttpServer } from "@effect/platform"
+import type { NodeContext } from "@effect/platform-node"
 import type { SwaggerRouter } from "effect-http"
 import * as internal from "./internal/node-server.js"
 
@@ -31,18 +25,15 @@ export interface Options {
 export const listen: (
   options?: Partial<Options>
 ) => <R, E>(
-  router: App.Default<R, E>
+  router: HttpServer.app.Default<R, E>
 ) => Effect.Effect<
   never,
-  ServeError.ServeError,
+  HttpServer.error.ServeError,
   Exclude<
     Exclude<
-      Exclude<
-        Exclude<Exclude<R, ServerRequest.ServerRequest | Scope.Scope>, Scope.Scope>,
-        Server.Server | Platform.Platform | Etag.Generator | NodeContext.NodeContext
-      >,
-      SwaggerRouter.SwaggerFiles
+      Exclude<R, HttpServer.request.ServerRequest | Scope.Scope>,
+      HttpServer.server.Server | HttpServer.platform.Platform | HttpServer.etag.Generator | NodeContext.NodeContext
     >,
-    NodeContext.NodeContext
+    SwaggerRouter.SwaggerFiles
   >
 > = internal.listen
