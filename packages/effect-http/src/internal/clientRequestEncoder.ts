@@ -148,7 +148,7 @@ const createSecurityEncoder = (endpoint: Api.Endpoint) => {
       (ReadonlyRecord.size(security) === 0) && (ReadonlyRecord.size(endpoint.options.security) !== 0)
     ) {
       return Effect.fail(ClientError.makeClientSide(
-        "Must provide at lest on secure scheme credential"
+        "Must provide at lest one secure scheme credential"
       ))
     }
 

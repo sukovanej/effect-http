@@ -344,7 +344,7 @@ test("testing missing security", async () => {
   expect(response).toEqual(ClientError.makeServerSide(
     {},
     400,
-    "Must provide at lest on secure scheme credential"
+    "Must provide at lest one secure scheme credential"
   ))
 })
 
@@ -392,6 +392,6 @@ test("testing security - several security cred with same type", async () => {
   expect(response).toEqual(ClientError.makeServerSide(
     {},
     400,
-    "Must provide at lest on secure scheme credential"
+    "Must provide at lest one secure scheme credential"
   ))
 })
