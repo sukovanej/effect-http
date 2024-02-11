@@ -42,11 +42,11 @@ const api = pipe(
     {
       myAwesomeBearerAuth: {
         type: "http",
-        scheme: {
+        options: {
           scheme: "bearer",
           bearerFormat: "JWT"
         },
-        decodeSchema: Schema.Secret
+        schema: Schema.Secret
       }
     }
   ),

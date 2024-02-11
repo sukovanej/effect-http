@@ -8,7 +8,7 @@
 import { type HttpClient } from "@effect/platform"
 import { type Schema } from "@effect/schema"
 import type { Effect, Types } from "effect"
-import type * as ReadonlyRecord from "effect/ReadonlyRecord"
+import { type ReadonlyRecord } from "effect/ReadonlyRecord"
 
 import type * as Api from "./Api.js"
 import type * as ClientError from "./ClientError.js"
@@ -120,8 +120,7 @@ type ClientFunction<Endpoint extends Api.Endpoint, I> = Record<string, never> ex
   >
 
 /** @ignore */
-type ClientSecurity<SS extends ReadonlyRecord.ReadonlyRecord<SecurityScheme.SecurityScheme<any>>> = keyof SS extends
-  infer K ?
+type ClientSecurity<SS extends ReadonlyRecord<SecurityScheme.SecurityScheme<any>>> = keyof SS extends infer K ?
   K extends (infer securitySchemeName extends keyof SS) ?
     { [X in securitySchemeName]: Schema.Schema.To<SS[securitySchemeName]["schema"]> }
   : never
