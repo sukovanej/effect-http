@@ -99,10 +99,17 @@ export type EndpointSchemasTo<E extends Api.Endpoint["schemas"]> = Types.Simplif
 /** @ignore */
 export type EndpointSecurityTo<Security extends Api.Endpoint["options"]["security"]> = Types.Simplify<
   {
-    [K in keyof Security]: Security[K] extends infer SS extends SecurityScheme.SecurityScheme<any> ? {
-        token: Either.Either<ParseResult.ParseError, Schema.Schema.To<SS["schema"]>>
+    [K in keyof Security]: Security[K] extends infer SS extends SecurityScheme.HTTPSecurityScheme<any> ? {
+        token: [IsUnion<keyof Security>] extends [true]
+          ? Either.Either<ParseResult.ParseError, Schema.Schema.To<SS["schema"]>>
+          : Schema.Schema.To<SS["schema"]>
         securityScheme: SS
       } :
       never
   }
 >
+
+/** @ignore */
+type IsUnion<CheckUnion, Union = CheckUnion> = CheckUnion extends infer CheckUnionMember
+  ? [Union] extends [CheckUnionMember] ? false : true
+  : true

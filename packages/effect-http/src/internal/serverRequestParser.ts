@@ -130,9 +130,29 @@ const createSecurityParser = (
   parseOptions?: AST.ParseOptions
 ) => {
   const { security } = endpoint.options
+  const securityCount = ReadonlyRecord.size(security)
 
-  if (ReadonlyRecord.size(security) === 0) {
+  if (securityCount === 0) {
     return () => Effect.succeed({})
+  }
+
+  if (securityCount === 1) {
+    const [[schemeName, singleSecurityScheme]] = ReadonlyRecord.toEntries(security)
+
+    const decodeEitherSingleSecurityScheme = Schema.decodeUnknown(
+      Schema.struct({ authorization: singleSecurityScheme.schema }) as Schema.Schema<any, unknown>,
+      parseOptions
+    )
+
+    return (request: ServerRequest.ServerRequest) =>
+      decodeEitherSingleSecurityScheme(request.headers).pipe(
+        Effect.mapBoth({
+          onSuccess: ({ authorization }) => ({
+            [schemeName]: { token: authorization, securityScheme: singleSecurityScheme }
+          }),
+          onFailure: () => createError("headers", "Bad authorization header")
+        })
+      )
   }
 
   const securitySchemesWithDecode = pipe(
