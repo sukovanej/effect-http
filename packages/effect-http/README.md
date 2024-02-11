@@ -14,6 +14,12 @@ High-level declarative HTTP library for [Effect-TS](https://github.com/Effect-TS
 **Under development.** Please note that currently any release might introduce
 breaking changes and the internals and the public API are still evolving and changing.
 
+> [!NOTE]
+> This is an unofficial community package. You might benefit from checking the `@effect/platform`
+> and `@effect/rpc` packages as they are the official Effect packages. The `effect-http` package strongly 
+> relies on `@effect/platform`, and knowledge of it can be beneficial for understanding what 
+> the `effect-http` does under the hood.
+
 ## Quickstart
 
 - [Quickstart](#quickstart)
@@ -34,18 +40,31 @@ breaking changes and the internals and the public API are still evolving and cha
   - [Mock client](#mock-client)
 - [Compatibility](#compatibility)
 
-Install together with `effect`, `@effect/platform` and `@effect/platform-node` using
+Install 
+
+- `effect-http` - platform-agnostic, this one is enough if you intend to use it in browser only
+- `effect-http-node` - if you're planning to run a HTTP server on a node
 
 ```bash
-pnpm add effect-http effect @effect/platform @effect/platform-node
+pnpm add effect-http effect-http-node
 ```
+
+Note that `effect`, `@effect/platform` and `@effect/platform-node` are requested as peer dependencies.
+You very probably have them already. If not, install them using
+
+```bash
+pnpm add effect @effect/platform @effect/platform-node
+```
+
+The `@effect/platform-node` is needed only for the node version.
 
 Bootstrap a simple API specification.
 
 ```typescript
 import { Schema } from "@effect/schema";
 import { Effect, pipe } from "effect";
-import { Api, Client, NodeServer, RouterBuilder } from "effect-http";
+import { Api, Client, RouterBuilder } from "effect-http";
+import { NodeServer } from "effect-http-node";
 
 const User = Schema.struct({
   name: Schema.string,
@@ -176,7 +195,8 @@ a single endpoint `/hello` which expects a header `X-Client-Id` to be present.
 import { runMain } from "@effect/platform-node/Runtime";
 import { Schema } from "@effect/schema";
 import { pipe } from "effect";
-import { Api, ExampleServer, NodeServer, RouterBuilder } from "effect-http";
+import { Api, ExampleServer, RouterBuilder } from "effect-http";
+import { NodeServer } from "effect-http-node";
 
 const api = Api.api().pipe(
   Api.get("hello", "/hello", {
@@ -289,10 +309,12 @@ const app = RouterBuilder.make(api).pipe(
 
 ### Testing the server
 
+You need to install `effect-http-node`.
+
 While most of your tests should focus on the functionality independent
 of HTTP exposure, it can be beneficial to perform integration or
-contract tests for your endpoints. The `Testing` module offers a
-`Testing.make` combinator that generates a testing client from
+contract tests for your endpoints. The `NodeTesting` module offers a
+`NodeTesting.make` combinator that generates a testing client from
 the Server. This derived testing client has a similar interface
 to the one derived by `Client.make`.
 
@@ -316,8 +338,10 @@ const app = RouterBuilder.make(api).pipe(
 The test might look as follows.
 
 ```ts
+import { NodeTesting } from 'effect-http-node';
+
 test("test /hello endpoint", async () => {
-  const response = await Testing.make(app, api).pipe(
+  const response = await NodeTesting.make(app, api).pipe(
     Effect.flatMap((client) => client.hello({ query: { input: 12 } })),
     Effect.runPromise,
   );
@@ -377,7 +401,8 @@ API will look as follows.
 ```typescript
 import { Schema } from "@effect/schema";
 import { Context, Effect, pipe } from "effect";
-import { Api, NodeServer, RouterBuilder, ServerError } from "effect-http";
+import { Api, RouterBuilder, ServerError } from "effect-http";
+import { NodeServer } from "effect-http-node";
 
 const api = Api.api({ title: "Users API" }).pipe(
   Api.post("storeUser", "/users", {
@@ -487,7 +512,8 @@ generation of tags for the OpenAPI specification.
 ```typescript
 import { runMain } from "@effect/platform-node/Runtime";
 import { Schema } from "@effect/schema";
-import { Api, ExampleServer, NodeServer, RouterBuilder } from "effect-http";
+import { Api, ExampleServer, RouterBuilder } from "effect-http";
+import { NodeServer } from "effect-http-node";
 
 const ExampleResponse = Schema.struct({ name: Schema.string });
 
@@ -555,7 +581,8 @@ desired description.
 import { runMain } from "@effect/platform-node/Runtime";
 import * as Schema from "@effect/schema/Schema";
 import { Effect, pipe } from "effect";
-import { Api, NodeServer, RouterBuilder } from "effect-http";
+import { Api, RouterBuilder } from "effect-http";
+import { NodeServer } from "effect-http-node";
 
 const User = pipe(
   Schema.struct({
@@ -632,7 +659,8 @@ it will choose the first representation in the list.
 import { runMain } from "@effect/platform-node/Runtime";
 import { Schema } from "@effect/schema";
 import { Effect } from "effect";
-import { Api, NodeServer, Representation, RouterBuilder } from "effect-http";
+import { Api, Representation, RouterBuilder } from "effect-http";
+import { NodeServer } from "effect-http-node";
 import { PrettyLogger } from "effect-log";
 
 export const api = Api.api({ title: "Example API" }).pipe(
@@ -705,7 +733,8 @@ Use `ExampleServer.make` combinator to generate a `RouterBuilder` from an `Api`.
 import { runMain } from "@effect/platform-node/Runtime";
 import { Schema } from "@effect/schema";
 import { Effect, pipe } from "effect";
-import { Api, ExampleServer, NodeServer, RouterBuilder } from "effect-http";
+import { Api, ExampleServer, RouterBuilder } from "effect-http";
+import { NodeServer } from "effect-http-node";
 
 const MyResponse = Schema.struct({
   name: Schema.string,
