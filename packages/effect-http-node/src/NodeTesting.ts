@@ -3,18 +3,10 @@
  *
  * @since 1.0.0
  */
-import type * as App from "@effect/platform/Http/App"
-import type * as PlatformClient from "@effect/platform/Http/Client"
-import type * as PlatformClientError from "@effect/platform/Http/ClientError"
-import type * as ClientResponse from "@effect/platform/Http/ClientResponse"
-import type * as Platform from "@effect/platform/Http/Platform"
-import type * as Server from "@effect/platform/Http/Server"
-import type * as ServerRequest from "@effect/platform/Http/ServerRequest"
-import type * as Effect from "effect/Effect"
-import type * as Scope from "effect/Scope"
+import type { Effect, Scope } from "effect"
 
-import type * as NodeContext from "@effect/platform-node/NodeContext"
-import type * as Etag from "@effect/platform/Http/Etag"
+import type { HttpClient, HttpServer } from "@effect/platform"
+import type { NodeContext } from "@effect/platform-node"
 import type { Api, Client, SwaggerRouter } from "effect-http"
 import * as internal from "./internal/testing.js"
 
@@ -25,7 +17,7 @@ import * as internal from "./internal/testing.js"
  * @since 1.0.0
  */
 export const make: <R, E, Endpoints extends Api.Endpoint>(
-  app: App.Default<R, E>,
+  app: HttpServer.app.Default<R, E>,
   api: Api.Api<Endpoints>,
   options?: Partial<Client.Options>
 ) => Effect.Effect<
@@ -35,8 +27,8 @@ export const make: <R, E, Endpoints extends Api.Endpoint>(
   | Exclude<
     Exclude<
       Exclude<
-        Exclude<R, ServerRequest.ServerRequest | Scope.Scope>,
-        Server.Server | Platform.Platform | Etag.Generator | NodeContext.NodeContext
+        Exclude<R, HttpServer.request.ServerRequest | Scope.Scope>,
+        HttpServer.server.Server | HttpServer.platform.Platform | HttpServer.etag.Generator | NodeContext.NodeContext
       >,
       SwaggerRouter.SwaggerFiles
     >,
@@ -52,20 +44,20 @@ export const make: <R, E, Endpoints extends Api.Endpoint>(
  * @since 1.0.0
  */
 export const makeRaw: <R, E>(
-  app: App.Default<R, E>
+  app: HttpServer.app.Default<R, E>
 ) => Effect.Effect<
-  PlatformClient.Client<
+  HttpClient.client.Client<
     never,
-    PlatformClientError.HttpClientError,
-    ClientResponse.ClientResponse
+    HttpClient.error.HttpClientError,
+    HttpClient.response.ClientResponse
   >,
   never,
   | Scope.Scope
   | Exclude<
     Exclude<
       Exclude<
-        Exclude<R, ServerRequest.ServerRequest | Scope.Scope>,
-        Server.Server | Platform.Platform | Etag.Generator | NodeContext.NodeContext
+        Exclude<R, HttpServer.request.ServerRequest | Scope.Scope>,
+        HttpServer.server.Server | HttpServer.platform.Platform | HttpServer.etag.Generator | NodeContext.NodeContext
       >,
       SwaggerRouter.SwaggerFiles
     >,

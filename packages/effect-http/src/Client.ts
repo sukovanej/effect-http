@@ -5,11 +5,9 @@
  *
  * @since 1.0.0
  */
-import type * as HttpClient from "@effect/platform/Http/Client"
-import type * as ClientRequest from "@effect/platform/Http/ClientRequest"
-import type * as Schema from "@effect/schema/Schema"
-import type * as Effect from "effect/Effect"
-import type * as Types from "effect/Types"
+import { type HttpClient } from "@effect/platform"
+import { type Schema } from "@effect/schema"
+import type { Effect, Types } from "effect"
 
 import type * as Api from "./Api.js"
 import type * as ClientError from "./ClientError.js"
@@ -38,9 +36,9 @@ export type EndpointClient<Endpoint extends Api.Endpoint> = ClientFunction<
  */
 export interface Options {
   mapRequest?: (
-    request: ClientRequest.ClientRequest
-  ) => ClientRequest.ClientRequest
-  httpClient?: HttpClient.Client.Default
+    request: HttpClient.request.ClientRequest
+  ) => HttpClient.request.ClientRequest
+  httpClient?: HttpClient.client.Client.Default
   baseUrl: string
 }
 
