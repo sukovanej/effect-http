@@ -1,8 +1,8 @@
 import { Schema } from "@effect/schema"
 import { Cause, Duration, Effect, Exit, Fiber, pipe } from "effect"
 import { Api, ClientError, ExampleServer, RouterBuilder } from "effect-http"
+import { NodeTesting } from "effect-http-node"
 import { expect, test, vi } from "vitest"
-import * as Testing from "./_testing.js"
 import { exampleApiGetQueryParameter } from "./examples.js"
 import { runTestEffect } from "./utils.js"
 
@@ -24,7 +24,7 @@ test("quickstart example e2e", async () => {
   )
 
   await pipe(
-    Testing.make(app, api),
+    NodeTesting.make(app, api),
     Effect.flatMap((client) => client.getUser({ query: { id: 12 } })),
     Effect.map((response) => {
       expect(response).toEqual({ name: "milan:12" })
@@ -52,7 +52,7 @@ test.each(["get", "put", "post", "delete", "options", "patch"] as const)(
     )
 
     const response = await pipe(
-      Testing.make(app, api),
+      NodeTesting.make(app, api),
       Effect.flatMap((client) => client.doStuff({})),
       runTestEffect
     )
@@ -94,7 +94,7 @@ test("All input types", async () => {
   )
 
   const result = await pipe(
-    Testing.make(app, api),
+    NodeTesting.make(app, api),
     Effect.flatMap((client) =>
       client.doStuff({
         params: { operation: "operation" },
@@ -137,7 +137,7 @@ test("missing headers", async () => {
   )
 
   const result = await pipe(
-    Testing.make(app, api),
+    NodeTesting.make(app, api),
     // @ts-expect-error
     Effect.flatMap((client) => client.getUser()),
     Effect.flip,
@@ -170,7 +170,7 @@ test("supports interruption", async () => {
   )
 
   await pipe(
-    Testing.make(app, api),
+    NodeTesting.make(app, api),
     Effect.flatMap((client) =>
       Effect.gen(function*($) {
         const request = yield* $(Effect.fork(client.getUser()))
@@ -191,7 +191,7 @@ test("validation error", async () => {
   )
 
   const result = await pipe(
-    Testing.make(app, exampleApiGetQueryParameter),
+    NodeTesting.make(app, exampleApiGetQueryParameter),
     Effect.flatMap((client) => client.hello({ query: { country: "abc" } })),
     Effect.flip,
     runTestEffect

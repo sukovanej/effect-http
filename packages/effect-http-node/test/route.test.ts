@@ -2,9 +2,9 @@ import * as ClientRequest from "@effect/platform/Http/ClientRequest"
 import * as HttpServer from "@effect/platform/HttpServer"
 import { Effect, Option } from "effect"
 import { Route } from "effect-http"
+import { NodeTesting } from "effect-http-node"
 import { apply } from "effect/Function"
 import { describe, expect, test } from "vitest"
-import * as Testing from "./_testing.js"
 import {
   exampleApiGet,
   exampleApiGetCustomResponseWithHeaders,
@@ -22,7 +22,7 @@ const testRoute = <R, E>(
   route: HttpServer.router.Route<R, E>,
   request: ClientRequest.ClientRequest
 ) =>
-  Testing.makeRaw(HttpServer.router.fromIterable([route])).pipe(
+  NodeTesting.makeRaw(HttpServer.router.fromIterable([route])).pipe(
     Effect.flatMap(apply(request))
   )
 

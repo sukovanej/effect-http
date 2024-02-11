@@ -1,9 +1,9 @@
 import { HttpServer } from "@effect/platform"
 import { NodeContext, NodeHttpServer } from "@effect/platform-node"
 import { Effect, Layer, pipe } from "effect"
-import { SwaggerRouter } from "effect-http"
 import { createServer } from "http"
 import type * as NodeServer from "../NodeServer.js"
+import * as NodeSwaggerFiles from "../NodeSwaggerFiles.js"
 
 const DEFAULT_LISTEN_OPTIONS: NodeServer.Options = {
   port: undefined
@@ -26,6 +26,6 @@ export const listen = (options?: Partial<NodeServer.Options>) => <R, E>(router: 
     Effect.flatMap(() => Layer.launch(HttpServer.server.serve(router))),
     Effect.scoped,
     Effect.provide(NodeHttpServer.server.layer(() => createServer(), { ...DEFAULT_LISTEN_OPTIONS, ...options })),
-    Effect.provide(SwaggerRouter.SwaggerFilesLive),
+    Effect.provide(NodeSwaggerFiles.SwaggerFilesLive),
     Effect.provide(NodeContext.layer)
   )

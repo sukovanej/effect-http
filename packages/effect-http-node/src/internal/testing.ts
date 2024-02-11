@@ -1,8 +1,10 @@
 import { HttpClient, HttpServer } from "@effect/platform"
 import { NodeContext, NodeHttpServer } from "@effect/platform-node"
 import { Deferred, Effect, Layer } from "effect"
-import { type Api, Client, SwaggerRouter } from "effect-http"
+import { Client } from "effect-http"
+import type { Api, SwaggerRouter } from "effect-http"
 import { createServer } from "http"
+import * as NodeSwaggerFiles from "../NodeSwaggerFiles.js"
 
 export const make = <R, E, Endpoints extends Api.Endpoint>(
   app: HttpServer.app.Default<R | SwaggerRouter.SwaggerFiles, E>,
@@ -21,7 +23,7 @@ export const make = <R, E, Endpoints extends Api.Endpoint>(
       Effect.flatMap((url) => Deferred.succeed(allocatedUrl, url)),
       Effect.flatMap(() => Layer.launch(HttpServer.server.serve(app))),
       Effect.provide(NodeServerLive),
-      Effect.provide(SwaggerRouter.SwaggerFilesLive),
+      Effect.provide(NodeSwaggerFiles.SwaggerFilesLive),
       Effect.provide(NodeContext.layer),
       Effect.forkScoped
     )
@@ -52,7 +54,7 @@ export const makeRaw = <R, E>(
       Effect.flatMap((url) => Deferred.succeed(allocatedUrl, url)),
       Effect.flatMap(() => Layer.launch(HttpServer.server.serve(app))),
       Effect.provide(NodeServerLive),
-      Effect.provide(SwaggerRouter.SwaggerFilesLive),
+      Effect.provide(NodeSwaggerFiles.SwaggerFilesLive),
       Effect.provide(NodeContext.layer),
       Effect.forkScoped
     )

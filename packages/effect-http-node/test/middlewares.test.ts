@@ -2,9 +2,9 @@ import * as ClientRequest from "@effect/platform/Http/ClientRequest"
 import { Schema } from "@effect/schema"
 import { Effect, identity, pipe } from "effect"
 import { Api, ClientError, Middlewares, RouterBuilder, ServerError } from "effect-http"
+import { NodeTesting } from "effect-http-node"
 import { apply } from "effect/Function"
 import { expect, test } from "vitest"
-import * as Testing from "./_testing.js"
 import { runTestEffect } from "./utils.js"
 
 const helloApi = pipe(
@@ -45,7 +45,7 @@ test("basic auth", async () => {
     mapRequest: (
       request: ClientRequest.ClientRequest
     ) => ClientRequest.ClientRequest
-  ) => Testing.make(app, helloApi, { mapRequest })
+  ) => NodeTesting.make(app, helloApi, { mapRequest })
 
   const result = await pipe(
     Effect.all([
@@ -100,7 +100,7 @@ test("cors", async () => {
     Middlewares.cors({ allowedOrigins: ["localhost:3000"] })
   )
 
-  const response = await Testing.makeRaw(app).pipe(
+  const response = await NodeTesting.makeRaw(app).pipe(
     Effect.flatMap(apply(ClientRequest.get("/test"))),
     runTestEffect
   )

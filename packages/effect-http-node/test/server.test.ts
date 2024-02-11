@@ -1,9 +1,9 @@
-import * as Middleware from "@effect/platform/Http/Middleware"
+import { HttpServer } from "@effect/platform"
 import { Context, Effect, Either, Layer, Option, pipe, ReadonlyArray } from "effect"
 import { Api, ClientError, RouterBuilder, ServerError } from "effect-http"
+import { NodeTesting } from "effect-http-node"
 import { createHash } from "node:crypto"
 import { describe, expect, test } from "vitest"
-import * as Testing from "./_testing.js"
 import {
   exampleApiFullResponse,
   exampleApiGet,
@@ -36,7 +36,7 @@ test("layers", async () => {
   )
 
   const response = await pipe(
-    Testing.make(app, exampleApiGet),
+    NodeTesting.make(app, exampleApiGet),
     Effect.provide(layer),
     Effect.flatMap((client) => client.getValue({})),
     runTestEffect
@@ -52,7 +52,7 @@ test("human-readable error response", async () => {
   )
 
   const result = await pipe(
-    Testing.make(app, exampleApiGetStringResponse),
+    NodeTesting.make(app, exampleApiGetStringResponse),
     Effect.flatMap((client) => client.hello({})),
     Effect.flip,
     runTestEffect
@@ -74,7 +74,7 @@ test("headers", async () => {
   )
 
   const result = await pipe(
-    Testing.make(app, exampleApiGetHeaders),
+    NodeTesting.make(app, exampleApiGetHeaders),
     Effect.flatMap((client) => client.hello({ headers: { "x-client-id": "abc" } })),
     runTestEffect
   )
@@ -96,7 +96,7 @@ test.each(
   )
 
   const result = await pipe(
-    Testing.make(app, exampleApiGetStringResponse),
+    NodeTesting.make(app, exampleApiGetStringResponse),
     Effect.flatMap((client) => Effect.either(client.hello({}))),
     runTestEffect
   )
@@ -128,7 +128,7 @@ test("Custom headers and status", async () => {
   )
 
   const result = await pipe(
-    Testing.make(app, exampleApiGetCustomResponseWithHeaders),
+    NodeTesting.make(app, exampleApiGetCustomResponseWithHeaders),
     Effect.flatMap((client) =>
       // TODO: this header is not necessary, it is provided intentionally?
       client.hello({ headers: { "x-client-id": "abc" } })
@@ -154,7 +154,7 @@ test("Response containing optional field", async () => {
   )
 
   const result = await pipe(
-    Testing.make(app, exampleApiGetOptionalField),
+    NodeTesting.make(app, exampleApiGetOptionalField),
     Effect.flatMap((client) =>
       Effect.all([
         client.hello({ query: { value: "on" } }),
@@ -174,11 +174,11 @@ test("failing after unauthorized middleware", async () => {
   const app = RouterBuilder.make(exampleApiGetStringResponse).pipe(
     RouterBuilder.handle("hello", () => Effect.succeed(1)),
     RouterBuilder.build,
-    Middleware.make(() => ServerError.toServerResponse(ServerError.unauthorizedError("sorry bro")))
+    HttpServer.middleware.make(() => ServerError.toServerResponse(ServerError.unauthorizedError("sorry bro")))
   )
 
   const result = await pipe(
-    Testing.make(app, exampleApiGetStringResponse),
+    NodeTesting.make(app, exampleApiGetStringResponse),
     Effect.flatMap((client) => client.hello({})),
     Effect.flip,
     runTestEffect
@@ -218,7 +218,7 @@ describe("type safe responses", () => {
     )
 
     const result = await pipe(
-      Testing.make(app, exampleApiMultipleResponses),
+      NodeTesting.make(app, exampleApiMultipleResponses),
       Effect.flatMap((client) =>
         Effect.all(
           ReadonlyArray.map([12, 13, 14], (value) => client.hello({ query: { value } }))
@@ -265,7 +265,7 @@ test("optional headers / query / params fields", async () => {
   ] as const
 
   const result = await pipe(
-    Testing.make(app, exampleApiOptional),
+    NodeTesting.make(app, exampleApiOptional),
     Effect.flatMap((client) => Effect.all(ReadonlyArray.map(params, client.hello))),
     runTestEffect
   )
@@ -286,7 +286,7 @@ test("optional parameters", async () => {
   ] as const
 
   const result = await pipe(
-    Testing.make(app, exampleApiOptionalParams),
+    NodeTesting.make(app, exampleApiOptionalParams),
     Effect.flatMap((client) => Effect.all(ReadonlyArray.map(params, client.hello))),
     runTestEffect
   )
@@ -308,7 +308,7 @@ test("single full response", async () => {
   )
 
   const result = await pipe(
-    Testing.make(app, exampleApiFullResponse),
+    NodeTesting.make(app, exampleApiFullResponse),
     Effect.flatMap((client) => Effect.all([client.hello(), client.another()])),
     runTestEffect
   )

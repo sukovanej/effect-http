@@ -1,19 +1,18 @@
 import { Effect, pipe } from "effect"
 import { ExampleServer, RouterBuilder } from "effect-http"
+import { NodeTesting } from "effect-http-node"
 import { expect, test } from "vitest"
-import * as Testing from "./_testing.js"
-import { simpleApi1 } from "./example-apis.js"
-import { exampleApiFullResponse } from "./examples.js"
+import { exampleApiFullResponse, exampleApiGet } from "./examples.js"
 import { runTestEffect } from "./utils.js"
 
 test("example server", async () => {
-  const app = ExampleServer.make(simpleApi1)
+  const app = ExampleServer.make(exampleApiGet)
 
   await pipe(
-    Testing.make(RouterBuilder.build(app), simpleApi1),
-    Effect.flatMap((client) => client.myOperation({})),
+    NodeTesting.make(RouterBuilder.build(app), exampleApiGet),
+    Effect.flatMap((client) => client.getValue({})),
     Effect.map((response) => {
-      expect(typeof response).toEqual("string")
+      expect(typeof response).toEqual("number")
     }),
     runTestEffect
   )
@@ -30,7 +29,7 @@ test("handle", async () => {
   )
 
   const response = await pipe(
-    Testing.make(RouterBuilder.build(app), exampleApiFullResponse),
+    NodeTesting.make(RouterBuilder.build(app), exampleApiFullResponse),
     Effect.flatMap((client) => client.hello({})),
     runTestEffect
   )
@@ -51,7 +50,7 @@ test("handleRemaining", async () => {
   )
 
   const response = await pipe(
-    Testing.make(RouterBuilder.build(app), exampleApiFullResponse),
+    NodeTesting.make(RouterBuilder.build(app), exampleApiFullResponse),
     Effect.flatMap((client) => client.hello({})),
     runTestEffect
   )

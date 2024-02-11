@@ -28,6 +28,9 @@
     "test": "vitest",
     "coverage": "vitest --coverage"
   },
+  "dependencies": {
+    "swagger-ui-dist": "^5.11.3"
+  },
   "peerDependencies": {
     "@effect/platform": "^0.44.2",
     "@effect/platform-node": "^0.43.2",

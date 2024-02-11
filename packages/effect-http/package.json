@@ -29,8 +29,7 @@
     "coverage": "vitest --coverage"
   },
   "dependencies": {
-    "schema-openapi": "^0.31.0",
-    "swagger-ui-dist": "^5.11.3"
+    "schema-openapi": "^0.31.0"
   },
   "peerDependencies": {
     "@effect/platform": "^0.44.2",

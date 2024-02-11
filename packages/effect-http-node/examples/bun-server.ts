@@ -3,7 +3,8 @@ import { BunContext, BunHttpServer } from "@effect/platform-bun"
 import { NodeRuntime } from "@effect/platform-node"
 import { Schema } from "@effect/schema"
 import { Effect, Layer, pipe } from "effect"
-import { Api, RouterBuilder, SwaggerRouter } from "effect-http"
+import { Api, RouterBuilder } from "effect-http"
+import { NodeSwaggerFiles } from "effect-http-node"
 
 const responseSchema = Schema.struct({
   name: Schema.string,
@@ -29,7 +30,7 @@ const app = pipe(
 
 const server = pipe(
   HttpServer.server.serve(app),
-  Layer.provide(SwaggerRouter.SwaggerFilesLive),
+  Layer.provide(NodeSwaggerFiles.SwaggerFilesLive),
   Layer.provide(BunHttpServer.server.layer({ port: 3000 })),
   Layer.provide(BunContext.layer),
   Layer.launch,
