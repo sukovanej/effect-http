@@ -5,7 +5,7 @@
  */
 import type { Effect, Scope } from "effect"
 
-import type { FileSystem, HttpServer, Path } from "@effect/platform"
+import type { HttpServer } from "@effect/platform"
 import type { NodeContext } from "@effect/platform-node"
 import type { SwaggerRouter } from "effect-http"
 import * as internal from "./internal/node-server.js"
@@ -29,16 +29,11 @@ export const listen: (
 ) => Effect.Effect<
   never,
   HttpServer.error.ServeError,
-  | FileSystem.FileSystem
-  | Path.Path
-  | Exclude<
+  Exclude<
     Exclude<
-      Exclude<
-        Exclude<Exclude<R, HttpServer.request.ServerRequest | Scope.Scope>, Scope.Scope>,
-        HttpServer.server.Server | HttpServer.platform.Platform | HttpServer.etag.Generator | NodeContext.NodeContext
-      >,
-      SwaggerRouter.SwaggerFiles
+      Exclude<R, HttpServer.request.ServerRequest | Scope.Scope>,
+      HttpServer.server.Server | HttpServer.platform.Platform | HttpServer.etag.Generator | NodeContext.NodeContext
     >,
-    NodeContext.NodeContext
+    SwaggerRouter.SwaggerFiles
   >
 > = internal.listen

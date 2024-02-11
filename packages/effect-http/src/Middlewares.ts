@@ -3,9 +3,9 @@
  *
  * @since 1.0.0
  */
-import type * as App from "@effect/platform/Http/App"
 import type * as Effect from "effect/Effect"
 
+import type { HttpServer } from "@effect/platform"
 import * as internal from "./internal/middlewares.js"
 import type * as ServerError from "./ServerError.js"
 
@@ -19,7 +19,7 @@ import type * as ServerError from "./ServerError.js"
  */
 export const accessLog: (
   level?: "Info" | "Warning" | "Debug"
-) => <R, E>(app: App.Default<R, E>) => App.Default<R, E> = internal.accessLog
+) => <R, E>(app: HttpServer.app.Default<R, E>) => HttpServer.app.Default<R, E> = internal.accessLog
 
 /**
  * Annotate request logs using generated UUID. The default annotation key is `requestId`.
@@ -33,7 +33,7 @@ export const accessLog: (
  */
 export const uuidLogAnnotation: (
   logAnnotationKey?: string
-) => <R, E>(app: App.Default<R, E>) => App.Default<R, E> = internal.uuidLogAnnotation
+) => <R, E>(app: HttpServer.app.Default<R, E>) => HttpServer.app.Default<R, E> = internal.uuidLogAnnotation
 
 /**
  * Measure how many times each endpoint was called in a
@@ -43,8 +43,8 @@ export const uuidLogAnnotation: (
  * @since 1.0.0
  */
 export const endpointCallsMetric: () => <R, E>(
-  app: App.Default<R, E>
-) => App.Default<R, E> = internal.endpointCallsMetric
+  app: HttpServer.app.Default<R, E>
+) => HttpServer.app.Default<R, E> = internal.endpointCallsMetric
 
 /**
  * Logs out a handler failure.
@@ -52,7 +52,7 @@ export const endpointCallsMetric: () => <R, E>(
  * @category logging
  * @since 1.0.0
  */
-export const errorLog: <R, E>(app: App.Default<R, E>) => App.Default<R, E> = internal.errorLog
+export const errorLog: <R, E>(app: HttpServer.app.Default<R, E>) => HttpServer.app.Default<R, E> = internal.errorLog
 
 /**
  * @category models
@@ -77,7 +77,7 @@ export const basicAuth: <R2, _>(
     headerName: string
     skipPaths: ReadonlyArray<string>
   }>
-) => <R1, E>(app: App.Default<R1, E>) => App.Default<R1 | R2, E> = internal.basicAuth
+) => <R1, E>(app: HttpServer.app.Default<R1, E>) => HttpServer.app.Default<R1 | R2, E> = internal.basicAuth
 
 /**
  * @category models
@@ -100,4 +100,4 @@ export interface CorsOptions {
  */
 export const cors: (
   options?: Partial<CorsOptions>
-) => <R, E>(app: App.Default<R, E>) => App.Default<R, E> = internal.cors
+) => <R, E>(app: HttpServer.app.Default<R, E>) => HttpServer.app.Default<R, E> = internal.cors

@@ -29,8 +29,8 @@
     "coverage": "vitest --coverage"
   },
   "peerDependencies": {
-    "@effect/platform": "^0.44.0",
-    "@effect/platform-node": "^0.43.0",
+    "@effect/platform": "^0.44.2",
+    "@effect/platform-node": "^0.43.2",
     "@effect/schema": "^0.62.1",
     "effect": "^2.3.1",
     "effect-http": "workspace:^"
