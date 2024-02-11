@@ -107,15 +107,14 @@ export const endpoint = (method: Api.Method) =>
 <
   const Id extends string,
   const I extends Api.InputEndpointSchemas,
-  const S extends ReadonlyRecord.ReadonlyRecord<SecurityScheme<any>> | undefined = undefined
+  const Security extends ReadonlyRecord.ReadonlyRecord<SecurityScheme<any>> | undefined = undefined
 >(
   id: Id,
   path: PlatformRouter.PathInput,
   schemas: I,
-  options?: Api.EndpointOptions,
-  security?: ReadonlyRecord.ReadonlyRecord<SecurityScheme<any>>
+  options?: Api.InputEndpointOptions<Security>
 ) =>
-<A extends Api.Api | Api.ApiGroup>(api: A): Api.AddEndpoint<A, Id, I, S> => {
+<A extends Api.Api | Api.ApiGroup>(api: A): Api.AddEndpoint<A, Id, I, Security> => {
   if (method === "get" && schemas.request?.body !== undefined) {
     throw new Error(`Invalid ${id} endpoint. GET request cant have a body.`)
   }
@@ -148,8 +147,10 @@ export const endpoint = (method: Api.Method) =>
     id,
     path,
     method,
-    options: options ?? {},
-    security: security ?? {}
+    options: {
+      ...(options ?? {}),
+      security: options?.security ?? {}
+    }
   }
 
   if (isApiGroup(api)) {
@@ -160,7 +161,7 @@ export const endpoint = (method: Api.Method) =>
   } else {
     const defaultGroup = api.groups.find((group) => group.options.name === "default") ?? apiGroup("default")
     const groupsWithoutDefault = api.groups.filter((group) => group.options.name !== "default")
-    const newDefaultGroup = pipe(defaultGroup, endpoint(method)(id, path, schemas, options, security))
+    const newDefaultGroup = pipe(defaultGroup, endpoint(method)(id, path, schemas, options))
 
     return new ApiImpl(
       [...groupsWithoutDefault, newDefaultGroup],

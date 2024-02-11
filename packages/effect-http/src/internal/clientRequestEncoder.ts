@@ -136,7 +136,7 @@ const createHeadersEncoder = (endpoint: Api.Endpoint) => {
 }
 const createSecurityEncoder = (endpoint: Api.Endpoint) => {
   const securitySchemesSchemas = pipe(
-    endpoint.security,
+    endpoint.options.security,
     ReadonlyRecord.map((schema) => ({
       schema,
       encode: Schema.encode(schema.schema as Schema.Schema<any, string>)
@@ -145,7 +145,7 @@ const createSecurityEncoder = (endpoint: Api.Endpoint) => {
 
   return (headers: Record<string, string>, security: Record<string, any>) => {
     if (
-      (ReadonlyRecord.size(security) === 0) && (ReadonlyRecord.size(endpoint.security) !== 0)
+      (ReadonlyRecord.size(security) === 0) && (ReadonlyRecord.size(endpoint.options.security) !== 0)
     ) {
       return Effect.fail(ClientError.makeClientSide(
         "Must provide at lest on secure scheme credential"

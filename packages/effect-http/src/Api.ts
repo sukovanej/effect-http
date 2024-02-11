@@ -106,7 +106,6 @@ export interface Endpoint {
   method: Method
   schemas: EndpointSchemas
   options: EndpointOptions
-  security: ReadonlyRecord.ReadonlyRecord<SecurityScheme.SecurityScheme<any>>
 }
 
 /** @ignore */
@@ -182,10 +181,24 @@ export const api: (options?: Partial<Api["options"]>) => Api<never> = internal.a
  * @category models
  * @since 1.0.0
  */
-export interface EndpointOptions {
-  description?: string
-  summary?: string
+export interface InputEndpointOptions<
+  Security extends ReadonlyRecord.ReadonlyRecord<SecurityScheme.SecurityScheme<any>> | undefined
+> {
   deprecated?: boolean
+  description?: string
+  security?: Security
+  summary?: string
+}
+
+/**
+ * @category models
+ * @since 1.0.0
+ */
+export interface EndpointOptions {
+  deprecated?: boolean
+  description?: string
+  security: ReadonlyRecord.ReadonlyRecord<SecurityScheme.SecurityScheme<any>>
+  summary?: string
 }
 
 /**
@@ -200,8 +213,7 @@ type EndpointSetter = <
   id: Id,
   path: PlatformRouter.PathInput,
   schemas: Schemas,
-  options?: EndpointOptions,
-  security?: Security
+  options?: InputEndpointOptions<Security>
 ) => <A extends Api | ApiGroup>(api: A) => AddEndpoint<A, Id, Schemas, Security>
 
 /**
@@ -395,12 +407,12 @@ type CreateEndpointFromInput<
   Security extends ReadonlyRecord.ReadonlyRecord<SecurityScheme.SecurityScheme<any>> | undefined
 > = {
   id: Id
-  security: [Security] extends [infer X extends ReadonlyRecord.ReadonlyRecord<any>] ? X : {}
   schemas: CreateEndpointSchemasFromInput<Schemas>
   path: PlatformRouter.PathInput
   method: Method
   options: {
     groupName: string
+    security: [Security] extends [infer X extends ReadonlyRecord.ReadonlyRecord<any>] ? X : {}
     description?: string
     summary?: string
   }

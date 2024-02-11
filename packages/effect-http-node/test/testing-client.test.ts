@@ -262,12 +262,12 @@ test("testing security", async () => {
         }
       },
       {
-        description: "test description"
-      },
-      {
-        myAwesomeBearer: SecurityScheme.bearer({
-          tokenSchema: Schema.NumberFromString
-        })
+        description: "test description",
+        security: {
+          myAwesomeBearer: SecurityScheme.bearer({
+            tokenSchema: Schema.NumberFromString
+          })
+        }
       }
     )
   )
@@ -313,12 +313,12 @@ test("testing missing security", async () => {
         }
       },
       {
-        description: "test description"
-      },
-      {
-        myAwesomeBearer: SecurityScheme.bearer({
-          tokenSchema: Schema.NumberFromString
-        })
+        description: "test description",
+        security: {
+          myAwesomeBearer: SecurityScheme.bearer({
+            tokenSchema: Schema.NumberFromString
+          })
+        }
       }
     )
   )
@@ -361,12 +361,12 @@ test("testing security - several security cred with same type", async () => {
         }
       },
       {
-        description: "test description"
-      },
-      {
-        myAwesomeBearer: SecurityScheme.bearer({
-          tokenSchema: Schema.NumberFromString
-        })
+        description: "test description",
+        security: {
+          myAwesomeBearer: SecurityScheme.bearer({
+            tokenSchema: Schema.NumberFromString
+          })
+        }
       }
     )
   )

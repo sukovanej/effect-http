@@ -285,13 +285,15 @@ test("http security scheme", () => {
           )
         }
       },
-      { description: "options" },
       {
-        mayAwesomeAuth: bearer({
-          tokenSchema: Schema.Secret,
-          bearerFormat: "jwt",
-          description: "mayAwesomeAuth description"
-        })
+        description: "options",
+        security: {
+          mayAwesomeAuth: bearer({
+            tokenSchema: Schema.Secret,
+            bearerFormat: "jwt",
+            description: "mayAwesomeAuth description"
+          })
+        }
       }
     )
   )

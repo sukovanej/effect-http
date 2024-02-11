@@ -23,7 +23,7 @@ import type * as ServerError from "./ServerError.js"
  */
 export type HandlerFunction<Endpoint extends Api.Endpoint, R, E> = (
   input: Types.Simplify<EndpointSchemasTo<Endpoint["schemas"]>["request"]>,
-  security: Types.Simplify<EndpointSecurityTo<Endpoint["security"]>>
+  security: Types.Simplify<EndpointSecurityTo<Endpoint["options"]["security"]>>
 ) => Effect.Effect<
   EndpointResponseSchemaTo<Endpoint["schemas"]["response"]>,
   E,
@@ -97,7 +97,7 @@ export type EndpointSchemasTo<E extends Api.Endpoint["schemas"]> = Types.Simplif
 }>
 
 /** @ignore */
-export type EndpointSecurityTo<Security extends Api.Endpoint["security"]> = Types.Simplify<
+export type EndpointSecurityTo<Security extends Api.Endpoint["options"]["security"]> = Types.Simplify<
   {
     [K in keyof Security]: Security[K] extends infer SS extends SecurityScheme.SecurityScheme<any> ? {
         token: Either.Either<ParseResult.ParseError, Schema.Schema.To<SS["schema"]>>

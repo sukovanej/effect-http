@@ -259,16 +259,17 @@ export const exampleApiRepresentations = Api.api().pipe(
 
 export const exampleApiSecurityBearerAndBasic = Api.api().pipe(
   Api.post("test", "/test", { response: Schema.string }, {
-    description: "test description"
-  }, {
-    myAwesomeBearer: bearer({
-      bearerFormat: "test bearerFormat",
-      description: "My awesome http bearer description",
-      tokenSchema: Schema.Secret
-    }),
-    myAwesomeBearer2: basic({
-      description: "My awesome http bearer description 2",
-      tokenSchema: Schema.NumberFromString
-    })
+    description: "test description",
+    security: {
+      myAwesomeBearer: bearer({
+        bearerFormat: "test bearerFormat",
+        description: "My awesome http bearer description",
+        tokenSchema: Schema.Secret
+      }),
+      myAwesomeBearer2: basic({
+        description: "My awesome http bearer description 2",
+        tokenSchema: Schema.NumberFromString
+      })
+    }
   })
 )

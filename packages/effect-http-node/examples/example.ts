@@ -38,15 +38,16 @@ const api = pipe(
         query: Lesnek
       }
     },
-    {},
     {
-      myAwesomeBearerAuth: {
-        type: "http",
-        options: {
-          scheme: "bearer",
-          bearerFormat: "JWT"
-        },
-        schema: Schema.Secret
+      security: {
+        myAwesomeBearerAuth: {
+          type: "http",
+          options: {
+            scheme: "bearer",
+            bearerFormat: "JWT"
+          },
+          schema: Schema.Secret
+        }
       }
     }
   ),

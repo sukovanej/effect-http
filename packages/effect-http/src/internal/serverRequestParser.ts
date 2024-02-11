@@ -129,9 +129,9 @@ const createSecurityParser = (
   endpoint: Api.Endpoint,
   parseOptions?: AST.ParseOptions
 ) => {
-  const { security } = endpoint
+  const { security } = endpoint.options
 
-  if (ReadonlyRecord.size(endpoint.security) === 0) {
+  if (ReadonlyRecord.size(security) === 0) {
     return () => Effect.succeed({})
   }
 

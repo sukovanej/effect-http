@@ -15,7 +15,8 @@ export const make = (
   const apiSetters: Array<any> = []
   const pathSpecs = api.groups.flatMap((g) =>
     g.endpoints.map(
-      ({ id, method, options, path, schemas, security }) => {
+      ({ id, method, options, path, schemas }) => {
+        const { security } = options
         const operationSpec = []
 
         const responseSchema = schemas.response
