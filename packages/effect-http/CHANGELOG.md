@@ -1,5 +1,15 @@
 # effect-http
 
+## 0.53.0
+
+### Minor Changes
+
+- [#440](https://github.com/sukovanej/effect-http/pull/440) [`2d17f7c`](https://github.com/sukovanej/effect-http/commit/2d17f7cc073e4fd7b5403e58eeebb9288100245b) Thanks [@sukovanej](https://github.com/sukovanej)! - Move swagger-ui-dist to effect-http-node.
+
+### Patch Changes
+
+- [#440](https://github.com/sukovanej/effect-http/pull/440) [`2d17f7c`](https://github.com/sukovanej/effect-http/commit/2d17f7cc073e4fd7b5403e58eeebb9288100245b) Thanks [@sukovanej](https://github.com/sukovanej)! - Update @effect/platform packages.
+
 ## 0.52.0
 
 ### Minor Changes
