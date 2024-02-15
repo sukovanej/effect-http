@@ -8,11 +8,13 @@
 import { type HttpClient } from "@effect/platform"
 import { type Schema } from "@effect/schema"
 import type { Effect, Types } from "effect"
+import { type ReadonlyRecord } from "effect/ReadonlyRecord"
 
 import type * as Api from "./Api.js"
 import type * as ClientError from "./ClientError.js"
 import * as internal from "./internal/client.js"
 import type * as Route from "./Route.js"
+import type * as SecurityScheme from "./SecurityScheme.js"
 
 /**
  * @category models
@@ -85,20 +87,41 @@ export type ClientFunctionResponse<
   : never
 
 /** @ignore */
-type ClientFunction<Endpoint extends Api.Endpoint, I> = Record<
-  string,
-  never
-> extends I ? (
-    input?: I
+type ClientFunction<Endpoint extends Api.Endpoint, I> = Record<string, never> extends I ?
+  Record<string, never> extends Endpoint["options"]["security"] ? (
+      input?: I
+    ) => Effect.Effect<
+      ClientFunctionResponse<Endpoint["schemas"]["response"]>,
+      ClientError.ClientError,
+      Api.EndpointRequirements<Endpoint>
+    > :
+  (
+    input: I | undefined,
+    security: ClientSecurity<Endpoint["options"]["security"]>
   ) => Effect.Effect<
     ClientFunctionResponse<Endpoint["schemas"]["response"]>,
     ClientError.ClientError,
     Api.EndpointRequirements<Endpoint>
   >
-  : (
-    input: I
+  : Record<string, never> extends Endpoint["options"]["security"] ? (
+      input: I
+    ) => Effect.Effect<
+      ClientFunctionResponse<Endpoint["schemas"]["response"]>,
+      ClientError.ClientError,
+      Api.EndpointRequirements<Endpoint>
+    > :
+  (
+    input: I,
+    security: ClientSecurity<Endpoint["options"]["security"]>
   ) => Effect.Effect<
     ClientFunctionResponse<Endpoint["schemas"]["response"]>,
     ClientError.ClientError,
     Api.EndpointRequirements<Endpoint>
   >
+
+/** @ignore */
+type ClientSecurity<SS extends ReadonlyRecord<SecurityScheme.SecurityScheme<any>>> = keyof SS extends infer K ?
+  K extends (infer securitySchemeName extends keyof SS) ?
+    { [X in securitySchemeName]: Schema.Schema.To<SS[securitySchemeName]["schema"]> }
+  : never
+  : never

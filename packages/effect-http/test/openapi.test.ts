@@ -2,6 +2,7 @@ import { Schema } from "@effect/schema"
 import { pipe } from "effect"
 import { Api, OpenApi } from "effect-http"
 import { expect, test } from "vitest"
+import { bearer } from "../src/SecurityScheme.js"
 
 test("description", () => {
   const api = pipe(
@@ -264,4 +265,48 @@ test("union in query params", () => {
       }
     }
   ])
+})
+
+test("http security scheme", () => {
+  const api = pipe(
+    Api.api(),
+    Api.post(
+      "myOperation",
+      "/my-operation",
+      {
+        response: Schema.string,
+        request: {
+          query: Schema.union(
+            Schema.struct({ a: Schema.string }),
+            Schema.struct({ a: Schema.number, b: Schema.string }),
+            Schema.struct({ a: Schema.number, c: Schema.string }).pipe(
+              Schema.attachPropertySignature("_tag", "Case2")
+            )
+          )
+        }
+      },
+      {
+        description: "options",
+        security: {
+          mayAwesomeAuth: bearer({
+            tokenSchema: Schema.Secret,
+            bearerFormat: "jwt",
+            description: "mayAwesomeAuth description"
+          })
+        }
+      }
+    )
+  )
+
+  const openApi = OpenApi.make(api)
+
+  expect(openApi.paths["/my-operation"].post?.security).toEqual([{ mayAwesomeAuth: [] }])
+  expect(openApi.components?.securitySchemes).toEqual({
+    mayAwesomeAuth: {
+      type: "http",
+      scheme: "bearer",
+      description: "mayAwesomeAuth description",
+      bearerFormat: "jwt"
+    }
+  })
 })

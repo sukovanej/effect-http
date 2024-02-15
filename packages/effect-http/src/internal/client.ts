@@ -30,14 +30,14 @@ export const endpointClient = <
 
   const httpClient = options.httpClient ?? defaultHttpClient
 
-  return (args: unknown) =>
+  return ((args: unknown, security: unknown) =>
     pipe(
-      requestEncoder.encodeRequest(args),
+      requestEncoder.encodeRequest(args, security),
       Effect.map(mapRequest),
       Effect.flatMap(httpClient),
       Effect.flatMap(responseParser.parseResponse),
       Effect.annotateLogs("clientOperationId", endpoint.id)
-    ) as any
+    )) as any
 }
 
 /**
@@ -50,7 +50,7 @@ export const make = <Endpoints extends Api.Endpoint>(
   api: Api.Api<Endpoints>,
   options?: Partial<Client.Options>
 ): Client.Client<Endpoints> =>
-  api.groups.flatMap((x) => x.endpoints).reduce(
+  api.groups.flatMap((group) => group.endpoints).reduce(
     (client, endpoint) => ({
       ...client,
       [endpoint.id]: endpointClient(endpoint.id, api, options ?? {})

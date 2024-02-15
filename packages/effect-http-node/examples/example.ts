@@ -29,13 +29,29 @@ const dummyStuff = pipe(
 
 const api = pipe(
   Api.api({ title: "My awesome pets API", version: "1.0.0" }),
-  Api.get("getMilan", "/milan", { response: Schema.string }),
-  Api.get("getLesnek", "/lesnek", {
-    response: Schema.string,
-    request: {
-      query: Lesnek
+  Api.get(
+    "getLesnek",
+    "/lesnek",
+    {
+      response: Schema.string,
+      request: {
+        query: Lesnek
+      }
+    },
+    {
+      security: {
+        myAwesomeBearerAuth: {
+          type: "http",
+          options: {
+            scheme: "bearer",
+            bearerFormat: "JWT"
+          },
+          schema: Schema.Secret
+        }
+      }
     }
-  }),
+  ),
+  Api.get("getMilan", "/milan", { response: Schema.string }),
   Api.get("test", "/test", {
     response: Standa,
     request: { query: Lesnek }
@@ -62,6 +78,11 @@ const api = pipe(
 
 const app = pipe(
   RouterBuilder.make(api, { parseOptions: { errors: "all" } }),
+  RouterBuilder.handle("getLesnek", ({ query }) =>
+    pipe(
+      Effect.succeed(`hello ${query.name}`),
+      Effect.tap(() => Effect.logDebug("hello world"))
+    )),
   RouterBuilder.handle("handleMilan", ({ body }) =>
     Effect.map(StuffService, ({ value }) => ({
       ...body,
@@ -70,11 +91,6 @@ const app = pipe(
   RouterBuilder.handle("getMilan", () => Effect.succeed("test")),
   RouterBuilder.handle("test", ({ query: { name } }) => Effect.succeed({ name })),
   RouterBuilder.handle("standa", ({ body }) => Effect.succeed({ ...body, standa: "je borec" })),
-  RouterBuilder.handle("getLesnek", ({ query }) =>
-    pipe(
-      Effect.succeed(`hello ${query.name}`),
-      Effect.tap(() => Effect.logDebug("hello world"))
-    )),
   RouterBuilder.handle("callStanda", () => Effect.succeed("zdar"))
 )
 

@@ -10,6 +10,7 @@
  */
 import type * as PlatformRouter from "@effect/platform/Http/Router"
 import type * as Schema from "@effect/schema/Schema"
+import type { ReadonlyRecord } from "effect"
 import type * as Pipeable from "effect/Pipeable"
 import type * as ReadonlyArray from "effect/ReadonlyArray"
 import type * as Types from "effect/Types"
@@ -17,6 +18,7 @@ import type { OpenApiTypes } from "schema-openapi"
 
 import * as internal from "./internal/api.js"
 import type * as Representation from "./Representation.js"
+import type * as SecurityScheme from "./SecurityScheme.js"
 
 /**
  * @since 1.0.0
@@ -179,10 +181,24 @@ export const api: (options?: Partial<Api["options"]>) => Api<never> = internal.a
  * @category models
  * @since 1.0.0
  */
-export interface EndpointOptions {
-  description?: string
-  summary?: string
+export interface InputEndpointOptions<
+  Security extends ReadonlyRecord.ReadonlyRecord<SecurityScheme.SecurityScheme<any>> | undefined
+> {
   deprecated?: boolean
+  description?: string
+  security?: Security
+  summary?: string
+}
+
+/**
+ * @category models
+ * @since 1.0.0
+ */
+export interface EndpointOptions {
+  deprecated?: boolean
+  description?: string
+  security: ReadonlyRecord.ReadonlyRecord<SecurityScheme.SecurityScheme<any>>
+  summary?: string
 }
 
 /**
@@ -191,13 +207,14 @@ export interface EndpointOptions {
  */
 type EndpointSetter = <
   const Id extends string,
-  const I extends InputEndpointSchemas
+  const Schemas extends InputEndpointSchemas,
+  const Security extends ReadonlyRecord.ReadonlyRecord<SecurityScheme.SecurityScheme<any>> | undefined = undefined
 >(
   id: Id,
   path: PlatformRouter.PathInput,
-  schemas: I,
-  options?: EndpointOptions
-) => <A extends Api | ApiGroup>(api: A) => AddEndpoint<A, Id, I>
+  schemas: Schemas,
+  options?: InputEndpointOptions<Security>
+) => <A extends Api | ApiGroup>(api: A) => AddEndpoint<A, Id, Schemas, Security>
 
 /**
  * @category methods
@@ -377,15 +394,17 @@ export interface InputResponseSchemaFull {
 export type AddEndpoint<
   A extends Api | ApiGroup,
   Id extends string,
-  Schemas extends InputEndpointSchemas
-> = A extends Api<infer E> ? Api<E | Types.Simplify<CreateEndpointFromInput<Id, Schemas>>>
-  : A extends ApiGroup<infer E> ? ApiGroup<E | Types.Simplify<CreateEndpointFromInput<Id, Schemas>>>
+  Schemas extends InputEndpointSchemas,
+  Security extends ReadonlyRecord.ReadonlyRecord<SecurityScheme.SecurityScheme<any>> | undefined
+> = A extends Api<infer E> ? Api<E | Types.Simplify<CreateEndpointFromInput<Id, Schemas, Security>>>
+  : A extends ApiGroup<infer E> ? ApiGroup<E | Types.Simplify<CreateEndpointFromInput<Id, Schemas, Security>>>
   : never
 
 /** @ignore */
 type CreateEndpointFromInput<
   Id extends string,
-  Schemas extends InputEndpointSchemas
+  Schemas extends InputEndpointSchemas,
+  Security extends ReadonlyRecord.ReadonlyRecord<SecurityScheme.SecurityScheme<any>> | undefined
 > = {
   id: Id
   schemas: CreateEndpointSchemasFromInput<Schemas>
@@ -393,6 +412,7 @@ type CreateEndpointFromInput<
   method: Method
   options: {
     groupName: string
+    security: [Security] extends [infer X extends ReadonlyRecord.ReadonlyRecord<any>] ? X : {}
     description?: string
     summary?: string
   }

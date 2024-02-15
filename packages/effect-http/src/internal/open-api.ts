@@ -1,20 +1,22 @@
-import type { OpenApiTypes } from "schema-openapi"
 import { OpenApi } from "schema-openapi"
+import type * as OpenApiTypes from "schema-openapi/OpenApiTypes"
 
 import * as AST from "@effect/schema/AST"
 import * as Schema from "@effect/schema/Schema"
-import { ReadonlyRecord } from "effect"
-import { identity, pipe } from "effect/Function"
+import { absurd, identity, pipe } from "effect/Function"
 import * as Option from "effect/Option"
 import * as ReadonlyArray from "effect/ReadonlyArray"
+import * as ReadonlyRecord from "effect/ReadonlyRecord"
 import * as Api from "../Api.js"
 
 export const make = (
   api: Api.Api
 ): OpenApiTypes.OpenAPISpec<OpenApiTypes.OpenAPISchemaType> => {
+  const apiSetters: Array<any> = []
   const pathSpecs = api.groups.flatMap((g) =>
     g.endpoints.map(
       ({ id, method, options, path, schemas }) => {
+        const { security } = options
         const operationSpec = []
 
         const responseSchema = schemas.response
@@ -69,6 +71,38 @@ export const make = (
           operationSpec.push(OpenApi.jsonRequest(body, descriptionSetter(body)))
         }
 
+        const securityResult = pipe(
+          security,
+          ReadonlyArray.fromRecord,
+          ReadonlyArray.reduce(
+            {
+              operationSetters: [] as Array<any>,
+              apiSetters: [] as Array<any>
+            },
+            (result, [name, securityScheme]) => {
+              if (securityScheme.type === "http") {
+                result.operationSetters.push(OpenApi.securityRequirement(name))
+                result.apiSetters.push(OpenApi.securityScheme(name, {
+                  type: securityScheme.type,
+                  scheme: securityScheme.options.scheme,
+                  ...(securityScheme.options.description === undefined ? {} : {
+                    description: securityScheme.options.description
+                  }),
+                  ...((securityScheme.options.scheme.toLowerCase() === "bearer")
+                    ? { bearerFormat: securityScheme.options.bearerFormat }
+                    : {})
+                }))
+
+                return result
+              }
+
+              return absurd<never>(securityScheme.type)
+            }
+          )
+        )
+        operationSpec.push(...securityResult.operationSetters)
+        apiSetters.push(...securityResult.apiSetters)
+
         if (options.description !== undefined) {
           operationSpec.push(OpenApi.description(options.description))
         }
@@ -95,7 +129,7 @@ export const make = (
   )
 
   if (ReadonlyArray.isNonEmptyArray(api.groups)) {
-    const [firstGlobalTag, ...restGlobalTags] = ReadonlyArray.map(api.groups, (x) => x.options)
+    const [firstGlobalTag, ...restGlobalTags] = ReadonlyArray.map(api.groups, (group) => group.options)
 
     pathSpecs.push(OpenApi.globalTags(firstGlobalTag, ...restGlobalTags))
   }
@@ -116,6 +150,7 @@ export const make = (
   const openApi = OpenApi.openAPI(
     api.options.title,
     api.options.version,
+    ...apiSetters,
     ...pathSpecs
   )
 
@@ -144,8 +179,11 @@ const descriptionSetter = <A extends { description?: string }>(
 ) =>
   pipe(
     schema.ast,
-    AST.getAnnotation<AST.DescriptionAnnotation>(AST.DescriptionAnnotationId),
-    Option.match({ onNone: () => identity<A>, onSome: OpenApi.description })
+    AST.getDescriptionAnnotation,
+    Option.match({
+      onNone: () => identity<A>,
+      onSome: OpenApi.description
+    })
   )
 
 const getPropertySignatures = (

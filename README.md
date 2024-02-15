@@ -27,6 +27,7 @@ breaking changes and the internals and the public API are still evolving and cha
   - [Example](#example)
   - [Optional path parameters](#optional-path-parameters)
 - [Headers](#headers)
+- [Security](#security)
 - [Responses](#responses)
 - [Testing the server](#testing-the-server)
 - [Error handling](#error-handling)
@@ -243,9 +244,68 @@ lower-cased form of the header name. Take a look at [examples/headers.ts](exampl
 to see a complete example API implementation with in-memory rate-limiting and client
 identification using headers.
 
+### Security
+
+To define which security mechanisms should be used for a specific endpoint, fill `option.security` field in endpoint constructor.
+
+```ts
+const api = Api.api().pipe(
+  Api.post("security", "/testSecurity", { response: Schema.string }, {
+    description: '',
+    security: {
+      myAwesomeBearerAuth: { // myAwesomeBearerAuth - arbitrary name for the security scheme
+        type: "http",
+        options: {
+          scheme: "bearer",
+          bearerFormat: "JWT"
+        },
+        // Schema<any, string> for decoding-encoding the significant part
+        // "Authorization: Bearer <significant part>"
+        schema: Schema.Secret
+      }
+    }
+}));
+```
+
+Currently, only the `"http"` type is supported. `bearer` and `basic` constructors placed at the `SecurityScheme` module.
+
+Encoded security token placed in the second parameter of the handler.
+
+```ts
+const app = pipe(
+  RouterBuilder.make(api),
+  RouterBuilder.handle("security", ({}, security) => {
+    security.myAwesomeBearerAuth.token; // Secret
+  }),
+  RouterBuilder.build
+)
+```
+
+In case several security schemes are specified, tokens will be `Either<ParseError, MyType>` type 
+with the guarantee that at least one of them is of the `Right<MyType>` type
+
+```ts
+const app = pipe(
+  RouterBuilder.make(api),
+  RouterBuilder.handle("security", ({}, security) => {
+    security.myAwesomeBearerAuth.token; // Either<ParseError, Secret>
+    security.myAwesomeBasicAuth.token; // Either<ParseError, Secret>
+  }),
+  RouterBuilder.build
+)
+```
+
+On the client side security token must be passed into the appropriate security scheme
+
+```ts
+client.security({}, {
+  myAwesomeBearerAuth: bearerToken, // Secret
+})
+```
+
 ### Responses
 
-Response can be specified using a `Schema.Schema<I, O>` which automatically
+Response can be specified using a `Schema.Schema<A, I>` which automatically
 returns status code 200 and includes only default headers.
 
 If you want a response with custom headers and status code, use the full response

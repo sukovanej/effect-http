@@ -6,9 +6,11 @@ import * as HashSet from "effect/HashSet"
 import * as Order from "effect/Order"
 import * as Pipeable from "effect/Pipeable"
 import * as ReadonlyArray from "effect/ReadonlyArray"
+import type * as ReadonlyRecord from "effect/ReadonlyRecord"
 import { OpenApiCompiler } from "schema-openapi"
 import type * as Api from "../Api.js"
 import * as Representation from "../Representation.js"
+import type { SecurityScheme } from "../SecurityScheme.js"
 
 /** @internal */
 const composeResponseSchema = (
@@ -102,13 +104,17 @@ const checkPathPatternMatchesSchema = (
 
 /** @internal */
 export const endpoint = (method: Api.Method) =>
-<const Id extends string, const I extends Api.InputEndpointSchemas>(
+<
+  const Id extends string,
+  const I extends Api.InputEndpointSchemas,
+  const Security extends ReadonlyRecord.ReadonlyRecord<SecurityScheme<any>> | undefined = undefined
+>(
   id: Id,
   path: PlatformRouter.PathInput,
   schemas: I,
-  options?: Api.EndpointOptions
+  options?: Api.InputEndpointOptions<Security>
 ) =>
-<A extends Api.Api | Api.ApiGroup>(api: A): Api.AddEndpoint<A, Id, I> => {
+<A extends Api.Api | Api.ApiGroup>(api: A): Api.AddEndpoint<A, Id, I, Security> => {
   if (method === "get" && schemas.request?.body !== undefined) {
     throw new Error(`Invalid ${id} endpoint. GET request cant have a body.`)
   }
@@ -117,7 +123,9 @@ export const endpoint = (method: Api.Method) =>
     throw new Error(`Endpoint with operation id ${id} already exists`)
   }
 
-  if (isApi(api) && api.groups.find((group) => group.endpoints.find((endpoint) => endpoint.id === id)) !== undefined) {
+  if (
+    isApi(api) && api.groups.find((group) => group.endpoints.find((endpoint) => endpoint.id === id)) !== undefined
+  ) {
     throw new Error(`Endpoint with operation id ${id} already exists`)
   }
 
@@ -139,7 +147,10 @@ export const endpoint = (method: Api.Method) =>
     id,
     path,
     method,
-    options: options ?? {}
+    options: {
+      ...(options ?? {}),
+      security: options?.security ?? {}
+    }
   }
 
   if (isApiGroup(api)) {
@@ -148,8 +159,8 @@ export const endpoint = (method: Api.Method) =>
       api.options
     ) as any
   } else {
-    const defaultGroup = api.groups.find((x) => x.options.name === "default") ?? apiGroup("default")
-    const groupsWithoutDefault = api.groups.filter((x) => x.options.name !== "default")
+    const defaultGroup = api.groups.find((group) => group.options.name === "default") ?? apiGroup("default")
+    const groupsWithoutDefault = api.groups.filter((group) => group.options.name !== "default")
     const newDefaultGroup = pipe(defaultGroup, endpoint(method)(id, path, schemas, options))
 
     return new ApiImpl(
@@ -230,7 +241,7 @@ export const getEndpoint = <
 export const addGroup =
   <E2 extends Api.Endpoint>(apiGroup: Api.ApiGroup<E2>) =>
   <E1 extends Api.Endpoint>(api: Api.Api<E1>): Api.Api<E1 | E2> => {
-    const existingIds = HashSet.make(...api.groups.flatMap((x) => x.endpoints).map(({ id }) => id))
+    const existingIds = HashSet.make(...api.groups.flatMap((group) => group.endpoints).map(({ id }) => id))
     const newIds = HashSet.make(...apiGroup.endpoints.map(({ id }) => id))
     const duplicates = HashSet.intersection(existingIds, newIds)
 

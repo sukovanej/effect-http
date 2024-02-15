@@ -12,7 +12,7 @@ export const make = <Endpoints extends Api.Endpoint>(
   api: Api.Api<Endpoints>,
   option?: Partial<MockClient.Options<Endpoints>>
 ): Client.Client<Endpoints> =>
-  api.groups.flatMap((x) => x.endpoints).reduce((client, endpoint) => {
+  api.groups.flatMap((group) => group.endpoints).reduce((client, endpoint) => {
     const requestEncoder = ClientRequestEncoder.create(endpoint)
     const responseSchema = utils.createResponseSchema(
       endpoint.schemas.response
@@ -21,9 +21,9 @@ export const make = <Endpoints extends Api.Endpoint>(
     const customResponses = option?.responses
     const customResponse = customResponses && customResponses[endpoint.id as Endpoints["id"]]
 
-    const fn = (args: unknown) => {
+    const fn = (args: unknown, security: unknown) => {
       return pipe(
-        requestEncoder.encodeRequest(args),
+        requestEncoder.encodeRequest(args, security),
         Effect.flatMap(() =>
           customResponse !== undefined
             ? Effect.succeed(customResponse)
