@@ -7,7 +7,7 @@
  */
 import { type HttpClient } from "@effect/platform"
 import { type Schema } from "@effect/schema"
-import type { Effect, Scope, Types } from "effect"
+import type { Effect, Types } from "effect"
 import { type ReadonlyRecord } from "effect/ReadonlyRecord"
 
 import type * as Api from "./Api.js"
@@ -93,7 +93,7 @@ type ClientFunction<Endpoint extends Api.Endpoint, I> = Record<string, never> ex
     ) => Effect.Effect<
       ClientFunctionResponse<Endpoint["schemas"]["response"]>,
       ClientError.ClientError,
-      Api.EndpointRequirements<Endpoint> | Scope.Scope
+      Api.EndpointRequirements<Endpoint>
     > :
   (
     input: I | undefined,
@@ -108,7 +108,7 @@ type ClientFunction<Endpoint extends Api.Endpoint, I> = Record<string, never> ex
     ) => Effect.Effect<
       ClientFunctionResponse<Endpoint["schemas"]["response"]>,
       ClientError.ClientError,
-      Api.EndpointRequirements<Endpoint> | Scope.Scope
+      Api.EndpointRequirements<Endpoint>
     > :
   (
     input: I,
@@ -116,7 +116,7 @@ type ClientFunction<Endpoint extends Api.Endpoint, I> = Record<string, never> ex
   ) => Effect.Effect<
     ClientFunctionResponse<Endpoint["schemas"]["response"]>,
     ClientError.ClientError,
-    Api.EndpointRequirements<Endpoint> | Scope.Scope
+    Api.EndpointRequirements<Endpoint>
   >
 
 /** @ignore */

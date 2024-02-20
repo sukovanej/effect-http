@@ -36,6 +36,7 @@ export const endpointClient = <
       Effect.map(mapRequest),
       Effect.flatMap(httpClient),
       Effect.flatMap(responseParser.parseResponse),
+      Effect.scoped,
       Effect.annotateLogs("clientOperationId", endpoint.id)
     )) as any
 }
