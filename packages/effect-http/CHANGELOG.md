@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.54.2
+
+### Patch Changes
+
+- [#450](https://github.com/sukovanej/effect-http/pull/450) [`94464e2`](https://github.com/sukovanej/effect-http/commit/94464e2c143a4e4e874ff769be357cdc8776cd18) Thanks [@sukovanej](https://github.com/sukovanej)! - Fix: remove `Scope` from client response effects. Scope is resolved internally.
+
 ## 0.54.1
 
 ### Patch Changes
