@@ -47,7 +47,7 @@ export const makeRaw: <R, E>(
   app: HttpServer.app.Default<R, E>
 ) => Effect.Effect<
   HttpClient.client.Client<
-    never,
+    Scope.Scope,
     HttpClient.error.HttpClientError,
     HttpClient.response.ClientResponse
   >,

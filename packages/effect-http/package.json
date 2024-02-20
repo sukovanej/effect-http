@@ -33,14 +33,14 @@
     "schema-openapi": "^0.31.0"
   },
   "peerDependencies": {
-    "@effect/platform": "^0.44.2",
-    "@effect/schema": "^0.62.1",
-    "effect": "^2.3.1"
+    "@effect/platform": "^0.45.5",
+    "@effect/schema": "^0.62.8",
+    "effect": "^2.3.7"
   },
   "devDependencies": {
-    "@effect/platform": "^0.44.2",
-    "@effect/platform-node": "^0.43.2",
-    "@effect/schema": "^0.62.1",
-    "effect": "^2.3.1"
+    "@effect/platform": "^0.45.5",
+    "@effect/platform-node": "^0.44.6",
+    "@effect/schema": "^0.62.8",
+    "effect": "^2.3.7"
   }
 }

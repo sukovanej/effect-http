@@ -63,9 +63,7 @@ Bootstrap a simple API specification.
 
 ```typescript
 import { Schema } from "@effect/schema";
-import { Effect, pipe } from "effect";
-import { Api, Client, RouterBuilder } from "effect-http";
-import { NodeServer } from "effect-http-node";
+import { Api } from "effect-http";
 
 const User = Schema.struct({
   name: Schema.string,
@@ -84,6 +82,9 @@ const api = Api.api({ title: "Users API" }).pipe(
 Create the app implementation.
 
 ```typescript
+import { Effect, pipe } from "effect";
+import { RouterBuilder } from "effect-http";
+
 const app = pipe(
   RouterBuilder.make(api),
   RouterBuilder.handle("getUser", ({ query }) =>
@@ -96,21 +97,27 @@ const app = pipe(
 Now, we can generate an object providing the HTTP client interface using `Client.make`.
 
 ```typescript
+import { Client } from "effect-http";
+
 const client = Client.make(api, { baseUrl: "http://localhost:3000" });
 ```
 
 Spawn the server on port 3000,
 
 ```typescript
-app.pipe(NodeServer.listen({ port: 3000 }), runMain);
+import { NodeRuntime } from "@effect/platform-node"
+import { NodeServer } from "effect-http-node";
+
+app.pipe(NodeServer.listen({ port: 3000 }), NodeRuntime.runMain);
 ```
 
 and call it using the `client`.
 
 ```ts
-const callServer = pipe(
+const response = pipe(
   client.getUser({ query: { id: 12 } }),
   Effect.flatMap((user) => Effect.log(`Got ${user.name}, nice!`)),
+  Effect.scoped,
 );
 ```
 
@@ -193,7 +200,7 @@ a mapping from header names onto their schemas. The example below shows an API w
 a single endpoint `/hello` which expects a header `X-Client-Id` to be present.
 
 ```typescript
-import { runMain } from "@effect/platform-node/Runtime";
+import { NodeRuntime } from "@effect/platform-node";
 import { Schema } from "@effect/schema";
 import { pipe } from "effect";
 import { Api, ExampleServer, RouterBuilder } from "effect-http";
@@ -212,7 +219,7 @@ pipe(
   ExampleServer.make(api),
   RouterBuilder.build,
   NodeServer.listen({ port: 3000 }),
-  runMain,
+  NodeRuntime.runMain,
 );
 ```
 
@@ -403,6 +410,7 @@ import { NodeTesting } from 'effect-http-node';
 test("test /hello endpoint", async () => {
   const response = await NodeTesting.make(app, api).pipe(
     Effect.flatMap((client) => client.hello({ query: { input: 12 } })),
+    Effect.scoped,
     Effect.runPromise,
   );
 
@@ -481,39 +489,35 @@ so we can see the failure behavior.
 
 ```typescript
 interface UserRepository {
-  existsByName: (name: string) => Effect.Effect<never, never, boolean>;
-  store: (user: string) => Effect.Effect<never, never, void>;
+  userExistsByName: (name: string) => Effect.Effect<boolean>;
+  storeUser: (user: string) => Effect.Effect<void>;
 }
 
-const UserRepository = Context.Tag<UserRepository>();
+const UserRepository = Context.GenericTag<UserRepository>("UserRepository");
 
 const mockUserRepository = UserRepository.of({
-  existsByName: () => Effect.succeed(true),
-  store: () => Effect.unit,
+  userExistsByName: () => Effect.succeed(true),
+  storeUser: () => Effect.unit,
 });
+
+const { userExistsByName, storeUser } = Effect.serviceFunctions(UserRepository);
 ```
 
 And finally, we have the actual `App` implementation.
 
 ```typescript
+
 const app = RouterBuilder.make(api).pipe(
   RouterBuilder.handle("storeUser", ({ body }) =>
     pipe(
-      Effect.flatMap(UserRepository, (userRepository) =>
-        userRepository.existsByName(body.name),
-      ),
+      userExistsByName(body.name),
       Effect.filterOrFail(
         (alreadyExists) => !alreadyExists,
         () => ServerError.conflictError(`User "${body.name}" already exists.`),
       ),
-      Effect.flatMap(() =>
-        Effect.flatMap(UserRepository, (repository) =>
-          repository.store(body.name),
-        ),
-      ),
+      Effect.andThen(storeUser(body.name)),
       Effect.map(() => `User "${body.name}" stored.`),
-    ),
-  ),
+    )),
   RouterBuilder.build,
 );
 ```
@@ -525,7 +529,7 @@ the `mockUserRepository` service.
 app.pipe(
   NodeServer.listen({ port: 3000 }),
   Effect.provideService(UserRepository, mockUserRepository),
-  Effect.runPromise,
+  NodeRuntime.runMain
 );
 ```
 
@@ -570,7 +574,7 @@ This enables separability of concers for big APIs and provides information for
 generation of tags for the OpenAPI specification.
 
 ```typescript
-import { runMain } from "@effect/platform-node/Runtime";
+import { NodeRuntime } from "@effect/platform-node";
 import { Schema } from "@effect/schema";
 import { Api, ExampleServer, RouterBuilder } from "effect-http";
 import { NodeServer } from "effect-http-node";
@@ -604,7 +608,7 @@ const api = Api.api().pipe(
 ExampleServer.make(api).pipe(
   RouterBuilder.build,
   NodeServer.listen({ port: 3000 }),
-  runMain,
+  NodeRuntime.runMain,
 );
 ```
 
@@ -638,8 +642,8 @@ For an operation-level description, call the API endpoint method (`Api.get`,
 desired description.
 
 ```ts
-import { runMain } from "@effect/platform-node/Runtime";
-import * as Schema from "@effect/schema/Schema";
+import { NodeRuntime } from "@effect/platform-node";
+import { Schema } from "@effect/schema";
 import { Effect, pipe } from "effect";
 import { Api, RouterBuilder } from "effect-http";
 import { NodeServer } from "effect-http-node";
@@ -676,7 +680,7 @@ const app = RouterBuilder.make(api).pipe(
   RouterBuilder.build,
 );
 
-app.pipe(NodeServer.listen({ port: 3000 }), runMain);
+app.pipe(NodeServer.listen({ port: 3000 }), NodeRuntime.runMain);
 ```
 
 ## Representations
@@ -716,7 +720,7 @@ be used, and if there is no representation matching the incomming `Accept` media
 it will choose the first representation in the list.
 
 ```ts
-import { runMain } from "@effect/platform-node/Runtime";
+import { NodeRuntime } from "@effect/platform-node";
 import { Schema } from "@effect/schema";
 import { Effect } from "effect";
 import { Api, Representation, RouterBuilder } from "effect-http";
@@ -745,7 +749,7 @@ const program = app.pipe(
   Effect.provide(PrettyLogger.layer()),
 );
 
-runMain(program);
+NodeRuntime.runMain(program);
 ```
 
 Try running the server above and call the root path with different
@@ -790,7 +794,7 @@ helpful in the following and probably many more cases.
 Use `ExampleServer.make` combinator to generate a `RouterBuilder` from an `Api`.
 
 ```typescript
-import { runMain } from "@effect/platform-node/Runtime";
+import { NodeRuntime } from "@effect/platform-node";
 import { Schema } from "@effect/schema";
 import { Effect, pipe } from "effect";
 import { Api, ExampleServer, RouterBuilder } from "effect-http";
@@ -807,7 +811,7 @@ pipe(
   ExampleServer.make(api),
   RouterBuilder.build,
   NodeServer.listen({ port: 3000 }),
-  runMain,
+  NodeRuntime.runMain,
 );
 ```
 

@@ -24,4 +24,4 @@ Effect.all(
     Effect.catchAll((e) => Effect.logInfo(`Error ${JSON.stringify(e)}`)),
     ReadonlyArray.replicate(1000000)
   )
-).pipe(Effect.runPromise)
+).pipe(Effect.scoped, Effect.runPromise)

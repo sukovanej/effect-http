@@ -25,6 +25,6 @@ export const CreateItemResponse = Item.pipe(Schema.pick("id", "createdAt"))
 export const GetItemsQuery = Item.pipe(
   Schema.pick("title", "content"),
   Schema.extend(Schema.struct({ id: IntegerFromString })),
-  Schema.partial
+  (schema) => Schema.partial(schema)
 )
 export type GetItemsQuery = Schema.Schema.To<typeof GetItemsQuery>

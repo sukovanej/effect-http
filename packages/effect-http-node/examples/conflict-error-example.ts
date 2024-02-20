@@ -17,26 +17,28 @@ const api = pipe(
 )
 
 interface UserRepository {
-  existsByName: (name: string) => Effect.Effect<boolean>
-  store: (user: string) => Effect.Effect<void>
+  userExistsByName: (name: string) => Effect.Effect<boolean>
+  storeUser: (user: string) => Effect.Effect<void>
 }
 
-const UserRepository = Context.GenericTag<UserRepository>("@services/UserRepository")
+const UserRepository = Context.GenericTag<UserRepository>("UserRepository")
 
 const mockUserRepository = UserRepository.of({
-  existsByName: () => Effect.succeed(true),
-  store: () => Effect.unit
+  userExistsByName: () => Effect.succeed(true),
+  storeUser: () => Effect.unit
 })
+
+const { storeUser, userExistsByName } = Effect.serviceFunctions(UserRepository)
 
 const app = RouterBuilder.make(api).pipe(
   RouterBuilder.handle("storeUser", ({ body }) =>
     pipe(
-      Effect.flatMap(UserRepository, (userRepository) => userRepository.existsByName(body.name)),
+      userExistsByName(body.name),
       Effect.filterOrFail(
         (alreadyExists) => !alreadyExists,
         () => ServerError.conflictError(`User "${body.name}" already exists.`)
       ),
-      Effect.flatMap(() => Effect.flatMap(UserRepository, (repository) => repository.store(body.name))),
+      Effect.andThen(storeUser(body.name)),
       Effect.map(() => `User "${body.name}" stored.`)
     )),
   RouterBuilder.build,

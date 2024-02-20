@@ -34,7 +34,8 @@ const client = Client.make(api, { baseUrl: "http://localhost:3000" })
 
 const program = pipe(
   client.getUser({ query: { id: 12 } }),
-  Effect.flatMap((user) => Effect.log(`Got ${user.name}, nice!`))
+  Effect.flatMap((user) => Effect.log(`Got ${user.name}, nice!`)),
+  Effect.scoped
 )
 
 Effect.runPromise(program)
