@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.54.1
+
+### Patch Changes
+
+- [#448](https://github.com/sukovanej/effect-http/pull/448) [`549859b`](https://github.com/sukovanej/effect-http/commit/549859b06b426d1a97723c430a755e0777ae97cc) Thanks [@sukovanej](https://github.com/sukovanej)! - Update effect dependencies.
+
 ## 0.54.0
 
 ### Minor Changes
