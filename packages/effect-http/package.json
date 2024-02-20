@@ -30,7 +30,7 @@
     "coverage": "vitest --coverage"
   },
   "dependencies": {
-    "schema-openapi": "^0.31.0"
+    "schema-openapi": "^0.31.1"
   },
   "peerDependencies": {
     "@effect/platform": "^0.45.5",
