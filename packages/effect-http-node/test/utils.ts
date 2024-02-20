@@ -10,6 +10,7 @@ export const runTestEffect = <E, A>(self: Effect.Effect<A, E, Scope.Scope>) =>
     self,
     Effect.provide(setLogger),
     Logger.withMinimumLogLevel(LogLevel.All),
+    Effect.timeout(1000),
     Effect.scoped,
     Effect.runPromise
   )

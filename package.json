@@ -31,11 +31,11 @@
     "@effect/dtslint": "^0.0.4",
     "@effect/eslint-plugin": "^0.1.2",
     "@effect/language-service": "^0.1.0",
-    "@types/node": "^20.11.18",
+    "@types/node": "^20.11.19",
     "@types/swagger-ui-dist": "^3.30.4",
-    "@typescript-eslint/eslint-plugin": "^7.0.1",
-    "@typescript-eslint/parser": "^7.0.1",
-    "@vitest/coverage-v8": "^1.2.2",
+    "@typescript-eslint/eslint-plugin": "^7.0.2",
+    "@typescript-eslint/parser": "^7.0.2",
+    "@vitest/coverage-v8": "^1.3.0",
     "babel-plugin-annotate-pure-calls": "^0.4.0",
     "eslint": "^8.56.0",
     "eslint-import-resolver-typescript": "^3.6.1",
@@ -50,7 +50,7 @@
     "rimraf": "^5.0.5",
     "tsx": "^4.7.1",
     "typescript": "^5.3.3",
-    "vitest": "^1.2.2"
+    "vitest": "^1.3.0"
   },
   "pnpm": {
     "patchedDependencies": {

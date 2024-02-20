@@ -1,4 +1,5 @@
 import { HttpServer } from "@effect/platform"
+import { NodeRuntime } from "@effect/platform-node"
 import { Schema } from "@effect/schema"
 import { Effect } from "effect"
 import { Api, RouterBuilder } from "effect-http"
@@ -31,4 +32,4 @@ const program = app.pipe(
   Effect.provide(PrettyLogger.layer())
 )
 
-Effect.runPromise(program)
+NodeRuntime.runMain(program)
