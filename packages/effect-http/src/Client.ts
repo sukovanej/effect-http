@@ -120,7 +120,7 @@ type ClientFunction<Endpoint extends Api.Endpoint, I> = Record<string, never> ex
   >
 
 /** @ignore */
-type ClientSecurity<SS extends ReadonlyRecord<SecurityScheme.SecurityScheme<any>>> = keyof SS extends infer K ?
+type ClientSecurity<SS extends ReadonlyRecord<string, SecurityScheme.SecurityScheme<any>>> = keyof SS extends infer K ?
   K extends (infer securitySchemeName extends keyof SS) ?
     { [X in securitySchemeName]: Schema.Schema.To<SS[securitySchemeName]["schema"]> }
   : never

@@ -182,7 +182,7 @@ export const api: (options?: Partial<Api["options"]>) => Api<never> = internal.a
  * @since 1.0.0
  */
 export interface InputEndpointOptions<
-  Security extends ReadonlyRecord.ReadonlyRecord<SecurityScheme.SecurityScheme<any>> | undefined
+  Security extends ReadonlyRecord.ReadonlyRecord<string, SecurityScheme.SecurityScheme<any>> | undefined
 > {
   deprecated?: boolean
   description?: string
@@ -197,7 +197,7 @@ export interface InputEndpointOptions<
 export interface EndpointOptions {
   deprecated?: boolean
   description?: string
-  security: ReadonlyRecord.ReadonlyRecord<SecurityScheme.SecurityScheme<any>>
+  security: ReadonlyRecord.ReadonlyRecord<string, SecurityScheme.SecurityScheme<any>>
   summary?: string
 }
 
@@ -208,7 +208,8 @@ export interface EndpointOptions {
 type EndpointSetter = <
   const Id extends string,
   const Schemas extends InputEndpointSchemas,
-  const Security extends ReadonlyRecord.ReadonlyRecord<SecurityScheme.SecurityScheme<any>> | undefined = undefined
+  const Security extends ReadonlyRecord.ReadonlyRecord<string, SecurityScheme.SecurityScheme<any>> | undefined =
+    undefined
 >(
   id: Id,
   path: PlatformRouter.PathInput,
@@ -395,7 +396,7 @@ export type AddEndpoint<
   A extends Api | ApiGroup,
   Id extends string,
   Schemas extends InputEndpointSchemas,
-  Security extends ReadonlyRecord.ReadonlyRecord<SecurityScheme.SecurityScheme<any>> | undefined
+  Security extends ReadonlyRecord.ReadonlyRecord<string, SecurityScheme.SecurityScheme<any>> | undefined
 > = A extends Api<infer E> ? Api<E | Types.Simplify<CreateEndpointFromInput<Id, Schemas, Security>>>
   : A extends ApiGroup<infer E> ? ApiGroup<E | Types.Simplify<CreateEndpointFromInput<Id, Schemas, Security>>>
   : never
@@ -404,7 +405,7 @@ export type AddEndpoint<
 type CreateEndpointFromInput<
   Id extends string,
   Schemas extends InputEndpointSchemas,
-  Security extends ReadonlyRecord.ReadonlyRecord<SecurityScheme.SecurityScheme<any>> | undefined
+  Security extends ReadonlyRecord.ReadonlyRecord<string, SecurityScheme.SecurityScheme<any>> | undefined
 > = {
   id: Id
   schemas: CreateEndpointSchemasFromInput<Schemas>
@@ -412,7 +413,7 @@ type CreateEndpointFromInput<
   method: Method
   options: {
     groupName: string
-    security: [Security] extends [infer X extends ReadonlyRecord.ReadonlyRecord<any>] ? X : {}
+    security: [Security] extends [infer X extends ReadonlyRecord.ReadonlyRecord<string, any>] ? X : {}
     description?: string
     summary?: string
   }

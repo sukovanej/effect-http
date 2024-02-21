@@ -166,7 +166,7 @@ const createSecurityParser = (
     }))
   )
 
-  return Effect.unifiedFn((request: ServerRequest.ServerRequest) => {
+  return Unify.unify((request: ServerRequest.ServerRequest) => {
     const authResults = pipe(
       securitySchemesWithDecode,
       ReadonlyRecord.map(({ decodeEither, securityScheme }) => {

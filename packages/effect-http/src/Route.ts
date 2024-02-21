@@ -101,7 +101,7 @@ export type EndpointSecurityTo<Security extends Api.Endpoint["options"]["securit
   {
     [K in keyof Security]: Security[K] extends infer SS extends SecurityScheme.HTTPSecurityScheme<any> ? {
         token: [IsUnion<keyof Security>] extends [true]
-          ? Either.Either<ParseResult.ParseError, Schema.Schema.To<SS["schema"]>>
+          ? Either.Either<Schema.Schema.To<SS["schema"]>, ParseResult.ParseError>
           : Schema.Schema.To<SS["schema"]>
         securityScheme: SS
       } :

@@ -1,7 +1,7 @@
 import { FileSystem, HttpServer } from "@effect/platform"
 import { NodeContext } from "@effect/platform-node"
 import { Schema } from "@effect/schema"
-import { Context, Effect, pipe, Predicate, ReadonlyRecord, Secret } from "effect"
+import { Context, Effect, pipe, Predicate, ReadonlyRecord, Secret, Unify } from "effect"
 import { Api, ClientError, Representation, RouterBuilder, SecurityScheme, ServerError } from "effect-http"
 import { NodeTesting } from "effect-http-node"
 import { expect, test } from "vitest"
@@ -474,15 +474,15 @@ test("testing security - several security schemes handles as Eithers", () =>
     const app = pipe(
       RouterBuilder.make(api),
       RouterBuilder.handle("hello", (_, security) => {
-        const result = ReadonlyRecord.map(security, (authResult, name) =>
-          authResult.token.pipe(
-            Effect.unified,
-            Effect.match({
+        const result = ReadonlyRecord.map(
+          security,
+          (authResult, name) =>
+            Effect.match(Unify.unify(authResult.token), {
               onFailure: () => [name, "error"] as const,
               onSuccess: (success) =>
                 [name, typeof success === "number" ? success.toString() : Secret.value(success)] as const
             })
-          ))
+        )
 
         return Effect.all(result)
       }),

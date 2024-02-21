@@ -12,7 +12,7 @@ const getDescription = AST.getAnnotation<AST.DescriptionAnnotation>(
 
 const getTitle = AST.getAnnotation<AST.TitleAnnotation>(AST.TitleAnnotationId)
 
-const getMessage = AST.getAnnotation<AST.MessageAnnotation<unknown>>(
+const getMessage = AST.getAnnotation<AST.MessageAnnotation>(
   AST.MessageAnnotationId
 )
 
@@ -119,7 +119,7 @@ const formatParseErrors = (
         [],
         [
           getMessage(parseIssue.ast).pipe(
-            Option.map((f) => f(parseIssue.actual)),
+            Option.map((f) => f(parseIssue)),
             Option.getOrElse(() => formatAST(parseIssue.ast))
           )
         ],

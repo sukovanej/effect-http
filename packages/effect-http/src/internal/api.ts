@@ -107,7 +107,7 @@ export const endpoint = (method: Api.Method) =>
 <
   const Id extends string,
   const I extends Api.InputEndpointSchemas,
-  const Security extends ReadonlyRecord.ReadonlyRecord<SecurityScheme<any>> | undefined = undefined
+  const Security extends ReadonlyRecord.ReadonlyRecord<string, SecurityScheme<any>> | undefined = undefined
 >(
   id: Id,
   path: PlatformRouter.PathInput,
