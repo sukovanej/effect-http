@@ -4,7 +4,7 @@ import { formatParseError } from "effect-http/internal/formatParseError"
 import { apply } from "effect/Function"
 import { describe, expect, test } from "vitest"
 
-const expectError = <E>(self: Either.Either<E, unknown>): E =>
+const expectError = <E>(self: Either.Either<unknown, E>): E =>
   Either.match(self, {
     onLeft: identity,
     onRight: () => {

@@ -26,7 +26,7 @@
     "@babel/plugin-transform-modules-commonjs": "^7.23.3",
     "@changesets/changelog-github": "^0.5.0",
     "@changesets/cli": "^2.27.1",
-    "@effect/build-utils": "^0.7.4",
+    "@effect/build-utils": "^0.7.6",
     "@effect/docgen": "^0.3.8",
     "@effect/dtslint": "^0.0.4",
     "@effect/eslint-plugin": "^0.1.2",
