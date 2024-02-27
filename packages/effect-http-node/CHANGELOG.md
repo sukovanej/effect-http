@@ -1,5 +1,16 @@
 # effect-http-node
 
+## 0.4.0
+
+### Minor Changes
+
+- [#456](https://github.com/sukovanej/effect-http/pull/456) [`1cfc2f7`](https://github.com/sukovanej/effect-http/commit/1cfc2f737d5606c6670cec18a135cd6a67debd22) Thanks [@sukovanej](https://github.com/sukovanej)! - Allow to omit `response` to produce 204 No Content. Update @effect/schema.
+
+### Patch Changes
+
+- Updated dependencies [[`1cfc2f7`](https://github.com/sukovanej/effect-http/commit/1cfc2f737d5606c6670cec18a135cd6a67debd22)]:
+  - effect-http@0.56.0
+
 ## 0.3.1
 
 ### Patch Changes
