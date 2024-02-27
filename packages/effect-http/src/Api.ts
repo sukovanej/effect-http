@@ -134,6 +134,7 @@ export interface EndpointSchemas {
     | Schema.Schema<any, any, any>
     | ResponseSchemaFull
     | ReadonlyArray<ResponseSchemaFull>
+    | IgnoredSchemaId
   request: {
     query: Schema.Schema<any, any, any> | IgnoredSchemaId
     params: Schema.Schema<any, any, any> | IgnoredSchemaId
@@ -159,7 +160,7 @@ export const isApiGroup: (u: unknown) => u is ApiGroup<any> = internal.isApiGrou
  * @since 1.0.0
  */
 export interface InputEndpointSchemas {
-  response:
+  response?:
     | InputResponseSchemaFull
     | ReadonlyArray<InputResponseSchemaFull>
     | Schema.Schema<any, any>
@@ -314,7 +315,7 @@ export type IgnoredSchemaId = typeof IgnoredSchemaId
 type ResponseSchemaFromInput<S extends InputEndpointSchemas["response"]> = S extends Schema.Schema<any, any> ? S
   : S extends ReadonlyArray<InputResponseSchemaFull> ? ComputeEndpointResponseFull<S>
   : S extends InputResponseSchemaFull ? ResponseSchemaFullFromInput<S>
-  : never
+  : IgnoredSchemaId
 
 /** @ignore */
 type GetOptional<

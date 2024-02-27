@@ -13,6 +13,10 @@ export const getSchema = <A = Schema.Schema<any, any>>(
 export const createResponseSchema = (
   responseSchema: Api.Endpoint["schemas"]["response"]
 ) => {
+  if (responseSchema === IgnoredSchemaId) {
+    return undefined
+  }
+
   if (Schema.isSchema(responseSchema)) {
     return responseSchema
   }

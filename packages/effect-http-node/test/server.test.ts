@@ -5,6 +5,7 @@ import { NodeTesting } from "effect-http-node"
 import { createHash } from "node:crypto"
 import { describe, expect, test } from "vitest"
 import {
+  exampleApiEmptyResponse,
   exampleApiFullResponse,
   exampleApiGet,
   exampleApiGetCustomResponseWithHeaders,
@@ -324,4 +325,20 @@ test("single full response", async () => {
       content: 12
     }
   ])
+})
+
+test("empty response", async () => {
+  const app = pipe(
+    RouterBuilder.make(exampleApiEmptyResponse),
+    RouterBuilder.handle("test", () => Effect.unit),
+    RouterBuilder.build
+  )
+
+  const result = await pipe(
+    NodeTesting.make(app, exampleApiEmptyResponse),
+    Effect.flatMap((client) => client.test({ body: "test" })),
+    runTestEffect
+  )
+
+  expect(result).toBe(undefined)
 })

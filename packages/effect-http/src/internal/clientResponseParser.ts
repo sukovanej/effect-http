@@ -22,7 +22,9 @@ const make = (
 export const create = (
   responseSchema: Api.EndpointSchemas["response"]
 ): ClientResponseParser => {
-  if (Schema.isSchema(responseSchema)) {
+  if (responseSchema === Api.IgnoredSchemaId) {
+    return make(() => Effect.unit)
+  } else if (Schema.isSchema(responseSchema)) {
     return fromSchema(responseSchema as Schema.Schema<any, any, never>)
   } else if (Array.isArray(responseSchema)) {
     return fromResponseSchemaFullArray(responseSchema)
