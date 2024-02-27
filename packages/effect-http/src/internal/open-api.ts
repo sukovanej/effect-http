@@ -21,7 +21,11 @@ export const make = (
 
         const responseSchema = schemas.response
 
-        if (Schema.isSchema(responseSchema)) {
+        if (responseSchema === Api.IgnoredSchemaId) {
+          operationSpec.push(
+            OpenApi.noContentResponse("No response")
+          )
+        } else if (Schema.isSchema(responseSchema)) {
           operationSpec.push(
             OpenApi.jsonResponse(
               200,

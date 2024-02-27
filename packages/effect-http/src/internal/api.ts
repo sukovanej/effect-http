@@ -30,9 +30,11 @@ const createSchemasFromInput = <I extends Api.InputEndpointSchemas>({
   request,
   response
 }: I): Api.CreateEndpointSchemasFromInput<I> => (({
-  response: Schema.isSchema(response)
-    ? response
-    : composeResponseSchema(Array.isArray(response) ? response : [response]),
+  response: response === undefined
+    ? IgnoredSchemaId :
+    Schema.isSchema(response)
+    ? response :
+    composeResponseSchema(Array.isArray(response) ? response : [response]),
 
   request: {
     query: request?.query ?? IgnoredSchemaId,

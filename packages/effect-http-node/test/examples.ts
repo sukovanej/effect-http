@@ -255,3 +255,7 @@ export const exampleApiRepresentations = Api.api().pipe(
     }
   })
 )
+
+export const exampleApiEmptyResponse = Api.api().pipe(
+  Api.post("test", "/test", { request: { body: Schema.string } })
+)

@@ -28,7 +28,9 @@ const make = (
 export const create = (
   responseSchema: Api.EndpointSchemas["response"]
 ): ServerResponseEncoder => {
-  if (Schema.isSchema(responseSchema)) {
+  if (responseSchema === Api.IgnoredSchemaId) {
+    return make(() => ServerResponse.empty())
+  } else if (Schema.isSchema(responseSchema)) {
     return fromSchema(responseSchema as Schema.Schema<any, any, never>)
   } else if (Array.isArray(responseSchema)) {
     return fromResponseSchemaFullArray(responseSchema)

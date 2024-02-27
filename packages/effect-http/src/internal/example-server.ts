@@ -59,7 +59,7 @@ const createExampleHandler = ({ schemas }: Api.Endpoint) => {
 
   return () =>
     pipe(
-      ExampleCompiler.randomExample(responseSchema),
+      responseSchema && ExampleCompiler.randomExample(responseSchema) || Effect.unit,
       Effect.mapError((error) =>
         ServerError.internalServerError(
           `Sorry, I don't have any example response. ${JSON.stringify(error)}`

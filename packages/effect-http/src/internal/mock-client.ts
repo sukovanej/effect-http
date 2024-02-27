@@ -24,11 +24,15 @@ export const make = <Endpoints extends Api.Endpoint>(
     const fn = (args: unknown, security: unknown) => {
       return pipe(
         requestEncoder.encodeRequest(args, security),
-        Effect.flatMap(() =>
-          customResponse !== undefined
-            ? Effect.succeed(customResponse)
-            : ExampleCompiler.randomExample(responseSchema)
-        )
+        Effect.flatMap(() => {
+          if (customResponse !== undefined) {
+            return Effect.succeed(customResponse)
+          } else if (responseSchema === undefined) {
+            return Effect.unit
+          }
+
+          return ExampleCompiler.randomExample(responseSchema)
+        })
       )
     }
 
