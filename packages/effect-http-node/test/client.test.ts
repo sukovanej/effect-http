@@ -1,9 +1,10 @@
+import { HttpServer } from "@effect/platform"
 import { Schema } from "@effect/schema"
 import { Cause, Duration, Effect, Exit, Fiber, pipe } from "effect"
 import { Api, ClientError, ExampleServer, RouterBuilder } from "effect-http"
 import { NodeTesting } from "effect-http-node"
 import { expect, test, vi } from "vitest"
-import { exampleApiGetQueryParameter } from "./examples.js"
+import { exampleApiEmptyResponse, exampleApiGetQueryParameter } from "./examples.js"
 import { runTestEffect } from "./utils.js"
 
 test("quickstart example e2e", () =>
@@ -204,4 +205,20 @@ test("validation error", () =>
         "Failed to encode query parameters. country must be a string matching the pattern ^[A-Z]{2}$, received \"abc\""
       )
     )
+  }).pipe(runTestEffect))
+
+test("no-content client non-2xx response", () =>
+  Effect.gen(function*(_) {
+    const app = HttpServer.router.empty.pipe(
+      HttpServer.router.post("/test", HttpServer.response.text("validation error", { status: 400 }))
+    )
+
+    const result = yield* _(
+      NodeTesting.make(app, exampleApiEmptyResponse),
+      Effect.flatMap((client) => client.test({ body: "abc" })),
+      Effect.flip
+    )
+
+    expect(result.status).toEqual(400)
+    expect(result.message).toEqual("validation error")
   }).pipe(runTestEffect))
