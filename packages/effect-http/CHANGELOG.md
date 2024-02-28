@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.56.1
+
+### Patch Changes
+
+- [#459](https://github.com/sukovanej/effect-http/pull/459) [`1635286`](https://github.com/sukovanej/effect-http/commit/1635286cfd54c3e2ace8dd86d7f2f9687740760e) Thanks [@sukovanej](https://github.com/sukovanej)! - Fix client handling of non-2xx response with not specified response.
+
 ## 0.56.0
 
 ### Minor Changes
