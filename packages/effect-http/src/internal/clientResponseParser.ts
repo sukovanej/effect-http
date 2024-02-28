@@ -23,7 +23,7 @@ export const create = (
   responseSchema: Api.EndpointSchemas["response"]
 ): ClientResponseParser => {
   if (responseSchema === Api.IgnoredSchemaId) {
-    return make(() => Effect.unit)
+    return make(handleUnsucessful)
   } else if (Schema.isSchema(responseSchema)) {
     return fromSchema(responseSchema as Schema.Schema<any, any, never>)
   } else if (Array.isArray(responseSchema)) {
