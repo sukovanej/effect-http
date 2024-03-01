@@ -34,6 +34,7 @@ export interface RouterBuilder<R, E, RemainingEndpoints extends Api.Endpoint> ex
 export interface Options {
   parseOptions: AST.ParseOptions
   enableDocs: boolean
+  docsPath: `/${string}`
 }
 
 /**
