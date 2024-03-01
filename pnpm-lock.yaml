@@ -110,8 +110,8 @@ importers:
   packages/effect-http:
     dependencies:
       schema-openapi:
-        specifier: ^0.32.0
-        version: 0.32.0(@effect/schema@0.63.2)(effect@2.4.1)
+        specifier: ^0.32.1
+        version: 0.32.1(@effect/schema@0.63.2)(effect@2.4.1)
     devDependencies:
       '@effect/platform':
         specifier: ^0.46.3
@@ -152,8 +152,8 @@ importers:
         specifier: workspace:^
         version: link:../effect-http/dist
       effect-log:
-        specifier: ^0.30.2
-        version: 0.30.2(effect@2.4.1)
+        specifier: ^0.30.3
+        version: 0.30.3(effect@2.4.1)
     publishDirectory: dist
 
 packages:
@@ -2572,10 +2572,10 @@ packages:
     resolution: {integrity: sha512-I88TYZWc9XiYHRQ4/3c5rjjfgkjhLyW2luGIheGERbNQ6OY7yTybanSpDXZa8y7VUP9YmDcYa+eyq4ca7iLqWA==}
     dev: true
 
-  /effect-log@0.30.2(effect@2.4.1):
-    resolution: {integrity: sha512-p37UYMkPL+adEhj2LHPeziiJ1N1hBUt3aoPxuVReZOvJD5989UmB+L3PyMjY1EYofX+YozF4y1qwmHJII9oUxw==}
+  /effect-log@0.30.3(effect@2.4.1):
+    resolution: {integrity: sha512-g2o4agqgXQDlMThsC6sADX16QM88m6BKWi8NFr0JhYlgRoMlLM1wKAOGY6fTdm1LR8OtcDL6lDQaY3l0IyvbtQ==}
     peerDependencies:
-      effect: ^2.4.0
+      effect: ^2.4.1
     dependencies:
       effect: 2.4.1
     dev: true
@@ -5280,11 +5280,11 @@ packages:
       commander: 2.20.3
     dev: true
 
-  /schema-openapi@0.32.0(@effect/schema@0.63.2)(effect@2.4.1):
-    resolution: {integrity: sha512-bRGTw1822sVK3COG4RFQbvdgZQOKNRIs7rJS1eQOIjWhBbrmYXj1+C2kpOAShlhQ6QGh2tuEjyVdOPr7nu89Mw==}
+  /schema-openapi@0.32.1(@effect/schema@0.63.2)(effect@2.4.1):
+    resolution: {integrity: sha512-ZJJFln8Kz1VaDl0Eyg+6L8rO4j3+rgXJlMnTDc8BElls5HRZjE0JtSvTiyTVrMiRVFACmR9v4QQQb9bpxng6IA==}
     peerDependencies:
-      '@effect/schema': ^0.63.1
-      effect: ^2.4.0
+      '@effect/schema': ^0.63.2
+      effect: ^2.4.1
     dependencies:
       '@effect/schema': 0.63.2(effect@2.4.1)(fast-check@3.15.1)
       effect: 2.4.1
