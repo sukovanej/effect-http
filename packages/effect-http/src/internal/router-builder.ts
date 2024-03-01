@@ -44,10 +44,7 @@ export const handleRaw = <
 <R1, E1>(
   builder: RouterBuilder.RouterBuilder<R1, E1, RemainingEndpoints>
 ): RouterBuilder.RouterBuilder<
-  Exclude<
-    R1 | R2,
-    Router.RouteContext | ServerRequest.ServerRequest | Scope.Scope
-  >,
+  R1 | Exclude<R2, Router.RouteContext | ServerRequest.ServerRequest | Scope.Scope>,
   E1 | E2,
   Exclude<RemainingEndpoints, { id: Id }>
 > => {
