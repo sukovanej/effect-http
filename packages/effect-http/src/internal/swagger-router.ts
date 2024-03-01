@@ -4,7 +4,7 @@
  * @since 1.0.0
  */
 import { HttpServer } from "@effect/platform"
-import { Context, Effect, Option } from "effect"
+import { Context, Effect, pipe, ReadonlyArray } from "effect"
 import type * as SwaggerRouter from "../SwaggerRouter.js"
 
 /** @internal */
@@ -92,22 +92,39 @@ const serverStaticDocsFile = (filename: string, path?: HttpServer.router.PathInp
   )
 }
 
+const calculatePrefix = Effect.gen(function*(_) {
+  const request = yield* _(HttpServer.request.ServerRequest)
+
+  const url = request.originalUrl
+
+  const parts = url.split("/")
+
+  if (!ReadonlyArray.isNonEmptyArray(parts)) {
+    return ""
+  }
+
+  const last = parts[parts.length - 1]
+
+  if (last.includes(".")) {
+    return pipe(ReadonlyArray.initNonEmpty(parts), ReadonlyArray.join("/"))
+  }
+
+  return url
+})
+
 /**
  * @category constructors
  * @since 1.0.0
  */
 export const make = (spec: unknown) => {
-  const basePath = "/docs"
-
   let router = SWAGGER_FILE_NAMES.reduce(
-    (router, swaggerFileName) => router.pipe(serverStaticDocsFile(swaggerFileName, `${basePath}/${swaggerFileName}`)),
+    (router, swaggerFileName) => router.pipe(serverStaticDocsFile(swaggerFileName, `/${swaggerFileName}`)),
     HttpServer.router.empty as HttpServer.router.Router<SwaggerRouter.SwaggerFiles, never>
   )
 
   const serveIndex = Effect.gen(function*(_) {
-    const context = yield* _(HttpServer.router.RouteContext)
-    const prefix = Option.getOrElse(context.route.prefix, () => "")
-    const index = createIndex(`${prefix}${basePath}`)
+    const prefix = yield* _(calculatePrefix)
+    const index = createIndex(prefix)
     return HttpServer.response.text(index, {
       headers: HttpServer.headers.fromInput({
         "content-type": "text/html"
@@ -116,9 +133,8 @@ export const make = (spec: unknown) => {
   })
 
   const serveSwaggerInitializer = Effect.gen(function*(_) {
-    const context = yield* _(HttpServer.router.RouteContext)
-    const prefix = Option.getOrElse(context.route.prefix, () => "")
-    const swaggerInitialiser = createSwaggerInitializer(`${prefix}${basePath}/openapi.json`)
+    const prefix = yield* _(calculatePrefix)
+    const swaggerInitialiser = createSwaggerInitializer(`${prefix}/openapi.json`)
     return HttpServer.response.text(swaggerInitialiser, {
       headers: HttpServer.headers.fromInput({
         "content-type": "application/javascript"
@@ -127,10 +143,10 @@ export const make = (spec: unknown) => {
   })
 
   router = router.pipe(
-    HttpServer.router.get(`${basePath}`, serveIndex),
-    HttpServer.router.get(`${basePath}/index.html`, serveIndex),
-    HttpServer.router.get(`${basePath}/openapi.json`, Effect.orDie(HttpServer.response.json(spec))),
-    HttpServer.router.get(`${basePath}/swagger-initializer.js`, serveSwaggerInitializer)
+    HttpServer.router.get(`/`, serveIndex),
+    HttpServer.router.get(`/index.html`, serveIndex),
+    HttpServer.router.get(`/openapi.json`, Effect.orDie(HttpServer.response.json(spec))),
+    HttpServer.router.get(`/swagger-initializer.js`, serveSwaggerInitializer)
   )
 
   return router

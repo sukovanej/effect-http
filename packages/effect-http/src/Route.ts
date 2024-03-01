@@ -36,7 +36,7 @@ export type HandlerFunction<Endpoint extends Api.Endpoint, R, E> = (
  */
 export const fromEndpoint: <Endpoint extends Api.Endpoint, R, E>(
   fn: HandlerFunction<Endpoint, R, E>,
-  options?: RouterBuilder.Options
+  options?: Partial<RouterBuilder.Options>
 ) => (
   endpoint: Endpoint
 ) => Router.Route<R, Exclude<E, ServerError.ServerError>> = internal.fromEndpoint
@@ -53,7 +53,7 @@ export const make: <
 >(
   id: Id,
   fn: HandlerFunction<Extract<A["groups"][number]["endpoints"][number], { id: Id }>, R, E>,
-  options?: RouterBuilder.Options
+  options?: Partial<RouterBuilder.Options>
 ) => (api: A) => Router.Route<R, Exclude<E, ServerError.ServerError>> = internal.make
 
 /** @ignore */

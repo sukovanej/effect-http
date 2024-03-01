@@ -14,7 +14,8 @@ import * as utils from "./utils.js"
 
 const DEFAULT_OPTIONS: RouterBuilder.Options = {
   parseOptions: { errors: "first", onExcessProperty: "ignore" },
-  enableDocs: true
+  enableDocs: true,
+  docsPath: "/docs"
 }
 
 export const make = <A extends Api.Api>(
@@ -130,7 +131,7 @@ export const buildPartial = <R, E, RemainingEndpoints extends Api.Endpoint>(
   builder: RouterBuilder.RouterBuilder<R, E, RemainingEndpoints>
 ): App.Default<R | SwaggerRouter.SwaggerFiles, E> => {
   const swaggerRouter = builder.options.enableDocs ? SwaggerRouter.make(OpenApi.make(builder.api)) : Router.empty
-  return Router.concat(builder.router, swaggerRouter).pipe(
+  return Router.mount(builder.router, builder.options.docsPath, swaggerRouter).pipe(
     Effect.catchTag("RouteNotFound", () => ServerError.toServerResponse(ServerError.make(404, "Not Found")))
   )
 }

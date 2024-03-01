@@ -15,12 +15,12 @@ import * as ServerResponseEncoder from "./serverResponseEncoder.js"
  */
 export const fromEndpoint: <Endpoint extends Api.Endpoint, R, E>(
   fn: Route.HandlerFunction<Endpoint, R, E>,
-  options?: RouterBuilder.Options
+  options?: Partial<RouterBuilder.Options>
 ) => (
   endpoint: Endpoint
 ) => Router.Route<R, Exclude<E, ServerError.ServerError>> = <Endpoint extends Api.Endpoint, R, E>(
   fn: Route.HandlerFunction<Endpoint, R, E>,
-  options?: RouterBuilder.Options
+  options?: Partial<RouterBuilder.Options>
 ) =>
 (endpoint) => {
   const responseEncoder = ServerResponseEncoder.create(
@@ -69,7 +69,7 @@ export const make: <
 >(
   id: Id,
   fn: Route.HandlerFunction<Extract<A["groups"][number]["endpoints"][number], { id: Id }>, R, E>,
-  options?: RouterBuilder.Options
+  options?: Partial<RouterBuilder.Options>
 ) => (api: A) => Router.Route<R, Exclude<E, ServerError.ServerError>> = (id, fn, options) => (api) => {
   const endpoint = Api.getEndpoint(api, id)
 
