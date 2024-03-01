@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.57.0
+
+### Minor Changes
+
+- [#461](https://github.com/sukovanej/effect-http/pull/461) [`8f4788a`](https://github.com/sukovanej/effect-http/commit/8f4788a7e497cdfa5a3f20828e48c26db523c123) Thanks [@sukovanej](https://github.com/sukovanej)! - Added `docsPath` option to `RouterBuilder.Options`. The standalone `SwaggerRouter` now serves files from `/` instead of `/docs` and it is expected the user-land code will mount the router. Fixed SwaggerRouter prefix path resolving - now it works with both `HttpServer.router.mount` and `HttpServer.router.mountApp`.
+
 ## 0.56.1
 
 ### Patch Changes
