@@ -1,5 +1,16 @@
 # effect-http-node
 
+## 0.5.3
+
+### Patch Changes
+
+- [#469](https://github.com/sukovanej/effect-http/pull/469) [`0d5e2fc`](https://github.com/sukovanej/effect-http/commit/0d5e2fcac69b0440559c8259b78735b3bc3284c2) Thanks [@sukovanej](https://github.com/sukovanej)! - Update dependencies.
+
+- [#469](https://github.com/sukovanej/effect-http/pull/469) [`0d5e2fc`](https://github.com/sukovanej/effect-http/commit/0d5e2fcac69b0440559c8259b78735b3bc3284c2) Thanks [@sukovanej](https://github.com/sukovanej)! - Update namespace imports internally.
+
+- Updated dependencies [[`0d5e2fc`](https://github.com/sukovanej/effect-http/commit/0d5e2fcac69b0440559c8259b78735b3bc3284c2), [`0d5e2fc`](https://github.com/sukovanej/effect-http/commit/0d5e2fcac69b0440559c8259b78735b3bc3284c2)]:
+  - effect-http@0.57.3
+
 ## 0.5.2
 
 ### Patch Changes
