@@ -1,6 +1,6 @@
 import { Schema } from "@effect/schema"
-import { pipe } from "effect"
 import { Api } from "effect-http"
+import { pipe } from "effect/Function"
 import { expect, test } from "vitest"
 import { simpleApi1 } from "./example-apis.js"
 

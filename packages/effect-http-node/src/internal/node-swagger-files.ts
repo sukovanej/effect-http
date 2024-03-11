@@ -1,6 +1,9 @@
-import { FileSystem, Path } from "@effect/platform"
-import { Effect, Layer, ReadonlyRecord } from "effect"
-import { SwaggerRouter } from "effect-http"
+import * as FileSystem from "@effect/platform/FileSystem"
+import * as Path from "@effect/platform/Path"
+import * as SwaggerRouter from "effect-http/SwaggerRouter"
+import * as Effect from "effect/Effect"
+import * as Layer from "effect/Layer"
+import * as ReadonlyRecord from "effect/ReadonlyRecord"
 import { getAbsoluteFSPath } from "swagger-ui-dist"
 
 /** @internal */

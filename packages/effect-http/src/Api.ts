@@ -10,9 +10,9 @@
  */
 import type * as PlatformRouter from "@effect/platform/Http/Router"
 import type * as Schema from "@effect/schema/Schema"
-import type { ReadonlyRecord } from "effect"
 import type * as Pipeable from "effect/Pipeable"
 import type * as ReadonlyArray from "effect/ReadonlyArray"
+import type * as ReadonlyRecord from "effect/ReadonlyRecord"
 import type * as Types from "effect/Types"
 import type { OpenApiTypes } from "schema-openapi"
 

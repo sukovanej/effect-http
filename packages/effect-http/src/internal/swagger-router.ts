@@ -3,8 +3,11 @@
  *
  * @since 1.0.0
  */
-import { HttpServer } from "@effect/platform"
-import { Context, Effect, pipe, ReadonlyArray } from "effect"
+import * as HttpServer from "@effect/platform/HttpServer"
+import * as Context from "effect/Context"
+import * as Effect from "effect/Effect"
+import { pipe } from "effect/Function"
+import * as ReadonlyArray from "effect/ReadonlyArray"
 import type * as SwaggerRouter from "../SwaggerRouter.js"
 
 /** @internal */

@@ -3,11 +3,12 @@
  *
  * @since 1.0.0
  */
-import type { Effect, Scope } from "effect"
+import type * as Effect from "effect/Effect"
+import type * as Scope from "effect/Scope"
 
-import type { HttpServer } from "@effect/platform"
-import type { NodeContext } from "@effect/platform-node"
-import type { SwaggerRouter } from "effect-http"
+import type * as NodeContext from "@effect/platform-node/NodeContext"
+import type * as HttpServer from "@effect/platform/HttpServer"
+import type * as SwaggerRouter from "effect-http/SwaggerRouter"
 import * as internal from "./internal/node-server.js"
 
 /**
