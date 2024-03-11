@@ -3,8 +3,8 @@
  *
  * @since 1.0.0
  */
-import type { HttpServer } from "@effect/platform"
-import type { Context } from "effect"
+import type * as HttpServer from "@effect/platform/HttpServer"
+import type * as Context from "effect/Context"
 
 import * as internal from "./internal/swagger-router.js"
 

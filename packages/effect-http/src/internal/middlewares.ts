@@ -4,10 +4,10 @@
  * @since 1.0.0
  */
 
-import { HttpServer } from "@effect/platform"
-import { Encoding } from "effect"
+import * as HttpServer from "@effect/platform/HttpServer"
 import * as Effect from "effect/Effect"
 import * as Either from "effect/Either"
+import * as Encoding from "effect/Encoding"
 import * as FiberRef from "effect/FiberRef"
 import { pipe } from "effect/Function"
 import * as HashMap from "effect/HashMap"

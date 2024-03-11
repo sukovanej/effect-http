@@ -5,10 +5,11 @@
  *
  * @since 1.0.0
  */
-import { type HttpClient } from "@effect/platform"
-import { type Schema } from "@effect/schema"
-import type { Effect, Types } from "effect"
-import { type ReadonlyRecord } from "effect/ReadonlyRecord"
+import type * as HttpClient from "@effect/platform/HttpClient"
+import type * as Schema from "@effect/schema/Schema"
+import type * as Effect from "effect/Effect"
+import type * as ReadonlyRecord from "effect/ReadonlyRecord"
+import type * as Types from "effect/Types"
 
 import type * as Api from "./Api.js"
 import type * as ClientError from "./ClientError.js"
@@ -121,8 +122,9 @@ type ClientFunction<Endpoint extends Api.Endpoint, I> = Record<string, never> ex
   >
 
 /** @ignore */
-type ClientSecurity<SS extends ReadonlyRecord<string, SecurityScheme.SecurityScheme<any>>> = keyof SS extends infer K ?
-  K extends (infer securitySchemeName extends keyof SS) ?
-    { [X in securitySchemeName]: Schema.Schema.To<SS[securitySchemeName]["schema"]> }
-  : never
-  : never
+type ClientSecurity<SS extends ReadonlyRecord.ReadonlyRecord<string, SecurityScheme.SecurityScheme<any>>> =
+  keyof SS extends infer K ?
+    K extends (infer securitySchemeName extends keyof SS) ?
+      { [X in securitySchemeName]: Schema.Schema.To<SS[securitySchemeName]["schema"]> }
+    : never
+    : never
