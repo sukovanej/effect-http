@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.58.0
+
+### Minor Changes
+
+- [#472](https://github.com/sukovanej/effect-http/pull/472) [`dadfb8c`](https://github.com/sukovanej/effect-http/commit/dadfb8c475e884b0b8947fa390f9545eb5703941) Thanks [@sukovanej](https://github.com/sukovanej)! - Update effect.
+
 ## 0.57.3
 
 ### Patch Changes
