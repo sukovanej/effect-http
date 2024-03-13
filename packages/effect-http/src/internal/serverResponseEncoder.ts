@@ -189,6 +189,6 @@ const FullResponseInput = Schema.struct({
   headers: Schema.optional(Schema.record(Schema.string, Schema.unknown)),
   status: Schema.number
 })
-type FullResponseInput = Schema.Schema.To<typeof FullResponseInput>
+type FullResponseInput = Schema.Schema.Type<typeof FullResponseInput>
 
 const parseFullResponseInput = Schema.decodeUnknown(FullResponseInput)

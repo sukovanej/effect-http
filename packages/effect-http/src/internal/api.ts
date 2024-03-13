@@ -1,4 +1,5 @@
 import type * as PlatformRouter from "@effect/platform/Http/Router"
+import * as AST from "@effect/schema/AST"
 import * as Schema from "@effect/schema/Schema"
 import * as Equivalence from "effect/Equivalence"
 import { pipe } from "effect/Function"
@@ -61,7 +62,7 @@ const arrayOfTupleEquals = ReadonlyArray.getEquivalence(tupleEquivalence)
 const getSchemaPropertySignatures = (schema: Schema.Schema<any, any>) => {
   let ast = schema.ast
 
-  if (ast._tag === "Transform") {
+  if (ast._tag === "Transformation") {
     ast = ast.from
   }
 
@@ -189,10 +190,10 @@ export const fieldsToLowerCase = (s: Schema.Schema<any, any, any>) => {
       throw new Error(`Expected string property key`)
     }
 
-    return { ...ps, name: ps.name.toLowerCase() }
+    return new AST.PropertySignature(ps.name.toLowerCase(), ps.type, ps.isOptional, ps.isReadonly, ps.annotations)
   })
 
-  return Schema.make({ ...ast, propertySignatures: newPropertySignatures })
+  return Schema.make(new AST.TypeLiteral(newPropertySignatures, ast.indexSignatures, ast.annotations))
 }
 
 /** @internal */
