@@ -1,5 +1,6 @@
 import * as AST from "@effect/schema/AST"
 import type * as ParseResult from "@effect/schema/ParseResult"
+import { Effect } from "effect"
 import * as Equivalence from "effect/Equivalence"
 import { pipe } from "effect/Function"
 import * as Option from "effect/Option"
@@ -119,7 +120,15 @@ const formatParseErrors = (
         [],
         [
           getMessage(parseIssue.ast).pipe(
-            Option.map((f) => f(parseIssue)),
+            Option.flatMap((f) => {
+              const msg = f(parseIssue)
+
+              if (Effect.isEffect(msg)) {
+                return Option.none()
+              }
+
+              return Option.some(msg)
+            }),
             Option.getOrElse(() => formatAST(parseIssue.ast))
           )
         ],
@@ -127,7 +136,7 @@ const formatParseErrors = (
         Option.getOrUndefined(parseIssue.message)
       )
     ]
-  } else if (parseIssue._tag === "Tuple") {
+  } else if (parseIssue._tag === "TupleType") {
     return parseIssue.errors.flatMap((error) => {
       if (error.error._tag === "Missing") {
         return [{ _tag: "Missing", position: [error.index] }]

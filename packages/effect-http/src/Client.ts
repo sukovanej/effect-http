@@ -125,6 +125,6 @@ type ClientFunction<Endpoint extends Api.Endpoint, I> = Record<string, never> ex
 type ClientSecurity<SS extends ReadonlyRecord.ReadonlyRecord<string, SecurityScheme.SecurityScheme<any>>> =
   keyof SS extends infer K ?
     K extends (infer securitySchemeName extends keyof SS) ?
-      { [X in securitySchemeName]: Schema.Schema.To<SS[securitySchemeName]["schema"]> }
+      { [X in securitySchemeName]: Schema.Schema.Type<SS[securitySchemeName]["schema"]> }
     : never
     : never

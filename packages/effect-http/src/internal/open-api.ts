@@ -194,7 +194,7 @@ const getPropertySignatures = (
   openApiType: "query" | "header" | "path",
   ast: AST.AST
 ): ReadonlyArray<AST.PropertySignature> => {
-  if (ast._tag === "Transform") {
+  if (ast._tag === "Transformation") {
     return getPropertySignatures(openApiType, ast.from)
   }
 
@@ -217,9 +217,9 @@ const getPropertySignatures = (
       ReadonlyRecord.toEntries,
       ReadonlyArray.map(([_, ps]) => {
         const [first, ...rest] = ps
-        return AST.createPropertySignature(
+        return new AST.PropertySignature(
           first.name,
-          AST.createUnion(ps.map((ps) => ps.type)),
+          AST.Union.make(ps.map((ps) => ps.type)),
           !requiredPropertyNamesInUnions.every((names) => names.includes(first.name)),
           rest.reduce((acc, cur) => acc || cur.isReadonly, first.isReadonly),
           first.annotations
@@ -257,7 +257,7 @@ const createParameterSetters = (
 const createResponseHeadersSchemaMap = (schema: Schema.Schema<any, any>) => {
   let ast = schema.ast
 
-  if (ast._tag === "Transform") {
+  if (ast._tag === "Transformation") {
     ast = ast.from
   }
 
