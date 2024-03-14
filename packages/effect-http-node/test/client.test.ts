@@ -170,20 +170,18 @@ test("supports interruption", () =>
       RouterBuilder.build
     )
 
+    const client = yield* _(NodeTesting.make(app, api))
+
     const result = yield* _(
-      NodeTesting.make(app, api),
-      Effect.flatMap((client) =>
-        Effect.gen(function*($) {
-          const request = yield* $(Effect.fork(client.getUser()))
-          const result = yield $(Fiber.interrupt(request))
-          return result
-        })
-      )
+      Effect.fork(client.getUser()),
+      Effect.flatMap(Fiber.interrupt)
     )
 
+    const cause = yield* _(Exit.causeOption(result))
+
     expect(Exit.isFailure(result)).toEqual(true)
-    expect(Cause.isInterruptedOnly(result.i0)).toEqual(true)
     expect(generateName).not.toHaveBeenCalled()
+    expect(Cause.isInterruptedOnly(cause)).toEqual(true)
   }).pipe(runTestEffect))
 
 test("validation error", () =>
