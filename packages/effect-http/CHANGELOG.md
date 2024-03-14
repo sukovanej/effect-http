@@ -1,5 +1,13 @@
 # effect-http
 
+## 0.58.1
+
+### Patch Changes
+
+- [#474](https://github.com/sukovanej/effect-http/pull/474) [`40b4374`](https://github.com/sukovanej/effect-http/commit/40b4374e8e2295a0c7122c263989d9aef4558e57) Thanks [@sukovanej](https://github.com/sukovanej)! - Update schema-openapi.
+
+- [#474](https://github.com/sukovanej/effect-http/pull/474) [`40b4374`](https://github.com/sukovanej/effect-http/commit/40b4374e8e2295a0c7122c263989d9aef4558e57) Thanks [@sukovanej](https://github.com/sukovanej)! - Update effect.
+
 ## 0.58.0
 
 ### Minor Changes
