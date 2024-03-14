@@ -110,8 +110,8 @@ importers:
   packages/effect-http:
     dependencies:
       schema-openapi:
-        specifier: ^0.33.2
-        version: 0.33.2(@effect/schema@0.64.2)(effect@2.4.6)
+        specifier: ^0.33.3
+        version: 0.33.3(@effect/schema@0.64.2)(effect@2.4.6)
     devDependencies:
       '@effect/platform':
         specifier: ^0.48.3
@@ -5301,8 +5301,8 @@ packages:
       commander: 2.20.3
     dev: true
 
-  /schema-openapi@0.33.2(@effect/schema@0.64.2)(effect@2.4.6):
-    resolution: {integrity: sha512-98/FHFnph9n3HFcsyKER94sTbkbBLTywPbUpqecqgwoKM6f6z9aiKvFZODEPr1kHJ7h7M72X102hInANczT7Zg==}
+  /schema-openapi@0.33.3(@effect/schema@0.64.2)(effect@2.4.6):
+    resolution: {integrity: sha512-+RmJ2zyk89WMpOTD3xouLWq6degKCL3GJpsdjKD9DNjIHmWOohw0PaxQECu+ml+5kqDKDEdK7jt8e2UByB4ehA==}
     peerDependencies:
       '@effect/schema': ^0.64.1
       effect: ^2.4.5
