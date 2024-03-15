@@ -1,5 +1,15 @@
 # effect-http
 
+## 0.58.2
+
+### Patch Changes
+
+- [#476](https://github.com/sukovanej/effect-http/pull/476) [`d1d2f8c`](https://github.com/sukovanej/effect-http/commit/d1d2f8cce80bdafa44c4346dc60e428fd8727ea0) Thanks [@KhraksMamtsov](https://github.com/KhraksMamtsov)! - filter out non 100-299 statuses from success channel
+
+- [#477](https://github.com/sukovanej/effect-http/pull/477) [`f7c3b10`](https://github.com/sukovanej/effect-http/commit/f7c3b101b7889f02ac44127655e37b06de2aa87c) Thanks [@KhraksMamtsov](https://github.com/KhraksMamtsov)! - split the ClientError into a union with two members
+
+- [#479](https://github.com/sukovanej/effect-http/pull/479) [`2a5220b`](https://github.com/sukovanej/effect-http/commit/2a5220b0b584b1e9a411e363778d8ba0c01fe310) Thanks [@sukovanej](https://github.com/sukovanej)! - Update effect.
+
 ## 0.58.1
 
 ### Patch Changes
