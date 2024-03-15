@@ -217,6 +217,10 @@ test("no-content client non-2xx response", () =>
       Effect.flip
     )
 
-    expect(result.status).toEqual(400)
+    expect(result.side).toEqual("server")
+
+    if (result.side === "server") {
+      expect(result.status).toEqual(400)
+    }
     expect(result.message).toEqual("validation error")
   }).pipe(runTestEffect))

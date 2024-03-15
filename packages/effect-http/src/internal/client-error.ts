@@ -3,43 +3,49 @@ import * as Data from "effect/Data"
 import type * as ClientError from "../ClientError.js"
 import { formatParseError } from "./formatParseError.js"
 
-export class ClientErrorImpl extends Data.TaggedError("ClientError")<{
+export class ClientErrorServerSideImpl<S extends number> extends Data.TaggedError("ClientError")<{
   message: string
   error: unknown
-  status?: number
-  side: "client" | "server"
-}> implements ClientError.ClientError {}
+  status: S
+  side: "server"
+}> implements ClientError.ClientErrorServerSide {}
+
+export class ClientErrorClientSideImpl extends Data.TaggedError("ClientError")<{
+  message: string
+  error: unknown
+  side: "client"
+}> implements ClientError.ClientErrorClientSide {}
 
 export const makeClientSide = (error: unknown, message?: string) => {
-  return new ClientErrorImpl({
+  return new ClientErrorClientSideImpl({
     message: message ?? (typeof error === "string" ? error : JSON.stringify(error)),
     error,
     side: "client"
   })
 }
 
-export const makeServerSide = (
+export const makeServerSide = <S extends number>(
   error: unknown,
-  status: number,
+  status: S,
   message?: string
 ) => {
-  return new ClientErrorImpl({
+  return new ClientErrorServerSideImpl<S>({
     message: message ?? (typeof error === "string" ? error : JSON.stringify(error)),
     error,
     status,
-    side: "client"
+    side: "server"
   })
 }
 
 export const makeClientSideRequestValidation = (location: string) => (error: ParseResult.ParseError) =>
-  new ClientErrorImpl({
+  new ClientErrorClientSideImpl({
     message: `Failed to encode ${location}. ${formatParseError(error)}`,
     error,
     side: "client"
   })
 
 export const makeClientSideResponseValidation = (location: string) => (error: ParseResult.ParseError) =>
-  new ClientErrorImpl({
+  new ClientErrorClientSideImpl({
     message: `Failed to validate response ${location}. ${
       formatParseError(
         error
