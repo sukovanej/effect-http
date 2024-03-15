@@ -64,19 +64,19 @@ type EndpointResponseSchemaTo<S> = S extends Api.IgnoredSchemaId ? void :
   : never
 
 /** @ignore */
-export type ResponseSchemaFullTo<S extends Api.ResponseSchemaFull> = S extends any ? Types.Simplify<
-    & {
-      status: S["status"]
-    }
-    & {
-      [
-        K in Exclude<
-          RequiredFields<S>,
-          "status" | "representations"
-        >
-      ]: S[K] extends Schema.Schema<any, any> ? utils.SchemaTo<S[K]> : never
-    }
-  >
+export type ResponseSchemaFullTo<S extends Api.ResponseSchemaFull> = S extends any ?
+  `${S["status"]}` extends `${1 | 2}${string}` ? Types.Simplify<
+      & { status: S["status"] }
+      & {
+        [
+          K in Exclude<
+            RequiredFields<S>,
+            "status" | "representations"
+          >
+        ]: S[K] extends Schema.Schema<any, any> ? utils.SchemaTo<S[K]> : never
+      }
+    >
+  : never
   : never
 
 /** @ignore */
