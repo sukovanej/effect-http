@@ -12,29 +12,48 @@ import * as internal from "./internal/client-error.js"
  * @category models
  * @since 1.0.0
  */
-export interface ClientError extends Cause.YieldableError {
+export type ClientError<S extends number = number> =
+  | ClientErrorClientSide
+  | ClientErrorServerSide<S>
+
+/**
+ * @category models
+ * @since 1.0.0
+ */
+export interface ClientErrorClientSide extends Cause.YieldableError {
   _tag: "ClientError"
   message: string
   error: unknown
-  status?: number
-  side: "client" | "server"
+  side: "client"
+}
+
+/**
+ * @category models
+ * @since 1.0.0
+ */
+export interface ClientErrorServerSide<S extends number = number> extends Cause.YieldableError {
+  _tag: "ClientError"
+  message: string
+  error: unknown
+  status: S
+  side: "server"
 }
 
 /**
  * @category constructors
  * @since 1.0.0
  */
-export const makeClientSide: (error: unknown, messge?: string) => ClientError = internal.makeClientSide
+export const makeClientSide: (error: unknown, message?: string) => ClientErrorClientSide = internal.makeClientSide
 
 /**
  * @category constructors
  * @since 1.0.0
  */
-export const makeServerSide: (
+export const makeServerSide: <S extends number>(
   error: unknown,
-  status: number,
-  messge?: string
-) => ClientError = internal.makeServerSide
+  status: S,
+  message?: string
+) => ClientErrorServerSide<S> = internal.makeServerSide
 
 /**
  * @category constructors
@@ -42,7 +61,7 @@ export const makeServerSide: (
  */
 export const makeClientSideRequestValidation: (
   location: string
-) => (error: ParseResult.ParseError) => ClientError = internal.makeClientSideRequestValidation
+) => (error: ParseResult.ParseError) => ClientErrorClientSide = internal.makeClientSideRequestValidation
 
 /**
  * @category constructors
@@ -50,4 +69,4 @@ export const makeClientSideRequestValidation: (
  */
 export const makeClientSideResponseValidation: (
   location: string
-) => (error: ParseResult.ParseError) => ClientError = internal.makeClientSideResponseValidation
+) => (error: ParseResult.ParseError) => ClientErrorClientSide = internal.makeClientSideResponseValidation
