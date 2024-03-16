@@ -9,9 +9,6 @@ export const app = RouterBuilder.make(api).pipe(
     getItems(query).pipe(
       Effect.tap((items) => Effect.log(`Found ${items.length} items`))
     )),
-  RouterBuilder.handle("createItem", ({ body }) =>
-    createItem(body).pipe(
-      Effect.map((content) => ({ content, status: 201 as const }))
-    )),
+  RouterBuilder.handle("createItem", ({ body }) => createItem(body)),
   RouterBuilder.build
 )

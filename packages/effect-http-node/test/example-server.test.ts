@@ -20,11 +20,7 @@ test("example server", async () => {
 
 test("handle", async () => {
   const app = RouterBuilder.make(exampleApiFullResponse).pipe(
-    RouterBuilder.handle("another", () =>
-      Effect.succeed({
-        status: 200 as const,
-        content: 69
-      })),
+    RouterBuilder.handle("another", () => Effect.succeed(69)),
     ExampleServer.handle("hello")
   )
 
@@ -35,17 +31,13 @@ test("handle", async () => {
   )
 
   expect(response.status).toEqual(200)
-  expect(typeof response.content).toEqual("number")
+  expect(typeof response.body).toEqual("number")
   expect(typeof response.headers["my-header"]).toEqual("string")
 })
 
 test("handleRemaining", async () => {
   const app = RouterBuilder.make(exampleApiFullResponse).pipe(
-    RouterBuilder.handle("another", () =>
-      Effect.succeed({
-        status: 200 as const,
-        content: 69
-      })),
+    RouterBuilder.handle("another", () => Effect.succeed(69)),
     ExampleServer.handleRemaining
   )
 
@@ -56,6 +48,6 @@ test("handleRemaining", async () => {
   )
 
   expect(response.status).toEqual(200)
-  expect(typeof response.content).toEqual("number")
+  expect(typeof response.body).toEqual("number")
   expect(typeof response.headers["my-header"]).toEqual("string")
 })

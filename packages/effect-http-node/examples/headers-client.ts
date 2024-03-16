@@ -6,14 +6,14 @@ import { Api, Client } from "effect-http"
 // Running the script call the `/hello` endpoint 1000k times
 
 export const api = pipe(
-  Api.api(),
-  Api.post("hello", "/hello", {
-    response: Schema.string,
-    request: {
-      body: Schema.struct({ value: Schema.number }),
-      headers: Schema.struct({ "X-Client-Id": Schema.string })
-    }
-  })
+  Api.make(),
+  Api.addEndpoint(
+    Api.post("hello", "/hello").pipe(
+      Api.setResponseBody(Schema.string),
+      Api.setRequestBody(Schema.struct({ value: Schema.number })),
+      Api.setRequestHeaders(Schema.struct({ "x-client-id": Schema.string }))
+    )
+  )
 )
 
 const client = Client.make(api, { baseUrl: "http://localhost:3000" })

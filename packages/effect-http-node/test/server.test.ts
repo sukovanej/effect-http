@@ -1,6 +1,6 @@
 import { HttpServer } from "@effect/platform"
 import { Context, Effect, Either, Layer, Option, pipe, ReadonlyArray } from "effect"
-import { Api, ClientError, RouterBuilder, ServerError } from "effect-http"
+import { Api, ApiResponse, ClientError, RouterBuilder, ServerError } from "effect-http"
 import { NodeTesting } from "effect-http-node"
 import { createHash } from "node:crypto"
 import { describe, expect, test } from "vitest"
@@ -11,7 +11,6 @@ import {
   exampleApiGetCustomResponseWithHeaders,
   exampleApiGetHeaders,
   exampleApiGetOptionalField,
-  exampleApiGetStringResponse,
   exampleApiMultipleResponses,
   exampleApiOptional,
   exampleApiOptionalParams,
@@ -47,14 +46,14 @@ test("layers", async () => {
 })
 
 test("human-readable error response", async () => {
-  const app = RouterBuilder.make(exampleApiGetStringResponse).pipe(
-    RouterBuilder.handle("hello", () => Effect.fail(ServerError.notFoundError("Didnt find it"))),
+  const app = RouterBuilder.make(exampleApiGet).pipe(
+    RouterBuilder.handle("getValue", () => Effect.fail(ServerError.notFoundError("Didnt find it"))),
     RouterBuilder.build
   )
 
   const result = await pipe(
-    NodeTesting.make(app, exampleApiGetStringResponse),
-    Effect.flatMap((client) => client.hello({})),
+    NodeTesting.make(app, exampleApiGet),
+    Effect.flatMap((client) => client.getValue({})),
     Effect.flip,
     runTestEffect
   )
@@ -91,14 +90,14 @@ test.each(
   ] as const
 )("status codes", async ({ response, status }) => {
   const app = pipe(
-    RouterBuilder.make(exampleApiGetStringResponse),
-    RouterBuilder.handle("hello", () => Effect.fail(response)),
+    RouterBuilder.make(exampleApiGet),
+    RouterBuilder.handle("getValue", () => Effect.fail(response)),
     RouterBuilder.build
   )
 
   const result = await pipe(
-    NodeTesting.make(app, exampleApiGetStringResponse),
-    Effect.flatMap((client) => Effect.either(client.hello({}))),
+    NodeTesting.make(app, exampleApiGet),
+    Effect.flatMap((client) => Effect.either(client.getValue({}))),
     runTestEffect
   )
 
@@ -120,7 +119,7 @@ test("Custom headers and status", async () => {
     RouterBuilder.handle("hello", () =>
       Effect.succeed(
         {
-          content: { value: "test" },
+          body: { value: "test" },
           headers: { "my-header": "hello" },
           status: 201
         } as const
@@ -139,7 +138,7 @@ test("Custom headers and status", async () => {
 
   expect(result).toEqual({
     status: 201,
-    content: { value: "test" },
+    body: { value: "test" },
     headers: { "my-header": "hello" }
   })
 })
@@ -172,15 +171,15 @@ test("Response containing optional field", async () => {
 })
 
 test("failing after unauthorized middleware", async () => {
-  const app = RouterBuilder.make(exampleApiGetStringResponse).pipe(
-    RouterBuilder.handle("hello", () => Effect.succeed(1)),
+  const app = RouterBuilder.make(exampleApiGet).pipe(
+    RouterBuilder.handle("getValue", () => Effect.succeed(1)),
     RouterBuilder.build,
     HttpServer.middleware.make(() => ServerError.toServerResponse(ServerError.unauthorizedError("sorry bro")))
   )
 
   const result = await pipe(
-    NodeTesting.make(app, exampleApiGetStringResponse),
-    Effect.flatMap((client) => client.hello({})),
+    NodeTesting.make(app, exampleApiGet),
+    Effect.flatMap((client) => client.getValue({})),
     Effect.flip,
     runTestEffect
   )
@@ -192,10 +191,13 @@ describe("type safe responses", () => {
   test("responses must have unique status codes", () => {
     expect(() => {
       pipe(
-        Api.api(),
-        Api.post("hello", "/hello", {
-          response: [{ status: 201 }, { status: 201 }]
-        })
+        Api.make(),
+        Api.addEndpoint(
+          Api.post("hello", "/hello").pipe(
+            Api.addResponse(ApiResponse.make(201)),
+            Api.addResponse(ApiResponse.make(201))
+          )
+        )
       )
     }).toThrowError()
   })
@@ -205,12 +207,12 @@ describe("type safe responses", () => {
       RouterBuilder.handle("hello", ({ query }) => {
         const response = query.value == 12
           ? {
-            content: 12,
+            body: 12,
             headers: { "x-another-200": 12 },
             status: 200 as const
           }
           : query.value == 13
-          ? { content: 13, status: 201 as const }
+          ? { body: 13, status: 201 as const }
           : { headers: { "x-another": 13 }, status: 204 as const }
 
         return Effect.succeed(response)
@@ -229,9 +231,9 @@ describe("type safe responses", () => {
     )
 
     expect(result).toMatchObject([
-      { content: 12, headers: { "x-another-200": 12 }, status: 200 },
-      { content: 13, headers: {}, status: 201 },
-      { content: undefined, headers: { "x-another": 13 }, status: 204 }
+      { body: 12, headers: { "x-another-200": 12 }, status: 200 },
+      { body: 13, headers: {}, status: 201 },
+      { body: undefined, headers: { "x-another": 13 }, status: 204 }
     ])
   })
 })
@@ -239,7 +241,7 @@ describe("type safe responses", () => {
 test("optional headers / query / params fields", async () => {
   const app = pipe(
     RouterBuilder.make(exampleApiOptional),
-    RouterBuilder.handle("hello", ({ headers, params, query }) => Effect.succeed({ query, params, headers })),
+    RouterBuilder.handle("hello", ({ headers, path, query }) => Effect.succeed({ query, path, headers })),
     RouterBuilder.build
   )
 
@@ -247,12 +249,12 @@ test("optional headers / query / params fields", async () => {
     {
       query: { value: 12 },
       headers: { value: 12 },
-      params: { value: 12 }
+      path: { value: 12 }
     },
     {
       query: { value: 12, another: "query-another-2" },
       headers: { value: 12 },
-      params: { value: 12, another: "params-another-2" }
+      path: { value: 12, another: "params-another-2" }
     },
     {
       query: { value: 12 },
@@ -261,7 +263,7 @@ test("optional headers / query / params fields", async () => {
         another: "headers-another-3",
         hello: "params-hello-3"
       },
-      params: { value: 12 }
+      path: { value: 12 }
     }
   ] as const
 
@@ -277,13 +279,13 @@ test("optional headers / query / params fields", async () => {
 test("optional parameters", async () => {
   const app = pipe(
     RouterBuilder.make(exampleApiOptionalParams),
-    RouterBuilder.handle("hello", ({ params }) => Effect.succeed({ params })),
+    RouterBuilder.handle("hello", ({ path }) => Effect.succeed({ path })),
     RouterBuilder.build
   )
 
   const params = [
-    { params: { value: 12 } },
-    { params: { value: 12, another: "another" } }
+    { path: { value: 12 } },
+    { path: { value: 12, another: "another" } }
   ] as const
 
   const result = await pipe(
@@ -300,30 +302,27 @@ test("single full response", async () => {
     RouterBuilder.make(exampleApiFullResponse),
     RouterBuilder.handle("hello", () =>
       Effect.succeed({
-        content: 12,
+        body: 12,
         headers: { "my-header": "test" },
         status: 200 as const
       })),
-    RouterBuilder.handle("another", () => Effect.succeed({ content: 12, status: 200 as const })),
+    RouterBuilder.handle("another", () => Effect.succeed(12)),
     RouterBuilder.build
   )
 
   const result = await pipe(
     NodeTesting.make(app, exampleApiFullResponse),
-    Effect.flatMap((client) => Effect.all([client.hello(), client.another()])),
+    Effect.flatMap((client) => Effect.all([client.hello({}), client.another({})])),
     runTestEffect
   )
 
   expect(result).toMatchObject([
     {
       status: 200,
-      content: 12,
+      body: 12,
       headers: { "my-header": "test" }
     },
-    {
-      status: 200,
-      content: 12
-    }
+    12
   ])
 })
 

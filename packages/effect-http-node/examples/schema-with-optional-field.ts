@@ -12,10 +12,10 @@ const Response = Schema.struct({
 })
 
 const api = pipe(
-  Api.api(),
-  Api.get("hello", "/hello", {
-    response: Response
-  })
+  Api.make(),
+  Api.addEndpoint(
+    Api.get("hello", "/hello").pipe(Api.setResponseBody(Response))
+  )
 )
 
 const app = pipe(

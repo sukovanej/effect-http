@@ -1,6 +1,6 @@
 import * as AST from "@effect/schema/AST"
 import type * as ParseResult from "@effect/schema/ParseResult"
-import { Effect } from "effect"
+import * as Effect from "effect/Effect"
 import * as Equivalence from "effect/Equivalence"
 import { pipe } from "effect/Function"
 import * as Option from "effect/Option"

@@ -3,8 +3,10 @@ import { Schema } from "@effect/schema"
 import { Api, ExampleServer, RouterBuilder } from "effect-http"
 import { NodeServer } from "effect-http-node"
 
-export const api = Api.api().pipe(
-  Api.post("test", "/test", { request: { body: Schema.string } })
+export const api = Api.make().pipe(
+  Api.addEndpoint(
+    Api.post("test", "/test").pipe(Api.setRequestBody(Schema.string))
+  )
 )
 
 const app = ExampleServer.make(api).pipe(

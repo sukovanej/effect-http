@@ -7,15 +7,13 @@ import { NodeServer } from "effect-http-node"
 import { debugLogger } from "./_utils.js"
 
 const api = pipe(
-  Api.api({ title: "My awesome pets API", version: "1.0.0" }),
-  Api.get("test", "/test", {
-    response: Schema.string,
-    request: {
-      query: Schema.struct({
-        value: pipe(Schema.string, Schema.pattern(/[A-Z]/))
-      })
-    }
-  })
+  Api.make({ title: "My awesome pets API", version: "1.0.0" }),
+  Api.addEndpoint(
+    Api.get("test", "/test").pipe(
+      Api.setResponseBody(Schema.string),
+      Api.setRequestQuery(Schema.struct({ value: Schema.string }))
+    )
+  )
 )
 
 const app = pipe(

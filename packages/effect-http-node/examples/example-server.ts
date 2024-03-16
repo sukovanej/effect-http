@@ -6,14 +6,16 @@ import { Api, ExampleServer, RouterBuilder } from "effect-http"
 import { NodeServer } from "effect-http-node"
 import { debugLogger } from "./_utils.js"
 
-const responseSchema = Schema.struct({
+const Response = Schema.struct({
   name: Schema.string,
   value: Schema.number
 })
 
 const api = pipe(
-  Api.api({ servers: ["http://localhost:3000", { description: "hello", url: "/api/" }] }),
-  Api.get("test", "/test", { response: responseSchema })
+  Api.make({ servers: ["http://localhost:3000", { description: "hello", url: "/api/" }] }),
+  Api.addEndpoint(
+    Api.get("test", "/test").pipe(Api.setResponseBody(Response))
+  )
 )
 
 pipe(

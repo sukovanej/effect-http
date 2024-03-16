@@ -20,12 +20,12 @@ import * as internal from "./internal/testing.js"
  * @category constructors
  * @since 1.0.0
  */
-export const make: <R, E, Endpoints extends Api.Endpoint>(
+export const make: <R, E, A extends Api.Api.Any>(
   app: HttpServer.app.Default<R, E>,
-  api: Api.Api<Endpoints>,
+  api: A,
   options?: Partial<Client.Options>
 ) => Effect.Effect<
-  Client.Client<Endpoints>,
+  Client.Client<A>,
   never,
   | Scope.Scope
   | Exclude<

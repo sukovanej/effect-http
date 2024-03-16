@@ -1,6 +1,6 @@
 import { Schema } from "@effect/schema"
-import { Api } from "effect-http"
-import { pipe } from "effect/Function"
+import { Api, ApiGroup } from "effect-http"
+import { identity, pipe } from "effect/Function"
 import { expect, test } from "vitest"
 import { simpleApi1 } from "./example-apis.js"
 
@@ -11,26 +11,26 @@ test("fillDefaultSchemas", () => {
 
 test("Attempt to declare duplicate operation id should fail as a safe guard", () => {
   const api = pipe(
-    Api.api(),
-    Api.put("myOperation", "/my-operation", { response: Schema.string })
+    Api.make(),
+    Api.addEndpoint(Api.put("myOperation", "/my-operation"))
   )
 
   expect(() =>
     pipe(
       api,
-      Api.post("myOperation", "/my-operation", { response: Schema.string })
+      Api.addEndpoint(Api.post("myOperation", "/my-operation"))
     )
   ).toThrowError()
 
   const apiGroup = pipe(
-    Api.apiGroup("group"),
-    Api.patch("myOperation", "/my-operation", { response: Schema.string })
+    ApiGroup.make("group"),
+    ApiGroup.addEndpoint(Api.patch("myOperation", "/my-operation"))
   )
 
   expect(() =>
     pipe(
       apiGroup,
-      Api.patch("myOperation", "/my-operation", { response: Schema.string })
+      ApiGroup.addEndpoint(ApiGroup.patch("myOperation", "/my-operation"))
     )
   ).toThrowError()
 
@@ -88,11 +88,12 @@ test.each(
   ({ expectFailure, path, schema }) => {
     const createApi = () =>
       pipe(
-        Api.api(),
-        Api.get("hello", path, {
-          response: Schema.string,
-          request: { ...(schema && { params: schema }) }
-        })
+        Api.make(),
+        Api.addEndpoint(
+          Api.get("hello", path).pipe(
+            schema && Api.setRequestPath(schema as Schema.Schema<any, any, never>) || identity
+          )
+        )
       )
 
     if (expectFailure) {

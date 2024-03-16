@@ -2,7 +2,16 @@ import { FileSystem, HttpServer } from "@effect/platform"
 import { NodeContext } from "@effect/platform-node"
 import { Schema } from "@effect/schema"
 import { Context, Effect, pipe, Predicate, ReadonlyRecord, Secret, Unify } from "effect"
-import { Api, ClientError, Representation, RouterBuilder, SecurityScheme, ServerError } from "effect-http"
+import {
+  Api,
+  ApiResponse,
+  ApiSchema,
+  ClientError,
+  Representation,
+  RouterBuilder,
+  SecurityScheme,
+  ServerError
+} from "effect-http"
 import { NodeTesting } from "effect-http-node"
 import { expect, test } from "vitest"
 
@@ -11,16 +20,12 @@ import { runTestEffect } from "./utils.js"
 test("testing query", () =>
   Effect.gen(function*(_) {
     const api = pipe(
-      Api.api(),
-      Api.get(
-        "hello",
-        "/hello",
-        {
-          response: Schema.string,
-          request: {
-            query: Schema.struct({ input: Schema.NumberFromString })
-          }
-        }
+      Api.make(),
+      Api.addEndpoint(
+        Api.get("hello", "/hello").pipe(
+          Api.setResponseBody(Schema.string),
+          Api.setRequestQuery(Schema.struct({ input: Schema.NumberFromString }))
+        )
       )
     )
 
@@ -41,10 +46,10 @@ test("testing query", () =>
 test("testing failure", () =>
   Effect.gen(function*(_) {
     const api = pipe(
-      Api.api(),
-      Api.get("hello", "/hello", {
-        response: Schema.string
-      })
+      Api.make(),
+      Api.addEndpoint(
+        Api.get("hello", "/hello").pipe(Api.setResponseBody(Schema.string))
+      )
     )
 
     const app = pipe(
@@ -55,7 +60,7 @@ test("testing failure", () =>
 
     const response = yield* _(
       NodeTesting.make(app, api),
-      Effect.flatMap((client) => client.hello()),
+      Effect.flatMap((client) => client.hello({})),
       Effect.flip
     )
 
@@ -65,13 +70,13 @@ test("testing failure", () =>
 test("testing with dependencies", () =>
   Effect.gen(function*(_) {
     const api = pipe(
-      Api.api(),
-      Api.get("hello", "/hello", {
-        response: Schema.string,
-        request: {
-          query: Schema.struct({ input: Schema.NumberFromString })
-        }
-      })
+      Api.make(),
+      Api.addEndpoint(
+        Api.get("hello", "/hello").pipe(
+          Api.setResponseBody(Schema.string),
+          Api.setRequestQuery(Schema.struct({ input: Schema.NumberFromString }))
+        )
+      )
     )
 
     const MyService = Context.GenericTag<number>("@services/MyService")
@@ -95,24 +100,24 @@ test("testing with dependencies", () =>
 test("testing params", () =>
   Effect.gen(function*(_) {
     const api = pipe(
-      Api.api(),
-      Api.get("hello", "/hello/:input", {
-        response: Schema.string,
-        request: {
-          params: Schema.struct({ input: Schema.NumberFromString })
-        }
-      })
+      Api.make(),
+      Api.addEndpoint(
+        Api.get("hello", "/hello/:input").pipe(
+          Api.setResponseBody(Schema.string),
+          Api.setRequestPath(Schema.struct({ input: Schema.NumberFromString }))
+        )
+      )
     )
 
     const app = pipe(
       RouterBuilder.make(api),
-      RouterBuilder.handle("hello", ({ params }) => Effect.succeed(`${params.input + 1}`)),
+      RouterBuilder.handle("hello", ({ path }) => Effect.succeed(`${path.input + 1}`)),
       RouterBuilder.build
     )
 
     const response = yield* _(
       NodeTesting.make(app, api),
-      Effect.flatMap((client) => client.hello({ params: { input: 12 } }))
+      Effect.flatMap((client) => client.hello({ path: { input: 12 } }))
     )
 
     expect(response).toEqual("13")
@@ -121,31 +126,20 @@ test("testing params", () =>
 test("testing multiple responses", () =>
   Effect.gen(function*(_) {
     const api = pipe(
-      Api.api(),
-      Api.get("hello", "/hello", {
-        response: [
-          {
-            content: Schema.number,
-            status: 200
-          },
-          {
-            status: 201
-          }
-        ],
-        request: {
-          query: Schema.struct({ input: Schema.NumberFromString })
-        }
-      })
+      Api.make(),
+      Api.addEndpoint(
+        Api.get("hello", "/hello").pipe(
+          Api.setRequestQuery(Schema.struct({ input: Schema.NumberFromString })),
+          Api.setResponseBody(Schema.number),
+          Api.addResponse(ApiResponse.make(201))
+        )
+      )
     )
 
     const app = pipe(
       RouterBuilder.make(api),
       RouterBuilder.handle("hello", ({ query }) =>
-        Effect.succeed(
-          query.input === 1
-            ? { content: 69, status: 200 as const }
-            : { status: 201 as const }
-        )),
+        Effect.succeed(query.input === 1 ? { body: 69, status: 200 as const } : { status: 201 as const })),
       RouterBuilder.build
     )
 
@@ -161,20 +155,20 @@ test("testing multiple responses", () =>
       )
     )
 
-    expect(response1).toMatchObject({ content: 69, status: 200 })
+    expect(response1).toMatchObject({ body: 69, status: 200 })
     expect(response2).toMatchObject({ status: 201 })
   }).pipe(runTestEffect))
 
 test("testing body", () =>
   Effect.gen(function*(_) {
     const api = pipe(
-      Api.api(),
-      Api.post("hello", "/hello", {
-        response: Schema.string,
-        request: {
-          body: Schema.struct({ input: Schema.NumberFromString })
-        }
-      })
+      Api.make(),
+      Api.addEndpoint(
+        Api.post("hello", "/hello").pipe(
+          Api.setResponseBody(Schema.string),
+          Api.setRequestBody(Schema.struct({ input: Schema.NumberFromString }))
+        )
+      )
     )
 
     const app = pipe(
@@ -194,17 +188,14 @@ test("testing body", () =>
 test("form data", () =>
   Effect.gen(function*(_) {
     const api = pipe(
-      Api.api(),
-      Api.post("upload", "/upload", {
-        request: {
-          body: Api.FormData
-        },
-        response: {
-          content: Schema.string,
-          status: 200,
-          representations: [Representation.plainText]
-        }
-      })
+      Api.make(),
+      Api.addEndpoint(
+        Api.post("upload", "/upload").pipe(
+          Api.setResponseBody(Schema.string),
+          Api.setResponseRepresentations([Representation.plainText]),
+          Api.setRequestBody(ApiSchema.FormData)
+        )
+      )
     )
 
     const app = pipe(
@@ -224,9 +215,7 @@ test("form data", () =>
           }
 
           const fs = yield* _(FileSystem.FileSystem)
-          const content = yield* _(fs.readFileString(file[0].path))
-
-          return { content, status: 200 as const }
+          return yield* _(fs.readFileString(file[0].path))
         }).pipe(Effect.scoped)),
       RouterBuilder.build
     )
@@ -240,39 +229,33 @@ test("form data", () =>
       Effect.provide(NodeContext.layer)
     )
 
-    expect(response.status).toEqual(200)
-    expect(response.content).toEqual("my file content")
+    expect(response).toEqual("my file content")
   }).pipe(runTestEffect))
+
+const securityApi = pipe(
+  Api.make(),
+  Api.addEndpoint(
+    pipe(
+      Api.get("hello", "/hello", { description: "test description" }),
+      Api.setResponseBody(
+        Schema.struct({
+          output: Schema.number,
+          security: Schema.tuple(Schema.string, Schema.string)
+        })
+      ),
+      Api.setRequestQuery(Schema.struct({ input: Schema.NumberFromString })),
+      Api.addSecurity(
+        "myAwesomeBearer",
+        SecurityScheme.bearer({ tokenSchema: Schema.NumberFromString })
+      )
+    )
+  )
+)
 
 test("testing security", () =>
   Effect.gen(function*(_) {
-    const api = pipe(
-      Api.api(),
-      Api.get(
-        "hello",
-        "/hello",
-        {
-          response: Schema.struct({
-            output: Schema.number,
-            security: Schema.tuple(Schema.string, Schema.string)
-          }),
-          request: {
-            query: Schema.struct({ input: Schema.NumberFromString })
-          }
-        },
-        {
-          description: "test description",
-          security: {
-            myAwesomeBearer: SecurityScheme.bearer({
-              tokenSchema: Schema.NumberFromString
-            })
-          }
-        }
-      )
-    )
-
     const app = pipe(
-      RouterBuilder.make(api),
+      RouterBuilder.make(securityApi),
       RouterBuilder.handle("hello", ({ query }, security) => {
         return Effect.succeed({
           output: query.input + 1,
@@ -283,7 +266,7 @@ test("testing security", () =>
     )
 
     const response = yield* _(
-      NodeTesting.make(app, api),
+      NodeTesting.make(app, securityApi),
       Effect.flatMap((client) =>
         client.hello({ query: { input: 12 } }, {
           myAwesomeBearer: 22
@@ -296,33 +279,8 @@ test("testing security", () =>
 
 test("testing security - wrong header format", () =>
   Effect.gen(function*(_) {
-    const api = pipe(
-      Api.api(),
-      Api.get(
-        "hello",
-        "/hello",
-        {
-          response: Schema.struct({
-            output: Schema.number,
-            security: Schema.tuple(Schema.string, Schema.string)
-          }),
-          request: {
-            query: Schema.struct({ input: Schema.NumberFromString })
-          }
-        },
-        {
-          description: "test description",
-          security: {
-            myAwesomeBearer: SecurityScheme.bearer({
-              tokenSchema: Schema.NumberFromString
-            })
-          }
-        }
-      )
-    )
-
     const app = pipe(
-      RouterBuilder.make(api),
+      RouterBuilder.make(securityApi),
       RouterBuilder.handle("hello", ({ query }, security) => {
         return Effect.succeed({
           output: query.input + 1,
@@ -333,7 +291,7 @@ test("testing security - wrong header format", () =>
     )
 
     const response = yield* _(
-      NodeTesting.make(app, api),
+      NodeTesting.make(app, securityApi),
       Effect.flatMap((client) =>
         client.hello({ query: { input: 12 } }, {
           // @ts-expect-error
@@ -351,32 +309,19 @@ test("testing security - wrong header format", () =>
 test("testing missing security", () =>
   Effect.gen(function*(_) {
     const api = pipe(
-      Api.api(),
-      Api.get(
-        "hello",
-        "/hello",
-        {
-          response: Schema.string,
-          request: {
-            query: Schema.struct({ input: Schema.NumberFromString })
-          }
-        },
-        {
-          description: "test description",
-          security: {
-            myAwesomeBearer: SecurityScheme.bearer({
-              tokenSchema: Schema.NumberFromString
-            })
-          }
-        }
+      Api.make(),
+      Api.addEndpoint(
+        Api.get("hello", "/hello", { description: "test description" }).pipe(
+          Api.setRequestQuery(Schema.struct({ input: Schema.NumberFromString })),
+          Api.setResponseBody(Schema.string),
+          Api.addSecurity("myAwesomeBearer", SecurityScheme.bearer({ tokenSchema: Schema.NumberFromString }))
+        )
       )
     )
 
     const app = pipe(
       RouterBuilder.make(api),
-      RouterBuilder.handle("hello", ({ query }) => {
-        return Effect.succeed(`${query.input + 1}`)
-      }),
+      RouterBuilder.handle("hello", ({ query }) => Effect.succeed(`${query.input + 1}`)),
       RouterBuilder.build
     )
 
@@ -398,38 +343,15 @@ test("testing missing security", () =>
 
 test("testing security - several security cred with same type", () =>
   Effect.gen(function*(_) {
-    const api = pipe(
-      Api.api(),
-      Api.get(
-        "hello",
-        "/hello",
-        {
-          response: Schema.string,
-          request: {
-            query: Schema.struct({ input: Schema.NumberFromString })
-          }
-        },
-        {
-          description: "test description",
-          security: {
-            myAwesomeBearer: SecurityScheme.bearer({
-              tokenSchema: Schema.NumberFromString
-            })
-          }
-        }
-      )
-    )
-
     const app = pipe(
-      RouterBuilder.make(api),
-      RouterBuilder.handle("hello", ({ query }) => {
-        return Effect.succeed(`${query.input + 1}`)
-      }),
+      RouterBuilder.make(securityApi),
+      RouterBuilder.handle("hello", ({ query }) =>
+        Effect.succeed({ security: ["hello", "world"] as const, output: query.input + 1 })),
       RouterBuilder.build
     )
 
     const response = yield* _(
-      NodeTesting.make(app, api),
+      NodeTesting.make(app, securityApi),
       Effect.flatMap((client) =>
         // @ts-expect-error
         client.hello({ query: { input: 12 } }, {})
@@ -447,27 +369,20 @@ test("testing security - several security cred with same type", () =>
 test("testing security - several security schemes handles as Eithers", () =>
   Effect.gen(function*(_) {
     const api = pipe(
-      Api.api(),
-      Api.get(
-        "hello",
-        "/hello",
-        {
-          response: Schema.record(Schema.string, Schema.tuple(Schema.string, Schema.string)),
-          request: {
-            query: Schema.struct({ input: Schema.NumberFromString })
-          }
-        },
-        {
-          description: "test description",
-          security: {
+      Api.make(),
+      Api.addEndpoint(
+        Api.get("hello", "/hello", { description: "test description" }).pipe(
+          Api.setResponseBody(Schema.record(Schema.string, Schema.tuple(Schema.string, Schema.string))),
+          Api.setRequestQuery(Schema.struct({ input: Schema.NumberFromString })),
+          Api.setSecurity({
             myAwesomeBearer: SecurityScheme.bearer({
               tokenSchema: Schema.NumberFromString
             }),
             myAwesomeBasic: SecurityScheme.basic({
               tokenSchema: Schema.Secret
             })
-          }
-        }
+          })
+        )
       )
     )
 

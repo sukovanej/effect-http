@@ -5,9 +5,11 @@ import { flow, pipe } from "effect/Function"
 import * as Option from "effect/Option"
 import * as ReadonlyArray from "effect/ReadonlyArray"
 import * as Unify from "effect/Unify"
-import * as Api from "../Api.js"
+import * as ApiEndpoint from "../ApiEndpoint.js"
+import * as ApiResponse from "../ApiResponse.js"
+import * as ApiSchema from "../ApiSchema.js"
 import * as ClientError from "../ClientError.js"
-import * as Representation from "../Representation.js"
+import type * as Representation from "../Representation.js"
 
 interface ClientResponseParser {
   parseResponse: (
@@ -20,45 +22,13 @@ const make = (
 ): ClientResponseParser => ({ parseResponse })
 
 export const create = (
-  responseSchema: Api.EndpointSchemas["response"]
+  endpoint: ApiEndpoint.ApiEndpoint.Any
 ): ClientResponseParser => {
-  if (responseSchema === Api.IgnoredSchemaId) {
-    return make(handleUnsucessful)
-  } else if (Schema.isSchema(responseSchema)) {
-    return fromSchema(responseSchema as Schema.Schema<any, any, never>)
-  } else if (Array.isArray(responseSchema)) {
-    return fromResponseSchemaFullArray(responseSchema)
-  }
-
-  return fromResponseSchemaFullArray([responseSchema] as ReadonlyArray<Api.ResponseSchemaFull>)
-}
-
-const handleUnsucessful = Unify.unify(
-  (response: ClientResponse.ClientResponse) => {
-    if (response.status >= 300) {
-      return response.json.pipe(
-        Effect.orElse(() => response.text),
-        Effect.orElseSucceed(() => "No body provided"),
-        Effect.flatMap((error) => Effect.fail(ClientError.makeServerSide(error, response.status)))
-      )
-    }
-
-    return Effect.unit
-  }
-)
-
-const fromSchema = (schema: Schema.Schema<any, any, never>): ClientResponseParser => {
-  const decode = decodeBody(schema, [Representation.json])
-
-  return make((response) => handleUnsucessful(response).pipe(Effect.flatMap(() => decode(response))))
-}
-
-const fromResponseSchemaFullArray = (
-  schemas: ReadonlyArray<Api.ResponseSchemaFull>
-): ClientResponseParser => {
-  const statusToSchema = schemas.reduce(
-    (obj, schemas) => ({ ...obj, [schemas.status]: schemas }),
-    {} as Record<number, Api.ResponseSchemaFull>
+  const responses = ApiEndpoint.getResponse(endpoint)
+  const isFullResponse = ApiEndpoint.isFullResponse(endpoint)
+  const statusToSchema = responses.reduce(
+    (obj, schemas) => ({ ...obj, [ApiResponse.getStatus(schemas)]: schemas }),
+    {} as Record<number, ApiResponse.ApiResponse.Any>
   )
 
   return make((response) =>
@@ -75,24 +45,47 @@ const fromResponseSchemaFullArray = (
         )
       }
 
-      const schemas = statusToSchema[response.status]
-      const parseBody = parseContent(schemas.content as Schema.Schema<any, any, never>, schemas.representations)
-      const content = yield* _(parseBody(response))
+      const responseSpec = statusToSchema[response.status]
+      const _parseBody = parseBody(
+        ApiResponse.getBodySchema(responseSpec) as Schema.Schema<any, any, never>,
+        ApiResponse.getRepresentations(responseSpec)
+      )
+      const body = yield* _(_parseBody(response))
 
-      const headers = schemas.headers === Api.IgnoredSchemaId
+      if (!isFullResponse) {
+        return body
+      }
+
+      const headersSchema = ApiResponse.getHeadersSchema(responseSpec)
+
+      const headers = ApiSchema.isIgnored(headersSchema)
         ? undefined
         : yield* _(
           response.headers,
-          Schema.decodeUnknown(schemas.headers as Schema.Schema<any, any, never>),
+          Schema.decodeUnknown(headersSchema as Schema.Schema<any, any, never>),
           Effect.mapError(
             ClientError.makeClientSideResponseValidation("headers")
           )
         )
 
-      return { status: response.status, content, headers }
+      return { status: response.status, body, headers }
     })
   )
 }
+
+const handleUnsucessful = Unify.unify(
+  (response: ClientResponse.ClientResponse) => {
+    if (response.status >= 300) {
+      return response.json.pipe(
+        Effect.orElse(() => response.text),
+        Effect.orElseSucceed(() => "No body provided"),
+        Effect.flatMap((error) => Effect.fail(ClientError.makeServerSide(error, response.status)))
+      )
+    }
+
+    return Effect.unit
+  }
+)
 
 const representationFromResponse = (
   representations: ReadonlyArray.NonEmptyReadonlyArray<Representation.Representation>,
@@ -150,8 +143,8 @@ const decodeBody = (
   }
 }
 
-const parseContent: (
-  schema: Schema.Schema<any, any, never> | Api.IgnoredSchemaId,
+const parseBody: (
+  schema: Schema.Schema<any, any, never> | ApiSchema.Ignored,
   representations: ReadonlyArray.NonEmptyReadonlyArray<Representation.Representation>
 ) => (
   response: ClientResponse.ClientResponse
@@ -159,7 +152,7 @@ const parseContent: (
   schema,
   representations
 ) => {
-  if (schema === Api.IgnoredSchemaId) {
+  if (ApiSchema.isIgnored(schema)) {
     return () => Effect.succeed(undefined)
   }
 

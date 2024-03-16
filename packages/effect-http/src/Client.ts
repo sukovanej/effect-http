@@ -9,28 +9,26 @@ import type * as HttpClient from "@effect/platform/HttpClient"
 import type * as Schema from "@effect/schema/Schema"
 import type * as Effect from "effect/Effect"
 import type * as ReadonlyRecord from "effect/ReadonlyRecord"
-import type * as Types from "effect/Types"
 
+import type * as Types from "effect/Types"
 import type * as Api from "./Api.js"
+import type * as ApiEndpoint from "./ApiEndpoint.js"
+import type * as ApiRequest from "./ApiRequest.js"
+import type * as ApiResponse from "./ApiResponse.js"
+import type * as ApiSchema from "./ApiSchema.js"
 import type * as ClientError from "./ClientError.js"
 import * as internal from "./internal/client.js"
-import type * as Route from "./Route.js"
+import type * as utils from "./internal/utils.js"
 import type * as SecurityScheme from "./SecurityScheme.js"
 
 /**
  * @category models
  * @since 1.0.0
  */
-export type Client<Endpoints extends Api.Endpoint> = {
-  [Id in Endpoints["id"]]: EndpointClient<Extract<Endpoints, { id: Id }>>
-}
-
-/** @ignore */
-export type EndpointClient<Endpoint extends Api.Endpoint> = ClientFunction<
-  Endpoint,
-  MakeHeadersOptionIfAllPartial<
-    Route.EndpointSchemasTo<Endpoint["schemas"]>["request"]
-  >
+export type Client<A extends Api.Api.Any> = Types.Simplify<
+  {
+    [Id in Api.Api.Ids<A>]: EndpointClient<Api.Api.EndpointById<A, Id>>
+  }
 >
 
 /**
@@ -49,14 +47,11 @@ export interface Options {
  * @category constructors
  * @since 1.0.0
  */
-export const endpointClient: <
-  Endpoints extends Api.Endpoint,
-  Id extends Endpoints["id"]
->(
+export const endpointClient: <A extends Api.Api.Any, Id extends Api.Api.Ids<A>>(
   id: Id,
-  api: Api.Api<Endpoints>,
+  api: A,
   options: Partial<Options>
-) => EndpointClient<Extract<Endpoints, { id: Id }>> = internal.endpointClient
+) => EndpointClient<Api.Api.EndpointById<A, Id>> = internal.endpointClient
 
 /**
  * Derive client implementation from the `Api`
@@ -64,61 +59,79 @@ export const endpointClient: <
  * @category constructors
  * @since 1.0.0
  */
-export const make: <Endpoints extends Api.Endpoint>(
-  api: Api.Api<Endpoints>,
+export const make: <A extends Api.Api.Any>(
+  api: A,
   options?: Partial<Options>
-) => Client<Endpoints> = internal.make
+) => Client<A> = internal.make
+
+/**
+ * @category models
+ * @since 1.0.0
+ */
+export interface Response<S extends ApiResponse.ApiResponse.AnyStatus, B, H> {
+  status: S
+  body: B
+  headers: H
+}
 
 // Internal type helpers
 
 /** @ignore */
-type MakeHeadersOptionIfAllPartial<I> = I extends { headers: any } ? Types.Simplify<
-    & (Record<string, never> extends I["headers"] ? { headers?: I["headers"] }
-      : Pick<I, "headers">)
-    & Omit<I, "headers">
-  >
-  : I
+type FilterNon200Responses<R extends ApiResponse.ApiResponse.Any> = R extends any ?
+  `${ApiResponse.ApiResponse.Status<R>}` extends `2${string}` ? R : never :
+  never
 
 /** @ignore */
 export type ClientFunctionResponse<
-  S extends Api.Endpoint["schemas"]["response"]
-> = S extends Api.IgnoredSchemaId ? void
-  : S extends Schema.Schema<infer A, any, any> ? A
-  : S extends ReadonlyArray<Api.ResponseSchemaFull> ? Route.ResponseSchemaFullTo<S[number]>
-  : S extends Api.ResponseSchemaFull ? Route.ResponseSchemaFullTo<S>
-  : never
+  R extends ApiResponse.ApiResponse.Any
+> = _ClientFunctionResponse<FilterNon200Responses<R>>
 
 /** @ignore */
-type ClientFunction<Endpoint extends Api.Endpoint, I> = Record<string, never> extends I ?
-  Record<string, never> extends Endpoint["options"]["security"] ? (
-      input?: I
-    ) => Effect.Effect<
-      ClientFunctionResponse<Endpoint["schemas"]["response"]>,
-      ClientError.ClientError,
-      Api.EndpointRequirements<Endpoint>
+export type _ClientFunctionResponse<
+  R extends ApiResponse.ApiResponse.Any
+> = utils.IsUnion<R> extends true ? R extends any ? Response<
+      ApiResponse.ApiResponse.Status<R>,
+      ApiResponse.ApiResponse.Body<R>,
+      ApiResponse.ApiResponse.Headers<R>
     > :
-  (
-    input: I | undefined,
-    security: ClientSecurity<Endpoint["options"]["security"]>
+  never
+  : NeedsFullResponse<R> extends true ? Response<
+      ApiResponse.ApiResponse.Status<R>,
+      ApiResponse.ApiResponse.Body<R>,
+      ApiResponse.ApiResponse.Headers<R>
+    >
+  : ApiResponse.ApiResponse.Body<R>
+
+/** @ignore */
+type NeedsFullResponse<R extends ApiResponse.ApiResponse.Any> = ApiResponse.ApiResponse.Headers<R> extends
+  ApiSchema.Ignored ? false : true
+
+/** @ignore */
+export type ToRequest<
+  R extends ApiRequest.ApiRequest.Any
+> = utils.RemoveIgnoredFields<{
+  readonly body: ApiRequest.ApiRequest.Body<R>
+  readonly path: ApiRequest.ApiRequest.Path<R>
+  readonly query: ApiRequest.ApiRequest.Query<R>
+  readonly headers: ApiRequest.ApiRequest.Headers<R>
+}>
+
+/** @ignore */
+export type EndpointClient<E extends ApiEndpoint.ApiEndpoint.Any> = Record<string, never> extends
+  ApiEndpoint.ApiEndpoint.Security<E> ? (
+    input: ToRequest<ApiEndpoint.ApiEndpoint.Request<E>>
   ) => Effect.Effect<
-    ClientFunctionResponse<Endpoint["schemas"]["response"]>,
+    ClientFunctionResponse<ApiEndpoint.ApiEndpoint.Response<E>>,
     ClientError.ClientError,
-    Api.EndpointRequirements<Endpoint>
-  >
-  : Record<string, never> extends Endpoint["options"]["security"] ? (
-      input: I
-    ) => Effect.Effect<
-      ClientFunctionResponse<Endpoint["schemas"]["response"]>,
-      ClientError.ClientError,
-      Api.EndpointRequirements<Endpoint>
-    > :
+    ApiEndpoint.ApiEndpoint.Requirements<E>
+  > :
   (
-    input: I,
-    security: ClientSecurity<Endpoint["options"]["security"]>
+    input: ToRequest<ApiEndpoint.ApiEndpoint.Request<E>>,
+    security: ClientSecurity<ApiEndpoint.ApiEndpoint.Security<E>>
   ) => Effect.Effect<
-    ClientFunctionResponse<Endpoint["schemas"]["response"]>,
+    ClientFunctionResponse<ApiEndpoint.ApiEndpoint.Response<E>>,
     ClientError.ClientError,
-    Api.EndpointRequirements<Endpoint>
+    ApiEndpoint.ApiEndpoint.Requirements<E>
   >
 
 /** @ignore */

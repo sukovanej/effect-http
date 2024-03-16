@@ -7,10 +7,10 @@ import { HttpServer } from "@effect/platform"
 import { NodeServer } from "effect-http-node"
 import { debugLogger } from "./_utils.js"
 
-const api = Api.api().pipe(
-  Api.get("handle", "/api/handle", {
-    response: Schema.string
-  })
+const api = Api.make().pipe(
+  Api.addEndpoint(
+    Api.get("handle", "/api/handle").pipe(Api.setResponseBody(Schema.string))
+  )
 )
 
 const StaticFilesMiddleware = HttpServer.middleware.make((app) =>

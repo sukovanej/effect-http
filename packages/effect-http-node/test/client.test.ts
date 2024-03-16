@@ -10,13 +10,13 @@ import { runTestEffect } from "./utils.js"
 test("quickstart example e2e", () =>
   Effect.gen(function*(_) {
     const api = pipe(
-      Api.api(),
-      Api.get("getUser", "/user", {
-        response: Schema.struct({ name: Schema.string }),
-        request: {
-          query: Schema.struct({ id: Schema.NumberFromString })
-        }
-      })
+      Api.make(),
+      Api.addEndpoint(
+        Api.get("getUser", "/user").pipe(
+          Api.setResponseBody(Schema.struct({ name: Schema.string })),
+          Api.setRequestQuery(Schema.struct({ id: Schema.NumberFromString }))
+        )
+      )
     )
 
     const app = pipe(
@@ -33,17 +33,19 @@ test("quickstart example e2e", () =>
     expect(response).toEqual({ name: "milan:12" })
   }).pipe(runTestEffect))
 
-test.each(["get", "put", "post", "delete", "options", "patch"] as const)(
+test.each(["GET", "PUT", "POST", "DELETE", "OPTIONS", "PATCH"] as const)(
   "Dummy call - %s",
   (method) =>
     Effect.gen(function*(_) {
       const responseSchema = Schema.struct({ name: Schema.string })
 
       const api = pipe(
-        Api.api(),
-        Api[method]("doStuff", "/stuff", {
-          response: responseSchema
-        })
+        Api.make(),
+        Api.addEndpoint(
+          Api.endpoint(method, "doStuff", "/stuff").pipe(
+            Api.setResponseBody(responseSchema)
+          )
+        )
       )
 
       const app = pipe(
@@ -77,20 +79,20 @@ test("All input types", () =>
     const bodySchema = Schema.struct({ helloWorld: Schema.string })
 
     const api = pipe(
-      Api.api(),
-      Api.post("doStuff", "/stuff/:operation", {
-        response: responseSchema,
-        request: {
-          body: bodySchema,
-          query: querySchema,
-          params: paramsSchema
-        }
-      })
+      Api.make(),
+      Api.addEndpoint(
+        Api.post("doStuff", "/stuff/:operation").pipe(
+          Api.setResponseBody(responseSchema),
+          Api.setRequestBody(bodySchema),
+          Api.setRequestQuery(querySchema),
+          Api.setRequestPath(paramsSchema)
+        )
+      )
     )
 
     const app = pipe(
       RouterBuilder.make(api),
-      RouterBuilder.handle("doStuff", ({ body, params, query }) => Effect.succeed({ ...body, ...query, ...params })),
+      RouterBuilder.handle("doStuff", ({ body, path, query }) => Effect.succeed({ ...body, ...query, ...path })),
       RouterBuilder.build
     )
 
@@ -98,7 +100,7 @@ test("All input types", () =>
       NodeTesting.make(app, api),
       Effect.flatMap((client) =>
         client.doStuff({
-          params: { operation: "operation" },
+          path: { operation: "operation" },
           query: { value: "value", anotherValue: 1 },
           body: { helloWorld: "helloWorld" }
         })
@@ -116,16 +118,16 @@ test("All input types", () =>
 test("missing headers", () =>
   Effect.gen(function*(_) {
     const api = pipe(
-      Api.api(),
-      Api.get("getUser", "/user", {
-        response: Schema.struct({ name: Schema.string }),
-        request: {
-          headers: Schema.struct({
-            "X-MY-HEADER": Schema.NumberFromString,
-            "Another-Header": Schema.string
-          })
-        }
-      })
+      Api.make(),
+      Api.addEndpoint(
+        Api.get("getUser", "/user").pipe(
+          Api.setResponseBody(Schema.struct({ name: Schema.string })),
+          Api.setRequestHeaders(Schema.struct({
+            "x-my-header": Schema.NumberFromString,
+            "another-header": Schema.string
+          }))
+        )
+      )
     )
 
     const app = pipe(
@@ -156,10 +158,10 @@ test("missing headers", () =>
 test("supports interruption", () =>
   Effect.gen(function*(_) {
     const api = pipe(
-      Api.api(),
-      Api.get("getUser", "/user", {
-        response: Schema.struct({ name: Schema.string })
-      })
+      Api.make(),
+      Api.addEndpoint(
+        Api.get("getUser", "/user").pipe(Api.setResponseBody(Schema.struct({ name: Schema.string })))
+      )
     )
 
     const generateName = vi.fn(() => ({ name: `test` }))
@@ -173,7 +175,7 @@ test("supports interruption", () =>
     const client = yield* _(NodeTesting.make(app, api))
 
     const result = yield* _(
-      Effect.fork(client.getUser()),
+      Effect.fork(client.getUser({})),
       Effect.flatMap(Fiber.interrupt)
     )
 

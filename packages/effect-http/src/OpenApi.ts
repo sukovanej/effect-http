@@ -15,5 +15,5 @@ import * as internal from "./internal/open-api.js"
  * @since 1.0.0
  */
 export const make: (
-  api: Api.Api
+  api: Api.Api.Any
 ) => OpenApiTypes.OpenAPISpec<OpenApiTypes.OpenAPISchemaType> = internal.make

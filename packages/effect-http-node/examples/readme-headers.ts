@@ -4,13 +4,13 @@ import { pipe } from "effect"
 import { Api, ExampleServer, RouterBuilder } from "effect-http"
 import { NodeServer } from "effect-http-node"
 
-const api = Api.api().pipe(
-  Api.get("hello", "/hello", {
-    response: Schema.string,
-    request: {
-      headers: Schema.struct({ "X-Client-Id": Schema.string })
-    }
-  })
+const api = Api.make().pipe(
+  Api.addEndpoint(
+    Api.get("hello", "/hello").pipe(
+      Api.setResponseBody(Schema.string),
+      Api.setRequestHeaders(Schema.struct({ "x-client-id": Schema.string }))
+    )
+  )
 )
 
 pipe(

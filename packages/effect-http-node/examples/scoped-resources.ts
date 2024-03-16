@@ -21,8 +21,10 @@ const resource = Effect.acquireRelease(
 )
 
 const api = pipe(
-  Api.api(),
-  Api.get("test", "/test", { response: Schema.string })
+  Api.make(),
+  Api.addEndpoint(
+    Api.get("test", "/test").pipe(Api.setResponseBody(Schema.string))
+  )
 )
 
 const app = pipe(

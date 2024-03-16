@@ -8,17 +8,14 @@ import { NodeServer } from "effect-http-node"
 import { debugLogger } from "./_utils.js"
 
 const api = pipe(
-  Api.api(),
-  Api.post("upload", "/upload", {
-    request: {
-      body: Api.FormData
-    },
-    response: {
-      status: 200,
-      content: Schema.string,
-      representations: [Representation.plainText]
-    }
-  })
+  Api.make(),
+  Api.addEndpoint(
+    Api.post("upload", "/upload").pipe(
+      Api.setRequestBody(Api.FormData),
+      Api.setResponseBody(Schema.string),
+      Api.setResponseRepresentations([Representation.plainText])
+    )
+  )
 )
 
 const app = pipe(
@@ -35,8 +32,7 @@ const app = pipe(
       }
 
       const fs = yield* _(FileSystem.FileSystem)
-      const content = yield* _(fs.readFileString(file[0].path))
-      return { status: 200 as const, content }
+      return yield* _(fs.readFileString(file[0].path))
     }).pipe(Effect.scoped)),
   RouterBuilder.build
 )

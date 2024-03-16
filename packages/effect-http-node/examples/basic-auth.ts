@@ -37,10 +37,10 @@ const CredentialsService = Context.GenericTag<ReadonlyArray<Middlewares.BasicAut
 )
 
 const api = pipe(
-  Api.api({ title: "Users API" }),
-  Api.get("getUser", "/user", {
-    response: Schema.string
-  })
+  Api.make({ title: "Users API" }),
+  Api.addEndpoint(
+    Api.get("getUser", "/user").pipe(Api.setResponseBody(Schema.string))
+  )
 )
 
 const app = pipe(

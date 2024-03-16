@@ -1,22 +1,18 @@
 import { Schema } from "@effect/schema"
 import { Effect } from "effect"
-import { Api, Client } from "effect-http"
+import { Api, ApiResponse, Client } from "effect-http"
 
-export const api = Api.api().pipe(
-  Api.post("test", "/test", {
-    response: [{
-      status: 400
-    }, {
-      status: 200,
-      content: Schema.string
-    }]
-  })
+export const api = Api.make().pipe(
+  Api.addEndpoint(
+    Api.post("test", "/test").pipe(
+      Api.setResponseBody(Schema.string),
+      Api.addResponse(ApiResponse.make(400))
+    )
+  )
 )
 
 const client = Client.make(api)
 
-const log200 = (answer: { status: 200 }) => Effect.log(answer)
+const log200 = (answer: string) => Effect.log(answer)
 
-client
-  .test()
-  .pipe(Effect.tap(log200))
+client.test({}).pipe((x) => x, Effect.tap(log200))

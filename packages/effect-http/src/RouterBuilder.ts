@@ -11,6 +11,7 @@ import type * as Pipeable from "effect/Pipeable"
 import type * as Scope from "effect/Scope"
 
 import type * as Api from "./Api.js"
+import type * as ApiEndpoint from "./ApiEndpoint.js"
 import * as internal from "./internal/router-builder.js"
 import type * as Route from "./Route.js"
 import type * as ServerError from "./ServerError.js"
@@ -20,11 +21,11 @@ import type * as SwaggerRouter from "./SwaggerRouter.js"
  * @category models
  * @since 1.0.0
  */
-export interface RouterBuilder<R, E, RemainingEndpoints extends Api.Endpoint> extends Pipeable.Pipeable {
-  remainingEndpoints: ReadonlyArray<RemainingEndpoints>
-  api: Api.Api
-  router: Router.Router<R, E>
-  options: Options
+export interface RouterBuilder<R, E, RemainingEndpoints extends ApiEndpoint.ApiEndpoint.Any> extends Pipeable.Pipeable {
+  readonly remainingEndpoints: ReadonlyArray<RemainingEndpoints>
+  readonly api: Api.Api.Any
+  readonly router: Router.Router<R, E>
+  readonly options: Options
 }
 
 /**
@@ -32,9 +33,9 @@ export interface RouterBuilder<R, E, RemainingEndpoints extends Api.Endpoint> ex
  * @since 1.0.0
  */
 export interface Options {
-  parseOptions: AST.ParseOptions
-  enableDocs: boolean
-  docsPath: `/${string}`
+  readonly parseOptions: AST.ParseOptions
+  readonly enableDocs: boolean
+  readonly docsPath: `/${string}`
 }
 
 /**
@@ -43,10 +44,10 @@ export interface Options {
  * @category handling
  * @since 1.0.0
  */
-export const make: <Api extends Api.Api>(
-  api: Api,
+export const make: <A extends Api.Api.Any>(
+  api: A,
   options?: Partial<Options>
-) => RouterBuilder<never, never, Api["groups"][number]["endpoints"][number]> = internal.make
+) => RouterBuilder<never, never, Api.Api.Endpoints<A>> = internal.make
 
 /**
  * Handle an endpoint using a raw `Router.Route.Handler`.
@@ -57,8 +58,8 @@ export const make: <Api extends Api.Api>(
 export const handleRaw: <
   R2,
   E2,
-  RemainingEndpoints extends Api.Endpoint,
-  Id extends RemainingEndpoints["id"]
+  RemainingEndpoints extends ApiEndpoint.ApiEndpoint.Any,
+  Id extends ApiEndpoint.ApiEndpoint.Id<RemainingEndpoints>
 >(
   id: Id,
   handler: Router.Route.Handler<R2, E2>
@@ -67,7 +68,7 @@ export const handleRaw: <
 ) => RouterBuilder<
   R1 | Exclude<R2, Router.RouteContext | ServerRequest.ServerRequest | Scope.Scope>,
   E1 | E2,
-  Exclude<RemainingEndpoints, { id: Id }>
+  ApiEndpoint.ApiEndpoint.ExcludeById<RemainingEndpoints, Id>
 > = internal.handleRaw
 
 /**
@@ -79,12 +80,12 @@ export const handleRaw: <
 export const handle: <
   R2,
   E2,
-  RemainingEndpoints extends Api.Endpoint,
-  Id extends RemainingEndpoints["id"]
+  RemainingEndpoints extends ApiEndpoint.ApiEndpoint.Any,
+  Id extends ApiEndpoint.ApiEndpoint.Id<RemainingEndpoints>
 >(
   id: Id,
   fn: Route.HandlerFunction<
-    Extract<RemainingEndpoints, { id: Id }>,
+    ApiEndpoint.ApiEndpoint.ExtractById<RemainingEndpoints, Id>,
     R2,
     E2
   >
@@ -92,9 +93,9 @@ export const handle: <
   builder: RouterBuilder<R1, E1, RemainingEndpoints>
 ) => RouterBuilder<
   | Exclude<R1 | R2, Router.RouteContext | ServerRequest.ServerRequest>
-  | Api.EndpointRequirements<Extract<RemainingEndpoints, { id: Id }>>,
+  | ApiEndpoint.ApiEndpoint.Requirements<ApiEndpoint.ApiEndpoint.ExtractById<RemainingEndpoints, Id>>,
   E1 | Exclude<E2, ServerError.ServerError>,
-  Exclude<RemainingEndpoints, { id: Id }>
+  ApiEndpoint.ApiEndpoint.ExcludeById<RemainingEndpoints, Id>
 > = internal.handle
 
 /**
@@ -103,7 +104,7 @@ export const handle: <
  * @category mapping
  * @since 1.0.0
  */
-export const mapRouter = <R1, R2, E1, E2, RemainingEndpoints extends Api.Endpoint>(
+export const mapRouter = <R1, R2, E1, E2, RemainingEndpoints extends ApiEndpoint.ApiEndpoint.Any>(
   fn: (router: Router.Router<R1, E1>) => Router.Router<R2, E2>
 ) =>
 (
@@ -142,6 +143,6 @@ export const build: <R, E>(
  * @category destructors
  * @since 1.0.0
  */
-export const buildPartial: <R, E, RemainingEndpoints extends Api.Endpoint>(
+export const buildPartial: <R, E, RemainingEndpoints extends ApiEndpoint.ApiEndpoint.Any>(
   builder: RouterBuilder<R, E, RemainingEndpoints>
 ) => App.Default<R | SwaggerRouter.SwaggerFiles, E> = internal.buildPartial

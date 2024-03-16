@@ -3,23 +3,22 @@ import { ExampleCompiler } from "schema-openapi"
 import * as Effect from "effect/Effect"
 import { pipe } from "effect/Function"
 import type * as Api from "../Api.js"
+import * as ApiEndpoint from "../ApiEndpoint.js"
 import type * as Client from "../Client.js"
 import type * as MockClient from "../MockClient.js"
 import * as ClientRequestEncoder from "./clientRequestEncoder.js"
 import * as utils from "./utils.js"
 
-export const make = <Endpoints extends Api.Endpoint>(
-  api: Api.Api<Endpoints>,
-  option?: Partial<MockClient.Options<Endpoints>>
-): Client.Client<Endpoints> =>
+export const make = <A extends Api.Api.Any>(
+  api: A,
+  option?: Partial<MockClient.Options<A>>
+): Client.Client<A> =>
   api.groups.flatMap((group) => group.endpoints).reduce((client, endpoint) => {
     const requestEncoder = ClientRequestEncoder.create(endpoint)
-    const responseSchema = utils.createResponseSchema(
-      endpoint.schemas.response
-    )
+    const responseSchema = utils.createResponseSchema(endpoint)
 
     const customResponses = option?.responses
-    const customResponse = customResponses && customResponses[endpoint.id as Endpoints["id"]]
+    const customResponse = customResponses && (customResponses as any)[ApiEndpoint.getId(endpoint)]
 
     const fn = (args: unknown, security: unknown) => {
       return pipe(
@@ -36,5 +35,5 @@ export const make = <Endpoints extends Api.Endpoint>(
       )
     }
 
-    return { ...client, [endpoint.id]: fn }
-  }, {} as Client.Client<Endpoints>)
+    return { ...client as any, [ApiEndpoint.getId(endpoint)]: fn }
+  }, {} as Client.Client<A>)

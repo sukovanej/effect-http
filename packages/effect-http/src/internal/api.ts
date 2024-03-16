@@ -1,295 +1,23 @@
-import type * as PlatformRouter from "@effect/platform/Http/Router"
-import * as AST from "@effect/schema/AST"
-import * as Schema from "@effect/schema/Schema"
-import * as Equivalence from "effect/Equivalence"
-import { pipe } from "effect/Function"
-import * as HashSet from "effect/HashSet"
-import * as Order from "effect/Order"
 import * as Pipeable from "effect/Pipeable"
 import * as ReadonlyArray from "effect/ReadonlyArray"
-import type * as ReadonlyRecord from "effect/ReadonlyRecord"
-import { OpenApiCompiler } from "schema-openapi"
 import type * as Api from "../Api.js"
-import * as Representation from "../Representation.js"
-import type { SecurityScheme } from "../SecurityScheme.js"
-
-/** @internal */
-const composeResponseSchema = (
-  response: ReadonlyArray<Api.InputResponseSchemaFull>
-) =>
-  response.map(
-    (r) => (({
-      status: r.status,
-      headers: (r.headers && fieldsToLowerCase(r.headers)) ?? IgnoredSchemaId,
-      content: r.content ?? IgnoredSchemaId,
-      representations: r.representations ?? [Representation.json]
-    }) as const)
-  )
-
-/** @internal */
-const createSchemasFromInput = <I extends Api.InputEndpointSchemas>({
-  request,
-  response
-}: I): Api.CreateEndpointSchemasFromInput<I> => (({
-  response: response === undefined
-    ? IgnoredSchemaId :
-    Schema.isSchema(response)
-    ? response :
-    composeResponseSchema(Array.isArray(response) ? response : [response]),
-
-  request: {
-    query: request?.query ?? IgnoredSchemaId,
-    params: request?.params ?? IgnoredSchemaId,
-    body: request?.body ?? IgnoredSchemaId,
-    headers: (request?.headers && fieldsToLowerCase(request?.headers)) ??
-      IgnoredSchemaId
-  }
-}) as Api.CreateEndpointSchemasFromInput<I>)
-
-/** @internal */
-const tupleOrder = Order.tuple(Order.string, Order.boolean)
-
-/** @internal */
-const tupleEquivalence = Equivalence.tuple(
-  Equivalence.string,
-  Equivalence.boolean
-)
-
-/** @internal */
-const arrayOfTupleEquals = ReadonlyArray.getEquivalence(tupleEquivalence)
-
-/** @internal */
-const getSchemaPropertySignatures = (schema: Schema.Schema<any, any>) => {
-  let ast = schema.ast
-
-  if (ast._tag === "Transformation") {
-    ast = ast.from
-  }
-
-  if (ast._tag !== "TypeLiteral") {
-    throw new Error(`Response headers must be a type literal schema`)
-  }
-
-  return ast.propertySignatures
-}
-
-/** @internal */
-const checkPathPatternMatchesSchema = (
-  id: string,
-  path: string,
-  schema?: Schema.Schema<any, any>
-) => {
-  const fromSchema = pipe(
-    schema === undefined ? [] : getSchemaPropertySignatures(schema),
-    ReadonlyArray.fromIterable,
-    ReadonlyArray.map((ps) => [ps.name as string, ps.isOptional] as const),
-    ReadonlyArray.sort(tupleOrder)
-  )
-
-  const fromPath = pipe(
-    path.matchAll(/:(\w+)[?]?/g),
-    ReadonlyArray.fromIterable,
-    ReadonlyArray.map(([name]) => {
-      if (name.endsWith("?")) {
-        return [name.slice(1, -1), true] as const
-      }
-      return [name.slice(1), false] as const
-    }),
-    ReadonlyArray.sort(tupleOrder)
-  )
-
-  const matched = arrayOfTupleEquals(fromPath, fromSchema)
-
-  if (!matched) {
-    throw new Error(`Path doesn't match the param schema (endpoint: "${id}").`)
-  }
-}
-
-/** @internal */
-export const endpoint = (method: Api.Method) =>
-<
-  const Id extends string,
-  const I extends Api.InputEndpointSchemas,
-  const Security extends ReadonlyRecord.ReadonlyRecord<string, SecurityScheme<any>> | undefined = undefined
->(
-  id: Id,
-  path: PlatformRouter.PathInput,
-  schemas: I,
-  options?: Api.InputEndpointOptions<Security>
-) =>
-<A extends Api.Api | Api.ApiGroup>(api: A): Api.AddEndpoint<A, Id, I, Security> => {
-  if (method === "get" && schemas.request?.body !== undefined) {
-    throw new Error(`Invalid ${id} endpoint. GET request cant have a body.`)
-  }
-
-  if (isApiGroup(api) && api.endpoints.find((endpoint) => endpoint.id === id) !== undefined) {
-    throw new Error(`Endpoint with operation id ${id} already exists`)
-  }
-
-  if (
-    isApi(api) && api.groups.find((group) => group.endpoints.find((endpoint) => endpoint.id === id)) !== undefined
-  ) {
-    throw new Error(`Endpoint with operation id ${id} already exists`)
-  }
-
-  if (
-    Array.isArray(schemas.response) &&
-    HashSet.size(
-        HashSet.make(...schemas.response.map(({ status }) => status))
-      ) !== schemas.response.length
-  ) {
-    throw new Error(
-      `Responses for endpoint ${id} must have unique status codes`
-    )
-  }
-
-  checkPathPatternMatchesSchema(id, path, schemas.request?.params)
-
-  const newEndpoint: Api.Endpoint = {
-    schemas: createSchemasFromInput(schemas),
-    id,
-    path,
-    method,
-    options: {
-      ...(options ?? {}),
-      security: options?.security ?? {}
-    }
-  }
-
-  if (isApiGroup(api)) {
-    return new ApiGroupImpl(
-      [...api.endpoints, newEndpoint],
-      api.options
-    ) as any
-  } else {
-    const defaultGroup = api.groups.find((group) => group.options.name === "default") ?? apiGroup("default")
-    const groupsWithoutDefault = api.groups.filter((group) => group.options.name !== "default")
-    const newDefaultGroup = pipe(defaultGroup, endpoint(method)(id, path, schemas, options))
-
-    return new ApiImpl(
-      [...groupsWithoutDefault, newDefaultGroup],
-      api.options
-    ) as any
-  }
-}
-
-/** Headers are case-insensitive, internally we deal with them as lowercase
- *  because that's how express deal with them.
- *
- *  @internal
- */
-export const fieldsToLowerCase = (s: Schema.Schema<any, any, any>) => {
-  const ast = s.ast
-
-  if (ast._tag !== "TypeLiteral") {
-    throw new Error(`Expected type literal schema`)
-  }
-
-  const newPropertySignatures = ast.propertySignatures.map((ps) => {
-    if (typeof ps.name !== "string") {
-      throw new Error(`Expected string property key`)
-    }
-
-    return new AST.PropertySignature(ps.name.toLowerCase(), ps.type, ps.isOptional, ps.isReadonly, ps.annotations)
-  })
-
-  return Schema.make(new AST.TypeLiteral(newPropertySignatures, ast.indexSignatures, ast.annotations))
-}
-
-/** @internal */
-const DEFAULT_OPTIONS: Api.Api["options"] = {
-  title: "Api",
-  version: "1.0.0"
-}
-
-export const apiGroup = (
-  name: Api.ApiGroup["options"]["name"],
-  options?: Omit<Api.ApiGroup["options"], "name">
-): Api.ApiGroup<never> => new ApiGroupImpl([], { name, ...options })
-
-export const getEndpoint = <
-  A extends Api.Api,
-  Id extends A["groups"][number]["endpoints"][number]["id"]
->(
-  api: A,
-  id: Id
-): Extract<A["groups"][number]["endpoints"][number], { id: Id }> => {
-  let endpoint: Api.Endpoint | undefined = undefined
-
-  api.groups.find((g) =>
-    g.endpoints.find((e) => {
-      if (e.id === id) {
-        endpoint = e
-        return true
-      } else {
-        return false
-      }
-    })
-  )
-
-  // This operation is type-safe and non-existing ids are forbidden
-  if (endpoint === undefined) {
-    throw new Error(`Operation id ${id} not found`)
-  }
-
-  return endpoint as any
-}
-
-/**
- * Merge the Api `Group` with an `Api`
- *
- * @category combinators
- * @since 1.0.0
- */
-export const addGroup =
-  <E2 extends Api.Endpoint>(apiGroup: Api.ApiGroup<E2>) =>
-  <E1 extends Api.Endpoint>(api: Api.Api<E1>): Api.Api<E1 | E2> => {
-    const existingIds = HashSet.make(...api.groups.flatMap((group) => group.endpoints).map(({ id }) => id))
-    const newIds = HashSet.make(...apiGroup.endpoints.map(({ id }) => id))
-    const duplicates = HashSet.intersection(existingIds, newIds)
-
-    if (HashSet.size(duplicates) > 0) {
-      throw new Error(
-        `Api group introduces already existing operation ids: ${duplicates}`
-      )
-    }
-    const newGroups: Array<Api.ApiGroup<E1 | E2>> = [...api.groups, apiGroup]
-
-    return new ApiImpl(newGroups, api.options)
-  }
-
-export const api = (options?: Partial<Api.Api["options"]>): Api.Api<never> =>
-  new ApiImpl([], { ...DEFAULT_OPTIONS, ...options })
-
-export const isApi = (u: unknown): u is Api.Api<any> => typeof u === "object" && u !== null && ApiTypeId in u
-
-export const isApiGroup = (u: unknown): u is Api.ApiGroup<any> =>
-  typeof u === "object" && u !== null && ApiGroupTypeId in u
+import * as ApiEndpoint from "../ApiEndpoint.js"
+import * as ApiGroup from "../ApiGroup.js"
+import * as api_endpoint from "./api-endpoint.js"
+import * as api_group from "./api-group.js"
 
 export const ApiTypeId: Api.ApiTypeId = Symbol.for(
   "effect-http/Api/ApiTypeId"
 ) as Api.ApiTypeId
 
-export const ApiGroupTypeId: Api.ApiGroupTypeId = Symbol.for(
-  "effect-http/Api/ApiGroupTypeId"
-) as Api.ApiGroupTypeId
-
-/** @ignore */
-export type IgnoredSchemaId = typeof IgnoredSchemaId
-
-export const IgnoredSchemaId: Api.IgnoredSchemaId = Symbol.for(
-  "effect-http/ignore-schema-id"
-) as Api.IgnoredSchemaId
-
 /** @internal */
-class ApiImpl<Endpoints extends Api.Endpoint> implements Api.Api<Endpoints> {
+class ApiImpl<Endpoints extends ApiEndpoint.ApiEndpoint.Any> implements Api.Api<Endpoints> {
   readonly [ApiTypeId]: Api.ApiTypeId = ApiTypeId
 
   constructor(
-    readonly groups: Array<Api.ApiGroup<Endpoints>>,
-    readonly options: Api.Api["options"]
-  ) {
-  }
+    readonly groups: ReadonlyArray<ApiGroup.ApiGroup<Endpoints>>,
+    readonly options: Api.Api.Any["options"]
+  ) {}
 
   pipe() {
     // eslint-disable-next-line prefer-rest-params
@@ -298,21 +26,60 @@ class ApiImpl<Endpoints extends Api.Endpoint> implements Api.Api<Endpoints> {
 }
 
 /** @internal */
-class ApiGroupImpl<Endpoints extends Api.Endpoint> implements Api.ApiGroup<Endpoints> {
-  readonly [ApiGroupTypeId]: Api.ApiGroupTypeId = ApiGroupTypeId
-
-  constructor(
-    readonly endpoints: Array<Endpoints>,
-    readonly options: Api.ApiGroup["options"]
-  ) {
-  }
-
-  pipe() {
-    // eslint-disable-next-line prefer-rest-params
-    return Pipeable.pipeArguments(this, arguments)
-  }
+const DEFAULT_API_OPTIONS: Api.Api.Any["options"] = {
+  title: "Api",
+  version: "1.0.0"
 }
 
-export const formDataSchema = Schema.instanceOf(FormData, {
-  description: "Multipart form data"
-}).pipe(OpenApiCompiler.annotate({}))
+/** @internal */
+export const isApi = (u: unknown): u is Api.Api.Any => typeof u === "object" && u !== null && ApiTypeId in u
+
+/** @internal */
+export const make = (options?: Partial<Api.ApiOptions>): Api.Api.Empty =>
+  new ApiImpl([], { ...DEFAULT_API_OPTIONS, ...options })
+
+/** @internal */
+export const addEndpoint =
+  <E2 extends ApiEndpoint.ApiEndpoint.Any>(endpoint: E2) =>
+  <E1 extends ApiEndpoint.ApiEndpoint.Any>(api: Api.Api<E1>): Api.Api<E1 | E2> => {
+    api_endpoint.validateEndpoint(endpoint)
+    api.groups.forEach((group) => api_group.validateNewEndpoint(group, endpoint))
+
+    const defaultGroup = api.groups.find((group) => group.name === "default") ?? ApiGroup.make("default")
+    const groupsWithoutDefault = api.groups.filter((group) => group.name !== "default")
+    const newDefaultGroup = new api_group.ApiGroupImpl(
+      "default",
+      [...defaultGroup.endpoints, endpoint],
+      defaultGroup.options
+    )
+    return new ApiImpl([...groupsWithoutDefault, newDefaultGroup], api.options) as any
+  }
+
+/** @internal */
+export const addGroup = <E2 extends ApiEndpoint.ApiEndpoint.Any>(
+  group: ApiGroup.ApiGroup<E2>
+) =>
+<E1 extends ApiEndpoint.ApiEndpoint.Any>(self: Api.Api<E1>): Api.Api<E1 | E2> => {
+  const current = self.groups.flatMap((group) => group.endpoints.map(ApiEndpoint.getId))
+  const incomming = group.endpoints.map(ApiEndpoint.getId)
+
+  if (ReadonlyArray.intersection(current, incomming).length > 0) {
+    throw new Error(`Duplicate endpoint ids found in the group`)
+  }
+
+  return new ApiImpl<E1 | E2>([...self.groups, group], self.options)
+}
+
+/** @internal */
+export const getEndpoint = <A extends Api.Api.Any, Id extends Api.Api.Ids<A>>(
+  api: A,
+  id: Id
+): Api.Api.EndpointById<A, Id> => {
+  const endpoint = api.groups.flatMap((group) => group.endpoints).find((endpoint) => ApiEndpoint.getId(endpoint) === id)
+
+  if (endpoint === undefined) {
+    throw new Error(`Endpoint with id ${id} not found`)
+  }
+
+  return endpoint as Api.Api.EndpointById<A, Id>
+}

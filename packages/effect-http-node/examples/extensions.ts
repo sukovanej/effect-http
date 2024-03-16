@@ -7,14 +7,17 @@ import { NodeServer } from "effect-http-node"
 import { debugLogger } from "./_utils.js"
 
 const api = pipe(
-  Api.api({ title: "Users API" }),
-  Api.get(
-    "getUser",
-    "/user",
-    { response: Schema.string },
-    { description: "Returns a User by id" }
+  Api.make({ title: "Users API" }),
+  Api.addEndpoint(
+    Api.get("getUser", "/user", { description: "Returns a User by id" }).pipe(
+      Api.setResponseBody(Schema.string)
+    )
   ),
-  Api.get("metrics", "/metrics", { response: Schema.any })
+  Api.addEndpoint(
+    Api.get("metrics", "/metrics").pipe(
+      Api.setResponseBody(Schema.unknown)
+    )
+  )
 )
 
 const app = pipe(

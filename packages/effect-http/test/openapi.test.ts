@@ -1,17 +1,16 @@
 import { Schema } from "@effect/schema"
 import { pipe } from "effect"
-import { Api, OpenApi } from "effect-http"
+import { Api, ApiGroup, OpenApi } from "effect-http"
 import { expect, test } from "vitest"
 import { bearer } from "../src/SecurityScheme.js"
 
 test("description", () => {
   const api = pipe(
-    Api.api(),
-    Api.put(
-      "myOperation",
-      "/my-operation",
-      { response: Schema.string },
-      { description: "my description" }
+    Api.make(),
+    Api.addEndpoint(
+      Api.put("myOperation", "/my-operation", { description: "my description" }).pipe(
+        Api.setResponseBody(Schema.string)
+      )
     )
   )
 
@@ -27,13 +26,13 @@ test("reference and schema component", () => {
     Schema.struct({ someString: Schema.string }),
     Schema.identifier("ResponseSchema")
   )
+
   const api = pipe(
-    Api.api(),
-    Api.put(
-      "myOperation",
-      "/my-operation",
-      { response: responseSchema },
-      { description: "my description" }
+    Api.make(),
+    Api.addEndpoint(
+      Api.put("myOperation", "/my-operation", { description: "my description" }).pipe(
+        Api.setResponseBody(responseSchema)
+      )
     )
   )
 
@@ -59,7 +58,7 @@ test("reference and schema component", () => {
                   }
                 }
               },
-              description: "Response"
+              description: "Response 200"
             }
           },
           description: "my description"
@@ -84,7 +83,7 @@ test("reference and schema component", () => {
 })
 
 test("full info object", () => {
-  const api = Api.api({
+  const api = Api.make({
     title: "My awesome pets API",
     version: "1.0.0",
     description: "my description",
@@ -109,26 +108,26 @@ test("group info", () => {
     Schema.identifier("ResponseSchema")
   )
 
-  const api = Api.api().pipe(
-    Api.put(
-      "operationWithoutGroup",
-      "/operation-without-group",
-      { response: responseSchema },
-      { description: "my description" }
+  const api = Api.make().pipe(
+    Api.addEndpoint(
+      Api.put(
+        "operationWithoutGroup",
+        "/operation-without-group",
+        { description: "my description" }
+      ).pipe(Api.setResponseBody(responseSchema))
     ),
     Api.addGroup(
-      Api.apiGroup("test group", {
+      ApiGroup.make("test group", {
         description: "test description",
         externalDocs: {
           url: "http://localhost:8080",
           description: "Test external Docs description"
         }
       }).pipe(
-        Api.put(
-          "myOperation",
-          "/my-operation",
-          { response: responseSchema },
-          { description: "my description" }
+        ApiGroup.addEndpoint(
+          ApiGroup.put("myOperation", "/my-operation", { description: "my description" }).pipe(
+            ApiGroup.setResponseBody(responseSchema)
+          )
         )
       )
     )
@@ -162,7 +161,7 @@ test("group info", () => {
                   }
                 }
               },
-              description: "Response"
+              description: "Response 200"
             }
           },
           description: "my description"
@@ -181,7 +180,7 @@ test("group info", () => {
                   }
                 }
               },
-              description: "Response"
+              description: "Response 200"
             }
           },
           description: "my description"
@@ -207,22 +206,18 @@ test("group info", () => {
 
 test("union in query params", () => {
   const api = pipe(
-    Api.api(),
-    Api.post(
-      "myOperation",
-      "/my-operation",
-      {
-        response: Schema.string,
-        request: {
-          query: Schema.union(
-            Schema.struct({ a: Schema.string }),
-            Schema.struct({ a: Schema.number, b: Schema.string }),
-            Schema.struct({ a: Schema.number, c: Schema.string }).pipe(
-              Schema.attachPropertySignature("_tag", "Case2")
-            )
+    Api.make(),
+    Api.addEndpoint(
+      Api.post("myOperation", "/my-operation").pipe(
+        Api.setResponseBody(Schema.string),
+        Api.setRequestQuery(Schema.union(
+          Schema.struct({ a: Schema.string }),
+          Schema.struct({ a: Schema.number, b: Schema.string }),
+          Schema.struct({ a: Schema.number, c: Schema.string }).pipe(
+            Schema.attachPropertySignature("_tag", "Case2")
           )
-        }
-      }
+        ))
+      )
     )
   )
 
@@ -269,32 +264,22 @@ test("union in query params", () => {
 
 test("http security scheme", () => {
   const api = pipe(
-    Api.api(),
-    Api.post(
-      "myOperation",
-      "/my-operation",
-      {
-        response: Schema.string,
-        request: {
-          query: Schema.union(
-            Schema.struct({ a: Schema.string }),
-            Schema.struct({ a: Schema.number, b: Schema.string }),
-            Schema.struct({ a: Schema.number, c: Schema.string }).pipe(
-              Schema.attachPropertySignature("_tag", "Case2")
-            )
+    Api.make(),
+    Api.addEndpoint(
+      Api.post("myOperation", "/my-operation", { description: "options" }).pipe(
+        Api.setResponseBody(Schema.string),
+        Api.setRequestQuery(Schema.union(
+          Schema.struct({ a: Schema.string }),
+          Schema.struct({ a: Schema.number, b: Schema.string }),
+          Schema.struct({ a: Schema.number, c: Schema.string }).pipe(
+            Schema.attachPropertySignature("_tag", "Case2")
           )
-        }
-      },
-      {
-        description: "options",
-        security: {
-          mayAwesomeAuth: bearer({
-            tokenSchema: Schema.Secret,
-            bearerFormat: "jwt",
-            description: "mayAwesomeAuth description"
-          })
-        }
-      }
+        )),
+        Api.addSecurity(
+          "mayAwesomeAuth",
+          bearer({ tokenSchema: Schema.Secret, bearerFormat: "jwt", description: "mayAwesomeAuth description" })
+        )
+      )
     )
   )
 

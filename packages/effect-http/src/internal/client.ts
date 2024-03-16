@@ -3,6 +3,7 @@ import * as ClientRequest from "@effect/platform/Http/ClientRequest"
 import * as Effect from "effect/Effect"
 import { identity, pipe } from "effect/Function"
 import * as Api from "../Api.js"
+import * as ApiEndpoint from "../ApiEndpoint.js"
 import type * as Client from "../Client.js"
 import * as ClientRequestEncoder from "./clientRequestEncoder.js"
 import * as ClientResponseParser from "./clientResponseParser.js"
@@ -11,15 +12,15 @@ import * as ClientResponseParser from "./clientResponseParser.js"
 const defaultHttpClient = PlatformClient.fetch()
 
 export const endpointClient = <
-  Endpoints extends Api.Endpoint,
-  Id extends Endpoints["id"]
+  A extends Api.Api.Any,
+  Id extends Api.Api.Ids<A>
 >(
   id: Id,
-  api: Api.Api<Endpoints>,
+  api: A,
   options: Partial<Client.Options>
-): Client.EndpointClient<Extract<Endpoints, { id: Id }>> => {
+): Client.EndpointClient<Api.Api.EndpointById<A, Id>> => {
   const endpoint = Api.getEndpoint(api, id)
-  const responseParser = ClientResponseParser.create(endpoint.schemas.response)
+  const responseParser = ClientResponseParser.create(endpoint)
   const requestEncoder = ClientRequestEncoder.create(endpoint)
 
   let mapRequest = options.mapRequest ?? identity
@@ -37,7 +38,7 @@ export const endpointClient = <
       Effect.flatMap(httpClient),
       Effect.flatMap(responseParser.parseResponse),
       Effect.scoped,
-      Effect.annotateLogs("clientOperationId", endpoint.id)
+      Effect.annotateLogs("clientOperationId", ApiEndpoint.getId(endpoint))
     )) as any
 }
 
@@ -47,14 +48,14 @@ export const endpointClient = <
  * @category constructors
  * @since 1.0.0
  */
-export const make = <Endpoints extends Api.Endpoint>(
-  api: Api.Api<Endpoints>,
+export const make = <A extends Api.Api.Any>(
+  api: A,
   options?: Partial<Client.Options>
-): Client.Client<Endpoints> =>
+): Client.Client<A> =>
   api.groups.flatMap((group) => group.endpoints).reduce(
     (client, endpoint) => ({
-      ...client,
-      [endpoint.id]: endpointClient(endpoint.id, api, options ?? {})
+      ...client as any,
+      [ApiEndpoint.getId(endpoint)]: endpointClient(ApiEndpoint.getId(endpoint) as any, api, options ?? {})
     }),
-    {} as Client.Client<Endpoints>
+    {} as Client.Client<A>
   )
