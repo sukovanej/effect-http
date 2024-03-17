@@ -32,10 +32,12 @@ export interface ApiResponse<S extends ApiResponse.AnyStatus, B, H, R>
 {}
 
 /**
+ * @category models
  * @since 1.0.0
  */
 export declare namespace ApiResponse {
   /**
+   * @category models
    * @since 1.0.0
    */
   export interface Variance<S, B, H, R> {
@@ -48,6 +50,7 @@ export declare namespace ApiResponse {
   }
 
   /**
+   * @category models
    * @since 1.0.0
    */
   export type AnyStatus = number
@@ -55,6 +58,7 @@ export declare namespace ApiResponse {
   /**
    * Any request with all `Body`, `Path`, `Query` and `Headers` set to `Schema.Schema.Any`.
    *
+   * @category models
    * @since 1.0.0
    */
   export type Any = ApiResponse<AnyStatus, any, any, unknown>
@@ -62,29 +66,34 @@ export declare namespace ApiResponse {
   /**
    * Default response.
    *
+   * @category models
    * @since 1.0.0
    */
   export type Default = ApiResponse<200, ApiSchema.Ignored, ApiSchema.Ignored, never>
 
   /**
+   * @category models
    * @since 1.0.0
    */
   export type Status<Request> = [Request] extends [ApiResponse<infer S, any, any, any>] ? S
     : never
 
   /**
+   * @category models
    * @since 1.0.0
    */
   export type Body<Request> = [Request] extends [ApiResponse<any, infer B, any, any>] ? B
     : never
 
   /**
+   * @category models
    * @since 1.0.0
    */
   export type Headers<Request> = [Request] extends [ApiResponse<any, any, infer H, any>] ? H
     : never
 
   /**
+   * @category models
    * @since 1.0.0
    */
   export type Requirements<Request> = [Request] extends [ApiResponse<any, any, any, infer R>] ? R
@@ -92,6 +101,7 @@ export declare namespace ApiResponse {
 }
 
 /**
+ * @category refinements
  * @since 1.0.0
  */
 export const isApiResponse: (u: unknown) => u is ApiResponse.Any = internal.isApiResponse

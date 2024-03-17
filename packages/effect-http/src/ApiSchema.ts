@@ -5,7 +5,7 @@ import type * as Schema from "@effect/schema/Schema"
 import * as internal from "./internal/api-schema.js"
 
 /**
- * @category schemas
+ * @category type id
  * @since 1.0.0
  */
 export const IgnoredId: unique symbol = internal.IgnoredId
@@ -17,13 +17,13 @@ export const IgnoredId: unique symbol = internal.IgnoredId
 export type IgnoredId = typeof IgnoredId
 
 /**
- * @category schemas
+ * @category type id
  * @since 1.0.0
  */
 export const Ignored: Ignored = internal.Ignored
 
 /**
- * @category models
+ * @category type id
  * @since 1.0.0
  */
 export interface Ignored {
@@ -31,7 +31,7 @@ export interface Ignored {
 }
 
 /**
- * @category schemas
+ * @category refinements
  * @since 1.0.0
  */
 export const isIgnored = (u: unknown): u is Ignored => (u as Ignored)?.[IgnoredId] === IgnoredId
