@@ -42,12 +42,14 @@ export interface ApiGroup<E extends ApiEndpoint.ApiEndpoint.Any> extends Pipeabl
 }
 
 /**
+ * @category models
  * @since 1.0.0
  */
 export declare namespace ApiGroup {
   /**
    * Any api group with `Endpoint = Endpoint.Any`.
    *
+   * @category models
    * @since 1.0.0
    */
   export type Any = ApiGroup<ApiEndpoint.ApiEndpoint.Any>
@@ -55,11 +57,13 @@ export declare namespace ApiGroup {
   /**
    * Default api group spec.
    *
+   * @category models
    * @since 1.0.0
    */
   export type Empty = ApiGroup<never>
 
   /**
+   * @category models
    * @since 1.0.0
    */
   export type Requirements<Endpoint> = Endpoint extends ApiGroup<infer E> ? ApiEndpoint.ApiEndpoint.Requirements<E>
@@ -67,6 +71,7 @@ export declare namespace ApiGroup {
 }
 
 /**
+ * @category constructors
  * @since 1.0.0
  */
 export const make: (
@@ -75,6 +80,7 @@ export const make: (
 ) => ApiGroup.Empty = internal.make
 
 /**
+ * @category modifications
  * @since 1.0.0
  */
 export const addEndpoint: <E2 extends ApiEndpoint.ApiEndpoint.Any>(
@@ -83,102 +89,102 @@ export const addEndpoint: <E2 extends ApiEndpoint.ApiEndpoint.Any>(
 
 export {
   /**
-   * @category reexported
+   * @category modifications
    * @since 1.0.0
    */
   addResponse,
   /**
-   * @category reexported
+   * @category modifications
    * @since 1.0.0
    */
   addSecurity,
   /**
-   * @category reexported
+   * @category constructors
    * @since 1.0.0
    */
   delete,
   /**
-   * @category reexported
+   * @category constructors
    * @since 1.0.0
    */
   get,
   /**
-   * @category reexported
+   * @category constructors
    * @since 1.0.0
    */
   make as endpoint,
   /**
-   * @category reexported
+   * @category constructors
    * @since 1.0.0
    */
   patch,
   /**
-   * @category reexported
+   * @category constructors
    * @since 1.0.0
    */
   post,
   /**
-   * @category reexported
+   * @category constructors
    * @since 1.0.0
    */
   put,
   /**
-   * @category reexported
+   * @category constructors
    * @since 1.0.0
    */
   setRequest,
   /**
-   * @category reexported
+   * @category modifications
    * @since 1.0.0
    */
   setRequestBody,
   /**
-   * @category reexported
+   * @category modifications
    * @since 1.0.0
    */
   setRequestHeaders,
   /**
-   * @category reexported
+   * @category modifications
    * @since 1.0.0
    */
   setRequestPath,
   /**
-   * @category reexported
+   * @category modifications
    * @since 1.0.0
    */
   setRequestQuery,
   /**
-   * @category reexported
+   * @category modifications
    * @since 1.0.0
    */
   setResponse,
   /**
-   * @category reexported
+   * @category modifications
    * @since 1.0.0
    */
   setResponseBody,
   /**
-   * @category reexported
+   * @category modifications
    * @since 1.0.0
    */
   setResponseHeaders,
   /**
-   * @category reexported
+   * @category modifications
    * @since 1.0.0
    */
   setResponseRepresentations,
   /**
-   * @category reexported
+   * @category modifications
    * @since 1.0.0
    */
   setResponseStatus,
   /**
-   * @category reexported
+   * @category modifications
    * @since 1.0.0
    */
   setSecurity
   /**
-   * @category reexported
+   * @category modifications
    * @since 1.0.0
    */
 } from "./ApiEndpoint.js"
