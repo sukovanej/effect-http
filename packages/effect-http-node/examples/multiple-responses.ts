@@ -7,12 +7,6 @@ import { NodeServer } from "effect-http-node"
 import { debugLogger } from "./_utils.js"
 
 const helloEndpoint = Api.post("hello", "/hello").pipe(
-  Api.setRequestHeaders(Schema.struct({
-    "User-Agent": pipe(
-      Schema.NumberFromString,
-      Schema.description("Identifier of the user")
-    )
-  })),
   Api.setResponseBody(Schema.number),
   Api.setResponseHeaders(Schema.struct({
     "my-header": pipe(
@@ -26,9 +20,7 @@ const helloEndpoint = Api.post("hello", "/hello").pipe(
 
 const api = pipe(
   Api.make(),
-  Api.addEndpoint(
-    helloEndpoint
-  )
+  Api.addEndpoint(helloEndpoint)
 )
 
 const app = pipe(

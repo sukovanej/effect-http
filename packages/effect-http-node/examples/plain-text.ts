@@ -19,9 +19,8 @@ export const app = RouterBuilder.make(api).pipe(
   RouterBuilder.build
 )
 
-const program = app.pipe(
+app.pipe(
   NodeServer.listen({ port: 3000 }),
-  Effect.provide(PrettyLogger.layer())
+  Effect.provide(PrettyLogger.layer()),
+  NodeRuntime.runMain
 )
-
-NodeRuntime.runMain(program)

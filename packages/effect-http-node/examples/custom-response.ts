@@ -9,22 +9,21 @@ import { debugLogger } from "./_utils.js"
 const api = pipe(
   Api.make(),
   Api.addEndpoint(
-    Api.get("hello", "/hello").pipe(
+    pipe(
+      Api.get("hello", "/hello"),
+      Api.setResponseStatus(201),
       Api.setResponseBody(Schema.number),
-      Api.setResponseHeaders(Schema.struct({ "x-hello-world": Schema.string })),
-      Api.setResponseStatus(201)
+      Api.setResponseHeaders(Schema.struct({ "x-hello-world": Schema.string }))
     )
   )
 )
 
 const app = pipe(
   RouterBuilder.make(api),
-  RouterBuilder.handle("hello", () =>
-    Effect.succeed({
-      body: 12,
-      headers: { "x-hello-world": "test" },
-      status: 201 as const
-    })),
+  RouterBuilder.handle(
+    "hello",
+    () => Effect.succeed({ body: 12, headers: { "x-hello-world": "test" }, status: 201 as const })
+  ),
   RouterBuilder.build
 )
 

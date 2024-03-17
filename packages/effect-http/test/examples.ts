@@ -149,14 +149,12 @@ export const exampleApiMultipleResponses = Api.make().pipe(
       Api.setRequestQuery(Schema.struct({ value: Schema.NumberFromString })),
       Api.setResponseStatus(201),
       Api.setResponseBody(Schema.number),
-      Api.addResponse(ApiResponse.make(
-        220,
-        Schema.number,
-        Schema.struct({
-          "X-Another-200": Schema.NumberFromString
-        })
-      )),
-      Api.addResponse(ApiResponse.make(204, ApiSchema.Ignored, Schema.struct({ "X-Another": Schema.NumberFromString })))
+      Api.addResponse({
+        status: 220,
+        body: Schema.number,
+        headers: Schema.struct({ "x-another-200": Schema.NumberFromString })
+      }),
+      Api.addResponse(ApiResponse.make(204, ApiSchema.Ignored, Schema.struct({ "x-another": Schema.NumberFromString })))
     )
   )
 )

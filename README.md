@@ -65,18 +65,22 @@ Bootstrap a simple API specification.
 import { Schema } from "@effect/schema";
 import { Api } from "effect-http";
 
-const User = Schema.struct({
+const UserResponse = Schema.struct({
   name: Schema.string,
-  id: pipe(Schema.number, Schema.int(), Schema.positive()),
-});
-const GetUserQuery = Schema.struct({ id: Schema.NumberFromString });
+  id: pipe(Schema.number, Schema.int(), Schema.positive())
+})
+const GetUserQuery = Schema.struct({ id: Schema.NumberFromString })
 
-const api = Api.api({ title: "Users API" }).pipe(
-  Api.get("getUser", "/user", {
-    response: User,
-    request: { query: GetUserQuery },
-  }),
-);
+const api = pipe(
+  Api.make({ title: "Users API" }),
+  Api.addEndpoint(
+    pipe(
+      Api.get("getUser", "/user"),
+      Api.setResponseBody(UserResponse),
+      Api.setRequestQuery(GetUserQuery)
+    )
+  )
+)
 ```
 
 Create the app implementation.
@@ -87,11 +91,9 @@ import { RouterBuilder } from "effect-http";
 
 const app = pipe(
   RouterBuilder.make(api),
-  RouterBuilder.handle("getUser", ({ query }) =>
-    Effect.succeed({ name: "milan", id: query.id }),
-  ),
-  RouterBuilder.build,
-);
+  RouterBuilder.handle("getUser", ({ query }) => Effect.succeed({ name: "milan", id: query.id })),
+  RouterBuilder.build
+)
 ```
 
 Now, we can generate an object providing the HTTP client interface using `Client.make`.
@@ -121,6 +123,8 @@ const response = pipe(
 );
 ```
 
+[\[Source code\]](./packages/effect-http-node/examples/readme-quickstart.ts)
+
 Also, check the auto-generated OpenAPI UI running on
 [localhost:3000/docs](http://localhost:3000/docs/). How awesome is that!
 
@@ -143,24 +147,24 @@ They are specified in the input schemas object (3rd argument of `Api.get`, `Api.
 import { Schema } from "@effect/schema";
 import { Api } from "effect-http";
 
-const Stuff = Schema.struct({ value: Schema.number });
-const StuffBody = Schema.struct({ field: Schema.array(Schema.string) });
-const StuffQuery = Schema.struct({ value: Schema.string });
-const StuffParams = Schema.struct({ param: Schema.string });
+const Stuff = Schema.struct({ value: Schema.number })
+const StuffRequest = Schema.struct({ field: Schema.array(Schema.string) })
+const StuffQuery = Schema.struct({ value: Schema.string })
+const StuffPath = Schema.struct({ param: Schema.string })
 
-export const api = Api.api({ title: "My api" }).pipe(
-  Api.post("stuff", "/stuff/:param", {
-    response: Stuff,
-    request: {
-      body: StuffBody,
-      query: StuffQuery,
-      params: StuffParams,
-    },
-  }),
-);
+export const api = Api.make({ title: "My api" }).pipe(
+  Api.addEndpoint(
+    Api.post("stuff", "/stuff/:param").pipe(
+      Api.setRequestBody(StuffRequest),
+      Api.setRequestQuery(StuffQuery),
+      Api.setRequestPath(StuffPath),
+      Api.setResponseBody(Stuff)
+    )
+  )
+)
 ```
 
-_(This is a complete standalone code example)_
+[\[Source code\]](./packages/effect-http-node/examples/request-validation.ts)
 
 #### Optional path parameters
 
@@ -171,26 +175,29 @@ In the following example the last `:another` path parameter can be
 ommited on the client side.
 
 ```typescript
-import { Schema } from "@effect/schema";
-import { pipe } from "effect";
-import { Api } from "effect-http";
+import { Schema } from "@effect/schema"
+import { pipe } from "effect"
+import { Api } from "effect-http"
 
-const Stuff = Schema.struct({ value: Schema.number });
+const Stuff = Schema.struct({ value: Schema.number })
 const StuffParams = Schema.struct({
   param: Schema.string,
-  another: Schema.optional(Schema.string),
-});
+  another: Schema.optional(Schema.string)
+})
 
 export const api = pipe(
-  Api.api({ title: "My api" }),
-  Api.get("stuff", "/stuff/:param/:another?", {
-    response: Stuff,
-    request: {
-      params: StuffParams,
-    },
-  }),
-);
+  Api.make({ title: "My api" }),
+  Api.addEndpoint(
+    pipe(
+      Api.get("stuff", "/stuff/:param/:another?"),
+      Api.setResponseBody(Stuff),
+      Api.setRequestPath(StuffParams)
+    )
+  )
+)
 ```
+
+[\[Source code\]](./packages/effect-http-node/examples/request-validation-optional-parameter.ts)
 
 ### Headers
 
@@ -200,30 +207,30 @@ a mapping from header names onto their schemas. The example below shows an API w
 a single endpoint `/hello` which expects a header `X-Client-Id` to be present.
 
 ```typescript
-import { NodeRuntime } from "@effect/platform-node";
-import { Schema } from "@effect/schema";
-import { pipe } from "effect";
-import { Api, ExampleServer, RouterBuilder } from "effect-http";
-import { NodeServer } from "effect-http-node";
+import { NodeRuntime } from "@effect/platform-node"
+import { Schema } from "@effect/schema"
+import { pipe } from "effect"
+import { Api, ExampleServer, RouterBuilder } from "effect-http"
+import { NodeServer } from "effect-http-node"
 
-const api = Api.api().pipe(
-  Api.get("hello", "/hello", {
-    response: Schema.string,
-    request: {
-      headers: Schema.struct({ "X-Client-Id": Schema.string }),
-    },
-  }),
-);
+const api = Api.make().pipe(
+  Api.addEndpoint(
+    Api.get("hello", "/hello").pipe(
+      Api.setResponseBody(Schema.string),
+      Api.setRequestHeaders(Schema.struct({ "x-client-id": Schema.string }))
+    )
+  )
+)
 
 pipe(
   ExampleServer.make(api),
   RouterBuilder.build,
   NodeServer.listen({ port: 3000 }),
-  NodeRuntime.runMain,
-);
+  NodeRuntime.runMain
+)
 ```
 
-_(This is a complete standalone code example)_
+[\[Source code\]](./packages/effect-http-node/examples/readme-headers.ts)
 
 Server implementation deals with the validation the usual way. For example, if we try
 to call the endpoint without the header we will get the following error response.
@@ -241,48 +248,50 @@ OpenAPI UI.
 
 ![example-headers-openapi-ui](https://raw.githubusercontent.com/sukovanej/effect-http/master/assets/example-headers-openapi-ui.png)
 
-**Important note**. You might have noticed the `details` field of the error response
-describes the missing header using lower-case. This is not an error but rather a
-consequence of the fact that HTTP headers are case-insensitive.
-
-Don't worry, this is also encoded into the type information and if you were to
-implement the handler, both autocompletion and type-checking would hint the
-lower-cased form of the header name. Take a look at [examples/headers.ts](examples/headers.ts)
-to see a complete example API implementation with in-memory rate-limiting and client
-identification using headers.
+**Important!** Use a lowercase form of header names.
 
 ### Security
 
 To define which security mechanisms should be used for a specific endpoint, fill `option.security` field in endpoint constructor.
 
 ```ts
-const api = Api.api().pipe(
-  Api.post("security", "/testSecurity", { response: Schema.string }, {
-    description: '',
-    security: {
-      myAwesomeBearerAuth: { // myAwesomeBearerAuth - arbitrary name for the security scheme
-        type: "http",
-        options: {
-          scheme: "bearer",
-          bearerFormat: "JWT"
-        },
-        // Schema<any, string> for decoding-encoding the significant part
-        // "Authorization: Bearer <significant part>"
-        schema: Schema.Secret
-      }
+import { NodeRuntime } from "@effect/platform-node"
+import { Schema } from "@effect/schema"
+import { Effect } from "effect"
+import { Api, RouterBuilder } from "effect-http"
+import { NodeServer } from "effect-http-node"
+
+const mySecuredEnpoint = Api.post("security", "/testSecurity", { description: "" }).pipe(
+  Api.setResponseBody(Schema.string),
+  Api.addSecurity(
+    "myAwesomeBearerAuth", // arbitrary name for the security scheme
+    {
+      type: "http",
+      options: {
+        scheme: "bearer",
+        bearerFormat: "JWT"
+      },
+      // Schema<any, string> for decoding-encoding the significant part
+      // "Authorization: Bearer <significant part>"
+      schema: Schema.Secret
     }
-}));
+  )
+)
+
+const api = Api.make().pipe(
+  Api.addEndpoint(mySecuredEnpoint)
+)
 ```
 
-Currently, only the `"http"` type is supported. `bearer` and `basic` constructors placed at the `SecurityScheme` module.
+Currently, only the `"http"` type is supported. `bearer` and `basic` constructors are available from the `SecurityScheme` module.
 
-Encoded security token placed in the second parameter of the handler.
+Encoded security tokens are placed in the second parameter of the handler.
 
 ```ts
-const app = pipe(
-  RouterBuilder.make(api),
-  RouterBuilder.handle("security", ({}, security) => {
-    security.myAwesomeBearerAuth.token; // Secret
+const app = RouterBuilder.make(api).pipe(
+  RouterBuilder.handle("security", (_, security) => {
+    const token = security.myAwesomeBearerAuth.token // Secret
+    return Effect.succeed(`your token ${token}`)
   }),
   RouterBuilder.build
 )
@@ -292,15 +301,17 @@ In case several security schemes are specified, tokens will be `Either<ParseErro
 with the guarantee that at least one of them is of the `Right<MyType>` type
 
 ```ts
-const app = pipe(
-  RouterBuilder.make(api),
-  RouterBuilder.handle("security", ({}, security) => {
-    security.myAwesomeBearerAuth.token; // Either<ParseError, Secret>
-    security.myAwesomeBasicAuth.token; // Either<ParseError, Secret>
+const app = RouterBuilder.make(api).pipe(
+  RouterBuilder.handle("security", (_, security) => {
+    const token1 = security.myAwesomeBearerAuth.token; // Either<ParseError, Secret>
+    const token2 = security.myAwesomeBasicAuth.token; // Either<ParseError, Secret>
+    return Effect.succeed(`your token ${token}`)
   }),
   RouterBuilder.build
 )
 ```
+
+[\[Source code\]](./packages/effect-http-node/examples/readme-security.ts)
 
 On the client side security token must be passed into the appropriate security scheme
 
@@ -312,47 +323,60 @@ client.security({}, {
 
 ### Responses
 
-Response can be specified using a `Schema.Schema<A, I>` which automatically
-returns status code 200 and includes only default headers.
+Every new endpoint has default response with status code 200 with ignored
+response and headers.
 
-If you want a response with custom headers and status code, use the full response
-schema instead. The following example will enforce (both for types and runtime)
-that returned status, content and headers conform the specified response.
+If you want to cusomize the default response, use the `Api.setResponseStatus`,
+`Api.setResponseBody` or `Api.setResponseHeaders` combinators. The following
+example shows how to enforce (both for types and runtime) that returned status,
+body and headers conform the specified response.
 
 ```ts
-const api = Api.api().pipe(
-  Api.post("hello", "/hello", {
-    response: {
-      status: 200,
-      content: Schema.number,
-      headers: Schema.struct({ "My-Header": Schema.string }),
-    },
-  }),
-);
+import { Schema } from "@effect/schema"
+import { pipe } from "effect"
+import { Api } from "effect-http"
+
+const api = pipe(
+  Api.make(),
+  Api.addEndpoint(
+    pipe(
+      Api.get("hello", "/hello"),
+      Api.setResponseStatus(201),
+      Api.setResponseBody(Schema.number),
+      Api.setResponseHeaders(Schema.struct({ "x-hello-world": Schema.string }))
+    )
+  )
+)
 ```
 
-It is also possible to specify multiple full response schemas.
+[\[Source code\]](./packages/effect-http-node/examples/custom-response.ts)
+
+It is also possible to specify multiple response schemas. Use the `Api.addResponse`
+combinator to another possible response of an endpoint. The `Api.addResponse` accepts
+either an `ApiResponse` object created using `ApiResponse.make` or a plain object of
+form `{ status; headers; body}`.
 
 ```ts
-const api = Api.api().pipe(
-  Api.post("hello", "/hello", {
-    response: [
-      {
-        status: 201,
-        content: Schema.number,
-      },
-      {
-        status: 200,
-        content: Schema.number,
-        headers: Schema.struct({ "My-Header": Schema.string }),
-      },
-      {
-        status: 204,
-        headers: Schema.struct({ "X-Another": Schema.NumberFromString }),
-      },
-    ],
-  }),
-);
+import { Schema } from "@effect/schema"
+import { Effect, pipe } from "effect"
+import { Api, ApiResponse, RouterBuilder } from "effect-http"
+
+const helloEndpoint = Api.post("hello", "/hello").pipe(
+  Api.setResponseBody(Schema.number),
+  Api.setResponseHeaders(Schema.struct({
+    "my-header": pipe(
+      Schema.NumberFromString,
+      Schema.description("My header")
+    )
+  })),
+  Api.addResponse(ApiResponse.make(201, Schema.number)),
+  Api.addResponse({ status: 204, headers: Schema.struct({ "x-another": Schema.NumberFromString }) })
+)
+
+const api = pipe(
+  Api.make(),
+  Api.addEndpoint(helloEndpoint)
+)
 ```
 
 The server implemention is type-checked against the api responses
@@ -362,16 +386,14 @@ Note: the `status` needs to be `as const` because without it Typescript
 will infere the `number` type.
 
 ```ts
-const app = RouterBuilder.make(api).pipe(
-  RouterBuilder.handle("hello", () =>
-    Effect.succeed({
-      headers: { "my-header": 12 },
-      content: 12,
-      status: 200 as const,
-    }),
-  ),
-  RouterBuilder.build,
-);
+import { Effect, pipe } from "effect"
+import { Api, RouterBuilder } from "effect-http"
+
+const app = pipe(
+  RouterBuilder.make(api),
+  RouterBuilder.handle("hello", () => Effect.succeed({ body: 12, headers: { "my-header": 69 }, status: 201 as const })),
+  RouterBuilder.build
+)
 ```
 
 ### Testing the server
@@ -472,14 +494,15 @@ import { Context, Effect, pipe } from "effect";
 import { Api, RouterBuilder, ServerError } from "effect-http";
 import { NodeServer } from "effect-http-node";
 
-const api = Api.api({ title: "Users API" }).pipe(
-  Api.post("storeUser", "/users", {
-    response: Schema.string,
-    request: {
-      body: Schema.struct({ name: Schema.string }),
-    },
-  }),
-);
+const api = pipe(
+  Api.make({ title: "Users API" }),
+  Api.addEndpoint(
+    Api.post("storeUser", "/users").pipe(
+      Api.setResponseBody(Schema.string),
+      Api.setRequestBody(Schema.struct({ name: Schema.string }))
+    )
+  )
+)
 ```
 
 Now, let's implement a `UserRepository` interface abstracting the interaction with
@@ -533,6 +556,8 @@ app.pipe(
 );
 ```
 
+[\[Source code\]](./packages/effect-http-node/examples/conflict-error-example.ts)
+
 Try to run the server and call the `POST /user`.
 
 _Server_
@@ -551,22 +576,17 @@ _Client_ (using [httpie cli](https://httpie.io/cli))
 $ http localhost:3000/users name="patrik"
 
 HTTP/1.1 409 Conflict
-Connection: keep-alive
 Content-Length: 68
 Content-Type: application/json; charset=utf-8
-Date: Sat, 15 Apr 2023 16:36:44 GMT
-ETag: W/"44-T++MIpKSqscvfSu9Ed1oobwDDXo"
-Keep-Alive: timeout=5
-X-Powered-By: Express
 
 User "patrik" already exists.
 ```
 
 ### Grouping endpoints
 
-To create a new group of endpoints, use `Api.apiGroup("group name")`. This combinator
-initializes new `ApiGroup` object. You can pipe it with combinators like `Api.get`,
-`Api.post`, etc, as if were defining the `Api`. Api groups can be combined into an
+To create a new group of endpoints, use `ApiGroup.apiGroup("group name")`. This combinator
+initializes new `ApiGroup` object. You can pipe it with combinators like `ApiGroup.addEndpoint`,
+followed by `ApiGroup.get`, `Api.post`, etc, as if were defining the `Api`. Api groups can be combined into an
 `Api` using a `Api.addGroup` combinator which merges endpoints from the group
 into the api in the type-safe manner while preserving group names for each endpoint.
 
@@ -574,45 +594,78 @@ This enables separability of concers for big APIs and provides information for
 generation of tags for the OpenAPI specification.
 
 ```typescript
-import { NodeRuntime } from "@effect/platform-node";
-import { Schema } from "@effect/schema";
-import { Api, ExampleServer, RouterBuilder } from "effect-http";
-import { NodeServer } from "effect-http-node";
+import { NodeRuntime } from "@effect/platform-node"
+import { Schema } from "@effect/schema"
+import { Effect, pipe } from "effect"
+import { Api, ApiGroup, ExampleServer, RouterBuilder } from "effect-http"
 
-const ExampleResponse = Schema.struct({ name: Schema.string });
+import { NodeServer } from "effect-http-node"
 
-const testApi = Api.apiGroup("test").pipe(
-  Api.get("test", "/test", { response: ExampleResponse }),
-);
+const Response = Schema.struct({ name: Schema.string })
 
-const userApi = Api.apiGroup("Users").pipe(
-  Api.get("getUser", "/user", { response: ExampleResponse }),
-  Api.post("storeUser", "/user", { response: ExampleResponse }),
-  Api.put("updateUser", "/user", { response: ExampleResponse }),
-  Api.delete("deleteUser", "/user", { response: ExampleResponse }),
-);
+const testApi = pipe(
+  ApiGroup.make("test", {
+    description: "Test description",
+    externalDocs: {
+      description: "Test external doc",
+      url: "https://www.google.com/search?q=effect-http"
+    }
+  }),
+  ApiGroup.addEndpoint(
+    ApiGroup.get("test", "/test").pipe(Api.setResponseBody(Response))
+  )
+)
 
-const categoriesApi = Api.apiGroup("Categories").pipe(
-  Api.get("getCategory", "/category", { response: ExampleResponse }),
-  Api.post("storeCategory", "/category", { response: ExampleResponse }),
-  Api.put("updateCategory", "/category", { response: ExampleResponse }),
-  Api.delete("deleteCategory", "/category", { response: ExampleResponse }),
-);
+const userApi = pipe(
+  ApiGroup.make("Users", {
+    description: "All about users",
+    externalDocs: {
+      url: "https://www.google.com/search?q=effect-http"
+    }
+  }),
+  ApiGroup.addEndpoint(
+    ApiGroup.get("getUser", "/user").pipe(Api.setResponseBody(Response))
+  ),
+  ApiGroup.addEndpoint(
+    ApiGroup.post("storeUser", "/user").pipe(Api.setResponseBody(Response))
+  ),
+  ApiGroup.addEndpoint(
+    ApiGroup.put("updateUser", "/user").pipe(Api.setResponseBody(Response))
+  ),
+  ApiGroup.addEndpoint(
+    ApiGroup.delete("deleteUser", "/user").pipe(Api.setResponseBody(Response))
+  )
+)
 
-const api = Api.api().pipe(
+const categoriesApi = ApiGroup.make("Categories").pipe(
+  ApiGroup.addEndpoint(
+    ApiGroup.get("getCategory", "/category").pipe(Api.setResponseBody(Response))
+  ),
+  ApiGroup.addEndpoint(
+    ApiGroup.post("storeCategory", "/category").pipe(Api.setResponseBody(Response))
+  ),
+  ApiGroup.addEndpoint(
+    ApiGroup.put("updateCategory", "/category").pipe(Api.setResponseBody(Response))
+  ),
+  ApiGroup.addEndpoint(
+    ApiGroup.delete("deleteCategory", "/category").pipe(Api.setResponseBody(Response))
+  )
+)
+
+const api = Api.make().pipe(
   Api.addGroup(testApi),
   Api.addGroup(userApi),
-  Api.addGroup(categoriesApi),
-);
+  Api.addGroup(categoriesApi)
+)
 
 ExampleServer.make(api).pipe(
   RouterBuilder.build,
   NodeServer.listen({ port: 3000 }),
-  NodeRuntime.runMain,
-);
+  NodeRuntime.runMain
+)
 ```
 
-_(This is a complete standalone code example)_
+[\[Source code\]](./packages/effect-http-node/examples/groups.ts)
 
 The OpenAPI UI will group endpoints according to the `api` and show
 corresponding titles for each group.
@@ -642,46 +695,47 @@ For an operation-level description, call the API endpoint method (`Api.get`,
 desired description.
 
 ```ts
-import { NodeRuntime } from "@effect/platform-node";
-import { Schema } from "@effect/schema";
-import { Effect, pipe } from "effect";
-import { Api, RouterBuilder } from "effect-http";
-import { NodeServer } from "effect-http-node";
+import { NodeRuntime } from "@effect/platform-node"
+import { Schema } from "@effect/schema"
+import { Effect, pipe } from "effect"
+import { Api, RouterBuilder } from "effect-http"
+import { NodeServer } from "effect-http-node"
 
-const User = pipe(
+const Response = pipe(
   Schema.struct({
     name: Schema.string,
-    id: pipe(Schema.number, Schema.int(), Schema.positive()),
+    id: pipe(Schema.number, Schema.int(), Schema.positive())
   }),
-  Schema.description("User"),
-);
-const GetUserQuery = Schema.struct({
-  id: pipe(Schema.NumberFromString, Schema.description("User id")),
-});
+  Schema.description("User")
+)
+const Query = Schema.struct({
+  id: pipe(Schema.NumberFromString, Schema.description("User id"))
+})
 
-const api = Api.api({ title: "Users API" }).pipe(
-  Api.get(
-    "getUser",
-    "/user",
-    {
-      response: User,
-      request: {
-        query: GetUserQuery,
-      },
-    },
-    { description: "Returns a User by id" },
-  ),
-);
+const api = pipe(
+  Api.make({ title: "Users API" }),
+  Api.addEndpoint(
+    Api.get("getUser", "/user", { description: "Returns a User by id" }).pipe(
+      Api.setResponseBody(Response),
+      Api.setRequestQuery(Query)
+    )
+  )
+)
 
-const app = RouterBuilder.make(api).pipe(
-  RouterBuilder.handle("getUser", ({ query }) =>
-    Effect.succeed({ name: "mike", id: query.id }),
-  ),
-  RouterBuilder.build,
-);
+const app = pipe(
+  RouterBuilder.make(api),
+  RouterBuilder.handle("getUser", ({ query }) => Effect.succeed({ name: "mike", id: query.id })),
+  RouterBuilder.build
+)
 
-app.pipe(NodeServer.listen({ port: 3000 }), NodeRuntime.runMain);
+pipe(
+  app,
+  NodeServer.listen({ port: 3000 }),
+  NodeRuntime.runMain
+)
 ```
+
+[\[Source code\]](./packages/effect-http-node/examples/description.ts)
 
 ## Representations
 
@@ -691,23 +745,22 @@ internal logic will serialize it as a JSON onto a string and send the response a
 with `content-type: application/json` header.
 
 This behaviour is a result of a default [Representation.json](https://sukovanej.github.io/effect-http/modules/Representation.ts.html#json).
-The default representation of the content can be changed by specifying `representations`
-field in the `response` API specification.
+The default representation of the content can be changed using `Api.setResponseRepresentations`
+combinator.
 
 For example, the following API specification states that the response of `/test` endpoint
 will be always a string represent as a plain text. Therefore, the HTTP message
 will contain `content-type: text/plain` header.
 
 ```ts
-export const api = Api.api().pipe(
-  Api.get("myHandler", "/test", {
-    response: {
-      content: Schema.string,
-      status: 200,
-      representations: [Representation.plainText],
-    },
-  }),
-);
+export const api2 = Api.make().pipe(
+  Api.addEndpoint(
+    Api.get("myHandler", "/test").pipe(
+      Api.setResponseBody(Schema.string),
+      Api.setResponseRepresentations([Representation.plainText])
+    )
+  )
+)
 ```
 
 The `representations` is a list and if it contains multiple possible represetations
@@ -720,37 +773,33 @@ be used, and if there is no representation matching the incomming `Accept` media
 it will choose the first representation in the list.
 
 ```ts
-import { NodeRuntime } from "@effect/platform-node";
-import { Schema } from "@effect/schema";
-import { Effect } from "effect";
-import { Api, Representation, RouterBuilder } from "effect-http";
-import { NodeServer } from "effect-http-node";
-import { PrettyLogger } from "effect-log";
+import { NodeRuntime } from "@effect/platform-node"
+import { Schema } from "@effect/schema"
+import { Effect } from "effect"
+import { Api, Representation, RouterBuilder } from "effect-http"
+import { NodeServer } from "effect-http-node"
 
-export const api = Api.api({ title: "Example API" }).pipe(
-  Api.get("root", "/", {
-    response: {
-      content: Schema.unknown,
-      status: 200,
-      representations: [Representation.plainText, Representation.json],
-    },
-  }),
-);
+export const api = Api.make({ title: "Example API" }).pipe(
+  Api.addEndpoint(
+    Api.get("root", "/").pipe(
+      Api.setResponseBody(Schema.unknown),
+      Api.setResponseRepresentations([Representation.plainText, Representation.json])
+    )
+  )
+)
 
 export const app = RouterBuilder.make(api).pipe(
-  RouterBuilder.handle("root", () =>
-    Effect.succeed({ content: { hello: "world" }, status: 200 as const }),
-  ),
-  RouterBuilder.build,
-);
+  RouterBuilder.handle("root", () => Effect.succeed({ content: { hello: "world" }, status: 200 as const })),
+  RouterBuilder.build
+)
 
-const program = app.pipe(
+app.pipe(
   NodeServer.listen({ port: 3000 }),
-  Effect.provide(PrettyLogger.layer()),
-);
-
-NodeRuntime.runMain(program);
+  NodeRuntime.runMain
+)
 ```
+
+[\[Source code\]](./packages/effect-http-node/examples/plain-text.ts)
 
 Try running the server above and call the root path with different
 `Accept` headers. You should see the response content-type reflecting
@@ -794,28 +843,33 @@ helpful in the following and probably many more cases.
 Use `ExampleServer.make` combinator to generate a `RouterBuilder` from an `Api`.
 
 ```typescript
-import { NodeRuntime } from "@effect/platform-node";
-import { Schema } from "@effect/schema";
-import { Effect, pipe } from "effect";
-import { Api, ExampleServer, RouterBuilder } from "effect-http";
-import { NodeServer } from "effect-http-node";
+import { NodeRuntime } from "@effect/platform-node"
+import { Schema } from "@effect/schema"
+import { Effect, pipe } from "effect"
+import { Api, ExampleServer, RouterBuilder } from "effect-http"
+import { NodeServer } from "effect-http-node"
 
-const MyResponse = Schema.struct({
+const Response = Schema.struct({
   name: Schema.string,
-  value: Schema.number,
-});
+  value: Schema.number
+})
 
-const api = Api.api().pipe(Api.get("test", "/test", { response: MyResponse }));
+const api = pipe(
+  Api.make({ servers: ["http://localhost:3000", { description: "hello", url: "/api/" }] }),
+  Api.addEndpoint(
+    Api.get("test", "/test").pipe(Api.setResponseBody(Response))
+  )
+)
 
 pipe(
   ExampleServer.make(api),
   RouterBuilder.build,
   NodeServer.listen({ port: 3000 }),
-  NodeRuntime.runMain,
-);
+  NodeRuntime.runMain
+)
 ```
 
-_(This is a complete standalone code example)_
+[\[Source code\]](./packages/effect-http-node/examples/example-server.ts)
 
 Go to [localhost:3000/docs](http://localhost:3000/docs) and try calling
 endpoints. The exposed HTTP service conforms the `api` and will return
@@ -831,12 +885,15 @@ API as follows.
 
 ```typescript
 import { Schema } from "@effect/schema";
-import { pipe } from "effect";
 import { Api } from "effect-http";
 
-const api = Api.api().pipe(
-  Api.get("getValue", "/get-value", { response: Schema.number }),
-);
+const api = Api.make().pipe(
+  Api.addEndpoint(
+    Api.get("getValue", "/value").pipe(
+      Api.setResponseBody(Schema.number)
+    )
+  )
+)
 ```
 
 In a real environment, we will probably use the derived client
@@ -861,4 +918,4 @@ const client = MockClient.make(api, { responses: { getValue: 12 } });
 
 ## Compatibility
 
-This library is tested against nodejs 20.9.0.
+This library is tested against nodejs 21.5.0.

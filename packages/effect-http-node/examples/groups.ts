@@ -1,6 +1,6 @@
 import { NodeRuntime } from "@effect/platform-node"
 import { Schema } from "@effect/schema"
-import { Effect } from "effect"
+import { Effect, pipe } from "effect"
 import { Api, ApiGroup, ExampleServer, RouterBuilder } from "effect-http"
 
 import { NodeServer } from "effect-http-node"
@@ -8,24 +8,26 @@ import { debugLogger } from "./_utils.js"
 
 const Response = Schema.struct({ name: Schema.string })
 
-const testApi = ApiGroup.make("test", {
-  description: "Test description",
-  externalDocs: {
-    description: "Test external doc",
-    url: "https://www.google.com/search?q=effect-http"
-  }
-}).pipe(
+const testApi = pipe(
+  ApiGroup.make("test", {
+    description: "Test description",
+    externalDocs: {
+      description: "Test external doc",
+      url: "https://www.google.com/search?q=effect-http"
+    }
+  }),
   ApiGroup.addEndpoint(
     ApiGroup.get("test", "/test").pipe(Api.setResponseBody(Response))
   )
 )
 
-const userApi = ApiGroup.make("Users", {
-  description: "All about users",
-  externalDocs: {
-    url: "https://www.google.com/search?q=effect-http"
-  }
-}).pipe(
+const userApi = pipe(
+  ApiGroup.make("Users", {
+    description: "All about users",
+    externalDocs: {
+      url: "https://www.google.com/search?q=effect-http"
+    }
+  }),
   ApiGroup.addEndpoint(
     ApiGroup.get("getUser", "/user").pipe(Api.setResponseBody(Response))
   ),
