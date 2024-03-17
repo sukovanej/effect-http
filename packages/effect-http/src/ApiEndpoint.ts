@@ -559,12 +559,14 @@ export interface Security<A> {
 }
 
 /**
+ * @category models
  * @since 1.0.0
  */
 export declare namespace ApiSecurity {
   /**
    * Any endpoint with `Request = Request.Any` and `Response = Response.Any`.
    *
+   * @category models
    * @since 1.0.0
    */
   export type Any = Security<any>
@@ -572,6 +574,7 @@ export declare namespace ApiSecurity {
   /**
    * Default security spec = no security scheme.
    *
+   * @category models
    * @since 1.0.0
    */
   export type Empty = {}
