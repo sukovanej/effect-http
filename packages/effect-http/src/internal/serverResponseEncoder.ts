@@ -7,8 +7,10 @@ import * as Effect from "effect/Effect"
 import { flow, pipe } from "effect/Function"
 import * as Option from "effect/Option"
 import * as ReadonlyArray from "effect/ReadonlyArray"
-import * as Api from "../Api.js"
-import * as Representation from "../Representation.js"
+import * as ApiEndpoint from "../ApiEndpoint.js"
+import * as ApiResponse from "../ApiResponse.js"
+import * as ApiSchema from "../ApiSchema.js"
+import type * as Representation from "../Representation.js"
 import * as ServerError from "../ServerError.js"
 import { formatParseError } from "./formatParseError.js"
 
@@ -26,17 +28,41 @@ const make = (
 ): ServerResponseEncoder => ({ encodeResponse })
 
 export const create = (
-  responseSchema: Api.EndpointSchemas["response"]
+  endpoint: ApiEndpoint.ApiEndpoint.Any
 ): ServerResponseEncoder => {
-  if (responseSchema === Api.IgnoredSchemaId) {
-    return make(() => ServerResponse.empty())
-  } else if (Schema.isSchema(responseSchema)) {
-    return fromSchema(responseSchema as Schema.Schema<any, any, never>)
-  } else if (Array.isArray(responseSchema)) {
-    return fromResponseSchemaFullArray(responseSchema)
-  }
+  const responses = ApiEndpoint.getResponse(endpoint)
+  const isFullResponse = ApiEndpoint.isFullResponse(endpoint)
+  const statusToSpec = responses.reduce(
+    (obj, response) => ({ ...obj, [ApiResponse.getStatus(response)]: response }),
+    {} as Record<number, ApiResponse.ApiResponse.Any>
+  )
 
-  return fromResponseSchemaFullArray([responseSchema] as ReadonlyArray<Api.ResponseSchemaFull>)
+  return make((request, inputResponse) =>
+    Effect.gen(function*(_) {
+      const _input = isFullResponse ?
+        yield* _(
+          parseFullResponseInput(inputResponse),
+          Effect.orDie
+        ) :
+        { status: ApiResponse.getStatus(responses[0]), body: inputResponse }
+
+      const response = statusToSpec[_input.status]
+      const setBody = createBodySetter(response)
+      const setHeaders = createHeadersSetter(response)
+
+      const representation = representationFromRequest(
+        ApiResponse.getRepresentations(response),
+        request
+      )
+
+      return yield* _(
+        ServerResponse.empty({ status: _input.status }).pipe(
+          setBody(_input, representation),
+          Effect.flatMap(setHeaders(_input))
+        )
+      )
+    })
+  )
 }
 
 const representationFromRequest = (
@@ -60,105 +86,57 @@ const representationFromRequest = (
   )
 }
 
-const encodeContent = (schema: Schema.Schema<any, any, never>) => {
+const encodeBody = (schema: Schema.Schema<any, any, never>) => {
   const encode = Schema.encode(schema)
 
-  return (content: unknown, representation: Representation.Representation) =>
-  (response: ServerResponse.ServerResponse) =>
+  return (body: unknown, representation: Representation.Representation) => (response: ServerResponse.ServerResponse) =>
     pipe(
-      encode(content),
-      Effect.mapError((error) =>
-        createErrorResponse(
-          "Invalid response content",
-          formatParseError(error)
-        )
-      ),
+      encode(body),
+      Effect.mapError((error) => createErrorResponse("Invalid response body", formatParseError(error))),
       Effect.flatMap(
         flow(
           representation.stringify,
-          Effect.mapError((error) => createErrorResponse("Invalid response content", error.message))
+          Effect.mapError((error) => createErrorResponse("Invalid response body", error.message))
         )
       ),
-      Effect.map((content) =>
+      Effect.map((body) =>
         response.pipe(
           ServerResponse.setBody(
-            Body.text(content, representation.contentType)
+            Body.text(body, representation.contentType)
           )
         )
       )
     )
 }
 
-const fromSchema = (schema: Schema.Schema<any, any, never>): ServerResponseEncoder => {
-  const encode = encodeContent(schema)
-  const representation = Representation.json
-
-  return make((_, inputResponse) =>
-    ServerResponse.empty({ status: 200 }).pipe(
-      encode(inputResponse, representation)
-    )
-  )
-}
-
-const fromResponseSchemaFullArray = (
-  schemas: ReadonlyArray<Api.ResponseSchemaFull>
-): ServerResponseEncoder => {
-  const statusToSchema = schemas.reduce(
-    (obj, schemas) => ({ ...obj, [schemas.status]: schemas }),
-    {} as Record<number, Api.ResponseSchemaFull>
-  )
-
-  return make((request, inputResponse) =>
-    Effect.gen(function*(_) {
-      const _input = yield* _(
-        parseFullResponseInput(inputResponse),
-        Effect.orDie
-      )
-
-      const schemas = statusToSchema[_input.status]
-      const setContent = createContentSetter(schemas)
-      const setHeaders = createHeadersSetter(schemas)
-
-      const representation = representationFromRequest(
-        schemas.representations,
-        request
-      )
-
-      return yield* _(
-        ServerResponse.empty({ status: _input.status }).pipe(
-          setContent(_input, representation),
-          Effect.flatMap(setHeaders(_input))
-        )
-      )
-    })
-  )
-}
-
-const createContentSetter = (schema: Api.ResponseSchemaFull) => {
-  const contentSchema = schema.content === Api.IgnoredSchemaId ? undefined : schema.content
-  const encode = contentSchema && encodeContent(contentSchema as Schema.Schema<any, any, never>)
+const createBodySetter = (response: ApiResponse.ApiResponse.Any) => {
+  const body = ApiResponse.getBodySchema(response)
+  const bodySchema = ApiSchema.isIgnored(body) ? undefined : body
+  const encode = bodySchema && encodeBody(bodySchema as Schema.Schema<any, any, never>)
 
   return (
     inputResponse: FullResponseInput,
     representation: Representation.Representation
   ) =>
   (response: ServerResponse.ServerResponse) => {
-    if (encode === undefined && inputResponse.content !== undefined) {
-      return Effect.die("Unexpected response content")
-    } else if (encode !== undefined && inputResponse.content === undefined) {
-      return Effect.die("Response content not provided")
+    if (encode === undefined && inputResponse.body !== undefined) {
+      return Effect.die("Unexpected response body")
+    } else if (encode !== undefined && inputResponse.body === undefined) {
+      return Effect.die("Response body not provided")
     } else if (encode === undefined) {
       return Effect.succeed(response)
     }
 
-    return pipe(response, encode(inputResponse.content, representation))
+    return pipe(response, encode(inputResponse.body, representation))
   }
 }
 
-const createHeadersSetter = (schema: Api.ResponseSchemaFull) => {
-  const parseHeaders = schema.headers === Api.IgnoredSchemaId
+const createHeadersSetter = (schema: ApiResponse.ApiResponse.Any) => {
+  const headers = ApiResponse.getHeadersSchema(schema)
+
+  const parseHeaders = ApiSchema.isIgnored(headers)
     ? undefined
-    : Schema.encode(schema.headers as Schema.Schema<any, any, never>)
+    : Schema.encode(headers as Schema.Schema<any, any, never>)
 
   return (inputResponse: FullResponseInput) => (response: ServerResponse.ServerResponse) => {
     if (parseHeaders === undefined && inputResponse.headers !== undefined) {
@@ -185,7 +163,7 @@ const createHeadersSetter = (schema: Api.ResponseSchemaFull) => {
 }
 
 const FullResponseInput = Schema.struct({
-  content: Schema.optional(Schema.unknown),
+  body: Schema.optional(Schema.unknown),
   headers: Schema.optional(Schema.record(Schema.string, Schema.unknown)),
   status: Schema.number
 })

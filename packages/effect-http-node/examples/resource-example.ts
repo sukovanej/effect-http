@@ -12,8 +12,12 @@ const MyValue = Context.GenericTag<Resource.Resource<string, FileNotFoundError>>
 const readMyValue = Effect.flatMap(MyValue, Resource.get)
 
 const api = pipe(
-  Api.api(),
-  Api.get("getValue", "/value", { response: Schema.string })
+  Api.make(),
+  Api.addEndpoint(
+    Api.get("getValue", "/value").pipe(
+      Api.setResponseBody(Schema.string)
+    )
+  )
 )
 
 const app = pipe(

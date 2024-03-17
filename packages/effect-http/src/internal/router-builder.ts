@@ -5,12 +5,12 @@ import * as Effect from "effect/Effect"
 import * as Pipeable from "effect/Pipeable"
 import type * as Scope from "effect/Scope"
 import type * as Api from "../Api.js"
+import * as ApiEndpoint from "../ApiEndpoint.js"
 import * as OpenApi from "../OpenApi.js"
 import * as Route from "../Route.js"
 import type * as RouterBuilder from "../RouterBuilder.js"
 import * as ServerError from "../ServerError.js"
 import * as SwaggerRouter from "../SwaggerRouter.js"
-import * as utils from "./utils.js"
 
 const DEFAULT_OPTIONS: RouterBuilder.Options = {
   parseOptions: { errors: "first", onExcessProperty: "ignore" },
@@ -18,11 +18,11 @@ const DEFAULT_OPTIONS: RouterBuilder.Options = {
   docsPath: "/docs"
 }
 
-export const make = <A extends Api.Api>(
+export const make = <A extends Api.Api.Any>(
   api: A,
   options?: Partial<RouterBuilder.Options>
-): RouterBuilder.RouterBuilder<never, never, A["groups"][number]["endpoints"][number]> => ({
-  remainingEndpoints: api.groups.flatMap((group) => group.endpoints),
+): RouterBuilder.RouterBuilder<never, never, Api.Api.Endpoints<A>> => ({
+  remainingEndpoints: api.groups.flatMap((group) => group.endpoints) as any,
   router: Router.empty,
   api,
   options: { ...DEFAULT_OPTIONS, ...options },
@@ -35,8 +35,8 @@ export const make = <A extends Api.Api>(
 export const handleRaw = <
   R2,
   E2,
-  RemainingEndpoints extends Api.Endpoint,
-  Id extends RemainingEndpoints["id"]
+  RemainingEndpoints extends ApiEndpoint.ApiEndpoint.Any,
+  Id extends ApiEndpoint.ApiEndpoint.Id<RemainingEndpoints>
 >(
   id: Id,
   handler: Router.Route.Handler<R2, E2>
@@ -46,14 +46,14 @@ export const handleRaw = <
 ): RouterBuilder.RouterBuilder<
   R1 | Exclude<R2, Router.RouteContext | ServerRequest.ServerRequest | Scope.Scope>,
   E1 | E2,
-  Exclude<RemainingEndpoints, { id: Id }>
+  ApiEndpoint.ApiEndpoint.ExcludeById<RemainingEndpoints, Id>
 > => {
   const endpoint = getRemainingEndpoint(builder, id)
   const remainingEndpoints = removeRemainingEndpoint(builder, id)
 
   const router = builder.router.pipe(
-    Router.route(utils.convertMethod(endpoint.method))(
-      endpoint.path,
+    Router.route(ApiEndpoint.getMethod(endpoint))(
+      ApiEndpoint.getPath(endpoint),
       handler
     )
   )
@@ -67,15 +67,17 @@ export const handleRaw = <
 
 /** @internal */
 const getRemainingEndpoint = <
-  RemainingEndpoints extends Api.Endpoint,
-  Id extends RemainingEndpoints["id"]
+  R,
+  E,
+  RemainingEndpoints extends ApiEndpoint.ApiEndpoint.Any,
+  Id extends ApiEndpoint.ApiEndpoint.Id<RemainingEndpoints>
 >(
-  builder: RouterBuilder.RouterBuilder<any, any, RemainingEndpoints>,
+  builder: RouterBuilder.RouterBuilder<R, E, RemainingEndpoints>,
   id: Id
-): Extract<RemainingEndpoints, { id: Id }> => {
+): ApiEndpoint.ApiEndpoint.ExtractById<RemainingEndpoints, Id> => {
   const endpoint = builder.remainingEndpoints.find(
-    (endpoint) => endpoint.id === id
-  ) as Extract<RemainingEndpoints, { id: Id }> | undefined
+    (endpoint) => ApiEndpoint.getId(endpoint) === id
+  ) as ApiEndpoint.ApiEndpoint.ExtractById<RemainingEndpoints, Id> | undefined
 
   if (endpoint === undefined) {
     throw new Error(`Operation id ${id} not found`)
@@ -87,12 +89,12 @@ const getRemainingEndpoint = <
 export const handle = <
   R2,
   E2,
-  RemainingEndpoints extends Api.Endpoint,
-  Id extends RemainingEndpoints["id"]
+  RemainingEndpoints extends ApiEndpoint.ApiEndpoint.Any,
+  Id extends ApiEndpoint.ApiEndpoint.Id<RemainingEndpoints>
 >(
   id: Id,
   fn: Route.HandlerFunction<
-    Extract<RemainingEndpoints, { id: Id }>,
+    ApiEndpoint.ApiEndpoint.ExtractById<RemainingEndpoints, Id>,
     R2,
     E2
   >
@@ -101,9 +103,9 @@ export const handle = <
   builder: RouterBuilder.RouterBuilder<R1, E1, RemainingEndpoints>
 ): RouterBuilder.RouterBuilder<
   | Exclude<R1 | R2, Router.RouteContext | ServerRequest.ServerRequest>
-  | Api.EndpointRequirements<Extract<RemainingEndpoints, { id: Id }>>,
+  | ApiEndpoint.ApiEndpoint.Requirements<ApiEndpoint.ApiEndpoint.ExtractById<RemainingEndpoints, Id>>,
   E1 | Exclude<E2, ServerError.ServerError>,
-  Exclude<RemainingEndpoints, { id: Id }>
+  ApiEndpoint.ApiEndpoint.ExcludeById<RemainingEndpoints, Id>
 > => {
   const endpoint = getRemainingEndpoint(builder, id)
   const remainingEndpoints = removeRemainingEndpoint(builder, id)
@@ -124,7 +126,7 @@ export const build = <R, E>(
   builder: RouterBuilder.RouterBuilder<R, E, never>
 ): App.Default<R | SwaggerRouter.SwaggerFiles, E> => buildPartial(builder)
 
-export const buildPartial = <R, E, RemainingEndpoints extends Api.Endpoint>(
+export const buildPartial = <R, E, RemainingEndpoints extends ApiEndpoint.ApiEndpoint.Any>(
   builder: RouterBuilder.RouterBuilder<R, E, RemainingEndpoints>
 ): App.Default<R | SwaggerRouter.SwaggerFiles, E> => {
   const swaggerRouter = builder.options.enableDocs ? SwaggerRouter.make(OpenApi.make(builder.api)) : Router.empty
@@ -139,15 +141,15 @@ export const getRouter = <R, E>(
 
 /** @internal */
 const removeRemainingEndpoint = <
-  RemainingEndpoints extends Api.Endpoint,
-  Id extends RemainingEndpoints["id"]
+  RemainingEndpoints extends ApiEndpoint.ApiEndpoint.Any,
+  Id extends ApiEndpoint.ApiEndpoint.Id<RemainingEndpoints>
 >(
   builder: RouterBuilder.RouterBuilder<any, any, RemainingEndpoints>,
   id: Id
-): Array<Exclude<RemainingEndpoints, { id: Id }>> =>
+): Array<ApiEndpoint.ApiEndpoint.ExcludeById<RemainingEndpoints, Id>> =>
   builder.remainingEndpoints.filter(
-    (endpoint) => endpoint.id !== id
-  ) as Array<Exclude<RemainingEndpoints, { id: Id }>>
+    (endpoint) => ApiEndpoint.getId(endpoint) !== id
+  ) as Array<ApiEndpoint.ApiEndpoint.ExcludeById<RemainingEndpoints, Id>>
 
 /** @internal */
 export const addRoute = <R1, R2, E1, E2>(

@@ -1,14 +1,42 @@
 /**
- * `Api` represents the API specification. It doesn't hold information concerning the
- * server or client side details. An instance of `Api` can be used to derive a client
- * implementation (see `Client.ts`).
- *
- * The generated type of the `Api` is used during server implementation. The type safety
- * guarantees the server-side implementation and the `Api` specification are compatible.
+ * HTTP API service declaration.
  *
  * @since 1.0.0
  */
 export * as Api from "./Api.js"
+
+/**
+ * HTTP endpoint declaration.
+ *
+ * @since 1.0.0
+ */
+export * as ApiEndpoint from "./ApiEndpoint.js"
+
+/**
+ * Api groups.
+ *
+ * @since 1.0.0
+ */
+export * as ApiGroup from "./ApiGroup.js"
+
+/**
+ * HTTP request declaration.
+ *
+ * @since 1.0.0
+ */
+export * as ApiRequest from "./ApiRequest.js"
+
+/**
+ * HTTP response declaration.
+ *
+ * @since 1.0.0
+ */
+export * as ApiResponse from "./ApiResponse.js"
+
+/**
+ * @since 1.0.0
+ */
+export * as ApiSchema from "./ApiSchema.js"
 
 /**
  * This module exposes the `client` combinator which accepts an `Api` instance

@@ -8,13 +8,13 @@ import { expect, test } from "vitest"
 import { runTestEffect } from "./utils.js"
 
 const helloApi = pipe(
-  Api.api(),
-  Api.get("ping", "/ping", {
-    response: Schema.literal("pong")
-  }),
-  Api.get("hello", "/hello", {
-    response: Schema.string
-  })
+  Api.make(),
+  Api.addEndpoint(
+    Api.get("ping", "/ping").pipe(Api.setResponseBody(Schema.literal("pong")))
+  ),
+  Api.addEndpoint(
+    Api.get("hello", "/hello").pipe(Api.setResponseBody(Schema.string))
+  )
 )
 
 test("basic auth", async () => {
@@ -75,7 +75,7 @@ test("basic auth", async () => {
           })
         )
       ),
-      client(identity).pipe(Effect.flatMap((client) => client.ping()))
+      client(identity).pipe(Effect.flatMap((client) => client.ping({})))
     ]),
     runTestEffect
   )
@@ -88,14 +88,14 @@ test("basic auth", async () => {
 })
 
 test("cors", async () => {
-  const api = Api.api().pipe(
-    Api.get("test", "/test", {
-      response: Schema.string
-    })
+  const api = Api.make().pipe(
+    Api.addEndpoint(
+      Api.get("test", "/test")
+    )
   )
 
   const app = RouterBuilder.make(api).pipe(
-    RouterBuilder.handle("test", () => Effect.succeed("hello")),
+    RouterBuilder.handle("test", () => Effect.unit),
     RouterBuilder.build,
     Middlewares.cors({ allowedOrigins: ["localhost:3000"] })
   )

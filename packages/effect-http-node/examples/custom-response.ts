@@ -7,23 +7,21 @@ import { NodeServer } from "effect-http-node"
 import { debugLogger } from "./_utils.js"
 
 const api = pipe(
-  Api.api(),
-  Api.get("hello", "/hello", {
-    response: {
-      status: 201,
-      headers: Schema.struct({
-        "X-Hello-World": Schema.string
-      }),
-      content: Schema.number
-    }
-  })
+  Api.make(),
+  Api.addEndpoint(
+    Api.get("hello", "/hello").pipe(
+      Api.setResponseBody(Schema.number),
+      Api.setResponseHeaders(Schema.struct({ "x-hello-world": Schema.string })),
+      Api.setResponseStatus(201)
+    )
+  )
 )
 
 const app = pipe(
   RouterBuilder.make(api),
   RouterBuilder.handle("hello", () =>
     Effect.succeed({
-      content: 12,
+      body: 12,
       headers: { "x-hello-world": "test" },
       status: 201 as const
     })),

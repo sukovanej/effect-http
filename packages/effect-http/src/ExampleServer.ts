@@ -9,6 +9,7 @@
  * @since 1.0.0
  */
 import type * as Api from "./Api.js"
+import type * as ApiEndpoint from "./ApiEndpoint.js"
 import * as internal from "./internal/example-server.js"
 import type * as RouterBuilder from "./RouterBuilder.js"
 
@@ -18,9 +19,9 @@ import type * as RouterBuilder from "./RouterBuilder.js"
  * @category utils
  * @since 1.0.0
  */
-export const make: <A extends Api.Api>(
+export const make: <A extends Api.Api.Any>(
   api: A
-) => RouterBuilder.RouterBuilder<Api.ApiRequirements<A>, never, never> = internal.make
+) => RouterBuilder.RouterBuilder<Api.Api.Requirements<A>, never, never> = internal.make
 
 /**
  * Create an example implementation for a single endpoint.
@@ -29,16 +30,16 @@ export const make: <A extends Api.Api>(
  * @since 1.0.0
  */
 export const handle: <
-  RemainingEndpoints extends Api.Endpoint,
-  Id extends RemainingEndpoints["id"]
+  RemainingEndpoints extends ApiEndpoint.ApiEndpoint.Any,
+  Id extends ApiEndpoint.ApiEndpoint.Id<RemainingEndpoints>
 >(
   id: Id
 ) => <R, E>(
   routerBuilder: RouterBuilder.RouterBuilder<R, E, RemainingEndpoints>
 ) => RouterBuilder.RouterBuilder<
-  R | Api.EndpointRequirements<Extract<RemainingEndpoints, { id: Id }>>,
+  R | ApiEndpoint.ApiEndpoint.Requirements<ApiEndpoint.ApiEndpoint.ExtractById<RemainingEndpoints, Id>>,
   E,
-  Exclude<RemainingEndpoints, { id: Id }>
+  ApiEndpoint.ApiEndpoint.ExcludeById<RemainingEndpoints, Id>
 > = internal.handle
 
 /**
@@ -47,6 +48,7 @@ export const handle: <
  * @category utils
  * @since 1.0.0
  */
-export const handleRemaining: <RemainingEndpoints extends Api.Endpoint, R, E>(
+export const handleRemaining: <RemainingEndpoints extends ApiEndpoint.ApiEndpoint.Any, R, E>(
   routerBuilder: RouterBuilder.RouterBuilder<R, E, RemainingEndpoints>
-) => RouterBuilder.RouterBuilder<R | Api.EndpointRequirements<RemainingEndpoints>, E, never> = internal.handleRemaining
+) => RouterBuilder.RouterBuilder<R | ApiEndpoint.ApiEndpoint.Requirements<RemainingEndpoints>, E, never> =
+  internal.handleRemaining

@@ -39,7 +39,7 @@ const exampleRouteRequestHeaders = exampleApiRequestHeaders.pipe(
 )
 
 const exampleRouteParams = exampleApiParams.pipe(
-  Route.make("hello", ({ params }) => Effect.succeed(params.value))
+  Route.make("hello", ({ path }) => Effect.succeed(path.value))
 )
 
 const exampleMultipleQueryAllErrors = exampleApiMultipleQueryValues.pipe(
@@ -103,7 +103,7 @@ describe("examples", () => {
             {
               status: 201,
               headers: { "my-header": "hello" },
-              content: { value: "test" }
+              body: { value: "test" }
             } as const
           ))
       )
@@ -289,7 +289,7 @@ describe("error reporting", () => {
 
       expect(response.status).toEqual(500)
       expect(yield* _(response.json)).toEqual({
-        error: "Invalid response content",
+        error: "Invalid response body",
         message: "value must be a string, received 1"
       })
     }).pipe(runTestEffect))

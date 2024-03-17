@@ -38,7 +38,7 @@ const exampleRouteRequestHeaders = exampleApiRequestHeaders.pipe(
 
 const exampleRouteParams = exampleApiParams.pipe(
   RouterBuilder.make,
-  RouterBuilder.handle("hello", ({ params }) => Effect.succeed(params.value)),
+  RouterBuilder.handle("hello", ({ path }) => Effect.succeed(path.value)),
   RouterBuilder.getRouter
 )
 
@@ -107,7 +107,7 @@ describe("examples", () => {
             {
               status: 201,
               headers: { "my-header": "hello" },
-              content: { value: "test" }
+              body: { value: "test" }
             } as const
           )),
         RouterBuilder.getRouter
@@ -323,7 +323,7 @@ describe("error reporting", () => {
 
       expect(response.status).toEqual(500)
       expect(yield* _(response.json)).toEqual({
-        error: "Invalid response content",
+        error: "Invalid response body",
         message: "value must be a string, received 1"
       })
     }).pipe(runTestEffect))
@@ -335,11 +335,11 @@ test("single full response", () =>
       RouterBuilder.make,
       RouterBuilder.handle("hello", () =>
         Effect.succeed({
-          content: 12,
+          body: 12,
           headers: { "my-header": "test" },
           status: 200 as const
         })),
-      RouterBuilder.handle("another", () => Effect.succeed({ content: 12, status: 200 as const })),
+      RouterBuilder.handle("another", () => Effect.succeed(12)),
       RouterBuilder.getRouter
     )
 
@@ -354,18 +354,19 @@ test("single full response", () =>
     )
 
     expect(response1.status).toEqual(200)
-    expect(yield* _(response1.json)).toEqual(12)
     expect(response1.headers).toMatchObject({ "my-header": "test" })
 
-    expect(yield* _(response2.json)).toEqual(12)
     expect(response2.status).toEqual(200)
+
+    expect(yield* _(response1.json)).toEqual(12)
+    expect(yield* _(response2.json)).toEqual(12)
   }).pipe(runTestEffect))
 
 test("representations", () =>
   Effect.gen(function*(_) {
     const app = exampleApiRepresentations.pipe(
       RouterBuilder.make,
-      RouterBuilder.handle("test", () => Effect.succeed({ content: "test", status: 200 as const })),
+      RouterBuilder.handle("test", () => Effect.succeed("test")),
       RouterBuilder.getRouter
     )
 

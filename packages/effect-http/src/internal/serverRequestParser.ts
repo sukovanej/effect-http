@@ -7,7 +7,9 @@ import * as Either from "effect/Either"
 import { pipe } from "effect/Function"
 import * as ReadonlyRecord from "effect/ReadonlyRecord"
 import * as Unify from "effect/Unify"
-import * as Api from "../Api.js"
+import * as ApiEndpoint from "../ApiEndpoint.js"
+import * as ApiRequest from "../ApiRequest.js"
+import * as ApiSchema from "../ApiSchema.js"
 import * as ServerError from "../ServerError.js"
 import { formatParseError } from "./formatParseError.js"
 
@@ -15,7 +17,7 @@ interface ServerRequestParser {
   parseRequest: (
     request: ServerRequest.ServerRequest,
     context: Router.RouteContext
-  ) => Effect.Effect<{ query: any; params: any; body: any; headers: any; security: any }, ServerError.ServerError>
+  ) => Effect.Effect<{ query: any; path: any; body: any; headers: any; security: any }, ServerError.ServerError>
 }
 
 const createError = (
@@ -33,7 +35,7 @@ const make = (
 ): ServerRequestParser => ({ parseRequest })
 
 export const create = (
-  endpoint: Api.Endpoint,
+  endpoint: ApiEndpoint.ApiEndpoint.Any,
   parseOptions?: AST.ParseOptions
 ): ServerRequestParser => {
   const parseBody = createBodyParser(endpoint, parseOptions)
@@ -46,7 +48,7 @@ export const create = (
     Effect.all({
       body: parseBody(request),
       query: parseQuery(context),
-      params: parseParams(context),
+      path: parseParams(context),
       headers: parseHeaders(request),
       security: parseSecurity(request)
     })
@@ -54,19 +56,19 @@ export const create = (
 }
 
 const createBodyParser = (
-  endpoint: Api.Endpoint,
+  endpoint: ApiEndpoint.ApiEndpoint.Any,
   parseOptions?: AST.ParseOptions
 ) => {
-  const schema = endpoint.schemas.request.body
+  const schema = ApiRequest.getBodySchema(ApiEndpoint.getRequest(endpoint))
 
-  if (schema == Api.IgnoredSchemaId) {
+  if (ApiSchema.isIgnored(schema)) {
     return () => Effect.succeed(undefined)
   }
 
   const parse = Schema.decodeUnknown(schema as Schema.Schema<any, any, never>)
 
   return Unify.unify((request: ServerRequest.ServerRequest) => {
-    if (schema === Api.FormData) {
+    if (schema === ApiSchema.FormData) {
       // TODO
       return Effect.succeed(undefined)
     }
@@ -89,12 +91,12 @@ const createBodyParser = (
 }
 
 const createQueryParser = (
-  endpoint: Api.Endpoint,
+  endpoint: ApiEndpoint.ApiEndpoint.Any,
   parseOptions?: AST.ParseOptions
 ) => {
-  const schema = endpoint.schemas.request.query
+  const schema = ApiRequest.getQuerySchema(ApiEndpoint.getRequest(endpoint))
 
-  if (schema == Api.IgnoredSchemaId) {
+  if (ApiSchema.isIgnored(schema)) {
     return () => Effect.succeed(undefined)
   }
 
@@ -108,12 +110,12 @@ const createQueryParser = (
 }
 
 const createHeadersParser = (
-  endpoint: Api.Endpoint,
+  endpoint: ApiEndpoint.ApiEndpoint.Any,
   parseOptions?: AST.ParseOptions
 ) => {
-  const schema = endpoint.schemas.request.headers
+  const schema = ApiRequest.getHeadersSchema(ApiEndpoint.getRequest(endpoint))
 
-  if (schema == Api.IgnoredSchemaId) {
+  if (ApiSchema.isIgnored(schema)) {
     return () => Effect.succeed(undefined)
   }
 
@@ -126,10 +128,10 @@ const createHeadersParser = (
 }
 
 const createSecurityParser = (
-  endpoint: Api.Endpoint,
+  endpoint: ApiEndpoint.ApiEndpoint.Any,
   parseOptions?: AST.ParseOptions
 ) => {
-  const { security } = endpoint.options
+  const security = ApiEndpoint.getSecurity(endpoint)
   const securityCount = ReadonlyRecord.size(security)
 
   if (securityCount === 0) {
@@ -150,7 +152,7 @@ const createSecurityParser = (
           onSuccess: ({ authorization }) => ({
             [schemeName]: { token: authorization, securityScheme: singleSecurityScheme }
           }),
-          onFailure: () => createError("headers", "Bad authorization header")
+          onFailure: (error) => createError("headers", `Bad authorization header, ${formatParseError(error)}`)
         })
       )
   }
@@ -188,12 +190,12 @@ const createSecurityParser = (
 }
 
 const createParamsParser = (
-  endpoint: Api.Endpoint,
+  endpoint: ApiEndpoint.ApiEndpoint.Any,
   parseOptions?: AST.ParseOptions
 ) => {
-  const schema = endpoint.schemas.request.params
+  const schema = ApiRequest.getPathSchema(ApiEndpoint.getRequest(endpoint))
 
-  if (schema == Api.IgnoredSchemaId) {
+  if (ApiSchema.isIgnored(schema)) {
     return () => Effect.succeed(undefined)
   }
 

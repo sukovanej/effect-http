@@ -12,6 +12,8 @@ interface Clients {
   recordUsage: (aipKey: string) => Effect.Effect<void, never, Usages>
 }
 
+const ClientsService = Context.GenericTag<Clients>("@services/ClientsService")
+
 type ClientUsage = {
   clientId: string
   timestamp: number
@@ -20,7 +22,7 @@ type ClientUsage = {
 const RATE_WINDOW = 1000 * 30 // 30s
 const ALLOWED_USAGES_PER_WINDOW = 5
 
-const clients = {
+const clients = ClientsService.of({
   hasAccess: (clientId) => Effect.succeed(clientId === "abc"),
   getRemainingUsage: (clientId) =>
     pipe(
@@ -53,22 +55,21 @@ const clients = {
       ),
       Effect.flatMap(([usages, timestamp]) => Ref.update(usages, (usages) => [...usages, { clientId, timestamp }]))
     )
-} satisfies Clients
+})
 
 type Usages = Ref.Ref<Array<ClientUsage>>
 
-const ClientsService = Context.GenericTag<Clients>("@services/ClientsService")
 const UsagesService = Context.GenericTag<Usages>("@services/UsagesService")
 
 export const api = pipe(
-  Api.api(),
-  Api.post("hello", "/hello", {
-    response: Schema.string,
-    request: {
-      body: Schema.struct({ value: Schema.number }),
-      headers: Schema.struct({ "X-Client-Id": Schema.string })
-    }
-  })
+  Api.make(),
+  Api.addEndpoint(
+    Api.post("hello", "/hello").pipe(
+      Api.setResponseBody(Schema.string),
+      Api.setRequestBody(Schema.struct({ value: Schema.number })),
+      Api.setRequestHeaders(Schema.struct({ "x-client-id": Schema.string }))
+    )
+  )
 )
 
 const app = pipe(

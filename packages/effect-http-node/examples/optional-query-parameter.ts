@@ -6,31 +6,20 @@ import { Api, RouterBuilder } from "effect-http"
 import { NodeServer } from "effect-http-node"
 import { debugLogger } from "./_utils.js"
 
-const SchemaBooleanFromString = pipe(
-  Schema.literal("true", "false"),
-  Schema.transform(
-    Schema.boolean,
-    (i) => i === "true",
-    (o) => (o ? "true" : "false")
-  )
-)
+const SchemaBooleanFromString = Schema.transformLiterals(["true", true], ["false", false])
 
 export const api = pipe(
-  Api.api(),
-  Api.get("userById", "/api/users/:userId", {
-    response: Schema.struct({ name: Schema.string }),
-    request: {
-      params: Schema.struct({
-        userId: Schema.string
-      }),
-      query: Schema.struct({
-        include_deleted: Schema.optional(SchemaBooleanFromString)
-      }),
-      headers: Schema.struct({
-        authorization: Schema.string
-      })
-    }
-  })
+  Api.make(),
+  Api.addEndpoint(
+    Api.get("userById", "/api/users/:userId").pipe(
+      Api.setResponseBody(Schema.struct({ name: Schema.string })),
+      Api.setRequestPath(Schema.struct({ userId: Schema.string })),
+      Api.setRequestQuery(
+        Schema.struct({ include_deleted: Schema.optional(SchemaBooleanFromString) })
+      ),
+      Api.setRequestHeaders(Schema.struct({ authorization: Schema.string }))
+    )
+  )
 )
 
 const app = pipe(

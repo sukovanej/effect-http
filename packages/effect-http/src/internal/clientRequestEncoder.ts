@@ -6,10 +6,11 @@ import * as HashSet from "effect/HashSet"
 import * as Option from "effect/Option"
 import * as Predicate from "effect/Predicate"
 import * as ReadonlyRecord from "effect/ReadonlyRecord"
-import * as Api from "../Api.js"
+import * as ApiEndpoint from "../ApiEndpoint.js"
+import * as ApiRequest from "../ApiRequest.js"
+import * as ApiSchema from "../ApiSchema.js"
 import * as ClientError from "../ClientError.js"
 import { formatParseError } from "./formatParseError.js"
-import * as utils from "./utils.js"
 
 interface ClientRequestEncoder {
   encodeRequest: (
@@ -22,11 +23,11 @@ const make = (
   encodeRequest: ClientRequestEncoder["encodeRequest"]
 ): ClientRequestEncoder => ({ encodeRequest })
 
-export const create = (endpoint: Api.Endpoint): ClientRequestEncoder => {
+export const create = (endpoint: ApiEndpoint.ApiEndpoint.Any): ClientRequestEncoder => {
   const encodeBody = createBodyEncoder(endpoint)
   const encodeQuery = createQueryEncoder(endpoint)
   const encodeHeaders = createHeadersEncoder(endpoint)
-  const encodeParams = createParamsEncoder(endpoint)
+  const encodePath = createPathEncoder(endpoint)
   const encodeSecurity = createSecurityEncoder(endpoint)
 
   return make((input, security) =>
@@ -35,15 +36,15 @@ export const create = (endpoint: Api.Endpoint): ClientRequestEncoder => {
 
       const body = yield* _(encodeBody(_input["body"]))
       const query = yield* _(encodeQuery(_input["query"]))
-      const params = yield* _(encodeParams(_input["params"]))
+      const path = yield* _(encodePath(_input["path"]))
       const headers = yield* _(encodeHeaders(_input["headers"]))
-      const headersWithSecurity: any = yield* _(encodeSecurity(headers || {}, security || {}))
+      const headersWithSecurity = yield* _(encodeSecurity(headers || {}, security || {}))
 
-      const path = constructPath(params || {}, endpoint.path)
+      const finalPath = constructPath(path || {}, ApiEndpoint.getPath(endpoint))
 
       const request = pipe(
-        ClientRequest.get(path),
-        ClientRequest.setMethod(utils.convertMethod(endpoint.method)),
+        ClientRequest.get(finalPath),
+        ClientRequest.setMethod(ApiEndpoint.getMethod(endpoint)),
         body === undefined
           ? identity
           : body instanceof FormData
@@ -68,10 +69,10 @@ const ignoredSchemaEncoder = (name: string) => (input: unknown) => {
   return Effect.succeed(undefined)
 }
 
-const createBodyEncoder = (endpoint: Api.Endpoint) => {
-  const schema = endpoint.schemas.request.body
+const createBodyEncoder = (endpoint: ApiEndpoint.ApiEndpoint.Any) => {
+  const schema = ApiRequest.getBodySchema(ApiEndpoint.getRequest(endpoint))
 
-  if (schema == Api.IgnoredSchemaId) {
+  if (ApiSchema.isIgnored(schema)) {
     return ignoredSchemaEncoder("body")
   }
 
@@ -93,10 +94,10 @@ const isRecordOrUndefined = (
   i: unknown
 ): i is Record<string | symbol, unknown> | undefined => Predicate.isRecord(i) || Predicate.isUndefined(i)
 
-const createQueryEncoder = (endpoint: Api.Endpoint) => {
-  const schema = endpoint.schemas.request.query
+const createQueryEncoder = (endpoint: ApiEndpoint.ApiEndpoint.Any) => {
+  const schema = ApiRequest.getQuerySchema(ApiEndpoint.getRequest(endpoint))
 
-  if (schema == Api.IgnoredSchemaId) {
+  if (ApiSchema.isIgnored(schema)) {
     return ignoredSchemaEncoder("query")
   }
 
@@ -114,10 +115,10 @@ const createQueryEncoder = (endpoint: Api.Endpoint) => {
   }
 }
 
-const createHeadersEncoder = (endpoint: Api.Endpoint) => {
-  const schema = endpoint.schemas.request.headers
+const createHeadersEncoder = (endpoint: ApiEndpoint.ApiEndpoint.Any) => {
+  const schema = ApiRequest.getHeadersSchema(ApiEndpoint.getRequest(endpoint))
 
-  const encode = schema == Api.IgnoredSchemaId ? undefined : Schema.encode(schema as Schema.Schema<any, any, never>)
+  const encode = ApiSchema.isIgnored(schema) ? undefined : Schema.encode(schema as Schema.Schema<any, any, never>)
 
   return (headers: unknown) => {
     if (!isRecordOrUndefined(headers)) {
@@ -134,18 +135,18 @@ const createHeadersEncoder = (endpoint: Api.Endpoint) => {
     )
   }
 }
-const createSecurityEncoder = (endpoint: Api.Endpoint) => {
+
+const createSecurityEncoder = (endpoint: ApiEndpoint.ApiEndpoint.Any) => {
+  const securitySpec = ApiEndpoint.getSecurity(endpoint)
+
   const securitySchemesSchemas = pipe(
-    endpoint.options.security,
-    ReadonlyRecord.map((schema) => ({
-      schema,
-      encode: Schema.encode(schema.schema as Schema.Schema<any, string>)
-    }))
+    securitySpec,
+    ReadonlyRecord.map((schema) => ({ schema, encode: Schema.encode(schema.schema) }))
   )
 
   return (headers: Record<string, string>, security: Record<string, any>) => {
     if (
-      (ReadonlyRecord.size(security) === 0) && (ReadonlyRecord.size(endpoint.options.security) !== 0)
+      ReadonlyRecord.size(security) === 0 && ReadonlyRecord.size(securitySpec) !== 0
     ) {
       return Effect.fail(ClientError.makeClientSide(
         "Must provide at lest one secure scheme credential"
@@ -169,7 +170,7 @@ const createSecurityEncoder = (endpoint: Api.Endpoint) => {
         requestEncodeSecuritySchemes,
         ReadonlyRecord.map(({ schema }) => schema.type),
         ReadonlyRecord.values,
-        (schemeTypes) => HashSet.make(...schemeTypes),
+        HashSet.fromIterable,
         HashSet.size
       ) !== ReadonlyRecord.size(requestEncodeSecuritySchemes)
     ) {
@@ -201,11 +202,11 @@ const createSecurityEncoder = (endpoint: Api.Endpoint) => {
   }
 }
 
-const createParamsEncoder = (endpoint: Api.Endpoint) => {
-  const schema = endpoint.schemas.request.params
+const createPathEncoder = (endpoint: ApiEndpoint.ApiEndpoint.Any) => {
+  const schema = ApiRequest.getPathSchema(ApiEndpoint.getRequest(endpoint))
 
-  if (schema == Api.IgnoredSchemaId) {
-    return ignoredSchemaEncoder("params")
+  if (ApiSchema.isIgnored(schema)) {
+    return ignoredSchemaEncoder("path")
   }
 
   const encode = Schema.encode(schema as Schema.Schema<any, any, never>)
@@ -215,7 +216,7 @@ const createParamsEncoder = (endpoint: Api.Endpoint) => {
       Effect.mapError((error) =>
         ClientError.makeClientSide(
           error,
-          `Failed to encode path parmeters. ${formatParseError(error)}`
+          `Failed to encode path parmeters, ${formatParseError(error)}.`
         )
       )
     )

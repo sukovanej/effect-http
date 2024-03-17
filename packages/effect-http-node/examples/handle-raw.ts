@@ -6,14 +6,13 @@ import { Api, RouterBuilder } from "effect-http"
 import { NodeServer } from "effect-http-node"
 import { PrettyLogger } from "effect-log"
 
-export const api = Api.api({ title: "Example API" }).pipe(
-  Api.get("root", "/", {
-    response: {
-      status: 200,
-      content: Schema.string,
-      headers: Schema.struct({ "Content-Type": Schema.string })
-    }
-  })
+export const api = Api.make({ title: "Example API" }).pipe(
+  Api.addEndpoint(
+    Api.get("root", "/").pipe(
+      Api.setResponseBody(Schema.string),
+      Api.setResponseHeaders(Schema.struct({ "Content-Type": Schema.string }))
+    )
+  )
 )
 
 export const app = RouterBuilder.make(api).pipe(

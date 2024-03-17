@@ -13,6 +13,16 @@ import * as internal from "./internal/security-scheme.js"
 export type SecurityScheme<A> = HTTPSecurityScheme<A>
 
 /**
+ * @since 1.0.0
+ */
+export declare namespace SecurityScheme {
+  /**
+   * @since 1.0.0
+   */
+  export type Any = SecurityScheme<any>
+}
+
+/**
  * @category models
  * @since 1.0.0
  */

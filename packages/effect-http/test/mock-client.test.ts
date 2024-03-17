@@ -22,7 +22,7 @@ test("custom response", async () => {
 
 test("response schema with `optionFromNullable`", async () => {
   const client = MockClient.make(exampleApiPostNullableField)
-  const response = await runTestEffect(client.test())
+  const response = await runTestEffect(client.test({}))
 
   expect(Option.isOption(response.value)).toBe(true)
 })

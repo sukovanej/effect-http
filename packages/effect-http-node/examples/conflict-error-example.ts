@@ -7,13 +7,13 @@ import { NodeServer } from "effect-http-node"
 import { debugLogger } from "./_utils.js"
 
 const api = pipe(
-  Api.api({ title: "Users API" }),
-  Api.post("storeUser", "/users", {
-    response: Schema.string,
-    request: {
-      body: Schema.struct({ name: Schema.string })
-    }
-  })
+  Api.make({ title: "Users API" }),
+  Api.addEndpoint(
+    Api.post("storeUser", "/users").pipe(
+      Api.setResponseBody(Schema.string),
+      Api.setRequestBody(Schema.struct({ name: Schema.string }))
+    )
+  )
 )
 
 interface UserRepository {

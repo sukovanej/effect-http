@@ -4,20 +4,20 @@ import { Effect, pipe } from "effect"
 import { Api, Client, RouterBuilder } from "effect-http"
 import { NodeServer } from "effect-http-node"
 
-const responseSchema = Schema.struct({
+const Response = Schema.struct({
   name: Schema.string,
   id: pipe(Schema.number, Schema.int(), Schema.positive())
 })
-const querySchema = Schema.struct({ id: Schema.NumberFromString })
+const Query = Schema.struct({ id: Schema.NumberFromString })
 
 const api = pipe(
-  Api.api({ title: "Users API" }),
-  Api.get("getUser", "/user", {
-    response: responseSchema,
-    request: {
-      query: querySchema
-    }
-  })
+  Api.make({ title: "Users API" }),
+  Api.addEndpoint(
+    Api.get("getUser", "/user").pipe(
+      Api.setResponseBody(Response),
+      Api.setRequestQuery(Query)
+    )
+  )
 )
 
 const app = pipe(

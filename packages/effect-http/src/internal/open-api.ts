@@ -7,71 +7,71 @@ import { absurd, identity, pipe } from "effect/Function"
 import * as Option from "effect/Option"
 import * as ReadonlyArray from "effect/ReadonlyArray"
 import * as ReadonlyRecord from "effect/ReadonlyRecord"
-import * as Api from "../Api.js"
+import type * as Api from "../Api.js"
+import * as ApiEndpoint from "../ApiEndpoint.js"
+import * as ApiRequest from "../ApiRequest.js"
+import * as ApiResponse from "../ApiResponse.js"
+import * as ApiSchema from "../ApiSchema.js"
 
 export const make = (
-  api: Api.Api
+  api: Api.Api.Any
 ): OpenApiTypes.OpenAPISpec<OpenApiTypes.OpenAPISchemaType> => {
   const apiSetters: Array<any> = []
-  const pathSpecs = api.groups.flatMap((g) =>
-    g.endpoints.map(
-      ({ id, method, options, path, schemas }) => {
-        const { security } = options
+  const pathSpecs = api.groups.flatMap((group) =>
+    group.endpoints.map(
+      (endpoint) => {
+        const options = ApiEndpoint.getOptions(endpoint)
+        const security = ApiEndpoint.getSecurity(endpoint)
         const operationSpec = []
 
-        const responseSchema = schemas.response
+        for (const response of ApiEndpoint.getResponse(endpoint)) {
+          const body = ApiResponse.getBodySchema(response)
+          const headers = ApiResponse.getHeadersSchema(response)
+          const status = ApiResponse.getStatus(response)
 
-        if (responseSchema === Api.IgnoredSchemaId) {
-          operationSpec.push(
-            OpenApi.noContentResponse("No response")
-          )
-        } else if (Schema.isSchema(responseSchema)) {
+          if (ApiSchema.isIgnored(body) && ApiSchema.isIgnored(headers)) {
+            operationSpec.push(OpenApi.noContentResponse("No response"))
+            continue
+          }
+
+          const schema = ApiSchema.isIgnored(body) ? undefined : body
+          const setHeaders = ApiSchema.isIgnored(headers)
+            ? identity
+            : OpenApi.responseHeaders(
+              createResponseHeadersSchemaMap(headers)
+            )
+
           operationSpec.push(
             OpenApi.jsonResponse(
-              200,
-              responseSchema,
-              "Response",
-              descriptionSetter(responseSchema)
+              status as OpenApiTypes.OpenAPISpecStatusCode,
+              schema,
+              `Response ${status}`,
+              schema ? descriptionSetter(schema) : identity,
+              setHeaders
             )
           )
-        } else {
-          ;(Array.isArray(responseSchema) ? responseSchema : [responseSchema]).map(
-            ({ content, headers, status }) => {
-              const schema = content === Api.IgnoredSchemaId ? undefined : content
-              const setHeaders = headers === Api.IgnoredSchemaId
-                ? identity
-                : OpenApi.responseHeaders(
-                  createResponseHeadersSchemaMap(headers)
-                )
-
-              operationSpec.push(
-                OpenApi.jsonResponse(
-                  status as OpenApiTypes.OpenAPISpecStatusCode,
-                  schema,
-                  `Response ${status}`,
-                  schema ? descriptionSetter(schema) : identity,
-                  setHeaders
-                )
-              )
-            }
-          )
         }
 
-        const { body, headers, params, query } = schemas.request
+        const request = ApiEndpoint.getRequest(endpoint)
 
-        if (params !== Api.IgnoredSchemaId) {
-          operationSpec.push(...createParameterSetters("path", params))
+        const body = ApiRequest.getBodySchema(request)
+        const headers = ApiRequest.getHeadersSchema(request)
+        const path = ApiRequest.getPathSchema(request)
+        const query = ApiRequest.getQuerySchema(request)
+
+        if (!ApiSchema.isIgnored(path)) {
+          operationSpec.push(...createParameterSetters("path", path))
         }
 
-        if (query !== Api.IgnoredSchemaId) {
+        if (!ApiSchema.isIgnored(query)) {
           operationSpec.push(...createParameterSetters("query", query))
         }
 
-        if (headers !== Api.IgnoredSchemaId) {
+        if (!ApiSchema.isIgnored(headers)) {
           operationSpec.push(...createParameterSetters("header", headers))
         }
 
-        if (body !== Api.IgnoredSchemaId) {
+        if (!ApiSchema.isIgnored(body)) {
           operationSpec.push(OpenApi.jsonRequest(body, descriptionSetter(body)))
         }
 
@@ -120,11 +120,11 @@ export const make = (
         }
 
         return OpenApi.path(
-          createPath(path),
+          createPath(ApiEndpoint.getPath(endpoint)),
           OpenApi.operation(
-            method,
-            OpenApi.operationId(id),
-            OpenApi.tags(g.options.name),
+            ApiEndpoint.getMethod(endpoint).toLowerCase() as OpenApiTypes.OpenAPISpecMethodName,
+            OpenApi.operationId(ApiEndpoint.getId(endpoint)),
+            OpenApi.tags(group.name),
             ...operationSpec
           )
         )
@@ -132,8 +132,11 @@ export const make = (
     )
   )
 
-  if (ReadonlyArray.isNonEmptyArray(api.groups)) {
-    const [firstGlobalTag, ...restGlobalTags] = ReadonlyArray.map(api.groups, (group) => group.options)
+  if (ReadonlyArray.isNonEmptyReadonlyArray(api.groups)) {
+    const [firstGlobalTag, ...restGlobalTags] = ReadonlyArray.map(
+      api.groups,
+      (group) => ({ ...group.options, name: group.name })
+    )
 
     pathSpecs.push(OpenApi.globalTags(firstGlobalTag, ...restGlobalTags))
   }
@@ -229,7 +232,7 @@ const getPropertySignatures = (
   }
 
   throw new Error(
-    `${ast._tag} is not supported for ${openApiType} parameter.`
+    `${ast._tag} is not supported for ${openApiType} parameter. ${ast}`
   )
 }
 
@@ -254,7 +257,7 @@ const createParameterSetters = (
   })
 }
 
-const createResponseHeadersSchemaMap = (schema: Schema.Schema<any, any>) => {
+const createResponseHeadersSchemaMap = (schema: Schema.Schema<any, any, unknown>) => {
   let ast = schema.ast
 
   if (ast._tag === "Transformation") {

@@ -2,17 +2,18 @@ import * as NodeContext from "@effect/platform-node/NodeContext"
 import * as NodeHttpServer from "@effect/platform-node/NodeHttpServer"
 import * as HttpClient from "@effect/platform/HttpClient"
 import * as HttpServer from "@effect/platform/HttpServer"
-import type { Api, SwaggerRouter } from "effect-http"
+import type * as Api from "effect-http/Api"
 import * as Client from "effect-http/Client"
+import type * as SwaggerRouter from "effect-http/SwaggerRouter"
 import * as Deferred from "effect/Deferred"
 import * as Effect from "effect/Effect"
 import * as Layer from "effect/Layer"
 import { createServer } from "http"
 import * as NodeSwaggerFiles from "../NodeSwaggerFiles.js"
 
-export const make = <R, E, Endpoints extends Api.Endpoint>(
+export const make = <R, E, A extends Api.Api.Any>(
   app: HttpServer.app.Default<R | SwaggerRouter.SwaggerFiles, E>,
-  api: Api.Api<Endpoints>,
+  api: A,
   options?: Partial<Client.Options>
 ) =>
   Effect.gen(function*(_) {

@@ -2,8 +2,12 @@ import { Schema } from "@effect/schema"
 import { Effect, pipe } from "effect"
 import { Api, MockClient } from "effect-http"
 
-export const exampleApiGet = Api.api().pipe(
-  Api.get("getValue", "/get-value", { response: Schema.number })
+export const exampleApiGet = Api.make().pipe(
+  Api.addEndpoint(
+    Api.get("getValue", "/get-value").pipe(
+      Api.setResponseBody(Schema.number)
+    )
+  )
 )
 
 const client = MockClient.make(exampleApiGet)
