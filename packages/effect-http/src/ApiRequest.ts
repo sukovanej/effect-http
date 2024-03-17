@@ -9,14 +9,14 @@ import type * as ApiSchema from "./ApiSchema.js"
 import * as internal from "./internal/api-request.js"
 
 /**
- * @since 1.0.0
  * @category type id
+ * @since 1.0.0
  */
 export const TypeId: unique symbol = internal.TypeId
 
 /**
- * @since 1.0.0
  * @category type id
+ * @since 1.0.0
  */
 export type TypeId = typeof TypeId
 
@@ -27,10 +27,12 @@ export type TypeId = typeof TypeId
 export interface ApiRequest<B, P, Q, H, R> extends ApiRequest.Variance<B, P, Q, H, R> {}
 
 /**
+ * @category models
  * @since 1.0.0
  */
 export declare namespace ApiRequest {
   /**
+   * @category models
    * @since 1.0.0
    */
   export interface Variance<B, P, Q, H, R> {
@@ -46,6 +48,7 @@ export declare namespace ApiRequest {
   /**
    * Any request with all `Body`, `Path`, `Query` and `Headers` set to `any`.
    *
+   * @category models
    * @since 1.0.0
    */
   export type Any = ApiRequest<any, any, any, any, any>
@@ -53,35 +56,41 @@ export declare namespace ApiRequest {
   /**
    * Default request.
    *
+   * @category models
    * @since 1.0.0
    */
   export type Default = ApiRequest<ApiSchema.Ignored, ApiSchema.Ignored, ApiSchema.Ignored, ApiSchema.Ignored, never>
 
   /**
+   * @category models
    * @since 1.0.0
    */
   export type Body<Request> = [Request] extends [ApiRequest<infer B, any, any, any, any>] ? B
     : never
 
   /**
+   * @category models
    * @since 1.0.0
    */
   export type Path<Request> = [Request] extends [ApiRequest<any, infer P, any, any, any>] ? P
     : never
 
   /**
+   * @category models
    * @since 1.0.0
    */
   export type Query<Request> = [Request] extends [ApiRequest<any, any, infer Q, any, any>] ? Q
     : never
 
   /**
+   * @category models
    * @since 1.0.0
    */
   export type Headers<Request> = [Request] extends [ApiRequest<any, any, any, infer H, any>] ? H
     : never
 
   /**
+   * @category models
    * @since 1.0.0
    */
   export type Requirements<Request> = [Request] extends [ApiRequest<any, any, any, any, infer R>] ? R
@@ -89,7 +98,7 @@ export declare namespace ApiRequest {
 }
 
 /**
- * @category combinators
+ * @category getters
  * @since 1.0.0
  */
 export const getBodySchema: <B, P, Q, H, R>(
@@ -97,7 +106,7 @@ export const getBodySchema: <B, P, Q, H, R>(
 ) => Schema.Schema<B, any, R> | ApiSchema.Ignored = internal.getBodySchema
 
 /**
- * @category combinators
+ * @category getters
  * @since 1.0.0
  */
 export const getPathSchema: <B, P, Q, H, R>(
@@ -105,7 +114,7 @@ export const getPathSchema: <B, P, Q, H, R>(
 ) => Schema.Schema<P, any, R> | ApiSchema.Ignored = internal.getPathSchema
 
 /**
- * @category combinators
+ * @category getters
  * @since 1.0.0
  */
 export const getQuerySchema: <B, P, Q, H, R>(
@@ -113,7 +122,7 @@ export const getQuerySchema: <B, P, Q, H, R>(
 ) => Schema.Schema<Q, any, R> | ApiSchema.Ignored = internal.getQuerySchema
 
 /**
- * @category combinators
+ * @category getters
  * @since 1.0.0
  */
 export const getHeadersSchema: <B, P, Q, H, R>(
@@ -121,7 +130,7 @@ export const getHeadersSchema: <B, P, Q, H, R>(
 ) => Schema.Schema<H, any, R> | ApiSchema.Ignored = internal.getHeadersSchema
 
 /**
- * @category combinators
+ * @category modifications
  * @since 1.0.0
  */
 export const setBody: <B, R2>(
@@ -131,7 +140,7 @@ export const setBody: <B, R2>(
 ) => ApiRequest<B, P, Q, H, R1 | R2> = internal.setBody
 
 /**
- * @category combinators
+ * @category modifications
  * @since 1.0.0
  */
 export const setPath: <P, R2>(
@@ -141,7 +150,7 @@ export const setPath: <P, R2>(
 ) => ApiRequest<B, P, Q, H, R1 | R2> = internal.setPath
 
 /**
- * @category combinators
+ * @category modifications
  * @since 1.0.0
  */
 export const setQuery: <Q, R2>(
@@ -151,7 +160,7 @@ export const setQuery: <Q, R2>(
 ) => ApiRequest<B, P, Q, H, R1 | R2> = internal.setQuery
 
 /**
- * @category combinators
+ * @category modifications
  * @since 1.0.0
  */
 export const setHeaders: <H, R2>(

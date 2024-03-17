@@ -48,12 +48,14 @@ export interface Api<E extends ApiEndpoint.ApiEndpoint.Any> extends Pipeable.Pip
 }
 
 /**
+ * @category models
  * @since 1.0.0
  */
 export declare namespace Api {
   /**
    * Any api with `Endpoint = Endpoint.Any`
    *
+   * @category models
    * @since 1.0.0
    */
   export type Any = Api<ApiEndpoint.ApiEndpoint.Any>
@@ -61,23 +63,27 @@ export declare namespace Api {
   /**
    * Default api group spec.
    *
+   * @category models
    * @since 1.0.0
    */
   export type Empty = Api<never>
 
   /**
+   * @category models
    * @since 1.0.0
    */
   export type Requirements<A> = A extends Api<infer E> ? ApiEndpoint.ApiEndpoint.Requirements<E>
     : never
 
   /**
+   * @category models
    * @since 1.0.0
    */
   export type Endpoints<A extends Any> = [A] extends [Api<infer E>] ? E
     : never
 
   /**
+   * @category models
    * @since 1.0.0
    */
   export type EndpointById<A extends Any, Id extends ApiEndpoint.ApiEndpoint.AnyId> = [A] extends [Api<infer E>]
@@ -85,6 +91,7 @@ export declare namespace Api {
     : never
 
   /**
+   * @category models
    * @since 1.0.0
    */
   export type Ids<A extends Any> = [Endpoints<A>] extends [ApiEndpoint.ApiEndpoint<infer Id, any, any, any>] ? Id
@@ -92,12 +99,13 @@ export declare namespace Api {
 }
 
 /**
- * @category api
+ * @category constructors
  * @since 1.0.0
  */
 export const make: (options?: Partial<ApiOptions>) => Api.Empty = internal.make
 
 /**
+ * @category modifications
  * @since 1.0.0
  */
 export const addEndpoint: <E2 extends ApiEndpoint.ApiEndpoint.Any>(
@@ -105,6 +113,7 @@ export const addEndpoint: <E2 extends ApiEndpoint.ApiEndpoint.Any>(
 ) => <E1 extends ApiEndpoint.ApiEndpoint.Any>(api: Api<E1>) => Api<E1 | E2> = internal.addEndpoint
 
 /**
+ * @category modifications
  * @since 1.0.0
  */
 export const addGroup: <E2 extends ApiEndpoint.ApiEndpoint.Any>(
@@ -112,6 +121,7 @@ export const addGroup: <E2 extends ApiEndpoint.ApiEndpoint.Any>(
 ) => <E1 extends ApiEndpoint.ApiEndpoint.Any>(api: Api<E1>) => Api<E1 | E2> = internal.addGroup
 
 /**
+ * @category getters
  * @since 1.0.0
  */
 export const getEndpoint: <A extends Api.Any, Id extends Api.Ids<A>>(api: A, id: Id) => Api.EndpointById<A, Id> =
@@ -119,102 +129,102 @@ export const getEndpoint: <A extends Api.Any, Id extends Api.Ids<A>>(api: A, id:
 
 export {
   /**
-   * @category reexported
+   * @category modifications
    * @since 1.0.0
    */
   addResponse,
   /**
-   * @category reexported
+   * @category modifications
    * @since 1.0.0
    */
   addSecurity,
   /**
-   * @category reexported
+   * @category constructors
    * @since 1.0.0
    */
   delete,
   /**
-   * @category reexported
+   * @category constructors
    * @since 1.0.0
    */
   get,
   /**
-   * @category reexported
+   * @category constructors
    * @since 1.0.0
    */
   make as endpoint,
   /**
-   * @category reexported
+   * @category constructors
    * @since 1.0.0
    */
   patch,
   /**
-   * @category reexported
+   * @category constructors
    * @since 1.0.0
    */
   post,
   /**
-   * @category reexported
+   * @category constructors
    * @since 1.0.0
    */
   put,
   /**
-   * @category reexported
+   * @category constructors
    * @since 1.0.0
    */
   setRequest,
   /**
-   * @category reexported
+   * @category modifications
    * @since 1.0.0
    */
   setRequestBody,
   /**
-   * @category reexported
+   * @category modifications
    * @since 1.0.0
    */
   setRequestHeaders,
   /**
-   * @category reexported
+   * @category modifications
    * @since 1.0.0
    */
   setRequestPath,
   /**
-   * @category reexported
+   * @category modifications
    * @since 1.0.0
    */
   setRequestQuery,
   /**
-   * @category reexported
+   * @category modifications
    * @since 1.0.0
    */
   setResponse,
   /**
-   * @category reexported
+   * @category modifications
    * @since 1.0.0
    */
   setResponseBody,
   /**
-   * @category reexported
+   * @category modifications
    * @since 1.0.0
    */
   setResponseHeaders,
   /**
-   * @category reexported
+   * @category modifications
    * @since 1.0.0
    */
   setResponseRepresentations,
   /**
-   * @category reexported
+   * @category modifications
    * @since 1.0.0
    */
   setResponseStatus,
   /**
-   * @category reexported
+   * @category modifications
    * @since 1.0.0
    */
   setSecurity
   /**
-   * @category reexported
+   * @category modifications
    * @since 1.0.0
    */
 } from "./ApiEndpoint.js"

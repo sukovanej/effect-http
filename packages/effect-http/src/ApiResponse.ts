@@ -97,6 +97,7 @@ export declare namespace ApiResponse {
 export const isApiResponse: (u: unknown) => u is ApiResponse.Any = internal.isApiResponse
 
 /**
+ * @category constructors
  * @since 1.0.0
  */
 export const make: <S extends ApiResponse.AnyStatus, B = ApiSchema.Ignored, H = ApiSchema.Ignored, R = never>(
@@ -107,6 +108,7 @@ export const make: <S extends ApiResponse.AnyStatus, B = ApiSchema.Ignored, H = 
 ) => ApiResponse<S, B, H, R> = internal.make
 
 /**
+ * @category modifications
  * @since 1.0.0
  */
 export const setStatus: <S extends ApiResponse.AnyStatus>(schema: S) => <_ extends ApiResponse.AnyStatus, B, H, R>(
@@ -114,6 +116,7 @@ export const setStatus: <S extends ApiResponse.AnyStatus>(schema: S) => <_ exten
 ) => ApiResponse<S, B, H, R> = internal.setStatus
 
 /**
+ * @category modifications
  * @since 1.0.0
  */
 export const setBody: <B, R2>(schema: Schema.Schema<B, any, R2>) => <S extends ApiResponse.AnyStatus, _, H, R1>(
@@ -121,6 +124,7 @@ export const setBody: <B, R2>(schema: Schema.Schema<B, any, R2>) => <S extends A
 ) => ApiResponse<S, B, H, R1 | R2> = internal.setBody
 
 /**
+ * @category modifications
  * @since 1.0.0
  */
 export const setHeaders: <H, R2>(schema: Schema.Schema<H, any, R2>) => <S extends ApiResponse.AnyStatus, B, _, R1>(
@@ -128,6 +132,7 @@ export const setHeaders: <H, R2>(schema: Schema.Schema<H, any, R2>) => <S extend
 ) => ApiResponse<S, B, H, R1 | R2> = internal.setHeaders
 
 /**
+ * @category modifications
  * @since 1.0.0
  */
 export const setRepresentations: (
@@ -137,6 +142,7 @@ export const setRepresentations: (
 ) => ApiResponse<S, B, H, R> = internal.setRepresentations
 
 /**
+ * @category getters
  * @since 1.0.0
  */
 export const getStatus: <S extends ApiResponse.AnyStatus, B, H, R>(
@@ -144,6 +150,7 @@ export const getStatus: <S extends ApiResponse.AnyStatus, B, H, R>(
 ) => S = internal.getStatus
 
 /**
+ * @category getters
  * @since 1.0.0
  */
 export const getBodySchema: <S extends ApiResponse.AnyStatus, B, H, R>(
@@ -151,6 +158,7 @@ export const getBodySchema: <S extends ApiResponse.AnyStatus, B, H, R>(
 ) => Schema.Schema<B, any, R> | ApiSchema.Ignored = internal.getBodySchema
 
 /**
+ * @category getters
  * @since 1.0.0
  */
 export const getHeadersSchema: <S extends ApiResponse.AnyStatus, B, H, R>(
@@ -158,6 +166,7 @@ export const getHeadersSchema: <S extends ApiResponse.AnyStatus, B, H, R>(
 ) => Schema.Schema<H, any, R> | ApiSchema.Ignored = internal.getHeadersSchema
 
 /**
+ * @category getters
  * @since 1.0.0
  */
 export const getRepresentations: <S extends ApiResponse.AnyStatus, B, H, R>(

@@ -50,10 +50,12 @@ export interface ApiEndpoint<
 > extends ApiEndpoint.Variance<Id, Request, Response, Security>, Pipeable.Pipeable {}
 
 /**
+ * @category models
  * @since 1.0.0
  */
 export declare namespace ApiEndpoint {
   /**
+   * @category models
    * @since 1.0.0
    */
   export interface Variance<
@@ -73,6 +75,7 @@ export declare namespace ApiEndpoint {
   /**
    * Any endpoint id.
    *
+   * @category models
    * @since 1.0.0
    */
   export type AnyId = string
@@ -80,6 +83,7 @@ export declare namespace ApiEndpoint {
   /**
    * Any endpoint with `Request = Request.Any` and `Response = Response.Any`.
    *
+   * @category models
    * @since 1.0.0
    */
   export type Any = ApiEndpoint<AnyId, ApiRequest.ApiRequest.Any, ApiResponse.ApiResponse.Any, ApiSecurity.Any>
@@ -87,6 +91,7 @@ export declare namespace ApiEndpoint {
   /**
    * Default endpoint spec.
    *
+   * @category models
    * @since 1.0.0
    */
   export type Default<Id extends AnyId> = ApiEndpoint<
@@ -97,6 +102,7 @@ export declare namespace ApiEndpoint {
   >
 
   /**
+   * @category models
    * @since 1.0.0
    */
   export type Requirements<Endpoint> = [Endpoint] extends [ApiEndpoint<any, infer Request, infer Response, any>]
@@ -104,12 +110,14 @@ export declare namespace ApiEndpoint {
     : never
 
   /**
+   * @category models
    * @since 1.0.0
    */
   export type ExtractById<Endpoint, Id extends AnyId> = Endpoint extends ApiEndpoint<Id, any, any, any> ? Endpoint
     : never
 
   /**
+   * @category models
    * @since 1.0.0
    */
   export type ExcludeById<Endpoint extends Any, Id extends AnyId> = Endpoint extends ApiEndpoint<Id, any, any, any> ?
@@ -117,24 +125,28 @@ export declare namespace ApiEndpoint {
     : Endpoint
 
   /**
+   * @category models
    * @since 1.0.0
    */
   export type Id<Endpoint> = Endpoint extends ApiEndpoint<infer Id, any, any, any> ? Id
     : never
 
   /**
+   * @category models
    * @since 1.0.0
    */
   export type Request<Endpoint> = Endpoint extends ApiEndpoint<any, infer Request, any, any> ? Request
     : never
 
   /**
+   * @category models
    * @since 1.0.0
    */
   export type Response<Endpoint> = Endpoint extends ApiEndpoint<any, any, infer Response, any> ? Response
     : never
 
   /**
+   * @category models
    * @since 1.0.0
    */
   export type Security<Endpoint> = Endpoint extends ApiEndpoint<any, any, any, infer Security> ? Security
@@ -142,7 +154,7 @@ export declare namespace ApiEndpoint {
 }
 
 /**
- * @category endpoint constructors
+ * @category constructors
  * @since 1.0.0
  */
 export const make: <Id extends ApiEndpoint.AnyId>(
@@ -153,7 +165,7 @@ export const make: <Id extends ApiEndpoint.AnyId>(
 ) => ApiEndpoint.Default<Id> = internal.make
 
 /**
- * @category endpoint constructors
+ * @category constructors
  * @since 1.0.0
  */
 export const get: <Id extends ApiEndpoint.AnyId>(
@@ -163,7 +175,7 @@ export const get: <Id extends ApiEndpoint.AnyId>(
 ) => ApiEndpoint.Default<Id> = (...args) => make("GET", ...args)
 
 /**
- * @category endpoint constructors
+ * @category constructors
  * @since 1.0.0
  */
 export const post: <Id extends ApiEndpoint.AnyId>(
@@ -173,7 +185,7 @@ export const post: <Id extends ApiEndpoint.AnyId>(
 ) => ApiEndpoint.Default<Id> = (...args) => make("POST", ...args)
 
 /**
- * @category endpoint constructors
+ * @category constructors
  * @since 1.0.0
  */
 export const put: <Id extends ApiEndpoint.AnyId>(
@@ -183,7 +195,7 @@ export const put: <Id extends ApiEndpoint.AnyId>(
 ) => ApiEndpoint.Default<Id> = (...args) => make("PUT", ...args)
 
 /**
- * @category endpoint constructors
+ * @category constructors
  * @since 1.0.0
  */
 export const patch: <Id extends ApiEndpoint.AnyId>(
@@ -200,14 +212,14 @@ const _delete: <Id extends ApiEndpoint.AnyId>(
 
 export {
   /**
-   * @category endpoint constructors
+   * @category constructors
    * @since 1.0.0
    */
   _delete as delete
 }
 
 /**
- * @category endpoint combinators
+ * @category modifications
  * @since 1.0.0
  */
 export const setRequest: <Request extends ApiRequest.ApiRequest.Any>(
@@ -222,7 +234,7 @@ export const setRequest: <Request extends ApiRequest.ApiRequest.Any>(
 ) => ApiEndpoint<Id, Request, Response, Security> = internal.setRequest
 
 /**
- * @category endpoint combinators
+ * @category modifications
  * @since 1.0.0
  */
 export const setRequestBody: <B, R2>(
@@ -241,7 +253,7 @@ export const setRequestBody: <B, R2>(
 ) => ApiEndpoint<Id, ApiRequest.ApiRequest<B, P, Q, H, R1 | R2>, Response, Security> = internal.setRequestBody
 
 /**
- * @category endpoint combinators
+ * @category modifications
  * @since 1.0.0
  */
 export const setRequestPath: <P, R2>(
@@ -260,7 +272,7 @@ export const setRequestPath: <P, R2>(
 ) => ApiEndpoint<Id, ApiRequest.ApiRequest<B, P, Q, H, R1 | R2>, Response, Security> = internal.setRequestPath
 
 /**
- * @category endpoint combinators
+ * @category modifications
  * @since 1.0.0
  */
 export const setRequestQuery: <Q, R2>(
@@ -279,7 +291,7 @@ export const setRequestQuery: <Q, R2>(
 ) => ApiEndpoint<Id, ApiRequest.ApiRequest<B, P, Q, H, R1 | R2>, Response, Security> = internal.setRequestQuery
 
 /**
- * @category endpoint combinators
+ * @category modifications
  * @since 1.0.0
  */
 export const setRequestHeaders: <H, R2>(
@@ -298,7 +310,7 @@ export const setRequestHeaders: <H, R2>(
 ) => ApiEndpoint<Id, ApiRequest.ApiRequest<B, P, Q, H, R1 | R2>, Response, Security> = internal.setRequestHeaders
 
 /**
- * @category endpoint combinators
+ * @category modifications
  * @since 1.0.0
  */
 export const setSecurity: <Security extends ApiSecurity.Any>(security: Security) => <
@@ -310,7 +322,7 @@ export const setSecurity: <Security extends ApiSecurity.Any>(security: Security)
   internal.setSecurity
 
 /**
- * @category endpoint combinators
+ * @category modifications
  * @since 1.0.0
  */
 export const addSecurity: <Name extends string, SecurityScheme extends SecurityScheme.SecurityScheme.Any>(
@@ -326,7 +338,7 @@ export const addSecurity: <Name extends string, SecurityScheme extends SecurityS
 ) => ApiEndpoint<Id, Request, Response, Security & { [K in Name]: SecurityScheme }> = internal.addSecurity
 
 /**
- * @category endpoint combinators
+ * @category modifications
  * @since 1.0.0
  */
 export const getId: <
@@ -337,7 +349,7 @@ export const getId: <
 >(endpoint: ApiEndpoint<Id, Request, Response, Security>) => Id = internal.getId
 
 /**
- * @category endpoint combinators
+ * @category getters
  * @since 1.0.0
  */
 export const getRequest: <
@@ -348,7 +360,7 @@ export const getRequest: <
 >(endpoint: ApiEndpoint<Id, Request, Response, Security>) => Request = internal.getRequest
 
 /**
- * @category endpoint combinators
+ * @category getters
  * @since 1.0.0
  */
 export const getResponse: <
@@ -359,7 +371,7 @@ export const getResponse: <
 >(endpoint: ApiEndpoint<Id, Request, Response, Security>) => ReadonlyArray<Response> = internal.getResponse
 
 /**
- * @category endpoint combinators
+ * @category getters
  * @since 1.0.0
  */
 export const getSecurity: <
@@ -370,7 +382,7 @@ export const getSecurity: <
 >(endpoint: ApiEndpoint<Id, Request, Response, Security>) => Security = internal.getSecurity
 
 /**
- * @category endpoint combinators
+ * @category getters
  * @since 1.0.0
  */
 export const getPath: <
@@ -381,7 +393,7 @@ export const getPath: <
 >(endpoint: ApiEndpoint<Id, Request, Response, Security>) => HttpServer.router.PathInput = internal.getPath
 
 /**
- * @category endpoint combinators
+ * @category getters
  * @since 1.0.0
  */
 export const getMethod: <
@@ -392,7 +404,7 @@ export const getMethod: <
 >(endpoint: ApiEndpoint<Id, Request, Response, Security>) => Method.Method = internal.getMethod
 
 /**
- * @category endpoint combinators
+ * @category getters
  * @since 1.0.0
  */
 export const getOptions: <
@@ -403,7 +415,7 @@ export const getOptions: <
 >(endpoint: ApiEndpoint<Id, Request, Response, Security>) => Options = internal.getOptions
 
 /**
- * @category endpoint combinators
+ * @category getters
  * @since 1.0.0
  */
 export const setResponse: <Response extends ApiResponse.ApiResponse.Any>(
@@ -418,7 +430,7 @@ export const setResponse: <Response extends ApiResponse.ApiResponse.Any>(
 ) => ApiEndpoint<Id, Request, Response, Security> = internal.setResponse
 
 /**
- * @category endpoint combinators
+ * @category modifications
  * @since 1.0.0
  */
 export const setResponseStatus: <Status extends ApiResponse.ApiResponse.AnyStatus>(
@@ -436,7 +448,7 @@ export const setResponseStatus: <Status extends ApiResponse.ApiResponse.AnyStatu
 ) => ApiEndpoint<Id, Request, ApiResponse.ApiResponse<Status, B, H, R>, Security> = internal.setResponseStatus
 
 /**
- * @category endpoint combinators
+ * @category modifications
  * @since 1.0.0
  */
 export const setResponseBody: <B, R2>(
@@ -454,7 +466,7 @@ export const setResponseBody: <B, R2>(
 ) => ApiEndpoint<Id, Request, ApiResponse.ApiResponse<S, B, H, R1 | R2>, Security> = internal.setResponseBody
 
 /**
- * @category endpoint combinators
+ * @category modifications
  * @since 1.0.0
  */
 export const setResponseHeaders: <H, R2>(
@@ -472,7 +484,7 @@ export const setResponseHeaders: <H, R2>(
 ) => ApiEndpoint<Id, Request, ApiResponse.ApiResponse<S, B, H, R1 | R2>, Security> = internal.setResponseHeaders
 
 /**
- * @category endpoint combinators
+ * @category modifications
  * @since 1.0.0
  */
 export const addResponse: {
@@ -504,7 +516,7 @@ export const addResponse: {
 } = internal.addResponse
 
 /**
- * @category endpoint combinators
+ * @category modifications
  * @since 1.0.0
  */
 export const setResponseRepresentations: (
@@ -520,13 +532,13 @@ export const setResponseRepresentations: (
 
 /**
  * Is used by the client and server implementation to determine whether
- * to use a full { status; body; headers } response or just the body.
+ * to use a full `{ status; body; headers }` response or just the body.
  *
  * The logic is that if there is only one declared response and it doesn't
  * specify any headers, the simplified version with body only is used, otherwise
  * the full response is used.
  *
- * @category endpoint combinators
+ * @category getters
  * @since 1.0.0
  */
 export const isFullResponse: <
