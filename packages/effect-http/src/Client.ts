@@ -123,7 +123,7 @@ export type EndpointClient<E extends ApiEndpoint.ApiEndpoint.Any> = Record<strin
   ) => Effect.Effect<
     ClientFunctionResponse<ApiEndpoint.ApiEndpoint.Response<E>>,
     ClientError.ClientError,
-    ApiEndpoint.ApiEndpoint.Requirements<E>
+    ApiEndpoint.ApiEndpoint.Context<E>
   > :
   (
     input: ToRequest<ApiEndpoint.ApiEndpoint.Request<E>>,
@@ -131,7 +131,7 @@ export type EndpointClient<E extends ApiEndpoint.ApiEndpoint.Any> = Record<strin
   ) => Effect.Effect<
     ClientFunctionResponse<ApiEndpoint.ApiEndpoint.Response<E>>,
     ClientError.ClientError,
-    ApiEndpoint.ApiEndpoint.Requirements<E>
+    ApiEndpoint.ApiEndpoint.Context<E>
   >
 
 /** @ignore */

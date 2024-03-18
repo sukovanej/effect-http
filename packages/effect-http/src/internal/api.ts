@@ -6,13 +6,13 @@ import * as ApiGroup from "../ApiGroup.js"
 import * as api_endpoint from "./api-endpoint.js"
 import * as api_group from "./api-group.js"
 
-export const ApiTypeId: Api.ApiTypeId = Symbol.for(
-  "effect-http/Api/ApiTypeId"
-) as Api.ApiTypeId
+export const TypeId: Api.TypeId = Symbol.for(
+  "effect-http/Api/TypeId"
+) as Api.TypeId
 
 /** @internal */
 class ApiImpl<Endpoints extends ApiEndpoint.ApiEndpoint.Any> implements Api.Api<Endpoints> {
-  readonly [ApiTypeId]: Api.ApiTypeId = ApiTypeId
+  readonly [TypeId]: Api.TypeId = TypeId
 
   constructor(
     readonly groups: ReadonlyArray<ApiGroup.ApiGroup<Endpoints>>,
@@ -32,7 +32,7 @@ const DEFAULT_API_OPTIONS: Api.Api.Any["options"] = {
 }
 
 /** @internal */
-export const isApi = (u: unknown): u is Api.Api.Any => typeof u === "object" && u !== null && ApiTypeId in u
+export const isApi = (u: unknown): u is Api.Api.Any => typeof u === "object" && u !== null && TypeId in u
 
 /** @internal */
 export const make = (options?: Partial<Api.ApiOptions>): Api.Api.Empty =>

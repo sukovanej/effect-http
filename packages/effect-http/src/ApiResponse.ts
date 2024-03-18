@@ -96,7 +96,7 @@ export declare namespace ApiResponse {
    * @category models
    * @since 1.0.0
    */
-  export type Requirements<Request> = [Request] extends [ApiResponse<any, any, any, infer R>] ? R
+  export type Context<Request> = [Request] extends [ApiResponse<any, any, any, infer R>] ? R
     : never
 }
 

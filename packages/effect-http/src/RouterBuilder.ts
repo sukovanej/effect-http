@@ -93,7 +93,7 @@ export const handle: <
   builder: RouterBuilder<R1, E1, RemainingEndpoints>
 ) => RouterBuilder<
   | Exclude<R1 | R2, Router.RouteContext | ServerRequest.ServerRequest>
-  | ApiEndpoint.ApiEndpoint.Requirements<ApiEndpoint.ApiEndpoint.ExtractById<RemainingEndpoints, Id>>,
+  | ApiEndpoint.ApiEndpoint.Context<ApiEndpoint.ApiEndpoint.ExtractById<RemainingEndpoints, Id>>,
   E1 | Exclude<E2, ServerError.ServerError>,
   ApiEndpoint.ApiEndpoint.ExcludeById<RemainingEndpoints, Id>
 > = internal.handle

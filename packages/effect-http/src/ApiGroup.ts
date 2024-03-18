@@ -66,7 +66,7 @@ export declare namespace ApiGroup {
    * @category models
    * @since 1.0.0
    */
-  export type Requirements<Endpoint> = Endpoint extends ApiGroup<infer E> ? ApiEndpoint.ApiEndpoint.Requirements<E>
+  export type Context<Endpoint> = Endpoint extends ApiGroup<infer E> ? ApiEndpoint.ApiEndpoint.Context<E>
     : never
 }
 

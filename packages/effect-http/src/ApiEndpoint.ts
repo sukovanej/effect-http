@@ -105,8 +105,8 @@ export declare namespace ApiEndpoint {
    * @category models
    * @since 1.0.0
    */
-  export type Requirements<Endpoint> = [Endpoint] extends [ApiEndpoint<any, infer Request, infer Response, any>]
-    ? ApiRequest.ApiRequest.Requirements<Request> | ApiResponse.ApiResponse.Requirements<Response>
+  export type Context<Endpoint> = [Endpoint] extends [ApiEndpoint<any, infer Request, infer Response, any>]
+    ? ApiRequest.ApiRequest.Context<Request> | ApiResponse.ApiResponse.Context<Response>
     : never
 
   /**
