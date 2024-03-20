@@ -231,12 +231,12 @@ test("union in query params", () => {
       "schema": {
         "oneOf": [
           {
-            "description": "a number",
-            "type": "number"
-          },
-          {
             "description": "a string",
             "type": "string"
+          },
+          {
+            "description": "a number",
+            "type": "number"
           }
         ]
       }
