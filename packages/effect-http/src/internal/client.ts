@@ -1,3 +1,4 @@
+import type { HttpClient } from "@effect/platform"
 import * as PlatformClient from "@effect/platform/Http/Client"
 import * as ClientRequest from "@effect/platform/Http/ClientRequest"
 import * as Effect from "effect/Effect"
@@ -31,15 +32,21 @@ export const endpointClient = <
 
   const httpClient = options.httpClient ?? defaultHttpClient
 
-  return ((args: unknown, security: unknown) =>
+  return ((args: unknown, mapper?: (request: HttpClient.request.ClientRequest) => HttpClient.request.ClientRequest) =>
     pipe(
-      requestEncoder.encodeRequest(args, security),
+      requestEncoder.encodeRequest(args),
+      Effect.map(mapper ?? identity),
       Effect.map(mapRequest),
       Effect.flatMap(httpClient),
+      Effect.catchTags({
+        RequestError: Effect.die, // TODO handle
+        ResponseError: Effect.die, // TODO handle
+        ClientError: (err) => Effect.fail(err)
+      }),
       Effect.flatMap(responseParser.parseResponse),
       Effect.scoped,
       Effect.annotateLogs("clientOperationId", ApiEndpoint.getId(endpoint))
-    )) as any
+    ))
 }
 
 /**

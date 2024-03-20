@@ -4,10 +4,7 @@
  * @since 1.0.0
  */
 import type * as Router from "@effect/platform/Http/Router"
-import type * as ParseResult from "@effect/schema/ParseResult"
-import type * as Schema from "@effect/schema/Schema"
 import type * as Effect from "effect/Effect"
-import type * as Either from "effect/Either"
 import type * as Types from "effect/Types"
 
 import type * as Api from "./Api.js"
@@ -18,7 +15,7 @@ import type * as ApiSchema from "./ApiSchema.js"
 import * as internal from "./internal/route.js"
 import type * as utils from "./internal/utils.js"
 import type * as RouterBuilder from "./RouterBuilder.js"
-import type * as SecurityScheme from "./SecurityScheme.js"
+import type * as Security from "./Security.js"
 import type * as ServerError from "./ServerError.js"
 
 /**
@@ -91,14 +88,4 @@ export type ToRequest<R extends ApiRequest.ApiRequest.Any> = utils.RemoveIgnored
 }>
 
 /** @ignore */
-export type ToSecurity<Security extends ApiEndpoint.ApiSecurity.Any> = Types.Simplify<
-  {
-    [K in keyof Security]: Security[K] extends infer SS extends SecurityScheme.HTTPSecurityScheme<any> ? {
-        readonly token: [utils.IsUnion<keyof Security>] extends [true]
-          ? Either.Either<Schema.Schema.Type<SS["schema"]>, ParseResult.ParseError>
-          : Schema.Schema.Type<SS["schema"]>
-        readonly securityScheme: SS
-      } :
-      never
-  }
->
+export type ToSecurity<Security extends Security.Security.Any> = Security.Security.Success<Security>

@@ -94,11 +94,6 @@ export {
    */
   addResponse,
   /**
-   * @category modifications
-   * @since 1.0.0
-   */
-  addSecurity,
-  /**
    * @category constructors
    * @since 1.0.0
    */

@@ -3,7 +3,7 @@ import type * as OpenApiTypes from "schema-openapi/OpenApiTypes"
 
 import * as AST from "@effect/schema/AST"
 import * as Schema from "@effect/schema/Schema"
-import { absurd, identity, pipe } from "effect/Function"
+import { identity, pipe } from "effect/Function"
 import * as Option from "effect/Option"
 import * as ReadonlyArray from "effect/ReadonlyArray"
 import * as ReadonlyRecord from "effect/ReadonlyRecord"
@@ -12,6 +12,7 @@ import * as ApiEndpoint from "../ApiEndpoint.js"
 import * as ApiRequest from "../ApiRequest.js"
 import * as ApiResponse from "../ApiResponse.js"
 import * as ApiSchema from "../ApiSchema.js"
+import * as Security from "../Security.js"
 
 export const make = (
   api: Api.Api.Any
@@ -77,30 +78,17 @@ export const make = (
 
         const securityResult = pipe(
           security,
-          ReadonlyArray.fromRecord,
+          Security.getOpenApi,
+          ReadonlyRecord.toEntries,
           ReadonlyArray.reduce(
             {
               operationSetters: [] as Array<any>,
               apiSetters: [] as Array<any>
             },
-            (result, [name, securityScheme]) => {
-              if (securityScheme.type === "http") {
-                result.operationSetters.push(OpenApi.securityRequirement(name))
-                result.apiSetters.push(OpenApi.securityScheme(name, {
-                  type: securityScheme.type,
-                  scheme: securityScheme.options.scheme,
-                  ...(securityScheme.options.description === undefined ? {} : {
-                    description: securityScheme.options.description
-                  }),
-                  ...((securityScheme.options.scheme.toLowerCase() === "bearer")
-                    ? { bearerFormat: securityScheme.options.bearerFormat }
-                    : {})
-                }))
-
-                return result
-              }
-
-              return absurd<never>(securityScheme.type)
+            (result, [name, openapi]) => {
+              result.operationSetters.push(OpenApi.securityRequirement(name))
+              result.apiSetters.push(OpenApi.securityScheme(name, openapi))
+              return result
             }
           )
         )

@@ -14,7 +14,7 @@ import type * as ApiResponse from "./ApiResponse.js"
 import type * as ApiSchema from "./ApiSchema.js"
 import * as internal from "./internal/api-endpoint.js"
 import type * as Representation from "./Representation.js"
-import type * as SecurityScheme from "./SecurityScheme.js"
+import type * as Security from "./Security.js"
 
 /**
  * @since 1.0.0
@@ -46,8 +46,8 @@ export interface ApiEndpoint<
   Id extends ApiEndpoint.AnyId,
   Request extends ApiRequest.ApiRequest.Any,
   Response extends ApiResponse.ApiResponse.Any,
-  Security extends ApiSecurity.Any
-> extends ApiEndpoint.Variance<Id, Request, Response, Security>, Pipeable.Pipeable {}
+  _Security extends Security.Security.Any
+> extends ApiEndpoint.Variance<Id, Request, Response, _Security>, Pipeable.Pipeable {}
 
 /**
  * @category models
@@ -62,7 +62,7 @@ export declare namespace ApiEndpoint {
     Id,
     Request extends ApiRequest.ApiRequest.Any,
     Response extends ApiResponse.ApiResponse.Any,
-    Security extends ApiSecurity.Any
+    Security extends Security.Security.Any
   > {
     readonly [TypeId]: {
       readonly _Id: Types.Covariant<Id>
@@ -86,7 +86,7 @@ export declare namespace ApiEndpoint {
    * @category models
    * @since 1.0.0
    */
-  export type Any = ApiEndpoint<AnyId, ApiRequest.ApiRequest.Any, ApiResponse.ApiResponse.Any, ApiSecurity.Any>
+  export type Any = ApiEndpoint<AnyId, ApiRequest.ApiRequest.Any, ApiResponse.ApiResponse.Any, Security.Security.Any>
 
   /**
    * Default endpoint spec.
@@ -98,15 +98,15 @@ export declare namespace ApiEndpoint {
     Id,
     ApiRequest.ApiRequest.Default,
     ApiResponse.ApiResponse.Default,
-    ApiSecurity.Empty
+    Security.Security<void>
   >
 
   /**
    * @category models
    * @since 1.0.0
    */
-  export type Context<Endpoint> = [Endpoint] extends [ApiEndpoint<any, infer Request, infer Response, any>]
-    ? ApiRequest.ApiRequest.Context<Request> | ApiResponse.ApiResponse.Context<Response>
+  export type Context<Endpoint> = [Endpoint] extends [ApiEndpoint<any, infer Request, infer Response, infer S>]
+    ? ApiRequest.ApiRequest.Context<Request> | ApiResponse.ApiResponse.Context<Response> | Security.Security.Context<S>
     : never
 
   /**
@@ -150,6 +150,13 @@ export declare namespace ApiEndpoint {
    * @since 1.0.0
    */
   export type Security<Endpoint> = Endpoint extends ApiEndpoint<any, any, any, infer Security> ? Security
+    : never
+
+  /**
+   * @category models
+   * @since 1.0.0
+   */
+  export type Error<Endpoint> = [Endpoint] extends [ApiEndpoint<any, any, any, infer S>] ? Security.Security.Error<S>
     : never
 }
 
@@ -228,7 +235,7 @@ export const setRequest: <Request extends ApiRequest.ApiRequest.Any>(
   Id extends ApiEndpoint.AnyId,
   _ extends ApiRequest.ApiRequest.Any,
   Response extends ApiResponse.ApiResponse.Any,
-  Security extends ApiSecurity.Any
+  Security extends Security.Security.Any
 >(
   endpoint: ApiEndpoint<Id, _, Response, Security>
 ) => ApiEndpoint<Id, Request, Response, Security> = internal.setRequest
@@ -247,7 +254,7 @@ export const setRequestBody: <B, R2>(
   H,
   R1,
   Response extends ApiResponse.ApiResponse.Any,
-  Security extends ApiSecurity.Any
+  Security extends Security.Security.Any
 >(
   endpoint: ApiEndpoint<Id, ApiRequest.ApiRequest<_, P, Q, H, R1>, Response, Security>
 ) => ApiEndpoint<Id, ApiRequest.ApiRequest<B, P, Q, H, R1 | R2>, Response, Security> = internal.setRequestBody
@@ -266,7 +273,7 @@ export const setRequestPath: <P, R2>(
   H,
   R1,
   Response extends ApiResponse.ApiResponse.Any,
-  Security extends ApiSecurity.Any
+  Security extends Security.Security.Any
 >(
   endpoint: ApiEndpoint<Id, ApiRequest.ApiRequest<B, _, Q, H, R1>, Response, Security>
 ) => ApiEndpoint<Id, ApiRequest.ApiRequest<B, P, Q, H, R1 | R2>, Response, Security> = internal.setRequestPath
@@ -285,7 +292,7 @@ export const setRequestQuery: <Q, R2>(
   H,
   R1,
   Response extends ApiResponse.ApiResponse.Any,
-  Security extends ApiSecurity.Any
+  Security extends Security.Security.Any
 >(
   endpoint: ApiEndpoint<Id, ApiRequest.ApiRequest<B, P, _, H, R1>, Response, Security>
 ) => ApiEndpoint<Id, ApiRequest.ApiRequest<B, P, Q, H, R1 | R2>, Response, Security> = internal.setRequestQuery
@@ -304,7 +311,7 @@ export const setRequestHeaders: <H, R2>(
   _,
   R1,
   Response extends ApiResponse.ApiResponse.Any,
-  Security extends ApiSecurity.Any
+  Security extends Security.Security.Any
 >(
   endpoint: ApiEndpoint<Id, ApiRequest.ApiRequest<B, P, Q, _, R1>, Response, Security>
 ) => ApiEndpoint<Id, ApiRequest.ApiRequest<B, P, Q, H, R1 | R2>, Response, Security> = internal.setRequestHeaders
@@ -313,29 +320,13 @@ export const setRequestHeaders: <H, R2>(
  * @category modifications
  * @since 1.0.0
  */
-export const setSecurity: <Security extends ApiSecurity.Any>(security: Security) => <
+export const setSecurity: <Security extends Security.Security.Any>(security: Security) => <
   Id extends ApiEndpoint.AnyId,
   Request extends ApiRequest.ApiRequest.Any,
   Response extends ApiResponse.ApiResponse.Any,
-  _ extends ApiSecurity.Any
+  _ extends Security.Security.Any
 >(endpoint: ApiEndpoint<Id, Request, Response, _>) => ApiEndpoint<Id, Request, Response, Security> =
   internal.setSecurity
-
-/**
- * @category modifications
- * @since 1.0.0
- */
-export const addSecurity: <Name extends string, SecurityScheme extends SecurityScheme.SecurityScheme.Any>(
-  name: Name,
-  securitySchema: SecurityScheme
-) => <
-  Id extends ApiEndpoint.AnyId,
-  Request extends ApiRequest.ApiRequest.Any,
-  Response extends ApiResponse.ApiResponse.Any,
-  Security extends ApiSecurity.Any
->(
-  endpoint: ApiEndpoint<Id, Request, Response, Security>
-) => ApiEndpoint<Id, Request, Response, Security & { [K in Name]: SecurityScheme }> = internal.addSecurity
 
 /**
  * @category modifications
@@ -345,7 +336,7 @@ export const getId: <
   Id extends ApiEndpoint.AnyId,
   Request extends ApiRequest.ApiRequest.Any,
   Response extends ApiResponse.ApiResponse.Any,
-  Security extends ApiSecurity.Any
+  Security extends Security.Security.Any
 >(endpoint: ApiEndpoint<Id, Request, Response, Security>) => Id = internal.getId
 
 /**
@@ -356,7 +347,7 @@ export const getRequest: <
   Id extends ApiEndpoint.AnyId,
   Request extends ApiRequest.ApiRequest.Any,
   Response extends ApiResponse.ApiResponse.Any,
-  Security extends ApiSecurity.Any
+  Security extends Security.Security.Any
 >(endpoint: ApiEndpoint<Id, Request, Response, Security>) => Request = internal.getRequest
 
 /**
@@ -367,7 +358,7 @@ export const getResponse: <
   Id extends ApiEndpoint.AnyId,
   Request extends ApiRequest.ApiRequest.Any,
   Response extends ApiResponse.ApiResponse.Any,
-  Security extends ApiSecurity.Any
+  Security extends Security.Security.Any
 >(endpoint: ApiEndpoint<Id, Request, Response, Security>) => ReadonlyArray<Response> = internal.getResponse
 
 /**
@@ -378,7 +369,7 @@ export const getSecurity: <
   Id extends ApiEndpoint.AnyId,
   Request extends ApiRequest.ApiRequest.Any,
   Response extends ApiResponse.ApiResponse.Any,
-  Security extends ApiSecurity.Any
+  Security extends Security.Security.Any
 >(endpoint: ApiEndpoint<Id, Request, Response, Security>) => Security = internal.getSecurity
 
 /**
@@ -389,7 +380,7 @@ export const getPath: <
   Id extends ApiEndpoint.AnyId,
   Request extends ApiRequest.ApiRequest.Any,
   Response extends ApiResponse.ApiResponse.Any,
-  Security extends ApiSecurity.Any
+  Security extends Security.Security.Any
 >(endpoint: ApiEndpoint<Id, Request, Response, Security>) => HttpServer.router.PathInput = internal.getPath
 
 /**
@@ -400,7 +391,7 @@ export const getMethod: <
   Id extends ApiEndpoint.AnyId,
   Request extends ApiRequest.ApiRequest.Any,
   Response extends ApiResponse.ApiResponse.Any,
-  Security extends ApiSecurity.Any
+  Security extends Security.Security.Any
 >(endpoint: ApiEndpoint<Id, Request, Response, Security>) => Method.Method = internal.getMethod
 
 /**
@@ -411,7 +402,7 @@ export const getOptions: <
   Id extends ApiEndpoint.AnyId,
   Request extends ApiRequest.ApiRequest.Any,
   Response extends ApiResponse.ApiResponse.Any,
-  Security extends ApiSecurity.Any
+  Security extends Security.Security.Any
 >(endpoint: ApiEndpoint<Id, Request, Response, Security>) => Options = internal.getOptions
 
 /**
@@ -424,7 +415,7 @@ export const setResponse: <Response extends ApiResponse.ApiResponse.Any>(
   Id extends ApiEndpoint.AnyId,
   Request extends ApiRequest.ApiRequest.Any,
   _ extends ApiResponse.ApiResponse.Any,
-  Security extends ApiSecurity.Any
+  Security extends Security.Security.Any
 >(
   endpoint: ApiEndpoint<Id, Request, _, Security>
 ) => ApiEndpoint<Id, Request, Response, Security> = internal.setResponse
@@ -442,7 +433,7 @@ export const setResponseStatus: <Status extends ApiResponse.ApiResponse.AnyStatu
   B,
   H,
   R,
-  Security extends ApiSecurity.Any
+  Security extends Security.Security.Any
 >(
   endpoint: ApiEndpoint<Id, Request, ApiResponse.ApiResponse<_, B, H, R>, Security>
 ) => ApiEndpoint<Id, Request, ApiResponse.ApiResponse<Status, B, H, R>, Security> = internal.setResponseStatus
@@ -460,7 +451,7 @@ export const setResponseBody: <B, R2>(
   _,
   H,
   R1,
-  Security extends ApiSecurity.Any
+  Security extends Security.Security.Any
 >(
   endpoint: ApiEndpoint<Id, Request, ApiResponse.ApiResponse<S, _, H, R1>, Security>
 ) => ApiEndpoint<Id, Request, ApiResponse.ApiResponse<S, B, H, R1 | R2>, Security> = internal.setResponseBody
@@ -478,7 +469,7 @@ export const setResponseHeaders: <H, R2>(
   B,
   _,
   R1,
-  Security extends ApiSecurity.Any
+  Security extends Security.Security.Any
 >(
   endpoint: ApiEndpoint<Id, Request, ApiResponse.ApiResponse<S, B, _, R1>, Security>
 ) => ApiEndpoint<Id, Request, ApiResponse.ApiResponse<S, B, H, R1 | R2>, Security> = internal.setResponseHeaders
@@ -494,7 +485,7 @@ export const addResponse: {
     Id extends ApiEndpoint.AnyId,
     Request extends ApiRequest.ApiRequest.Any,
     Response1 extends ApiResponse.ApiResponse.Any,
-    Security extends ApiSecurity.Any
+    Security extends Security.Security.Any
   >(
     endpoint: ApiEndpoint<Id, Request, Response1, Security>
   ) => ApiEndpoint<Id, Request, Response1 | Response2, Security>
@@ -509,7 +500,7 @@ export const addResponse: {
     Id extends ApiEndpoint.AnyId,
     Request extends ApiRequest.ApiRequest.Any,
     Response1 extends ApiResponse.ApiResponse.Any,
-    Security extends ApiSecurity.Any
+    Security extends Security.Security.Any
   >(
     endpoint: ApiEndpoint<Id, Request, Response1, Security>
   ) => ApiEndpoint<Id, Request, Response1 | ApiResponse.ApiResponse<Status, Body, Headers, R>, Security>
@@ -525,7 +516,7 @@ export const setResponseRepresentations: (
   Id extends ApiEndpoint.AnyId,
   Request extends ApiRequest.ApiRequest.Any,
   Response extends ApiResponse.ApiResponse.Any,
-  Security extends ApiSecurity.Any
+  Security extends Security.Security.Any
 >(
   endpoint: ApiEndpoint<Id, Request, Response, Security>
 ) => ApiEndpoint<Id, Request, Response, Security> = internal.setResponseRepresentations
@@ -545,37 +536,7 @@ export const isFullResponse: <
   Id extends ApiEndpoint.AnyId,
   Request extends ApiRequest.ApiRequest.Any,
   Response extends ApiResponse.ApiResponse.Any,
-  Security extends ApiSecurity.Any
+  Security extends Security.Security.Any
 >(
   endpoint: ApiEndpoint<Id, Request, Response, Security>
 ) => boolean = internal.isFullResponse
-
-/**
- * @category models
- * @since 1.0.0
- */
-export interface Security<A> {
-  readonly [key: string]: SecurityScheme.SecurityScheme<A>
-}
-
-/**
- * @category models
- * @since 1.0.0
- */
-export declare namespace ApiSecurity {
-  /**
-   * Any endpoint with `Request = Request.Any` and `Response = Response.Any`.
-   *
-   * @category models
-   * @since 1.0.0
-   */
-  export type Any = Security<any>
-
-  /**
-   * Default security spec = no security scheme.
-   *
-   * @category models
-   * @since 1.0.0
-   */
-  export type Empty = {}
-}

@@ -1,6 +1,7 @@
 import type * as Schema from "@effect/schema/Schema"
 import * as Representation from "effect-http/Representation"
 import * as Pipeable from "effect/Pipeable"
+import * as Predicate from "effect/Predicate"
 import type * as ReadonlyArray from "effect/ReadonlyArray"
 import type * as ApiResponse from "../ApiResponse.js"
 import * as ApiSchema from "../ApiSchema.js"
@@ -52,7 +53,7 @@ export const defaultResponse: ApiResponse.ApiResponse.Default = new ApiResponseI
 
 /** @internal */
 export const isApiResponse = (u: unknown): u is ApiResponse.ApiResponse.Any =>
-  (u as ApiResponse.ApiResponse.Any)?.[TypeId] === variance
+  Predicate.hasProperty(u, TypeId) && Predicate.isObject(u[TypeId])
 
 /** @internal */
 export const make = <S extends ApiResponse.ApiResponse.AnyStatus, B, H, R>(

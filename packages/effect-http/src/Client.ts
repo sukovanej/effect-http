@@ -6,9 +6,7 @@
  * @since 1.0.0
  */
 import type * as HttpClient from "@effect/platform/HttpClient"
-import type * as Schema from "@effect/schema/Schema"
 import type * as Effect from "effect/Effect"
-import type * as ReadonlyRecord from "effect/ReadonlyRecord"
 
 import type * as Types from "effect/Types"
 import type * as Api from "./Api.js"
@@ -19,7 +17,6 @@ import type * as ApiSchema from "./ApiSchema.js"
 import type * as ClientError from "./ClientError.js"
 import * as internal from "./internal/client.js"
 import type * as utils from "./internal/utils.js"
-import type * as SecurityScheme from "./SecurityScheme.js"
 
 /**
  * @category models
@@ -117,27 +114,11 @@ export type ToRequest<
 }>
 
 /** @ignore */
-export type EndpointClient<E extends ApiEndpoint.ApiEndpoint.Any> = Record<string, never> extends
-  ApiEndpoint.ApiEndpoint.Security<E> ? (
-    input: ToRequest<ApiEndpoint.ApiEndpoint.Request<E>>
-  ) => Effect.Effect<
-    ClientFunctionResponse<ApiEndpoint.ApiEndpoint.Response<E>>,
-    ClientError.ClientError,
-    ApiEndpoint.ApiEndpoint.Context<E>
-  > :
-  (
-    input: ToRequest<ApiEndpoint.ApiEndpoint.Request<E>>,
-    security: ClientSecurity<ApiEndpoint.ApiEndpoint.Security<E>>
-  ) => Effect.Effect<
-    ClientFunctionResponse<ApiEndpoint.ApiEndpoint.Response<E>>,
-    ClientError.ClientError,
-    ApiEndpoint.ApiEndpoint.Context<E>
-  >
-
-/** @ignore */
-type ClientSecurity<SS extends ReadonlyRecord.ReadonlyRecord<string, SecurityScheme.SecurityScheme<any>>> =
-  keyof SS extends infer K ?
-    K extends (infer securitySchemeName extends keyof SS) ?
-      { [X in securitySchemeName]: Schema.Schema.Type<SS[securitySchemeName]["schema"]> }
-    : never
-    : never
+export type EndpointClient<E extends ApiEndpoint.ApiEndpoint.Any> = (
+  input: ToRequest<ApiEndpoint.ApiEndpoint.Request<E>>,
+  map?: (request: HttpClient.request.ClientRequest) => HttpClient.request.ClientRequest
+) => Effect.Effect<
+  ClientFunctionResponse<ApiEndpoint.ApiEndpoint.Response<E>>,
+  ClientError.ClientError,
+  ApiEndpoint.ApiEndpoint.Context<E>
+>

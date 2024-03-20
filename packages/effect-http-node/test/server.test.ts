@@ -1,7 +1,8 @@
-import { HttpServer } from "@effect/platform"
+import { HttpClient, HttpServer } from "@effect/platform"
+import { Schema } from "@effect/schema"
 import * as it from "@effect/vitest"
-import { Context, Effect, Either, Layer, Option, pipe, ReadonlyArray } from "effect"
-import { Api, ApiResponse, ClientError, RouterBuilder, ServerError } from "effect-http"
+import { Context, Effect, Either, Encoding, Layer, Option, pipe, ReadonlyArray } from "effect"
+import { Api, ApiResponse, ClientError, RouterBuilder, Security, ServerError } from "effect-http"
 import { NodeTesting } from "effect-http-node"
 import { createHash } from "node:crypto"
 import { describe, expect, test } from "vitest"
@@ -286,7 +287,7 @@ it.scoped(
 
     const result = yield* _(
       NodeTesting.make(app, exampleApiOptional),
-      Effect.flatMap((client) => Effect.all(ReadonlyArray.map(params, client.hello)))
+      Effect.flatMap((client) => Effect.all(ReadonlyArray.map(params, (params) => client.hello(params))))
     )
 
     expect(result).toStrictEqual(params)
@@ -309,7 +310,7 @@ it.scoped(
 
     const result = yield* _(
       NodeTesting.make(app, exampleApiOptionalParams),
-      Effect.flatMap((client) => Effect.all(ReadonlyArray.map(params, client.hello)))
+      Effect.flatMap((client) => Effect.all(ReadonlyArray.map(params, (params) => client.hello(params))))
     )
 
     expect(result).toStrictEqual(params)
@@ -362,5 +363,115 @@ it.scoped(
     )
 
     expect(result).toBe(undefined)
+  })
+)
+
+it.scoped(
+  "optional parameters",
+  Effect.gen(function*(_) {
+    const app = pipe(
+      RouterBuilder.make(exampleApiOptionalParams),
+      RouterBuilder.handle("hello", ({ path }) => Effect.succeed({ path })),
+      RouterBuilder.build
+    )
+
+    const params = [
+      { path: { value: 12 } },
+      { path: { value: 12, another: "another" } }
+    ] as const
+
+    const result = yield* _(
+      NodeTesting.make(app, exampleApiOptionalParams),
+      Effect.flatMap((client) => Effect.all(ReadonlyArray.map(params, (params) => client.hello(params))))
+    )
+
+    expect(result).toStrictEqual(params)
+  })
+)
+
+it.scoped(
+  "single full response",
+  Effect.gen(function*(_) {
+    const app = pipe(
+      RouterBuilder.make(exampleApiFullResponse),
+      RouterBuilder.handle("hello", () =>
+        Effect.succeed({
+          body: 12,
+          headers: { "my-header": "test" },
+          status: 200 as const
+        })),
+      RouterBuilder.handle("another", () => Effect.succeed(12)),
+      RouterBuilder.build
+    )
+
+    const result = yield* _(
+      NodeTesting.make(app, exampleApiFullResponse),
+      Effect.flatMap((client) => Effect.all([client.hello({}), client.another({})]))
+    )
+
+    expect(result).toMatchObject([
+      {
+        status: 200,
+        body: 12,
+        headers: { "my-header": "test" }
+      },
+      12
+    ])
+  })
+)
+
+it.scoped(
+  "empty response",
+  Effect.gen(function*(_) {
+    const app = pipe(
+      RouterBuilder.make(exampleApiEmptyResponse),
+      RouterBuilder.handle("test", () => Effect.unit),
+      RouterBuilder.build
+    )
+
+    const result = yield* _(
+      NodeTesting.make(app, exampleApiEmptyResponse),
+      Effect.flatMap((client) => client.test({ body: "test" }))
+    )
+
+    expect(result).toBe(undefined)
+  })
+)
+
+it.scoped(
+  "complex security example",
+  Effect.gen(function*(_) {
+    class MyService extends Effect.Tag("MyService")<MyService, { value: string }>() {
+      static live = Layer.succeed(MyService, { value: "hello" })
+    }
+
+    const security = pipe(
+      Security.basic(),
+      Security.mapEffect((creds) => MyService.value.pipe(Effect.map((value) => `${value}-${creds.user}-${creds.pass}`)))
+    )
+
+    const api = Api.make().pipe(
+      Api.addEndpoint(
+        Api.post("test", "/test").pipe(Api.setResponseBody(Schema.string), Api.setSecurity(security))
+      )
+    )
+
+    const app = pipe(
+      RouterBuilder.make(api),
+      RouterBuilder.handle("test", (_, security) => Effect.succeed(security)),
+      RouterBuilder.build
+    )
+
+    const credentials = Encoding.encodeBase64("user:pass")
+
+    const result = yield* _(
+      NodeTesting.make(app, api),
+      Effect.flatMap((client) =>
+        client.test({}, HttpClient.request.setHeader("authorization", `basic ${credentials}`))
+      ),
+      Effect.provide(MyService.live)
+    )
+
+    expect(result).toBe("hello-user-pass")
   })
 )

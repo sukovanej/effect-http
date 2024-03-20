@@ -1,15 +1,13 @@
 import type * as Router from "@effect/platform/Http/Router"
-import type * as ServerRequest from "@effect/platform/Http/ServerRequest"
+import * as ServerRequest from "@effect/platform/Http/ServerRequest"
 import type * as AST from "@effect/schema/AST"
 import * as Schema from "@effect/schema/Schema"
 import * as Effect from "effect/Effect"
-import * as Either from "effect/Either"
-import { pipe } from "effect/Function"
-import * as ReadonlyRecord from "effect/ReadonlyRecord"
 import * as Unify from "effect/Unify"
 import * as ApiEndpoint from "../ApiEndpoint.js"
 import * as ApiRequest from "../ApiRequest.js"
 import * as ApiSchema from "../ApiSchema.js"
+import * as Security from "../Security.js"
 import * as ServerError from "../ServerError.js"
 import { formatParseError } from "./formatParseError.js"
 
@@ -42,7 +40,7 @@ export const create = (
   const parseQuery = createQueryParser(endpoint, parseOptions)
   const parseHeaders = createHeadersParser(endpoint, parseOptions)
   const parseParams = createParamsParser(endpoint, parseOptions)
-  const parseSecurity = createSecurityParser(endpoint, parseOptions)
+  const parseSecurity = createSecurityParser(endpoint)
 
   return make((request, context) =>
     Effect.all({
@@ -51,7 +49,7 @@ export const create = (
       path: parseParams(context),
       headers: parseHeaders(request),
       security: parseSecurity(request)
-    })
+    }) as any
   )
 }
 
@@ -128,65 +126,21 @@ const createHeadersParser = (
 }
 
 const createSecurityParser = (
-  endpoint: ApiEndpoint.ApiEndpoint.Any,
-  parseOptions?: AST.ParseOptions
+  endpoint: ApiEndpoint.ApiEndpoint.Any
 ) => {
   const security = ApiEndpoint.getSecurity(endpoint)
-  const securityCount = ReadonlyRecord.size(security)
 
-  if (securityCount === 0) {
-    return () => Effect.succeed({})
-  }
-
-  if (securityCount === 1) {
-    const [[schemeName, singleSecurityScheme]] = ReadonlyRecord.toEntries(security)
-
-    const decodeEitherSingleSecurityScheme = Schema.decodeUnknown(
-      Schema.struct({ authorization: singleSecurityScheme.schema }) as Schema.Schema<any, unknown>,
-      parseOptions
-    )
-
-    return (request: ServerRequest.ServerRequest) =>
-      decodeEitherSingleSecurityScheme(request.headers).pipe(
-        Effect.mapBoth({
-          onSuccess: ({ authorization }) => ({
-            [schemeName]: { token: authorization, securityScheme: singleSecurityScheme }
-          }),
-          onFailure: (error) => createError("headers", `Bad authorization header, ${formatParseError(error)}`)
-        })
-      )
-  }
-
-  const securitySchemesWithDecode = pipe(
-    security,
-    ReadonlyRecord.map((securityScheme) => ({
-      securityScheme,
-      decodeEither: Schema.decodeUnknownEither(
-        Schema.struct({ authorization: securityScheme.schema }) as Schema.Schema<any, unknown>,
-        parseOptions
-      )
-    }))
-  )
-
-  return Unify.unify((request: ServerRequest.ServerRequest) => {
-    const authResults = pipe(
-      securitySchemesWithDecode,
-      ReadonlyRecord.map(({ decodeEither, securityScheme }) => {
-        return {
-          token: decodeEither(request.headers).pipe(Either.map(({ authorization }) => authorization)),
-          securityScheme
+  return (request: ServerRequest.ServerRequest) =>
+    Security.handleRequest(security).pipe(
+      Effect.provideService(ServerRequest.ServerRequest, request),
+      Effect.mapError((e) => {
+        if (Security.isSecurityError(e)) {
+          return ServerError.makeJson(401, { error: "Unauthorized", message: e.message })
         }
+
+        return e
       })
     )
-
-    const hasRight = ReadonlyRecord.some(authResults, (authResult) => Either.isRight(authResult.token))
-
-    if (hasRight) {
-      return Effect.succeed(authResults)
-    } else {
-      return createError("headers", "Bad authorization header")
-    }
-  })
 }
 
 const createParamsParser = (
