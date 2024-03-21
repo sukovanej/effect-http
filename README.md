@@ -136,7 +136,7 @@ Each endpoint can declare expectations on the request format. Specifically,
 
 - `body` - request body
 - `query` - query parameters
-- `params` - path parameters
+- `path` - path parameters
 - `headers` - request headers
 
 They are specified in the input schemas object (3rd argument of `Api.get`, `Api.post`, ...).
