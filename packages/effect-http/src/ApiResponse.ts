@@ -104,7 +104,9 @@ export declare namespace ApiResponse {
  * @category refinements
  * @since 1.0.0
  */
-export const isApiResponse: (u: unknown) => u is ApiResponse.Any = internal.isApiResponse
+export const isApiResponse: <S extends ApiResponse.AnyStatus = number, B = any, H = any, R = never>(
+  u: unknown
+) => u is ApiResponse<S, B, H, R> = internal.isApiResponse
 
 /**
  * @category constructors

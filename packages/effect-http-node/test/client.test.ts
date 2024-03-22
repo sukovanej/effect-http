@@ -1,7 +1,7 @@
 import { HttpServer } from "@effect/platform"
 import { Schema } from "@effect/schema"
 import * as it from "@effect/vitest"
-import { Cause, Duration, Effect, Exit, Fiber, pipe } from "effect"
+import { Cause, Duration, Effect, Either, Exit, Fiber, Match, pipe } from "effect"
 import { Api, ClientError, ExampleServer, RouterBuilder } from "effect-http"
 import { NodeTesting } from "effect-http-node"
 import { expect, test, vi } from "vitest"
@@ -237,5 +237,41 @@ it.scoped(
       expect(result.status).toEqual(400)
     }
     expect(result.message).toEqual("validation error")
+  })
+)
+
+it.scoped(
+  "multiple responses",
+  Effect.gen(function*(_) {
+    const api = pipe(
+      Api.make(),
+      Api.addEndpoint(
+        pipe(
+          Api.get("test", "/test"),
+          Api.setResponse({ status: 200, body: Schema.string }),
+          Api.addResponse({ status: 201, body: Schema.number }),
+          Api.addResponse({ status: 400, body: Schema.string }),
+          Api.addResponse({ status: 422, body: Schema.string })
+        )
+      )
+    )
+
+    const app = ExampleServer.make(api).pipe(RouterBuilder.build)
+
+    const result = yield* _(
+      NodeTesting.make(app, api),
+      Effect.flatMap((client) => client.test({})),
+      Effect.either
+    )
+
+    const r = Either.isRight(result) ?
+      Match.value(result.right).pipe(
+        Match.when({ status: 200 }, ({ body }) => body),
+        Match.when({ status: 201 }, ({ body }) => body.toString()),
+        Match.exhaustive
+      ) :
+      "nope"
+
+    expect(typeof r).toBe("string")
   })
 )

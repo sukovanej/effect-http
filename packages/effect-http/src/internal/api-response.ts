@@ -52,8 +52,9 @@ export const defaultResponse: ApiResponse.ApiResponse.Default = new ApiResponseI
 )
 
 /** @internal */
-export const isApiResponse = (u: unknown): u is ApiResponse.ApiResponse.Any =>
-  Predicate.hasProperty(u, TypeId) && Predicate.isObject(u[TypeId])
+export const isApiResponse = <S extends ApiResponse.ApiResponse.AnyStatus = number, B = any, H = any, R = never>(
+  u: unknown
+): u is ApiResponse.ApiResponse<S, B, H, R> => Predicate.hasProperty(u, TypeId) && Predicate.isObject(u[TypeId])
 
 /** @internal */
 export const make = <S extends ApiResponse.ApiResponse.AnyStatus, B, H, R>(
