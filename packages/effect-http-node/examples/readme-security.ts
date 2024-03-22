@@ -1,24 +1,12 @@
 import { NodeRuntime } from "@effect/platform-node"
 import { Schema } from "@effect/schema"
 import { Effect } from "effect"
-import { Api, RouterBuilder } from "effect-http"
+import { Api, RouterBuilder, Security } from "effect-http"
 import { NodeServer } from "effect-http-node"
 
 const mySecuredEnpoint = Api.post("security", "/testSecurity", { description: "" }).pipe(
   Api.setResponseBody(Schema.string),
-  Api.addSecurity(
-    "myAwesomeBearerAuth", // arbitrary name for the security scheme
-    {
-      type: "http",
-      options: {
-        scheme: "bearer",
-        bearerFormat: "JWT"
-      },
-      // Schema<any, string> for decoding-encoding the significant part
-      // "Authorization: Bearer <significant part>"
-      schema: Schema.Secret
-    }
-  )
+  Api.setSecurity(Security.bearer())
 )
 
 const api = Api.make().pipe(
@@ -26,9 +14,8 @@ const api = Api.make().pipe(
 )
 
 const app = RouterBuilder.make(api).pipe(
-  RouterBuilder.handle("security", (_, security) => {
-    const token = security.myAwesomeBearerAuth.token // Secret
-    return Effect.succeed(`your token ${token}`)
+  RouterBuilder.handle("security", (_, token) => {
+    return Effect.succeed(`your token ${token}`) // Secret
   }),
   RouterBuilder.build
 )

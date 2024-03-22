@@ -1,6 +1,6 @@
 import { Schema } from "@effect/schema"
 import { Context, Effect, Layer, pipe } from "effect"
-import { Api, RouterBuilder } from "effect-http"
+import { Api, RouterBuilder, Security } from "effect-http"
 
 import { NodeRuntime } from "@effect/platform-node"
 import { NodeServer } from "effect-http-node"
@@ -33,11 +33,7 @@ const dummyStuff = pipe(
 const getLesnek = Api.get("getLesnek", "/lesnek").pipe(
   Api.setResponseBody(Schema.string),
   Api.setRequestQuery(Lesnek),
-  Api.addSecurity("myAwesomeBearerAuth", {
-    type: "http",
-    options: { scheme: "bearer", bearerFormat: "JWT" },
-    schema: Schema.Secret
-  })
+  Api.setSecurity(Security.bearer({ name: "myAwesomeBearerAuth", bearerFormat: "JWT" }))
 )
 
 const api = pipe(

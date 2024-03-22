@@ -1,6 +1,6 @@
 import { Schema } from "@effect/schema"
 import { pipe } from "effect"
-import { Api, ApiGroup, ApiResponse, SecurityScheme } from "effect-http"
+import { Api, ApiGroup, ApiResponse, Security } from "effect-http"
 
 interface MyRequirement {}
 interface AnotherDep {}
@@ -31,12 +31,8 @@ const test = pipe(
   Api.get("test", "/test"),
   Api.setRequestBody(MyRequest),
   Api.setRequestPath(TestPathParams),
-  Api.addSecurity(
-    "mySecurity",
-    SecurityScheme.bearer({
-      description: "test",
-      tokenSchema: Schema.string
-    })
+  Api.setSecurity(
+    Security.bearer({ name: "mySecurity", description: "test" })
   ),
   Api.setResponseBody(MyRequest),
   Api.addResponse(ApiResponse.make(201, TestPathParams, MyRequest))

@@ -110,10 +110,10 @@ export * as Route from "./Route.js"
 export * as RouterBuilder from "./RouterBuilder.js"
 
 /**
- * A security scheme is a way to protect an API from unauthorized access.
+ * Authentication and authorization.
  * @since 1.0.0
  */
-export * as SecurityScheme from "./SecurityScheme.js"
+export * as Security from "./Security.js"
 
 /**
  * Server errors.

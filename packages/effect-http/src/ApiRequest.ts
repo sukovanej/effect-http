@@ -93,7 +93,7 @@ export declare namespace ApiRequest {
    * @category models
    * @since 1.0.0
    */
-  export type Requirements<Request> = [Request] extends [ApiRequest<any, any, any, any, infer R>] ? R
+  export type Context<Request> = [Request] extends [ApiRequest<any, any, any, any, infer R>] ? R
     : never
 }
 

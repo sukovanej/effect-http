@@ -1,8 +1,7 @@
 import { Schema } from "@effect/schema"
 import { pipe } from "effect"
-import { Api, ApiGroup, OpenApi } from "effect-http"
+import { Api, ApiGroup, OpenApi, Security } from "effect-http"
 import { expect, test } from "vitest"
-import { bearer } from "../src/SecurityScheme.js"
 
 test("description", () => {
   const api = pipe(
@@ -275,9 +274,8 @@ test("http security scheme", () => {
             Schema.attachPropertySignature("_tag", "Case2")
           )
         )),
-        Api.addSecurity(
-          "mayAwesomeAuth",
-          bearer({ tokenSchema: Schema.Secret, bearerFormat: "jwt", description: "mayAwesomeAuth description" })
+        Api.setSecurity(
+          Security.bearer({ name: "mayAwesomeAuth", bearerFormat: "jwt", description: "mayAwesomeAuth description" })
         )
       )
     )

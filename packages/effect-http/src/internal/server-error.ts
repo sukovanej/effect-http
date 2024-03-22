@@ -43,12 +43,8 @@ export const makeText = (status: number, text: string) => new ServerErrorImpl({ 
 
 export const makeJson = (status: number, json: unknown) => new ServerErrorImpl({ status, json })
 
-export const isServerError = (
-  error: unknown
-): error is ServerError.ServerError =>
-  Predicate.isObject(error) &&
-  "_tag" in error &&
-  error["_tag"] === "ServerError"
+export const isServerError = (error: unknown): error is ServerError.ServerError =>
+  Predicate.isTagged(error, "ServerError")
 
 export const badRequest = (body: unknown) => make(401, body)
 export const unauthorizedError = (body: unknown) => make(401, body)

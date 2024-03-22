@@ -13,7 +13,7 @@ import * as utils from "./utils.js"
 export const make = <A extends Api.Api.Any>(
   api: A
 ): RouterBuilder.RouterBuilder<
-  Api.Api.Requirements<A>,
+  Api.Api.Content<A>,
   never,
   never
 > => handleRemaining(RouterBuilder.make(api))
@@ -25,7 +25,7 @@ export const handle = <
 <R, E>(
   routerBuilder: RouterBuilder.RouterBuilder<R, E, RemainingEndpoints>
 ): RouterBuilder.RouterBuilder<
-  R | ApiEndpoint.ApiEndpoint.Requirements<ApiEndpoint.ApiEndpoint.ExtractById<RemainingEndpoints, Id>>,
+  R | ApiEndpoint.ApiEndpoint.Context<ApiEndpoint.ApiEndpoint.ExtractById<RemainingEndpoints, Id>>,
   E,
   ApiEndpoint.ApiEndpoint.ExcludeById<RemainingEndpoints, Id>
 > => {
@@ -39,12 +39,12 @@ export const handle = <
 
 export const handleRemaining = <RemainingEndpoints extends ApiEndpoint.ApiEndpoint.Any, R, E>(
   routerBuilder: RouterBuilder.RouterBuilder<R, E, RemainingEndpoints>
-): RouterBuilder.RouterBuilder<R | ApiEndpoint.ApiEndpoint.Requirements<RemainingEndpoints>, E, never> =>
+): RouterBuilder.RouterBuilder<R | ApiEndpoint.ApiEndpoint.Context<RemainingEndpoints>, E, never> =>
   pipe(
     routerBuilder.remainingEndpoints,
     ReadonlyArray.reduce(
       routerBuilder as RouterBuilder.RouterBuilder<
-        R | ApiEndpoint.ApiEndpoint.Requirements<RemainingEndpoints>,
+        R | ApiEndpoint.ApiEndpoint.Context<RemainingEndpoints>,
         E,
         RemainingEndpoints
       >,
@@ -54,7 +54,7 @@ export const handleRemaining = <RemainingEndpoints extends ApiEndpoint.ApiEndpoi
           RouterBuilder.handle(ApiEndpoint.getId(endpoint) as any, createExampleHandler(endpoint) as any)
         ) as any
     )
-  ) as RouterBuilder.RouterBuilder<R | ApiEndpoint.ApiEndpoint.Requirements<RemainingEndpoints>, E, never>
+  ) as RouterBuilder.RouterBuilder<R | ApiEndpoint.ApiEndpoint.Context<RemainingEndpoints>, E, never>
 
 const createExampleHandler = (endpoint: ApiEndpoint.ApiEndpoint.Any) => {
   const responseSchema = utils.createResponseSchema(endpoint)

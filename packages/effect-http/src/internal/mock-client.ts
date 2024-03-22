@@ -1,7 +1,8 @@
 import { ExampleCompiler } from "schema-openapi"
 
+import type * as HttpClient from "@effect/platform/HttpClient"
 import * as Effect from "effect/Effect"
-import { pipe } from "effect/Function"
+import { identity, pipe } from "effect/Function"
 import type * as Api from "../Api.js"
 import * as ApiEndpoint from "../ApiEndpoint.js"
 import type * as Client from "../Client.js"
@@ -20,9 +21,13 @@ export const make = <A extends Api.Api.Any>(
     const customResponses = option?.responses
     const customResponse = customResponses && (customResponses as any)[ApiEndpoint.getId(endpoint)]
 
-    const fn = (args: unknown, security: unknown) => {
+    const fn = (
+      args: unknown,
+      mapRequest: (request: HttpClient.request.ClientRequest) => HttpClient.request.ClientRequest
+    ) => {
       return pipe(
-        requestEncoder.encodeRequest(args, security),
+        requestEncoder.encodeRequest(args),
+        Effect.map(mapRequest ?? identity),
         Effect.flatMap(() => {
           if (customResponse !== undefined) {
             return Effect.succeed(customResponse)

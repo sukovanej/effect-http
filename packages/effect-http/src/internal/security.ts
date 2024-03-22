@@ -1,0 +1,224 @@
+import * as HttpServer from "@effect/platform/HttpServer"
+import { Schema } from "@effect/schema"
+import { Predicate } from "effect"
+import * as Data from "effect/Data"
+import * as Effect from "effect/Effect"
+import * as Either from "effect/Either"
+import * as Encoding from "effect/Encoding"
+import { dual, pipe } from "effect/Function"
+import * as Pipeable from "effect/Pipeable"
+import type * as ReadonlyRecord from "effect/ReadonlyRecord"
+import type * as OpenApiTypes from "schema-openapi/OpenApiTypes"
+import type * as Security from "../Security.js"
+import { formatParseError } from "./formatParseError.js"
+
+export const TypeId: Security.TypeId = Symbol.for(
+  "effect-http/Security/TypeId"
+) as Security.TypeId
+
+/** @internal */
+export const variance = {
+  /* c8 ignore next */
+  _A: (_: never) => _,
+  /* c8 ignore next */
+  _E: (_: never) => _,
+  /* c8 ignore next */
+  _R: (_: never) => _
+}
+
+/** @internal */
+export class SecurityImpl<A, E = never, R = never> implements Security.Security<A, E, R> {
+  readonly [TypeId] = variance
+
+  constructor(
+    readonly openapi: ReadonlyRecord.ReadonlyRecord<string, OpenApiTypes.OpenAPISecurityScheme>,
+    readonly parser: Security.Security.Handler<A, E, R>
+  ) {}
+
+  pipe() {
+    // eslint-disable-next-line prefer-rest-params
+    return Pipeable.pipeArguments(this, arguments)
+  }
+}
+
+/** @internal */
+export class SecurityErrorImpl extends Data.TaggedError("SecurityError")<{
+  message: string
+}> implements Security.SecurityError {}
+
+/** @internal */
+export const make = <A, E, R>(
+  openapi: ReadonlyRecord.ReadonlyRecord<string, OpenApiTypes.OpenAPISecurityScheme>,
+  parser: Security.Security.Handler<A, E, R>
+): Security.Security<A, E, R> => new SecurityImpl(openapi, parser)
+
+export const makeError = (message: string): Security.SecurityError => new SecurityErrorImpl({ message })
+
+/**
+ * @category refinements
+ * @since 1.0.0
+ */
+export const isSecurityError = (u: unknown): u is Security.SecurityError => Predicate.isTagged(u, "SecurityError")
+
+/** @internal */
+export const handleRequest = <A, E, R>(security: Security.Security<A, E, R>): Security.Security.Handler<A, E, R> =>
+  (security as SecurityImpl<A, E, R>).parser
+
+/** @internal */
+export const getOpenApi = <A, E, R>(
+  security: Security.Security<A, E, R>
+): ReadonlyRecord.ReadonlyRecord<string, OpenApiTypes.OpenAPISecurityScheme> =>
+  (security as SecurityImpl<A, E, R>).openapi
+
+/** @internal */
+export const and = dual(2, <A1, E1, R1, A2, E2, R2>(
+  self: Security.Security<A1, E1, R1>,
+  that: Security.Security<A2, E2, R2>
+): Security.Security<[A1, A2], E1 | E2, R1 | R2> =>
+  make(
+    { ...getOpenApi(self), ...getOpenApi(that) },
+    Effect.all([handleRequest(self), handleRequest(that)])
+  ))
+
+/** @internal */
+export const or = dual(2, <A1, E1, R1, A2, E2, R2>(
+  self: Security.Security<A1, E1, R1>,
+  that: Security.Security<A2, E2, R2>
+): Security.Security<A1 | A2, E1 | E2, R1 | R2> =>
+  make(
+    { ...getOpenApi(self), ...getOpenApi(that) },
+    Effect.orElse(handleRequest(self), () => handleRequest(that))
+  ))
+
+/** @internal */
+export const mapEffect = dual(2, <A1, E1, R1, A2, E2, R2>(
+  self: Security.Security<A1, E1, R1>,
+  f: (a: A1) => Effect.Effect<A2, E2, R2>
+): Security.Security<
+  A2,
+  E1 | Exclude<E2, Security.SecurityError>,
+  R1 | Exclude<R2, HttpServer.request.ServerRequest>
+> =>
+  make(
+    getOpenApi(self),
+    Effect.flatMap(handleRequest(self), f) as Security.Security.Handler<
+      A2,
+      E1 | Exclude<E2, Security.SecurityError>,
+      R1 | Exclude<R2, HttpServer.request.ServerRequest>
+    >
+  ))
+
+/** @internal */
+export const mapSchema = dual(2, <A, B, E, R>(
+  self: Security.Security<A, E, R>,
+  schema: Schema.Schema<B, A>
+): Security.Security<B, E, R> => {
+  const parse = Schema.decode(schema)
+
+  return make(
+    getOpenApi(self),
+    Effect.flatMap(
+      handleRequest(self),
+      (token) =>
+        pipe(
+          parse(token),
+          Effect.mapError((error) => makeError(`Security parsing error, ${formatParseError(error)}`))
+        )
+    )
+  )
+})
+
+/** @internal */
+export const map = dual(2, <A, B, E, R>(
+  self: Security.Security<A, E, R>,
+  f: (a: A) => B
+): Security.Security<B, E, R> => make(getOpenApi(self), Effect.map(handleRequest(self), f)))
+
+/** @internal */
+const getAuthorizationHeader = pipe(
+  HttpServer.request.ServerRequest,
+  Effect.flatMap((request) => HttpServer.headers.get(request.headers, "authorization")),
+  Effect.mapError(() => makeError("No authorization header"))
+)
+
+/** @internal */
+const parseAuthorizationHeader = (scheme: string) => (value: string) => {
+  const split = value.split(" ")
+
+  if (split.length !== 2) {
+    return Effect.fail(makeError("Invalid authorization header"))
+  }
+
+  if (split[0].toLowerCase() !== scheme) {
+    return Effect.fail(makeError(`Expected ${scheme.toUpperCase()} authorization`))
+  }
+
+  return Effect.succeed(split[1])
+}
+
+/** @internal */
+export const bearer = (options?: Security.BearerOptions): Security.Security<string> => {
+  const description = options?.description
+  const bearerFormat = options?.bearerFormat
+
+  const openApi = {
+    [options?.name ?? "bearer"]: {
+      type: "http",
+      ...(description && ({ description })),
+      ...(bearerFormat && ({ bearerFormat })),
+      scheme: "bearer"
+    }
+  } as const
+
+  return new SecurityImpl(
+    openApi,
+    Effect.flatMap(getAuthorizationHeader, parseAuthorizationHeader("bearer"))
+  )
+}
+
+/** @internal */
+const parseBasicAuthCredentials = (value: string) =>
+  pipe(
+    Encoding.decodeBase64String(value),
+    Either.mapLeft(() => Either.left(makeError("Invalid base64-encoded basic authorization"))),
+    Either.flatMap((value) => {
+      const split = value.split(":")
+
+      if (split.length !== 2) {
+        return Either.left(makeError(`Invalid basic authorization header, expected "user:password".`))
+      }
+
+      return Either.right({ user: split[0], pass: split[1] })
+    })
+  )
+
+/** @internal */
+export const basic = (options?: Security.BasicOptions): Security.Security<Security.BasicCredentials> => {
+  const description = options?.description
+
+  const openApi = {
+    [options?.name ?? "basic"]: {
+      type: "http",
+      ...(description && ({ description })),
+      scheme: "basic"
+    }
+  } as const
+
+  return new SecurityImpl(
+    openApi,
+    pipe(
+      getAuthorizationHeader,
+      Effect.flatMap(parseAuthorizationHeader("basic")),
+      Effect.flatMap(parseBasicAuthCredentials)
+    )
+  )
+}
+
+/** @internal */
+export const unit: Security.Security<void> = make({}, Effect.unit)
+
+/** @internal */
+export const never: Security.Security<never> = make<never, never, never>(
+  {},
+  Effect.fail(makeError("No security"))
+)

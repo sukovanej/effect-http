@@ -24,13 +24,29 @@ export const makeClientSide = (error: unknown, message?: string) => {
   })
 }
 
+const getMessage = (error: unknown) => {
+  if (typeof error === "string") {
+    return error
+  }
+
+  if (error instanceof Error) {
+    return error.message
+  }
+
+  if (typeof error === "object" && error !== null && "message" in error && typeof error.message === "string") {
+    return error.message
+  }
+
+  return JSON.stringify(error)
+}
+
 export const makeServerSide = <S extends number>(
   error: unknown,
   status: S,
   message?: string
 ) => {
   return new ClientErrorServerSideImpl<S>({
-    message: message ?? (typeof error === "string" ? error : JSON.stringify(error)),
+    message: message ?? getMessage(error),
     error,
     status,
     side: "server"

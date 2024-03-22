@@ -15,13 +15,13 @@ import * as internal from "./internal/api.js"
  * @since 1.0.0
  * @category type id
  */
-export const ApiTypeId: unique symbol = internal.ApiTypeId
+export const TypeId: unique symbol = internal.TypeId
 
 /**
  * @since 1.0.0
  * @category type id
  */
-export type ApiTypeId = typeof ApiTypeId
+export type TypeId = typeof TypeId
 
 /**
  * @category models
@@ -72,7 +72,7 @@ export declare namespace Api {
    * @category models
    * @since 1.0.0
    */
-  export type Requirements<A> = A extends Api<infer E> ? ApiEndpoint.ApiEndpoint.Requirements<E>
+  export type Content<A> = A extends Api<infer E> ? ApiEndpoint.ApiEndpoint.Context<E>
     : never
 
   /**
@@ -133,11 +133,6 @@ export {
    * @since 1.0.0
    */
   addResponse,
-  /**
-   * @category modifications
-   * @since 1.0.0
-   */
-  addSecurity,
   /**
    * @category constructors
    * @since 1.0.0

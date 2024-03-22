@@ -66,8 +66,10 @@ export const handleRaw: <
 ) => <R1, E1>(
   builder: RouterBuilder<R1, E1, RemainingEndpoints>
 ) => RouterBuilder<
-  R1 | Exclude<R2, Router.RouteContext | ServerRequest.ServerRequest | Scope.Scope>,
-  E1 | E2,
+  | R1
+  | ApiEndpoint.ApiEndpoint.Context<ApiEndpoint.ApiEndpoint.ExtractById<RemainingEndpoints, Id>>
+  | Exclude<R2, Router.RouteContext | ServerRequest.ServerRequest | Scope.Scope>,
+  E1 | E2 | ApiEndpoint.ApiEndpoint.Error<ApiEndpoint.ApiEndpoint.ExtractById<RemainingEndpoints, Id>>,
   ApiEndpoint.ApiEndpoint.ExcludeById<RemainingEndpoints, Id>
 > = internal.handleRaw
 
@@ -93,7 +95,7 @@ export const handle: <
   builder: RouterBuilder<R1, E1, RemainingEndpoints>
 ) => RouterBuilder<
   | Exclude<R1 | R2, Router.RouteContext | ServerRequest.ServerRequest>
-  | ApiEndpoint.ApiEndpoint.Requirements<ApiEndpoint.ApiEndpoint.ExtractById<RemainingEndpoints, Id>>,
+  | ApiEndpoint.ApiEndpoint.Context<ApiEndpoint.ApiEndpoint.ExtractById<RemainingEndpoints, Id>>,
   E1 | Exclude<E2, ServerError.ServerError>,
   ApiEndpoint.ApiEndpoint.ExcludeById<RemainingEndpoints, Id>
 > = internal.handle
