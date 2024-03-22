@@ -1,28 +1,37 @@
-import { Option } from "effect"
+import * as it from "@effect/vitest"
+import { Effect, Option } from "effect"
 import { MockClient } from "effect-http"
-import { expect, test } from "vitest"
+import { expect } from "vitest"
 import { exampleApiGet, exampleApiPostNullableField } from "./examples.js"
-import { runTestEffect } from "./utils.js"
 
-test("random example", async () => {
-  const client = MockClient.make(exampleApiGet)
-  const response = await runTestEffect(client.getValue({}))
+it.effect(
+  "random example",
+  Effect.gen(function*(_) {
+    const client = MockClient.make(exampleApiGet)
+    const response = yield _(client.getValue({}))
 
-  expect(typeof response).toEqual("number")
-})
-
-test("custom response", async () => {
-  const client = MockClient.make(exampleApiGet, {
-    responses: { getValue: 12 }
+    expect(typeof response).toEqual("number")
   })
-  const response = await runTestEffect(client.getValue({}))
+)
 
-  expect(response).toEqual(12)
-})
+it.effect(
+  "custom response",
+  Effect.gen(function*(_) {
+    const client = MockClient.make(exampleApiGet, {
+      responses: { getValue: 12 }
+    })
+    const response = yield* _(client.getValue({}))
 
-test("response schema with `optionFromNullable`", async () => {
-  const client = MockClient.make(exampleApiPostNullableField)
-  const response = await runTestEffect(client.test({}))
+    expect(response).toEqual(12)
+  })
+)
 
-  expect(Option.isOption(response.value)).toBe(true)
-})
+it.effect(
+  "response schema with `optionFromNullable`",
+  Effect.gen(function*(_) {
+    const client = MockClient.make(exampleApiPostNullableField)
+    const response = yield* _(client.test({}))
+
+    expect(Option.isOption(response.value)).toBe(true)
+  })
+)

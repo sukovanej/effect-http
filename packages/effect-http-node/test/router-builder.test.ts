@@ -1,9 +1,10 @@
 import { HttpClient } from "@effect/platform"
+import * as it from "@effect/vitest"
 import { Effect, Option } from "effect"
 import { RouterBuilder } from "effect-http"
 import { NodeTesting } from "effect-http-node"
 import { apply } from "effect/Function"
-import { describe, expect, test } from "vitest"
+import { describe, expect } from "vitest"
 import {
   exampleApiFullResponse,
   exampleApiGet,
@@ -16,7 +17,6 @@ import {
   exampleApiRequestBody,
   exampleApiRequestHeaders
 } from "./examples.js"
-import { runTestEffect } from "./utils.js"
 
 const exampleRouteGetQueryParameter = exampleApiGetQueryParameter.pipe(
   RouterBuilder.make,
@@ -43,7 +43,8 @@ const exampleRouteParams = exampleApiParams.pipe(
 )
 
 describe("examples", () => {
-  test("get", () =>
+  it.scoped(
+    "get",
     Effect.gen(function*(_) {
       const router = exampleApiGet.pipe(
         RouterBuilder.make,
@@ -59,9 +60,11 @@ describe("examples", () => {
 
       expect(response.status).toEqual(200)
       expect(body).toEqual(12)
-    }).pipe(runTestEffect))
+    })
+  )
 
-  test("post, optional body field", () =>
+  it.scoped(
+    "post, optional body field",
     Effect.gen(function*(_) {
       const router = exampleApiPostNullableField.pipe(
         RouterBuilder.make,
@@ -77,9 +80,11 @@ describe("examples", () => {
 
       expect(response.status).toEqual(200)
       expect(body).toEqual({ value: "test" })
-    }).pipe(runTestEffect))
+    })
+  )
 
-  test("get, query parameter", () =>
+  it.scoped(
+    "get, query parameter",
     Effect.gen(function*(_) {
       const response = yield* _(
         NodeTesting.makeRaw(exampleRouteGetQueryParameter),
@@ -96,9 +101,11 @@ describe("examples", () => {
 
       expect(response.status).toEqual(200)
       expect(body).toEqual("CZ")
-    }).pipe(runTestEffect))
+    })
+  )
 
-  test("get, custom headers and status", () =>
+  it.scoped(
+    "get, custom headers and status",
     Effect.gen(function*(_) {
       const router = exampleApiGetCustomResponseWithHeaders.pipe(
         RouterBuilder.make,
@@ -124,9 +131,11 @@ describe("examples", () => {
         "my-header": "hello"
       })
       expect(body).toEqual({ value: "test" })
-    }).pipe(runTestEffect))
+    })
+  )
 
-  test("get, optional field", () =>
+  it.scoped(
+    "get, optional field",
     Effect.gen(function*(_) {
       const router = exampleApiGetOptionalField.pipe(
         RouterBuilder.make,
@@ -151,9 +160,11 @@ describe("examples", () => {
 
       expect(response.status).toEqual(200)
       expect(body).toEqual({})
-    }).pipe(runTestEffect))
+    })
+  )
 
-  test("post, request body", () =>
+  it.scoped(
+    "post, request body",
     Effect.gen(function*(_) {
       const response = yield* _(
         NodeTesting.makeRaw(exampleRouteRequestBody),
@@ -170,9 +181,11 @@ describe("examples", () => {
 
       expect(response.status).toEqual(200)
       expect(body).toEqual("hello")
-    }).pipe(runTestEffect))
+    })
+  )
 
-  test("path parameters", () =>
+  it.scoped(
+    "path parameters",
     Effect.gen(function*(_) {
       const response = yield* _(
         NodeTesting.makeRaw(exampleRouteParams),
@@ -183,11 +196,13 @@ describe("examples", () => {
 
       expect(response.status).toEqual(200)
       expect(body).toEqual("a")
-    }).pipe(runTestEffect))
+    })
+  )
 })
 
 describe("error reporting", () => {
-  test("missing query parameter", () =>
+  it.scoped(
+    "missing query parameter",
     Effect.gen(function*(_) {
       const response = yield* _(
         NodeTesting.makeRaw(exampleRouteGetQueryParameter),
@@ -200,9 +215,11 @@ describe("error reporting", () => {
         location: "query",
         message: "country is missing"
       })
-    }).pipe(runTestEffect))
+    })
+  )
 
-  test("invalid query parameter", () =>
+  it.scoped(
+    "invalid query parameter",
     Effect.gen(function*(_) {
       const response = yield* _(
         NodeTesting.makeRaw(exampleRouteGetQueryParameter),
@@ -221,9 +238,11 @@ describe("error reporting", () => {
         location: "query",
         message: "country must be a string matching the pattern ^[A-Z]{2}$, received \"CZE\""
       })
-    }).pipe(runTestEffect))
+    })
+  )
 
-  test("invalid JSON body - empty", () =>
+  it.scoped(
+    "invalid JSON body - empty",
     Effect.gen(function*(_) {
       const response = yield* _(
         NodeTesting.makeRaw(exampleRouteRequestBody),
@@ -236,9 +255,11 @@ describe("error reporting", () => {
         location: "body",
         message: "value must be an object, received null"
       })
-    }).pipe(runTestEffect))
+    })
+  )
 
-  test("invalid JSON body - text", () =>
+  it.scoped(
+    "invalid JSON body - text",
     Effect.gen(function*(_) {
       const response = yield* _(
         NodeTesting.makeRaw(exampleRouteRequestBody),
@@ -255,9 +276,11 @@ describe("error reporting", () => {
         location: "body",
         message: "Invalid JSON"
       })
-    }).pipe(runTestEffect))
+    })
+  )
 
-  test("invalid JSON body - incorrect schema", () =>
+  it.scoped(
+    "invalid JSON body - incorrect schema",
     Effect.gen(function*(_) {
       const response = yield* _(
         NodeTesting.makeRaw(exampleRouteRequestBody),
@@ -276,9 +299,11 @@ describe("error reporting", () => {
         location: "body",
         message: "foo must be a string, received 1"
       })
-    }).pipe(runTestEffect))
+    })
+  )
 
-  test("invalid header", () =>
+  it.scoped(
+    "invalid header",
     Effect.gen(function*(_) {
       const response = yield* _(
         NodeTesting.makeRaw(exampleRouteRequestHeaders),
@@ -291,9 +316,11 @@ describe("error reporting", () => {
         location: "headers",
         message: "x-header is missing"
       })
-    }).pipe(runTestEffect))
+    })
+  )
 
-  test("invalid param", () =>
+  it.scoped(
+    "invalid param",
     Effect.gen(function*(_) {
       const response = yield* _(
         NodeTesting.makeRaw(exampleRouteParams),
@@ -306,9 +333,11 @@ describe("error reporting", () => {
         location: "path",
         message: "value must be \"a\" or \"b\", received \"c\""
       })
-    }).pipe(runTestEffect))
+    })
+  )
 
-  test("invalid response", () =>
+  it.scoped(
+    "invalid response",
     Effect.gen(function*(_) {
       const exampleRouteInvalid = exampleApiParams.pipe(
         RouterBuilder.make,
@@ -326,10 +355,12 @@ describe("error reporting", () => {
         error: "Invalid response body",
         message: "value must be a string, received 1"
       })
-    }).pipe(runTestEffect))
+    })
+  )
 })
 
-test("single full response", () =>
+it.scoped(
+  "single full response",
   Effect.gen(function*(_) {
     const app = exampleApiFullResponse.pipe(
       RouterBuilder.make,
@@ -360,9 +391,11 @@ test("single full response", () =>
 
     expect(yield* _(response1.json)).toEqual(12)
     expect(yield* _(response2.json)).toEqual(12)
-  }).pipe(runTestEffect))
+  })
+)
 
-test("representations", () =>
+it.scoped(
+  "representations",
   Effect.gen(function*(_) {
     const app = exampleApiRepresentations.pipe(
       RouterBuilder.make,
@@ -403,4 +436,5 @@ test("representations", () =>
     expect(yield* _(xmlResponse.text)).toEqual("test")
     expect(xmlResponse.status).toEqual(200)
     expect(xmlResponse.headers["content-type"]).toEqual("text/plain")
-  }).pipe(runTestEffect))
+  })
+)

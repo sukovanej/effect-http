@@ -46,6 +46,9 @@ importers:
       '@effect/language-service':
         specifier: ^0.1.0
         version: 0.1.0
+      '@effect/vitest':
+        specifier: ^0.1.0
+        version: 0.1.0(effect@2.4.10)(vitest@1.4.0)
       '@types/node':
         specifier: ^20.11.30
         version: 20.11.30
@@ -766,6 +769,16 @@ packages:
     dependencies:
       effect: 2.4.10
       fast-check: 3.16.0
+
+  /@effect/vitest@0.1.0(effect@2.4.10)(vitest@1.4.0):
+    resolution: {integrity: sha512-Arsxcs5JgdW3XqOmnfh5yT1BVDNXgheC0DATCuCUo+Ow8D4Czz6XA90x22DPEo/UAjG7/untfadx4sjZCxFfOQ==}
+    peerDependencies:
+      effect: ^2.4.10
+      vitest: ^1.4.0
+    dependencies:
+      effect: 2.4.10
+      vitest: 1.4.0(@types/node@20.11.30)
+    dev: true
 
   /@esbuild/aix-ppc64@0.19.12:
     resolution: {integrity: sha512-bmoCYyWdEL3wDQIVbcyzRyeKLgk2WtWLTWz1ZIAZF/EGbNOwSA6ew3PftJ1PqMiOOGu0OyFMzG53L0zqIpPeNA==}

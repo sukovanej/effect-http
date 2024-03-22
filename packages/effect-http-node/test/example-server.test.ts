@@ -1,53 +1,58 @@
-import { Effect, pipe } from "effect"
+import * as it from "@effect/vitest"
+import { Effect } from "effect"
 import { ExampleServer, RouterBuilder } from "effect-http"
 import { NodeTesting } from "effect-http-node"
-import { expect, test } from "vitest"
+import { expect } from "vitest"
 import { exampleApiFullResponse, exampleApiGet } from "./examples.js"
-import { runTestEffect } from "./utils.js"
 
-test("example server", async () => {
-  const app = ExampleServer.make(exampleApiGet)
+it.scoped(
+  "example server",
+  Effect.gen(function*(_) {
+    const app = ExampleServer.make(exampleApiGet)
 
-  await pipe(
-    NodeTesting.make(RouterBuilder.build(app), exampleApiGet),
-    Effect.flatMap((client) => client.getValue({})),
-    Effect.map((response) => {
-      expect(typeof response).toEqual("number")
-    }),
-    runTestEffect
-  )
-})
+    const response = yield* _(
+      NodeTesting.make(RouterBuilder.build(app), exampleApiGet),
+      Effect.flatMap((client) => client.getValue({}))
+    )
 
-test("handle", async () => {
-  const app = RouterBuilder.make(exampleApiFullResponse).pipe(
-    RouterBuilder.handle("another", () => Effect.succeed(69)),
-    ExampleServer.handle("hello")
-  )
+    expect(typeof response).toEqual("number")
+  })
+)
 
-  const response = await pipe(
-    NodeTesting.make(RouterBuilder.build(app), exampleApiFullResponse),
-    Effect.flatMap((client) => client.hello({})),
-    runTestEffect
-  )
+it.scoped(
+  "handle",
+  Effect.gen(function*(_) {
+    const app = RouterBuilder.make(exampleApiFullResponse).pipe(
+      RouterBuilder.handle("another", () => Effect.succeed(69)),
+      ExampleServer.handle("hello")
+    )
 
-  expect(response.status).toEqual(200)
-  expect(typeof response.body).toEqual("number")
-  expect(typeof response.headers["my-header"]).toEqual("string")
-})
+    const response = yield* _(
+      NodeTesting.make(RouterBuilder.build(app), exampleApiFullResponse),
+      Effect.flatMap((client) => client.hello({}))
+    )
 
-test("handleRemaining", async () => {
-  const app = RouterBuilder.make(exampleApiFullResponse).pipe(
-    RouterBuilder.handle("another", () => Effect.succeed(69)),
-    ExampleServer.handleRemaining
-  )
+    expect(response.status).toEqual(200)
+    expect(typeof response.body).toEqual("number")
+    expect(typeof response.headers["my-header"]).toEqual("string")
+  })
+)
 
-  const response = await pipe(
-    NodeTesting.make(RouterBuilder.build(app), exampleApiFullResponse),
-    Effect.flatMap((client) => client.hello({})),
-    runTestEffect
-  )
+it.scoped(
+  "handleRemaining",
+  Effect.gen(function*(_) {
+    const app = RouterBuilder.make(exampleApiFullResponse).pipe(
+      RouterBuilder.handle("another", () => Effect.succeed(69)),
+      ExampleServer.handleRemaining
+    )
 
-  expect(response.status).toEqual(200)
-  expect(typeof response.body).toEqual("number")
-  expect(typeof response.headers["my-header"]).toEqual("string")
-})
+    const response = yield* _(
+      NodeTesting.make(RouterBuilder.build(app), exampleApiFullResponse),
+      Effect.flatMap((client) => client.hello({}))
+    )
+
+    expect(response.status).toEqual(200)
+    expect(typeof response.body).toEqual("number")
+    expect(typeof response.headers["my-header"]).toEqual("string")
+  })
+)
