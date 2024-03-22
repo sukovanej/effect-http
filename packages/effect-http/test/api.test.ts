@@ -2,7 +2,15 @@ import { Schema } from "@effect/schema"
 import { Api, ApiGroup } from "effect-http"
 import { identity, pipe } from "effect/Function"
 import { expect, test } from "vitest"
-import { simpleApi1 } from "./example-apis.js"
+
+export const simpleApi1 = pipe(
+  Api.make(),
+  Api.addEndpoint(
+    Api.get("myOperation", "/get").pipe(
+      Api.setResponseBody(Schema.string)
+    )
+  )
+)
 
 test("fillDefaultSchemas", () => {
   expect(simpleApi1.groups).toHaveLength(1)

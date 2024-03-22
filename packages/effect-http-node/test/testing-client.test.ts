@@ -1,6 +1,7 @@
 import { FileSystem, HttpServer } from "@effect/platform"
 import { NodeContext } from "@effect/platform-node"
 import { Schema } from "@effect/schema"
+import * as it from "@effect/vitest"
 import { Context, Effect, pipe, Predicate, ReadonlyRecord, Secret, Unify } from "effect"
 import {
   Api,
@@ -13,11 +14,10 @@ import {
   ServerError
 } from "effect-http"
 import { NodeTesting } from "effect-http-node"
-import { expect, test } from "vitest"
+import { expect } from "vitest"
 
-import { runTestEffect } from "./utils.js"
-
-test("testing query", () =>
+it.scoped(
+  "testing query",
   Effect.gen(function*(_) {
     const api = pipe(
       Api.make(),
@@ -41,9 +41,11 @@ test("testing query", () =>
     )
 
     expect(response).toEqual("13")
-  }).pipe(runTestEffect))
+  })
+)
 
-test("testing failure", () =>
+it.scoped(
+  "testing failure",
   Effect.gen(function*(_) {
     const api = pipe(
       Api.make(),
@@ -65,9 +67,11 @@ test("testing failure", () =>
     )
 
     expect(response).toEqual(ClientError.makeServerSide("oh oh", 404))
-  }).pipe(runTestEffect))
+  })
+)
 
-test("testing with dependencies", () =>
+it.scoped(
+  "testing with dependencies",
   Effect.gen(function*(_) {
     const api = pipe(
       Api.make(),
@@ -95,9 +99,11 @@ test("testing with dependencies", () =>
     )
 
     expect(response).toEqual("14")
-  }).pipe(runTestEffect))
+  })
+)
 
-test("testing params", () =>
+it.scoped(
+  "testing params",
   Effect.gen(function*(_) {
     const api = pipe(
       Api.make(),
@@ -121,9 +127,11 @@ test("testing params", () =>
     )
 
     expect(response).toEqual("13")
-  }).pipe(runTestEffect))
+  })
+)
 
-test("testing multiple responses", () =>
+it.scoped(
+  "testing multiple responses",
   Effect.gen(function*(_) {
     const api = pipe(
       Api.make(),
@@ -138,8 +146,10 @@ test("testing multiple responses", () =>
 
     const app = pipe(
       RouterBuilder.make(api),
-      RouterBuilder.handle("hello", ({ query }) =>
-        Effect.succeed(query.input === 1 ? { body: 69, status: 200 as const } : { status: 201 as const })),
+      RouterBuilder.handle(
+        "hello",
+        ({ query }) => Effect.succeed(query.input === 1 ? { body: 69, status: 200 as const } : { status: 201 as const })
+      ),
       RouterBuilder.build
     )
 
@@ -157,9 +167,11 @@ test("testing multiple responses", () =>
 
     expect(response1).toMatchObject({ body: 69, status: 200 })
     expect(response2).toMatchObject({ status: 201 })
-  }).pipe(runTestEffect))
+  })
+)
 
-test("testing body", () =>
+it.scoped(
+  "testing body",
   Effect.gen(function*(_) {
     const api = pipe(
       Api.make(),
@@ -183,9 +195,11 @@ test("testing body", () =>
     )
 
     expect(response).toEqual("13")
-  }).pipe(runTestEffect))
+  })
+)
 
-test("form data", () =>
+it.scoped(
+  "form data",
   Effect.gen(function*(_) {
     const api = pipe(
       Api.make(),
@@ -230,7 +244,8 @@ test("form data", () =>
     )
 
     expect(response).toEqual("my file content")
-  }).pipe(runTestEffect))
+  })
+)
 
 const securityApi = pipe(
   Api.make(),
@@ -252,7 +267,8 @@ const securityApi = pipe(
   )
 )
 
-test("testing security", () =>
+it.scoped(
+  "testing security",
   Effect.gen(function*(_) {
     const app = pipe(
       RouterBuilder.make(securityApi),
@@ -275,9 +291,11 @@ test("testing security", () =>
     )
 
     expect(response).toEqual({ output: 13, security: ["22", "Right"] })
-  }).pipe(runTestEffect))
+  })
+)
 
-test("testing security - wrong header format", () =>
+it.scoped(
+  "testing security - wrong header format",
   Effect.gen(function*(_) {
     const app = pipe(
       RouterBuilder.make(securityApi),
@@ -304,9 +322,11 @@ test("testing security - wrong header format", () =>
     expect(response).toEqual(
       ClientError.makeClientSide("Failed to encode security token. value must be , received \"<unexpected>\"")
     )
-  }).pipe(runTestEffect))
+  })
+)
 
-test("testing missing security", () =>
+it.scoped(
+  "testing missing security",
   Effect.gen(function*(_) {
     const api = pipe(
       Api.make(),
@@ -339,14 +359,18 @@ test("testing missing security", () =>
       400,
       "Must provide at lest one secure scheme credential"
     ))
-  }).pipe(runTestEffect))
+  })
+)
 
-test("testing security - several security cred with same type", () =>
+it.scoped(
+  "testing security - several security cred with same type",
   Effect.gen(function*(_) {
     const app = pipe(
       RouterBuilder.make(securityApi),
-      RouterBuilder.handle("hello", ({ query }) =>
-        Effect.succeed({ security: ["hello", "world"] as const, output: query.input + 1 })),
+      RouterBuilder.handle(
+        "hello",
+        ({ query }) => Effect.succeed({ security: ["hello", "world"] as const, output: query.input + 1 })
+      ),
       RouterBuilder.build
     )
 
@@ -364,9 +388,11 @@ test("testing security - several security cred with same type", () =>
       400,
       "Must provide at lest one secure scheme credential"
     ))
-  }).pipe(runTestEffect))
+  })
+)
 
-test("testing security - several security schemes handles as Eithers", () =>
+it.scoped(
+  "testing security - several security schemes handles as Eithers",
   Effect.gen(function*(_) {
     const api = pipe(
       Api.make(),
@@ -419,4 +445,5 @@ test("testing security - several security schemes handles as Eithers", () =>
         myAwesomeBasic: ["myAwesomeBasic", "error"]
       }
     )
-  }).pipe(runTestEffect))
+  })
+)

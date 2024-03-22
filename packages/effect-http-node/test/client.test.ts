@@ -1,5 +1,6 @@
 import { HttpServer } from "@effect/platform"
 import { Schema } from "@effect/schema"
+import * as it from "@effect/vitest"
 import { Cause, Duration, Effect, Exit, Fiber, pipe } from "effect"
 import { Api, ClientError, ExampleServer, RouterBuilder } from "effect-http"
 import { NodeTesting } from "effect-http-node"
@@ -7,7 +8,8 @@ import { expect, test, vi } from "vitest"
 import { exampleApiEmptyResponse, exampleApiGetQueryParameter } from "./examples.js"
 import { runTestEffect } from "./utils.js"
 
-test("quickstart example e2e", () =>
+it.scoped(
+  "quickstart example e2e",
   Effect.gen(function*(_) {
     const api = pipe(
       Api.make(),
@@ -31,7 +33,8 @@ test("quickstart example e2e", () =>
     )
 
     expect(response).toEqual({ name: "milan:12" })
-  }).pipe(runTestEffect))
+  })
+)
 
 test.each(["GET", "PUT", "POST", "DELETE", "OPTIONS", "PATCH"] as const)(
   "Dummy call - %s",
@@ -63,7 +66,8 @@ test.each(["GET", "PUT", "POST", "DELETE", "OPTIONS", "PATCH"] as const)(
     }).pipe(runTestEffect)
 )
 
-test("All input types", () =>
+it.scoped(
+  "All input types",
   Effect.gen(function*(_) {
     const responseSchema = Schema.struct({
       value: Schema.string,
@@ -113,9 +117,11 @@ test("All input types", () =>
       anotherValue: 1,
       helloWorld: "helloWorld"
     })
-  }).pipe(runTestEffect))
+  })
+)
 
-test("missing headers", () =>
+it.scoped(
+  "missing headers",
   Effect.gen(function*(_) {
     const api = pipe(
       Api.make(),
@@ -153,9 +159,11 @@ test("missing headers", () =>
         "Failed to encode headers. value must be an object, received undefined"
       )
     )
-  }).pipe(runTestEffect))
+  })
+)
 
-test("supports interruption", () =>
+it.scoped(
+  "supports interruption",
   Effect.gen(function*(_) {
     const api = pipe(
       Api.make(),
@@ -184,9 +192,11 @@ test("supports interruption", () =>
     expect(Exit.isFailure(result)).toEqual(true)
     expect(generateName).not.toHaveBeenCalled()
     expect(Cause.isInterruptedOnly(cause)).toEqual(true)
-  }).pipe(runTestEffect))
+  })
+)
 
-test("validation error", () =>
+it.scoped(
+  "validation error",
   Effect.gen(function*(_) {
     const app = ExampleServer.make(exampleApiGetQueryParameter).pipe(
       RouterBuilder.build
@@ -205,9 +215,11 @@ test("validation error", () =>
         "Failed to encode query parameters. country must be a string matching the pattern ^[A-Z]{2}$, received \"abc\""
       )
     )
-  }).pipe(runTestEffect))
+  })
+)
 
-test("no-content client non-2xx response", () =>
+it.scoped(
+  "no-content client non-2xx response",
   Effect.gen(function*(_) {
     const app = HttpServer.router.empty.pipe(
       HttpServer.router.post("/test", HttpServer.response.text("validation error", { status: 400 }))
@@ -225,4 +237,5 @@ test("no-content client non-2xx response", () =>
       expect(result.status).toEqual(400)
     }
     expect(result.message).toEqual("validation error")
-  }).pipe(runTestEffect))
+  })
+)
