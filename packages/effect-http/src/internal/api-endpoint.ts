@@ -269,7 +269,18 @@ export const getOptions = <
 ) => (endpoint as ApiEndpointImpl<Id, Request, Response, Security>).options
 
 /** @internal */
-export const setResponse = <Response extends ApiResponse.ApiResponse.Any>(response: Response) =>
+export const setResponse = <
+  Status extends ApiResponse.ApiResponse.AnyStatus,
+  Body = ApiSchema.Ignored,
+  Headers = ApiSchema.Ignored,
+  R = never
+>(
+  response: {
+    readonly status: Status
+    readonly body?: Schema.Schema<Body, any, R>
+    readonly headers?: Schema.Schema<Headers, any, R>
+  } | ApiResponse.ApiResponse<Status, Body, Headers, R>
+) =>
 <
   Id extends ApiEndpoint.ApiEndpoint.AnyId,
   Request extends ApiRequest.ApiRequest.Any,
@@ -277,16 +288,21 @@ export const setResponse = <Response extends ApiResponse.ApiResponse.Any>(respon
   Security extends Security.Security.Any
 >(
   endpoint: ApiEndpoint.ApiEndpoint<Id, Request, _, Security>
-): ApiEndpoint.ApiEndpoint<Id, Request, Response, Security> =>
-  new ApiEndpointImpl(
+): ApiEndpoint.ApiEndpoint<Id, Request, ApiResponse.ApiResponse<Status, Body, Headers, R>, Security> => {
+  const newResponse = ApiResponse.isApiResponse<Status, Body, Headers, R>(response)
+    ? response
+    : ApiResponse.make(response.status, response.body, response.headers)
+
+  return new ApiEndpointImpl(
     getId(endpoint),
     getPath(endpoint),
     getMethod(endpoint),
     getRequest(endpoint),
-    [response],
+    [newResponse],
     getSecurity(endpoint),
     getOptions(endpoint)
   )
+}
 
 /** @internal */
 export const setResponseStatus = <Status extends ApiResponse.ApiResponse.AnyStatus>(
@@ -365,42 +381,28 @@ export const setResponseHeaders = <H, R2>(
   return setResponse(ApiResponse.setHeaders(schema)(responses[0]))(endpoint)
 }
 
-export const addResponse: {
-  <Response2 extends ApiResponse.ApiResponse.Any>(
-    response: Response2
-  ): <
-    Id extends ApiEndpoint.ApiEndpoint.AnyId,
-    Request extends ApiRequest.ApiRequest.Any,
-    Response1 extends ApiResponse.ApiResponse.Any,
-    Security extends Security.Security.Any
-  >(
-    endpoint: ApiEndpoint.ApiEndpoint<Id, Request, Response1, Security>
-  ) => ApiEndpoint.ApiEndpoint<Id, Request, Response1 | Response2, Security>
-
-  <Status extends ApiResponse.ApiResponse.AnyStatus, Body = ApiSchema.Ignored, Headers = ApiSchema.Ignored, R = never>(
-    response: {
-      readonly status: Status
-      readonly body?: Schema.Schema<Body, any, R>
-      readonly headers?: Schema.Schema<Headers, any, R>
-    }
-  ): <
-    Id extends ApiEndpoint.ApiEndpoint.AnyId,
-    Request extends ApiRequest.ApiRequest.Any,
-    Response1 extends ApiResponse.ApiResponse.Any,
-    Security extends Security.Security.Any
-  >(
-    endpoint: ApiEndpoint.ApiEndpoint<Id, Request, Response1, Security>
-  ) => ApiEndpoint.ApiEndpoint<Id, Request, Response1 | ApiResponse.ApiResponse<Status, Body, Headers, R>, Security>
-} = (
-  response: ApiResponse.ApiResponse.Any | {
-    readonly status: number
-    readonly body?: Schema.Schema<Body, any, any>
-    readonly headers?: Schema.Schema<Headers, any, any>
+export const addResponse = <
+  Status extends ApiResponse.ApiResponse.AnyStatus,
+  Body = ApiSchema.Ignored,
+  Headers = ApiSchema.Ignored,
+  R = never
+>(
+  response: ApiResponse.ApiResponse<Status, Body, Headers, R> | {
+    readonly status: Status
+    readonly body?: Schema.Schema<Body, any, R>
+    readonly headers?: Schema.Schema<Headers, any, R>
   }
 ) =>
-(endpoint: ApiEndpoint.ApiEndpoint.Any) => {
+<
+  Id extends ApiEndpoint.ApiEndpoint.AnyId,
+  Request extends ApiRequest.ApiRequest.Any,
+  Response1 extends ApiResponse.ApiResponse.Any,
+  Security extends Security.Security.Any
+>(
+  endpoint: ApiEndpoint.ApiEndpoint<Id, Request, Response1, Security>
+): ApiEndpoint.ApiEndpoint<Id, Request, Response1 | ApiResponse.ApiResponse<Status, Body, Headers, R>, Security> => {
   const responses = getResponse(endpoint)
-  const newResponse = ApiResponse.isApiResponse(response)
+  const newResponse = ApiResponse.isApiResponse<Status, Body, Headers, R>(response)
     ? response
     : ApiResponse.make(response.status, response.body, response.headers)
 
