@@ -115,6 +115,7 @@ export type _ClientFunctionResponse<
       ApiResponse.ApiResponse.Body<R>,
       ApiResponse.ApiResponse.Headers<R>
     >
+  : ApiResponse.ApiResponse.Body<R> extends ApiSchema.Ignored ? void
   : ApiResponse.ApiResponse.Body<R>
 
 /** @ignore */
