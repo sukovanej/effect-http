@@ -1,5 +1,75 @@
 # effect-http
 
+## 0.60.0
+
+### Minor Changes
+
+- [#497](https://github.com/sukovanej/effect-http/pull/497) [`37db9ad`](https://github.com/sukovanej/effect-http/commit/37db9ad8ea12df0d3f6562cce8319cf3f570a70c) Thanks [@sukovanej](https://github.com/sukovanej)! - New security API.
+
+  The security was completely reworked to increase the flexibility how
+  the server deals with authorization and authentication.
+
+  The `SecurityScheme` module was removed and replaced by a new `Security` module.
+  It exposes a new `Security<A, E, R>` type that captures the security handling
+  and the OpenAPI specification. It also exposes a set of combinators that allow
+  to combine `Security` specs and enhance them with arbitrary effectful computations.
+
+  Before
+
+  ```ts
+  const api = Api.make().pipe(
+    Api.addEndpoint(
+      Api.post("mySecuredEndpoint", "/my-secured-endpoint").pipe(
+        Api.setResponseBody(Schema.string),
+        Api.addSecurity("mySecurity", {
+          type: "http",
+          options: {
+            scheme: "basic",
+          },
+          schema: Schema.Secret,
+        }),
+      ),
+    ),
+  );
+  ```
+
+  After
+
+  ```ts
+  const api = Api.make().pipe(
+    Api.addEndpoint(
+      Api.post("mySecuredEndpoint", "/my-secured-endpoint").pipe(
+        Api.setResponseBody(Schema.string),
+        Api.setSecurity(Security.basic()),
+      ),
+    ),
+  );
+  ```
+
+  The client was modified to support the new security API. The second security argument
+  of endpoint methods was replaced by a general `(request: ClientRequest) => ClientRequest`
+  mapping. `Client` exposes two new helper functions `Client.setBasic` and `Client.setBearer`.
+
+  Before
+
+  ```ts
+  client.security({ ... }, { mySecurity: '...' })
+  ```
+
+  After
+
+  ```ts
+  client.endpoint({ ... }, Client.setBasic("user", "pass"))
+  ```
+
+  Please refer to the main readme for more information on the new security API.
+
+### Patch Changes
+
+- [#495](https://github.com/sukovanej/effect-http/pull/495) [`c765639`](https://github.com/sukovanej/effect-http/commit/c765639628cb416d0a165cc0012bd67a35ab0eb7) Thanks [@sukovanej](https://github.com/sukovanej)! - Update effect.
+
+- [#499](https://github.com/sukovanej/effect-http/pull/499) [`7d65607`](https://github.com/sukovanej/effect-http/commit/7d65607aa64faea53bdd5952f9c5280be1d0c054) Thanks [@sukovanej](https://github.com/sukovanej)! - Fix `void` client response.
+
 ## 0.59.2
 
 ### Patch Changes
