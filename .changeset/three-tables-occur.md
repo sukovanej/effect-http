@@ -42,7 +42,7 @@ const api = Api.make().pipe(
   Api.addEndpoint(
     Api.post("mySecuredEndpoint", "/my-secured-endpoint").pipe(
       Api.setResponseBody(Schema.string),
-      Api.setSecurity(Security.basic({}))
+      Api.setSecurity(Security.basic())
     )
   )
 )
@@ -55,7 +55,7 @@ mapping. `Client` exposes two new helper functions `Client.setBasic` and `Client
 Before
 
 ```ts
-client.security({}, { mySecurity: '...' })
+client.security({ ... }, { mySecurity: '...' })
 ```
 
 After
