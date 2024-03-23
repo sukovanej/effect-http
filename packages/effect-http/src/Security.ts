@@ -57,25 +57,32 @@ export declare namespace Security {
    * @category models
    * @since 1.0.0
    */
-  export type Context<T extends Any> = [T] extends [Security<any, any, infer R>] ? R : never
+  export type Context<T extends Any> = [T] extends [Security<any, any, infer R>] ? R
+    : never
 
   /**
    * @category type-level
    * @since 1.0.0
    */
-  export type Error<T extends Any> = [T] extends [Security<any, infer E, any>] ? E : never
+  export type Error<T extends Any> = [T] extends [Security<any, infer E, any>] ? E
+    : never
 
   /**
    * @category type-level
    * @since 1.0.0
    */
-  export type Success<T extends Any> = [T] extends [Security<infer A, any, any>] ? A : never
+  export type Success<T extends Any> = [T] extends [Security<infer A, any, any>] ? A
+    : never
 
   /**
    * @category type-level
    * @since 1.0.0
    */
-  export type Handler<A, E, R> = Effect.Effect<A, E, R | HttpServer.request.ServerRequest>
+  export type Handler<A, E, R> = Effect.Effect<
+    A,
+    E,
+    R | HttpServer.request.ServerRequest
+  >
 }
 
 /**
@@ -84,14 +91,23 @@ export declare namespace Security {
  */
 export const make: <A, E, R>(
   parser: Security.Handler<A, E, R>,
-  openapi?: ReadonlyRecord.ReadonlyRecord<string, OpenApiTypes.OpenAPISecurityScheme>
-) => Security<A, Exclude<E, ServerError.ServerError>, Exclude<R, HttpServer.request.ServerRequest>> = internal.make
+  openapi?: ReadonlyRecord.ReadonlyRecord<
+    string,
+    OpenApiTypes.OpenAPISecurityScheme
+  >
+) => Security<
+  A,
+  Exclude<E, ServerError.ServerError>,
+  Exclude<R, HttpServer.request.ServerRequest>
+> = internal.make
 
 /**
  * @category getters
  * @since 1.0.0
  */
-export const handleRequest: <A, E, R>(security: Security<A, E, R>) => Security.Handler<A, E, R> = internal.handleRequest
+export const handleRequest: <A, E, R>(
+  security: Security<A, E, R>
+) => Security.Handler<A, E, R> = internal.handleRequest
 
 /**
  * @category getters
@@ -102,7 +118,7 @@ export const getOpenApi: <A, E, R>(
 ) => ReadonlyRecord.ReadonlyRecord<string, OpenApiTypes.OpenAPISecurityScheme> = internal.getOpenApi
 
 /**
- * @category getters
+ * @category combinators
  * @since 1.0.0
  */
 export const mapHandler: {
@@ -122,7 +138,9 @@ export const mapHandler: {
 export const and: {
   <A1, A2, E2, R2>(
     that: Security<A2, E2, R2>
-  ): <E1, R1>(self: Security<A1, E1, R1>) => Security<[A1, A2], E1 | E2, R1 | R2>
+  ): <E1, R1>(
+    self: Security<A1, E1, R1>
+  ) => Security<[A1, A2], E1 | E2, R1 | R2>
   <A1, E1, R1, A2, E2, R2>(
     self: Security<A1, E1, R1>,
     that: Security<A2, E2, R2>
@@ -136,7 +154,9 @@ export const and: {
 export const or: {
   <A1, A2, E2, R2>(
     that: Security<A2, E2, R2>
-  ): <E1, R1>(self: Security<A1, E1, R1>) => Security<A1 | A2, E1 | E2, R1 | R2>
+  ): <E1, R1>(
+    self: Security<A1, E1, R1>
+  ) => Security<A1 | A2, E1 | E2, R1 | R2>
   <A1, E1, R1, A2, E2, R2>(
     self: Security<A1, E1, R1>,
     that: Security<A2, E2, R2>
@@ -165,7 +185,9 @@ export const as: {
  * @category combinators
  * @since 1.0.0
  */
-export const asSome: <A, E, R>(self: Security<A, E, R>) => Security<Option.Option<A>, E, R> = internal.asSome
+export const asSome: <A, E, R>(
+  self: Security<A, E, R>
+) => Security<Option.Option<A>, E, R> = internal.asSome
 
 /**
  * @category combinators
@@ -176,11 +198,19 @@ export const mapEffect: {
     f: (a: A1) => Effect.Effect<A2, E2, R2>
   ): <E1, R1>(
     self: Security<A1, E1, R1>
-  ) => Security<A2, E1 | Exclude<E2, ServerError.ServerError>, R1 | Exclude<R2, HttpServer.request.ServerRequest>>
+  ) => Security<
+    A2,
+    E1 | Exclude<E2, ServerError.ServerError>,
+    R1 | Exclude<R2, HttpServer.request.ServerRequest>
+  >
   <A1, E1, R1, A2, E2, R2>(
     self: Security<A1, E1, R1>,
     f: (a: A1) => Security<A2, E2, R2>
-  ): Security<A2, E1 | Exclude<E2, ServerError.ServerError>, R1 | Exclude<R2, HttpServer.request.ServerRequest>>
+  ): Security<
+    A2,
+    E1 | Exclude<E2, ServerError.ServerError>,
+    R1 | Exclude<R2, HttpServer.request.ServerRequest>
+  >
 } = internal.mapEffect
 
 /**
@@ -188,8 +218,13 @@ export const mapEffect: {
  * @since 1.0.0
  */
 export const mapSchema: {
-  <A, B>(schema: Schema.Schema<B, A>): <E, R>(self: Security<A, E, R>) => Security<B, E, R>
-  <A, B, E, R>(self: Security<A, E, R>, schema: Schema.Schema<B, A>): Security<B, E, R>
+  <A, B>(
+    schema: Schema.Schema<B, A>
+  ): <E, R>(self: Security<A, E, R>) => Security<B, E, R>
+  <A, B, E, R>(
+    self: Security<A, E, R>,
+    schema: Schema.Schema<B, A>
+  ): Security<B, E, R>
 } = internal.mapSchema
 
 /**
@@ -251,3 +286,22 @@ export const unit: Security<void> = internal.unit
  * @since 1.0.0
  */
 export const never: Security<never> = internal.never
+
+/**
+ * @category models
+ * @since 1.0.0
+ */
+export interface ApiKeyOptions {
+  key: string
+  in: "header" | "query" // TODO: support cookie
+  name?: string
+  description?: string
+}
+
+/**
+ * Creates basic http security
+ *
+ * @category constructors
+ * @since 1.0.0
+ */
+export const apiKey: (options: ApiKeyOptions) => Security<string> = internal.apiKey

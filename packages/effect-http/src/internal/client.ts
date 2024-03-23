@@ -77,3 +77,14 @@ export const setBearer = dual(
   (request: HttpClient.request.ClientRequest, token: string): HttpClient.request.ClientRequest =>
     HttpClient.request.setHeader(request, "Authorization", `Bearer ${token}`)
 )
+
+/** @internal */
+export const setApiKey = dual(4, (
+  request: HttpClient.request.ClientRequest,
+  key: string,
+  _in: "query" | "header",
+  apiKey: string
+): HttpClient.request.ClientRequest =>
+  _in === "query"
+    ? HttpClient.request.setUrlParam(request, key, apiKey)
+    : HttpClient.request.setHeader(request, key, apiKey))

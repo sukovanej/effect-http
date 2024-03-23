@@ -12,7 +12,7 @@ const customSecurity = Security.make(
     Effect.mapError(() => ServerError.unauthorizedError("Expected valid X-API-KEY header")),
     Effect.map((headers) => headers["x-api-key"])
   ),
-  { "x-api-key": { name: "My API key auth", type: "apiKey", in: "header", description: "API key" } }
+  { "myApiKey": { name: "X-API-KEY", type: "apiKey", in: "header", description: "My API key" } }
 )
 
 const api = Api.make().pipe(
