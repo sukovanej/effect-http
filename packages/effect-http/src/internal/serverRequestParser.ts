@@ -132,14 +132,7 @@ const createSecurityParser = (
 
   return (request: ServerRequest.ServerRequest) =>
     Security.handleRequest(security).pipe(
-      Effect.provideService(ServerRequest.ServerRequest, request),
-      Effect.mapError((e) => {
-        if (Security.isSecurityError(e)) {
-          return ServerError.makeJson(401, { error: "Unauthorized", message: e.message })
-        }
-
-        return e
-      })
+      Effect.provideService(ServerRequest.ServerRequest, request)
     )
 }
 

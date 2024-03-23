@@ -289,8 +289,8 @@ app.pipe(NodeServer.listen({ port: 3000 }), NodeRuntime.runMain)
 [\[Source code\]](./packages/effect-http-node/examples/readme-security-basic.ts)
 
 In the example, we use the `Security.basic()` constructor which produces a new security of type
-`Security.Security<Security.BasicCredentials, never, never>`. In the second argument of our handler
-function, we receive the value of `Security.BasicCredentials` if the request contains a valid
+`Security<BasicCredentials, never, never>`. In the second argument of our handler
+function, we receive the value of `BasicCredentials` if the request contains a valid
 authorization header with the basic auth credentials.
 
 In case the request doesn't include valid authorization, the client will get a `401 Unauthorized` response
@@ -298,8 +298,8 @@ with a JSON body containing the error message.
 
 #### Optional security
 
-Implementation-wise, the `Security.Security<A, E, R>` contains an `Effect<A, E | SecurityError, R | ServerRequest>`.
-Therefore, we can combine multiple security mechanisms similarly as we were combining effects.
+Implementation-wise, the `Security<A, E, R>` contains an `Effect<A, E | ServerError, R | ServerRequest>`.
+Therefore, we can combine multiple security mechanisms similarly as if we were combining effects.
 
 For instance, we could make the authentication optional using the `Security.or` combinator.
 
@@ -391,9 +391,8 @@ client.endpoint({}, Client.setBasic("user", "pass"))
 
 A primitive security is constructed using `Security.make` function.
 
-It accepts a handler effect which can access the `ServerRequest` and possible fail with a `Security.SecurityError`.
-If it accesses any other context services or fails with different errors, they are propagated to the built
-`App<R, E>` type outside of the `RouterBuilder`.
+It accepts a handler effect which is expected to access the `ServerRequest` 
+and possibly fail with a `ServerError`.
 
 If we want to document the authorization mechanism in the OpenAPI, we must also provide the second argument
 of the `Security.make` which is a mapping of the auth identifier and actual security scheme spec.
@@ -404,11 +403,12 @@ Here is an example of a security validating a `X-API-KEY` header.
 import { HttpServer } from "@effect/platform"
 import { Schema } from "@effect/schema"
 import { Effect, pipe } from "effect"
+import { Security, ServerError } from "effect-http"
 
 const customSecurity = Security.make(
   pipe(
     HttpServer.request.schemaHeaders(Schema.struct({ "x-api-key": Schema.string })),
-    Effect.mapError(() => Security.makeError("Expected valid X-API-KEY header")),
+    Effect.mapError(() => ServerError.unauthorizedError("Expected valid X-API-KEY header")),
     Effect.map((headers) => headers["x-api-key"])
   ),
   { "x-api-key": { name: "My API key auth", type: "apiKey", in: "header", description: "API key" } }
@@ -418,18 +418,14 @@ const customSecurity = Security.make(
 [\[Source code\]](./packages/effect-http-node/examples/readme-security-custom.ts)
 
 If the client doesn't provide the `X-API-KEY` header, the server will respond with `401 Unauthorized` status
-and the following JSON response.
-
-```json
-{ "error": "Unauthorized", "message": "Expected valid X-API-KEY header" }
-```
+and the given message.
 
 ### Responses
 
 Every new endpoint has default response with status code 200 with ignored
 response and headers.
 
-If you want to cusomize the default response, use the `Api.setResponseStatus`,
+If you want to customize the default response, use the `Api.setResponseStatus`,
 `Api.setResponseBody` or `Api.setResponseHeaders` combinators. The following
 example shows how to enforce (both for types and runtime) that returned status,
 body and headers conform the specified response.

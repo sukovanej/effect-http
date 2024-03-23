@@ -5,7 +5,7 @@
  */
 import type * as Effect from "effect/Effect"
 
-import type { HttpServer } from "@effect/platform"
+import type * as HttpServer from "@effect/platform/HttpServer"
 import * as internal from "./internal/middlewares.js"
 import type * as ServerError from "./ServerError.js"
 

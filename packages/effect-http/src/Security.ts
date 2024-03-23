@@ -3,15 +3,15 @@
  * @since 1.0.0
  */
 import type * as HttpServer from "@effect/platform/HttpServer"
-import type { Schema } from "@effect/schema"
-import type { Option } from "effect"
-import type * as Cause from "effect/Cause"
+import type * as Schema from "@effect/schema/Schema"
 import type * as Effect from "effect/Effect"
+import type * as Option from "effect/Option"
 import type * as Pipeable from "effect/Pipeable"
 import type * as ReadonlyRecord from "effect/ReadonlyRecord"
 import type * as Types from "effect/Types"
 import type * as OpenApiTypes from "schema-openapi/OpenApiTypes"
 import * as internal from "./internal/security.js"
+import type * as ServerError from "./ServerError.js"
 /**
  * @since 1.0.0
  * @category type id
@@ -29,15 +29,6 @@ export type TypeId = typeof TypeId
  * @since 1.0.0
  */
 export interface Security<A, E = never, R = never> extends Security.Variance<A, E, R>, Pipeable.Pipeable {}
-
-/**
- * @category models
- * @since 1.0.0
- */
-export interface SecurityError extends Cause.YieldableError {
-  readonly _tag: "SecurityError"
-  readonly message: string
-}
 
 /**
  * @category models
@@ -84,7 +75,7 @@ export declare namespace Security {
    * @category type-level
    * @since 1.0.0
    */
-  export type Handler<A, E, R> = Effect.Effect<A, E | SecurityError, R | HttpServer.request.ServerRequest>
+  export type Handler<A, E, R> = Effect.Effect<A, E, R | HttpServer.request.ServerRequest>
 }
 
 /**
@@ -94,19 +85,7 @@ export declare namespace Security {
 export const make: <A, E, R>(
   parser: Security.Handler<A, E, R>,
   openapi?: ReadonlyRecord.ReadonlyRecord<string, OpenApiTypes.OpenAPISecurityScheme>
-) => Security<A, Exclude<E, SecurityError>, Exclude<R, HttpServer.request.ServerRequest>> = internal.make
-
-/**
- * @category constructors
- * @since 1.0.0
- */
-export const makeError: (message: string) => SecurityError = internal.makeError
-
-/**
- * @category refinements
- * @since 1.0.0
- */
-export const isSecurityError: (u: unknown) => u is SecurityError = internal.isSecurityError
+) => Security<A, Exclude<E, ServerError.ServerError>, Exclude<R, HttpServer.request.ServerRequest>> = internal.make
 
 /**
  * @category getters
@@ -197,11 +176,11 @@ export const mapEffect: {
     f: (a: A1) => Effect.Effect<A2, E2, R2>
   ): <E1, R1>(
     self: Security<A1, E1, R1>
-  ) => Security<A2, E1 | Exclude<E2, SecurityError>, R1 | Exclude<R2, HttpServer.request.ServerRequest>>
+  ) => Security<A2, E1 | Exclude<E2, ServerError.ServerError>, R1 | Exclude<R2, HttpServer.request.ServerRequest>>
   <A1, E1, R1, A2, E2, R2>(
     self: Security<A1, E1, R1>,
     f: (a: A1) => Security<A2, E2, R2>
-  ): Security<A2, E1 | Exclude<E2, SecurityError>, R1 | Exclude<R2, HttpServer.request.ServerRequest>>
+  ): Security<A2, E1 | Exclude<E2, ServerError.ServerError>, R1 | Exclude<R2, HttpServer.request.ServerRequest>>
 } = internal.mapEffect
 
 /**
