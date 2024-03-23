@@ -1,9 +1,9 @@
 import { ExampleCompiler } from "schema-openapi"
 
-import { Unify } from "effect"
 import * as Effect from "effect/Effect"
 import { pipe } from "effect/Function"
 import * as ReadonlyArray from "effect/ReadonlyArray"
+import * as Unify from "effect/Unify"
 import * as Api from "../Api.js"
 import * as ApiEndpoint from "../ApiEndpoint.js"
 import * as RouterBuilder from "../RouterBuilder.js"
