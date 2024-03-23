@@ -1,8 +1,8 @@
-import { HttpClient, HttpServer } from "@effect/platform"
+import { HttpServer } from "@effect/platform"
 import { Schema } from "@effect/schema"
 import * as it from "@effect/vitest"
-import { Context, Effect, Either, Encoding, Layer, Option, pipe, ReadonlyArray } from "effect"
-import { Api, ApiResponse, ClientError, RouterBuilder, Security, ServerError } from "effect-http"
+import { Context, Effect, Either, Layer, Option, pipe, ReadonlyArray } from "effect"
+import { Api, ApiResponse, Client, ClientError, RouterBuilder, Security, ServerError } from "effect-http"
 import { NodeTesting } from "effect-http-node"
 import { createHash } from "node:crypto"
 import { describe, expect, test } from "vitest"
@@ -462,13 +462,9 @@ it.scoped(
       RouterBuilder.build
     )
 
-    const credentials = Encoding.encodeBase64("user:pass")
-
     const result = yield* _(
       NodeTesting.make(app, api),
-      Effect.flatMap((client) =>
-        client.test({}, HttpClient.request.setHeader("authorization", `basic ${credentials}`))
-      ),
+      Effect.flatMap((client) => client.test({}, Client.setBasic("user", "pass"))),
       Effect.provide(MyService.live)
     )
 

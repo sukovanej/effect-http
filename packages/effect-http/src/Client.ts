@@ -62,6 +62,24 @@ export const make: <A extends Api.Api.Any>(
 ) => Client<A> = internal.make
 
 /**
+ * @category auth
+ * @since 1.0.0
+ */
+export const setBasic: {
+  (user: string, pass: string): (request: HttpClient.request.ClientRequest) => HttpClient.request.ClientRequest
+  (request: HttpClient.request.ClientRequest, user: string, pass: string): HttpClient.request.ClientRequest
+} = internal.setBasicAuth
+
+/**
+ * @category auth
+ * @since 1.0.0
+ */
+export const setBearer: {
+  (token: string): (request: HttpClient.request.ClientRequest) => HttpClient.request.ClientRequest
+  (request: HttpClient.request.ClientRequest, token: string): HttpClient.request.ClientRequest
+} = internal.setBearer
+
+/**
  * @category models
  * @since 1.0.0
  */

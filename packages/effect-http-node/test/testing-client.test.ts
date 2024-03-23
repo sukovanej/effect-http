@@ -7,6 +7,7 @@ import {
   Api,
   ApiResponse,
   ApiSchema,
+  Client,
   ClientError,
   Representation,
   RouterBuilder,
@@ -393,14 +394,8 @@ it.scoped(
       Effect.flatMap(
         (client) =>
           Effect.zip(
-            client.hello(
-              { query: { input: 12 } },
-              HttpClient.request.setHeader("authorization", "bearer 2")
-            ),
-            client.hello(
-              { query: { input: 12 } },
-              HttpClient.request.setHeader("authorization", "basic aGVsbG86d29ybGQ=")
-            )
+            client.hello({ query: { input: 12 } }, Client.setBearer("2")),
+            client.hello({ query: { input: 12 } }, Client.setBasic("hello", "world"))
           )
       )
     )

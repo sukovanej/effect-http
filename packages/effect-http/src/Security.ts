@@ -4,6 +4,7 @@
  */
 import type * as HttpServer from "@effect/platform/HttpServer"
 import type { Schema } from "@effect/schema"
+import type { Option } from "effect"
 import type * as Cause from "effect/Cause"
 import type * as Effect from "effect/Effect"
 import type * as Pipeable from "effect/Pipeable"
@@ -91,9 +92,9 @@ export declare namespace Security {
  * @since 1.0.0
  */
 export const make: <A, E, R>(
-  openapi: ReadonlyRecord.ReadonlyRecord<string, OpenApiTypes.OpenAPISecurityScheme>,
-  parser: Security.Handler<A, E, R>
-) => Security<A, E, R> = internal.make
+  parser: Security.Handler<A, E, R>,
+  openapi?: ReadonlyRecord.ReadonlyRecord<string, OpenApiTypes.OpenAPISecurityScheme>
+) => Security<A, Exclude<E, SecurityError>, Exclude<R, HttpServer.request.ServerRequest>> = internal.make
 
 /**
  * @category constructors
@@ -120,6 +121,20 @@ export const handleRequest: <A, E, R>(security: Security<A, E, R>) => Security.H
 export const getOpenApi: <A, E, R>(
   security: Security<A, E, R>
 ) => ReadonlyRecord.ReadonlyRecord<string, OpenApiTypes.OpenAPISecurityScheme> = internal.getOpenApi
+
+/**
+ * @category getters
+ * @since 1.0.0
+ */
+export const mapHandler: {
+  <A, B, E1, E2, R1, R2>(
+    f: (handler: Security.Handler<A, E1, R1>) => Security.Handler<B, E2, R2>
+  ): (security: Security<A, E1, R1>) => Security<B, E2, R2>
+  <A, B, E1, E2, R1, R2>(
+    security: Security<A, E1, R1>,
+    f: (handler: Security.Handler<A, E1, R1>) => Security.Handler<B, E2, R2>
+  ): Security<B, E2, R2>
+} = internal.mapHandler
 
 /**
  * @category combinators
@@ -162,10 +177,16 @@ export const map: {
  * @category combinators
  * @since 1.0.0
  */
-export const all: {
-  <A, B>(f: (a: A) => B): <E, R>(self: Security<A, E, R>) => Security<B, E, R>
-  <A, B, E, R>(self: Security<A, E, R>, f: (a: A) => B): Security<B, E, R>
-} = internal.map
+export const as: {
+  <B>(value: B): <A, E, R>(self: Security<A, E, R>) => Security<B, E, R>
+  <A, B, E, R>(self: Security<A, E, R>, value: B): Security<B, E, R>
+} = internal.as
+
+/**
+ * @category combinators
+ * @since 1.0.0
+ */
+export const asSome: <A, E, R>(self: Security<A, E, R>) => Security<Option.Option<A>, E, R> = internal.asSome
 
 /**
  * @category combinators
