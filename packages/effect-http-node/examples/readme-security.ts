@@ -1,12 +1,18 @@
 import { NodeRuntime } from "@effect/platform-node"
 import { Schema } from "@effect/schema"
-import { Effect } from "effect"
-import { Api, RouterBuilder, Security } from "effect-http"
+import { Effect, Option } from "effect"
+import { Api, Middlewares, RouterBuilder, Security } from "effect-http"
 import { NodeServer } from "effect-http-node"
+import { debugLogger } from "./_utils.js"
 
-const mySecuredEnpoint = Api.post("security", "/testSecurity", { description: "" }).pipe(
+const mySecurity = Security.or(
+  Security.asSome(Security.basic()),
+  Security.as(Security.unit, Option.none())
+)
+
+const mySecuredEnpoint = Api.post("security", "/testSecurity").pipe(
   Api.setResponseBody(Schema.string),
-  Api.setSecurity(Security.bearer())
+  Api.setSecurity(mySecurity)
 )
 
 const api = Api.make().pipe(
@@ -14,10 +20,15 @@ const api = Api.make().pipe(
 )
 
 const app = RouterBuilder.make(api).pipe(
-  RouterBuilder.handle("security", (_, token) => {
-    return Effect.succeed(`your token ${token}`) // Secret
-  }),
-  RouterBuilder.build
+  RouterBuilder.handle("security", (_, security) =>
+    Effect.succeed(
+      Option.match(security, {
+        onSome: (creds) => `logged as ${creds.user}`,
+        onNone: () => "not logged"
+      })
+    )),
+  RouterBuilder.build,
+  Middlewares.errorLog
 )
 
-app.pipe(NodeServer.listen(), NodeRuntime.runMain)
+app.pipe(NodeServer.listen({ port: 3000 }), Effect.provide(debugLogger), NodeRuntime.runMain)

@@ -1,8 +1,9 @@
-import type { HttpClient } from "@effect/platform"
+import { HttpClient } from "@effect/platform"
 import * as PlatformClient from "@effect/platform/Http/Client"
 import * as ClientRequest from "@effect/platform/Http/ClientRequest"
+import { Encoding } from "effect"
 import * as Effect from "effect/Effect"
-import { identity, pipe } from "effect/Function"
+import { dual, identity, pipe } from "effect/Function"
 import * as Api from "../Api.js"
 import * as ApiEndpoint from "../ApiEndpoint.js"
 import type * as Client from "../Client.js"
@@ -12,6 +13,7 @@ import * as ClientResponseParser from "./clientResponseParser.js"
 /** @internal */
 const defaultHttpClient = PlatformClient.fetch()
 
+/** @internal */
 export const endpointClient = <
   A extends Api.Api.Any,
   Id extends Api.Api.Ids<A>
@@ -49,12 +51,7 @@ export const endpointClient = <
     ))
 }
 
-/**
- * Derive client implementation from the `Api`
- *
- * @category constructors
- * @since 1.0.0
- */
+/** @internal */
 export const make = <A extends Api.Api.Any>(
   api: A,
   options?: Partial<Client.Options>
@@ -66,3 +63,17 @@ export const make = <A extends Api.Api.Any>(
     }),
     {} as Client.Client<A>
   )
+
+/** @internal */
+export const setBasicAuth = dual(
+  3,
+  (request: HttpClient.request.ClientRequest, user: string, pass: string): HttpClient.request.ClientRequest =>
+    HttpClient.request.setHeader(request, "Authorization", `Basic ${Encoding.encodeBase64(`${user}:${pass}`)}`)
+)
+
+/** @internal */
+export const setBearer = dual(
+  2,
+  (request: HttpClient.request.ClientRequest, token: string): HttpClient.request.ClientRequest =>
+    HttpClient.request.setHeader(request, "Authorization", `Bearer ${token}`)
+)

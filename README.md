@@ -252,73 +252,176 @@ OpenAPI UI.
 
 ### Security
 
-To define which security mechanisms should be used for a specific endpoint, fill `option.security` field in endpoint constructor.
+To deal with authentication / authorization, the `effect-http` exposes the `Security` module. `Security.Security<A, E, R>`
+is a structure capturing information how to document the security mechanism within the OpenAPI and how to parse the
+incomming server request to produce a value `A` available for the endpoint handler.
+
+To to secure an endpoint, use the `Api.setSecurity` combinator. Let's see an example of a secured endpoint
+using the basic auth.
 
 ```ts
 import { NodeRuntime } from "@effect/platform-node"
 import { Schema } from "@effect/schema"
 import { Effect } from "effect"
-import { Api, RouterBuilder } from "effect-http"
+import { Api, RouterBuilder, Security } from "effect-http"
 import { NodeServer } from "effect-http-node"
 
-const mySecuredEnpoint = Api.post("security", "/testSecurity", { description: "" }).pipe(
-  Api.setResponseBody(Schema.string),
-  Api.addSecurity(
-    "myAwesomeBearerAuth", // arbitrary name for the security scheme
-    {
-      type: "http",
-      options: {
-        scheme: "bearer",
-        bearerFormat: "JWT"
-      },
-      // Schema<any, string> for decoding-encoding the significant part
-      // "Authorization: Bearer <significant part>"
-      schema: Schema.Secret
-    }
+const api = Api.make().pipe(
+  Api.addEndpoint(
+    Api.post("mySecuredEndpoint", "/my-secured-endpoint").pipe(
+      Api.setResponseBody(Schema.string),
+      Api.setSecurity(Security.basic())
+    )
   )
 )
 
-const api = Api.make().pipe(
-  Api.addEndpoint(mySecuredEnpoint)
-)
-```
-
-Currently, only the `"http"` type is supported. `bearer` and `basic` constructors are available from the `SecurityScheme` module.
-
-Encoded security tokens are placed in the second parameter of the handler.
-
-```ts
 const app = RouterBuilder.make(api).pipe(
-  RouterBuilder.handle("security", (_, security) => {
-    const token = security.myAwesomeBearerAuth.token // Secret
-    return Effect.succeed(`your token ${token}`)
-  }),
+  RouterBuilder.handle(
+    "mySecuredEndpoint",
+    (_, security) => Effect.succeed(`Accessed as ${security.user}`)
+  ),
   RouterBuilder.build
 )
+
+app.pipe(NodeServer.listen({ port: 3000 }), NodeRuntime.runMain)
 ```
 
-In case several security schemes are specified, tokens will be `Either<ParseError, MyType>` type 
-with the guarantee that at least one of them is of the `Right<MyType>` type
+[\[Source code\]](./packages/effect-http-node/examples/readme-security-basic.ts)
+
+In the example, we use the `Security.basic()` constructor which produces a new security of type
+`Security.Security<Security.BasicCredentials, never, never>`. In the second argument of our handler
+function, we receive the value of `Security.BasicCredentials` if the request contains a valid
+authorization header with the basic auth credentials.
+
+In case the request doesn't include valid authorization, the client will get a `401 Unauthorized` response
+with a JSON body containing the error message.
+
+#### Optional security
+
+Implementation-wise, the `Security.Security<A, E, R>` contains an `Effect<A, E | SecurityError, R | ServerRequest>`.
+Therefore, we can combine multiple security mechanisms similarly as we were combining effects.
+
+For instance, we could make the authentication optional using the `Security.or` combinator.
 
 ```ts
-const app = RouterBuilder.make(api).pipe(
-  RouterBuilder.handle("security", (_, security) => {
-    const token1 = security.myAwesomeBearerAuth.token; // Either<ParseError, Secret>
-    const token2 = security.myAwesomeBasicAuth.token; // Either<ParseError, Secret>
-    return Effect.succeed(`your token ${token}`)
-  }),
-  RouterBuilder.build
+const mySecurity = Security.or(
+  Security.asSome(Security.basic()),
+  Security.as(Security.unit, Option.none())
 )
 ```
 
 [\[Source code\]](./packages/effect-http-node/examples/readme-security.ts)
 
-On the client side security token must be passed into the appropriate security scheme
+The `Security.asSome`, `Security.as` and `Security.unit` behave the same way as their `Effect` counterparts.
+
+#### Constructing more complex security
+
+The following example show-cases how to construct a security mechanism that validates 
+the basic auth credentials and then fetches the user information from the `UserStorage` service.
 
 ```ts
-client.security({}, {
-  myAwesomeBearerAuth: bearerToken, // Secret
-})
+import { Effect, Layer, pipe } from "effect"
+import { Security } from "effect-http"
+
+interface UserInfo {
+  email: string
+}
+
+class UserStorage extends Effect.Tag("UserStorage")<
+  UserStorage,
+  { getInfo: (user: string) => Effect.Effect<UserInfo> }
+>() {
+  static dummy = Layer.succeed(
+    UserStorage,
+    UserStorage.of({
+      getInfo: (_: string) => Effect.succeed({ email: "email@gmail.com" })
+    })
+  )
+}
+
+const mySecurity = pipe(
+  Security.basic({ description: "My basic auth" }),
+  Security.map((creds) => creds.user),
+  Security.mapEffect((user) => UserStorage.getInfo(user))
+)
+```
+
+In the handler implementation, we obtain the `security` argument typed as `UserInfo`.
+
+```ts
+const app = RouterBuilder.make(api).pipe(
+  RouterBuilder.handle(
+    "endpoint",
+    (_, security) => Effect.succeed(`Logged as ${security.email}`)
+  ),
+  RouterBuilder.build,
+  Middlewares.errorLog
+)
+```
+
+And finally, because we made use of the effect context, we are forced to provide the `UserStorage`
+when running the server.
+
+```ts
+app.pipe(
+  NodeServer.listen({ port: 3000 }),
+  Effect.provide(UserStorage.dummy),
+  NodeRuntime.runMain
+)
+```
+
+[\[Source code\]](./packages/effect-http-node/examples/readme-security-complex.ts)
+
+#### Security on the client side
+
+Each endpoint method accepts an optional second argument of type `(request: ClientRequest) => ClientRequest`
+used to map internally produced `HttpClient.request.ClientRequest`. We can provide the header mapping
+to set the appropriate header. Additionally, the `Client` module exposes `Client.setBasic` and `Client.setBearer`
+combinators that produce setter functions configuring the `Authorization` header.
+
+```ts
+import { Client } from 'effect-http';
+
+const client = Client.make(api)
+
+client.endpoint({}, Client.setBasic("user", "pass"))
+```
+
+#### Custom security
+
+A primitive security is constructed using `Security.make` function.
+
+It accepts a handler effect which can access the `ServerRequest` and possible fail with a `Security.SecurityError`.
+If it accesses any other context services or fails with different errors, they are propagated to the built
+`App<R, E>` type outside of the `RouterBuilder`.
+
+If we want to document the authorization mechanism in the OpenAPI, we must also provide the second argument
+of the `Security.make` which is a mapping of the auth identifier and actual security scheme spec.
+
+Here is an example of a security validating a `X-API-KEY` header.
+
+```ts
+import { HttpServer } from "@effect/platform"
+import { Schema } from "@effect/schema"
+import { Effect, pipe } from "effect"
+
+const customSecurity = Security.make(
+  pipe(
+    HttpServer.request.schemaHeaders(Schema.struct({ "x-api-key": Schema.string })),
+    Effect.mapError(() => Security.makeError("Expected valid X-API-KEY header")),
+    Effect.map((headers) => headers["x-api-key"])
+  ),
+  { "x-api-key": { name: "My API key auth", type: "apiKey", in: "header", description: "API key" } }
+)
+```
+
+[\[Source code\]](./packages/effect-http-node/examples/readme-security-custom.ts)
+
+If the client doesn't provide the `X-API-KEY` header, the server will respond with `401 Unauthorized` status
+and the following JSON response.
+
+```json
+{ "error": "Unauthorized", "message": "Expected valid X-API-KEY header" }
 ```
 
 ### Responses
