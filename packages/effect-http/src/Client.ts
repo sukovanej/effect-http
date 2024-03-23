@@ -80,6 +80,24 @@ export const setBearer: {
 } = internal.setBearer
 
 /**
+ * @category auth
+ * @since 1.0.0
+ */
+export const setApiKey: {
+  (
+    key: string,
+    _in: "query" | "header",
+    apiKey: string
+  ): (request: HttpClient.request.ClientRequest) => HttpClient.request.ClientRequest
+  (
+    request: HttpClient.request.ClientRequest,
+    key: string,
+    _in: "query" | "header",
+    apiKey: string
+  ): HttpClient.request.ClientRequest
+} = internal.setApiKey
+
+/**
  * @category models
  * @since 1.0.0
  */

@@ -411,7 +411,7 @@ const customSecurity = Security.make(
     Effect.mapError(() => ServerError.unauthorizedError("Expected valid X-API-KEY header")),
     Effect.map((headers) => headers["x-api-key"])
   ),
-  { "x-api-key": { name: "My API key auth", type: "apiKey", in: "header", description: "API key" } }
+  { "myApiKey": { name: "x-api-key", type: "apiKey", in: "header", description: "My API key" } }
 )
 ```
 
@@ -419,6 +419,10 @@ const customSecurity = Security.make(
 
 If the client doesn't provide the `X-API-KEY` header, the server will respond with `401 Unauthorized` status
 and the given message.
+
+> [!NOTE]
+> In this particular case, you can use `Security.apiKey({ key: "X-API-KEY", in: "header" })` instead
+> of a custom security.
 
 ### Responses
 
