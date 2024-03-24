@@ -1,6 +1,7 @@
 import { Schema } from "@effect/schema"
 import { pipe } from "effect"
 import { Api, ApiGroup, OpenApi, Security } from "effect-http"
+import type { OpenAPISpecStatusCode } from "schema-openapi/OpenApiTypes"
 import { expect, test } from "vitest"
 
 test("description", () => {
@@ -292,4 +293,20 @@ test("http security scheme", () => {
       bearerFormat: "jwt"
     }
   })
+})
+
+test("arbitrary status with empty response is allowed", () => {
+  const api = pipe(
+    Api.make(),
+    Api.addEndpoint(
+      Api.post("myOperation", "/my-operation", { description: "options" }).pipe(
+        Api.addResponse({ status: 401 })
+      )
+    )
+  )
+
+  const openApi = OpenApi.make(api)
+
+  // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
+  expect(((openApi.paths["/my-operation"].post?.responses![401 as OpenAPISpecStatusCode])!).content).toBe(undefined)
 })

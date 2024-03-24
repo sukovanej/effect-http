@@ -31,7 +31,7 @@ export const make = (
           const status = ApiResponse.getStatus(response)
 
           if (ApiSchema.isIgnored(body) && ApiSchema.isIgnored(headers)) {
-            operationSpec.push(OpenApi.noContentResponse("No response"))
+            operationSpec.push(OpenApi.noContentResponse("No response", status))
             continue
           }
 
