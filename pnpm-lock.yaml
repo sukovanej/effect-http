@@ -113,15 +113,15 @@ importers:
   packages/effect-http:
     dependencies:
       schema-openapi:
-        specifier: ^0.33.7
-        version: 0.33.7(@effect/schema@0.64.11)(effect@2.4.11)
+        specifier: ^0.34.0
+        version: 0.34.0(@effect/schema@0.64.11)(effect@2.4.11)
     devDependencies:
       '@effect/platform':
         specifier: ^0.48.15
         version: 0.48.15(@effect/schema@0.64.11)(effect@2.4.11)(ws@8.16.0)
       '@effect/schema':
         specifier: ^0.64.11
-        version: 0.64.11(effect@2.4.11)(fast-check@3.16.0)
+        version: 0.64.11(effect@2.4.11)(fast-check@3.17.0)
       effect:
         specifier: ^2.4.11
         version: 2.4.11
@@ -144,7 +144,7 @@ importers:
         version: 0.45.17(@effect/platform@0.48.15)(effect@2.4.11)
       '@effect/schema':
         specifier: ^0.64.11
-        version: 0.64.11(effect@2.4.11)(fast-check@3.16.0)
+        version: 0.64.11(effect@2.4.11)(fast-check@3.17.0)
       '@types/node':
         specifier: ^20.11.30
         version: 20.11.30
@@ -751,7 +751,7 @@ packages:
       '@effect/schema': ^0.64.11
       effect: ^2.4.11
     dependencies:
-      '@effect/schema': 0.64.11(effect@2.4.11)(fast-check@3.16.0)
+      '@effect/schema': 0.64.11(effect@2.4.11)(fast-check@3.17.0)
       effect: 2.4.11
       find-my-way-ts: 0.1.1
       isomorphic-ws: 5.0.0(ws@8.16.0)
@@ -761,14 +761,14 @@ packages:
       - ws
     dev: true
 
-  /@effect/schema@0.64.11(effect@2.4.11)(fast-check@3.16.0):
+  /@effect/schema@0.64.11(effect@2.4.11)(fast-check@3.17.0):
     resolution: {integrity: sha512-n5FNgAc7mmWXR9cY3Ea44KciUv/I3tfWPIqK7cPyTIjGhJ7UP9vxfzmN66lct6QXOwL+AUC9Tx/HJ8mtE+zaGQ==}
     peerDependencies:
       effect: ^2.4.11
       fast-check: ^3.13.2
     dependencies:
       effect: 2.4.11
-      fast-check: 3.16.0
+      fast-check: 3.17.0
 
   /@effect/vitest@0.1.1(effect@2.4.11)(vitest@1.4.0):
     resolution: {integrity: sha512-0MUWsus4ZQ6tdwwRaHK4ttK1csu/WwBR75gZ+v/gMW22N2Cs8OewaJDm9sV3egg2iGmWjaxry+BqSRWDC6TlKg==}
@@ -3526,8 +3526,8 @@ packages:
       tmp: 0.0.33
     dev: true
 
-  /fast-check@3.16.0:
-    resolution: {integrity: sha512-k8GtQHi4pJoRQ1gVDFQno+/FVkowo/ehiz/aCj9O/D7HRWb1sSFzNrw+iPVU8QlWtH+jNwbuN+dDVg3QkS56DQ==}
+  /fast-check@3.17.0:
+    resolution: {integrity: sha512-9A7UiBENXxMBb40qY+xOcIcGdxF5CYbXJOU4b+omh773RIFcIQRejHEjjrzIHQFLIQXWgWQu3dl6FrWR9VpYRQ==}
     engines: {node: '>=8.0.0'}
     dependencies:
       pure-rand: 6.1.0
@@ -5721,13 +5721,13 @@ packages:
       commander: 2.20.3
     dev: true
 
-  /schema-openapi@0.33.7(@effect/schema@0.64.11)(effect@2.4.11):
-    resolution: {integrity: sha512-rUI7wXVJYPDcsxogLRBx+G3q46Fg/Fw9nZnDN0UXd9pm+WYhF39oTyfgoSvQfFJflG6FRF+wPOKF2TjcxTbj5A==}
+  /schema-openapi@0.34.0(@effect/schema@0.64.11)(effect@2.4.11):
+    resolution: {integrity: sha512-/XWKM55Xt0OIKOrsGrXF+v7+S2ymvufDe288pqdKKGdqSHrPjtTNmdlLZ7V+UiJBjeYeSm4EofQuMorYT+wgvA==}
     peerDependencies:
       '@effect/schema': ^0.64.11
       effect: ^2.4.11
     dependencies:
-      '@effect/schema': 0.64.11(effect@2.4.11)(fast-check@3.16.0)
+      '@effect/schema': 0.64.11(effect@2.4.11)(fast-check@3.17.0)
       effect: 2.4.11
     dev: false
 
@@ -6464,7 +6464,7 @@ packages:
       debug: 4.3.4
       pathe: 1.1.2
       picocolors: 1.0.0
-      vite: 5.2.3(@types/node@20.11.30)
+      vite: 5.2.6(@types/node@20.11.30)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -6476,8 +6476,8 @@ packages:
       - terser
     dev: true
 
-  /vite@5.2.3(@types/node@20.11.30):
-    resolution: {integrity: sha512-+i1oagbvkVIhEy9TnEV+fgXsng13nZM90JQbrcPrf6DvW2mXARlz+DK7DLiDP+qeKoD1FCVx/1SpFL1CLq9Mhw==}
+  /vite@5.2.6(@types/node@20.11.30):
+    resolution: {integrity: sha512-FPtnxFlSIKYjZ2eosBQamz4CbyrTizbZ3hnGJlh/wMtCrlp1Hah6AzBLjGI5I2urTfNnpovpHdrL6YRuBOPnCA==}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
     peerDependencies:
@@ -6555,7 +6555,7 @@ packages:
       strip-literal: 2.0.0
       tinybench: 2.6.0
       tinypool: 0.8.2
-      vite: 5.2.3(@types/node@20.11.30)
+      vite: 5.2.6(@types/node@20.11.30)
       vite-node: 1.4.0(@types/node@20.11.30)
       why-is-node-running: 2.2.2
     transitivePeerDependencies:

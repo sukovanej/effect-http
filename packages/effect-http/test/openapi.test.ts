@@ -1,6 +1,7 @@
 import { Schema } from "@effect/schema"
 import { pipe } from "effect"
 import { Api, ApiGroup, OpenApi, Security } from "effect-http"
+import type { OpenAPISpecStatusCode } from "schema-openapi/OpenApiTypes"
 import { expect, test } from "vitest"
 
 test("description", () => {
@@ -208,7 +209,6 @@ test("union in query params", () => {
     Api.make(),
     Api.addEndpoint(
       Api.post("myOperation", "/my-operation").pipe(
-        Api.setResponseBody(Schema.string),
         Api.setRequestQuery(Schema.union(
           Schema.struct({ a: Schema.string }),
           Schema.struct({ a: Schema.number, b: Schema.string }),
@@ -292,4 +292,38 @@ test("http security scheme", () => {
       bearerFormat: "jwt"
     }
   })
+})
+
+test("arbitrary status with empty response is allowed", () => {
+  const api = pipe(
+    Api.make(),
+    Api.addEndpoint(
+      Api.post("myOperation", "/my-operation", { description: "options" }).pipe(
+        Api.addResponse({ status: 401 })
+      )
+    )
+  )
+
+  const openApi = OpenApi.make(api)
+
+  // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
+  expect(((openApi.paths["/my-operation"].post?.responses![401 as OpenAPISpecStatusCode])!).content).toBe(undefined)
+})
+
+test("response header as union", () => {
+  const api = pipe(
+    Api.make(),
+    Api.addEndpoint(
+      Api.post("myOperation", "/my-operation", { description: "options" }).pipe(
+        Api.setResponseHeaders(Schema.union(Schema.struct({}), Schema.struct({ a: Schema.string })))
+      )
+    )
+  )
+
+  const openApi = OpenApi.make(api)
+
+  // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
+  const headerSpec = ((openApi.paths["/my-operation"].post?.responses![200 as OpenAPISpecStatusCode])!).headers!["a"]
+
+  expect(headerSpec).toEqual({ description: "a string", schema: { description: "a string", type: "string" } })
 })
