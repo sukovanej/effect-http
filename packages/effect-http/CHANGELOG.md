@@ -1,5 +1,13 @@
 # effect-http
 
+## 0.60.1
+
+### Patch Changes
+
+- [#500](https://github.com/sukovanej/effect-http/pull/500) [`bf0f884`](https://github.com/sukovanej/effect-http/commit/bf0f884b3db88a166e525cbf4690ff603051a24a) Thanks [@sukovanej](https://github.com/sukovanej)! - Fix OpenApi with no body nor headers.
+
+- [#500](https://github.com/sukovanej/effect-http/pull/500) [`bf0f884`](https://github.com/sukovanej/effect-http/commit/bf0f884b3db88a166e525cbf4690ff603051a24a) Thanks [@sukovanej](https://github.com/sukovanej)! - Allow a union schema for response headers.
+
 ## 0.60.0
 
 ### Minor Changes
