@@ -35,19 +35,15 @@ export const make = (
             continue
           }
 
-          const schema = ApiSchema.isIgnored(body) ? undefined : body
-          const setHeaders = ApiSchema.isIgnored(headers)
-            ? identity
-            : OpenApi.responseHeaders(
-              createResponseHeadersSchemaMap(headers)
-            )
+          const bodySchema = ApiSchema.isIgnored(body) ? undefined : body
+          const setHeaders = ApiSchema.isIgnored(headers) ? identity : createResponseHeaderSetter(headers)
 
           operationSpec.push(
             OpenApi.jsonResponse(
               status as OpenApiTypes.OpenAPISpecStatusCode,
-              schema,
+              bodySchema,
               `Response ${status}`,
-              schema ? descriptionSetter(schema) : identity,
+              bodySchema ? descriptionSetter(bodySchema) : identity,
               setHeaders
             )
           )
@@ -245,21 +241,10 @@ const createParameterSetters = (
   })
 }
 
-const createResponseHeadersSchemaMap = (schema: Schema.Schema<any, any, unknown>) => {
-  let ast = schema.ast
+const createResponseHeaderSetter = (schema: Schema.Schema<any, any, unknown>) => {
+  const ps = getPropertySignatures("header", schema.ast)
 
-  if (ast._tag === "Transformation") {
-    ast = ast.from
-  }
-
-  if (ast._tag !== "TypeLiteral") {
-    throw new Error(`Response headers must be a type literal schema`)
-  }
-
-  return Object.fromEntries(
-    ast.propertySignatures.map((ps) => [
-      ps.name,
-      Schema.make<unknown, string, never>(ps.type)
-    ])
+  return OpenApi.responseHeaders(
+    Object.fromEntries(ps.map((ps) => [ps.name, Schema.make(ps.type)]))
   )
 }
