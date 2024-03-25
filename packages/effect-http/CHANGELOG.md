@@ -1,5 +1,13 @@
 # effect-http
 
+## 0.60.3
+
+### Patch Changes
+
+- [#504](https://github.com/sukovanej/effect-http/pull/504) [`2874f89`](https://github.com/sukovanej/effect-http/commit/2874f89700963127c284589b6b209e02b26c44dc) Thanks [@sukovanej](https://github.com/sukovanej)! - Fix `ApiResponse.isFullResponse` - filter out non-2xx responses.
+
+- [#504](https://github.com/sukovanej/effect-http/pull/504) [`2874f89`](https://github.com/sukovanej/effect-http/commit/2874f89700963127c284589b6b209e02b26c44dc) Thanks [@sukovanej](https://github.com/sukovanej)! - Fail using errors instead of defects.
+
 ## 0.60.2
 
 ### Patch Changes
