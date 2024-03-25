@@ -282,3 +282,33 @@ it.scoped(
       expect(typeof r).toBe("string")
     })
 )
+
+it.scoped(
+  "multiple with only one 2xx",
+  () =>
+    Effect.gen(function*(_) {
+      const api = pipe(
+        Api.make(),
+        Api.addEndpoint(
+          pipe(
+            Api.get("test", "/test"),
+            Api.setResponse({ status: 200, body: Schema.string }),
+            Api.addResponse({ status: 400, body: Schema.string }),
+            Api.addResponse({ status: 422, body: Schema.string })
+          )
+        )
+      )
+
+      const app = RouterBuilder.make(api).pipe(
+        RouterBuilder.handle("test", () => Effect.succeed("test")),
+        RouterBuilder.build
+      )
+
+      const result = yield* _(
+        NodeTesting.make(app, api),
+        Effect.flatMap((client) => client.test({}))
+      )
+
+      expect(result).toBe("test")
+    })
+)

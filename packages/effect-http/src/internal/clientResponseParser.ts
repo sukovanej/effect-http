@@ -39,7 +39,7 @@ export const create = (
         const allowedStatuses = Object.keys(statusToSchema)
 
         return yield* _(
-          Effect.dieMessage(
+          ClientError.makeClientSide(
             `Unexpected status ${response.status}. Allowed ones are ${allowedStatuses}.`
           )
         )

@@ -11,7 +11,6 @@ import type * as Api from "./Api.js"
 import type * as ApiEndpoint from "./ApiEndpoint.js"
 import type * as ApiRequest from "./ApiRequest.js"
 import type * as ApiResponse from "./ApiResponse.js"
-import type * as ApiSchema from "./ApiSchema.js"
 import * as internal from "./internal/route.js"
 import type * as utils from "./internal/utils.js"
 import type * as RouterBuilder from "./RouterBuilder.js"
@@ -26,7 +25,7 @@ export type HandlerFunction<Endpoint extends ApiEndpoint.ApiEndpoint.Any, R, E> 
   request: ToRequest<ApiEndpoint.ApiEndpoint.Request<Endpoint>>,
   security: ToSecurity<ApiEndpoint.ApiEndpoint.Security<Endpoint>>
 ) => Effect.Effect<
-  ToResponse<ApiEndpoint.ApiEndpoint.Response<Endpoint>>,
+  ToResponse<utils.FilterNon200Responses<ApiEndpoint.ApiEndpoint.Response<Endpoint>>>,
   E,
   R
 >
@@ -56,14 +55,8 @@ export const make: <A extends Api.Api.Any, Id extends Api.Api.Ids<A>, R, E>(
 type ToResponse<
   R extends ApiResponse.ApiResponse.Any
 > = utils.IsUnion<R> extends true ? R extends any ? ToFullResponse<R> : never
-  : NeedsFullResponse<R> extends true ? ToFullResponse<R>
-  : IgnoredToVoid<ApiResponse.ApiResponse.Body<R>>
-
-type IgnoredToVoid<R> = R extends ApiSchema.Ignored ? void : R
-
-/** @ignore */
-type NeedsFullResponse<R extends ApiResponse.ApiResponse.Any> = ApiResponse.ApiResponse.Headers<R> extends
-  ApiSchema.Ignored ? false : true
+  : utils.NeedsFullResponse<R> extends true ? ToFullResponse<R>
+  : utils.IgnoredToVoid<ApiResponse.ApiResponse.Body<R>>
 
 /** @ignore */
 export type ToFullResponse<R extends ApiResponse.ApiResponse.Any> = R extends any ?
