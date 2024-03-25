@@ -67,25 +67,26 @@ const parameters = [
 parameters.forEach(({ expected, name, security, setAuth }) =>
   it.scoped(
     `security ${name}`,
-    Effect.gen(function*(_) {
-      const api = Api.make().pipe(
-        Api.addEndpoint(
-          Api.post("test", "/test").pipe(Api.setResponseBody(Schema.string), Api.setSecurity(security))
+    () =>
+      Effect.gen(function*(_) {
+        const api = Api.make().pipe(
+          Api.addEndpoint(
+            Api.post("test", "/test").pipe(Api.setResponseBody(Schema.string), Api.setSecurity(security))
+          )
         )
-      )
 
-      const app = pipe(
-        RouterBuilder.make(api),
-        RouterBuilder.handle("test", (_, security) => Effect.succeed(security)),
-        RouterBuilder.build
-      )
+        const app = pipe(
+          RouterBuilder.make(api),
+          RouterBuilder.handle("test", (_, security) => Effect.succeed(security)),
+          RouterBuilder.build
+        )
 
-      const result = yield* _(
-        NodeTesting.make(app, api),
-        Effect.flatMap((client) => client.test({}, setAuth))
-      )
+        const result = yield* _(
+          NodeTesting.make(app, api),
+          Effect.flatMap((client) => client.test({}, setAuth))
+        )
 
-      expect(result).toBe(expected)
-    })
+        expect(result).toBe(expected)
+      })
   )
 )
