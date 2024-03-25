@@ -6,32 +6,35 @@ import { exampleApiGet, exampleApiPostNullableField } from "./examples.js"
 
 it.effect(
   "random example",
-  Effect.gen(function*(_) {
-    const client = MockClient.make(exampleApiGet)
-    const response = yield _(client.getValue({}))
+  () =>
+    Effect.gen(function*(_) {
+      const client = MockClient.make(exampleApiGet)
+      const response = yield _(client.getValue({}))
 
-    expect(typeof response).toEqual("number")
-  })
+      expect(typeof response).toEqual("number")
+    })
 )
 
 it.effect(
   "custom response",
-  Effect.gen(function*(_) {
-    const client = MockClient.make(exampleApiGet, {
-      responses: { getValue: 12 }
-    })
-    const response = yield* _(client.getValue({}))
+  () =>
+    Effect.gen(function*(_) {
+      const client = MockClient.make(exampleApiGet, {
+        responses: { getValue: 12 }
+      })
+      const response = yield* _(client.getValue({}))
 
-    expect(response).toEqual(12)
-  })
+      expect(response).toEqual(12)
+    })
 )
 
 it.effect(
   "response schema with `optionFromNullable`",
-  Effect.gen(function*(_) {
-    const client = MockClient.make(exampleApiPostNullableField)
-    const response = yield* _(client.test({}))
+  () =>
+    Effect.gen(function*(_) {
+      const client = MockClient.make(exampleApiPostNullableField)
+      const response = yield* _(client.test({}))
 
-    expect(Option.isOption(response.value)).toBe(true)
-  })
+      expect(Option.isOption(response.value)).toBe(true)
+    })
 )

@@ -57,96 +57,101 @@ const exampleMultipleQueryFirstError = exampleApiMultipleQueryValues.pipe(
 describe("examples", () => {
   it.scoped(
     "get",
-    Effect.gen(function*(_) {
-      const route = exampleApiGet.pipe(
-        Route.make("getValue", () => Effect.succeed(12))
-      )
+    () =>
+      Effect.gen(function*(_) {
+        const route = exampleApiGet.pipe(
+          Route.make("getValue", () => Effect.succeed(12))
+        )
 
-      const response = yield* _(testRoute(
-        route,
-        ClientRequest.get("/get-value")
-      ))
-      const body = yield* _(response.json)
+        const response = yield* _(testRoute(
+          route,
+          ClientRequest.get("/get-value")
+        ))
+        const body = yield* _(response.json)
 
-      expect(body).toEqual(12)
-    })
+        expect(body).toEqual(12)
+      })
   )
 
   it.scoped(
     "post, optional body field",
-    Effect.gen(function*(_) {
-      const route = exampleApiPostNullableField.pipe(
-        Route.make("test", () => Effect.succeed({ value: Option.some("test") }))
-      )
+    () =>
+      Effect.gen(function*(_) {
+        const route = exampleApiPostNullableField.pipe(
+          Route.make("test", () => Effect.succeed({ value: Option.some("test") }))
+        )
 
-      const response = yield* _(testRoute(route, ClientRequest.post("/test")))
-      const body = yield* _(response.json)
+        const response = yield* _(testRoute(route, ClientRequest.post("/test")))
+        const body = yield* _(response.json)
 
-      expect(body).toEqual({ value: "test" })
-    })
+        expect(body).toEqual({ value: "test" })
+      })
   )
 
   it.scoped(
     "get, query parameter",
-    Effect.gen(function*(_) {
-      const response = yield* _(testRoute(
-        exampleRouteGetQueryParameter,
-        ClientRequest.get("/hello").pipe(
-          ClientRequest.appendUrlParam("country", "CZ")
-        )
-      ))
-      const body = yield* _(response.json)
+    () =>
+      Effect.gen(function*(_) {
+        const response = yield* _(testRoute(
+          exampleRouteGetQueryParameter,
+          ClientRequest.get("/hello").pipe(
+            ClientRequest.appendUrlParam("country", "CZ")
+          )
+        ))
+        const body = yield* _(response.json)
 
-      expect(body).toEqual("CZ")
-    })
+        expect(body).toEqual("CZ")
+      })
   )
 
   it.scoped(
     "get, custom headers and status",
-    Effect.gen(function*(_) {
-      const route = exampleApiGetCustomResponseWithHeaders.pipe(
-        Route.make("hello", () =>
-          Effect.succeed(
-            {
-              status: 201,
-              headers: { "my-header": "hello" },
-              body: { value: "test" }
-            } as const
-          ))
-      )
+    () =>
+      Effect.gen(function*(_) {
+        const route = exampleApiGetCustomResponseWithHeaders.pipe(
+          Route.make("hello", () =>
+            Effect.succeed(
+              {
+                status: 201,
+                headers: { "my-header": "hello" },
+                body: { value: "test" }
+              } as const
+            ))
+        )
 
-      const response = yield* _(testRoute(route, ClientRequest.get("/hello")))
-      const body = yield* _(response.json)
+        const response = yield* _(testRoute(route, ClientRequest.get("/hello")))
+        const body = yield* _(response.json)
 
-      expect(response.status).toEqual(201)
-      expect(response.headers).toMatchObject({
-        "my-header": "hello"
+        expect(response.status).toEqual(201)
+        expect(response.headers).toMatchObject({
+          "my-header": "hello"
+        })
+        expect(body).toEqual({ value: "test" })
       })
-      expect(body).toEqual({ value: "test" })
-    })
   )
 
   it.scoped(
     "get, optional field",
-    Effect.gen(function*(_) {
-      const route = exampleApiGetOptionalField.pipe(
-        Route.make("hello", ({ query }) =>
-          Effect.succeed({
-            foo: query.value === "on" ? Option.some("hello") : Option.none()
-          }))
-      )
-
-      const response = yield* _(testRoute(
-        route,
-        ClientRequest.get("/hello").pipe(
-          ClientRequest.setUrlParam("value", "off")
+    () =>
+      Effect.gen(function*(_) {
+        const route = exampleApiGetOptionalField.pipe(
+          Route.make("hello", ({ query }) =>
+            Effect.succeed({
+              foo: query.value === "on" ? Option.some("hello") : Option.none()
+            }))
         )
-      ))
-      const body = yield* _(response.json)
 
-      expect(response.status).toEqual(200)
-      expect(body).toEqual({})
-    })
+        const response = yield* _(testRoute(
+          route,
+          ClientRequest.get("/hello").pipe(
+            ClientRequest.setUrlParam("value", "off")
+          )
+        ))
+        const body = yield* _(response.json)
+
+        expect(response.status).toEqual(200)
+        expect(body).toEqual({})
+      })
   )
 
   it.scoped("post, request body", () =>
@@ -194,161 +199,170 @@ describe("error reporting", () => {
 
   it.scoped(
     "invalid query parameter",
-    Effect.gen(function*(_) {
-      const response = yield* _(testRoute(
-        exampleRouteGetQueryParameter,
-        ClientRequest.get("/hello").pipe(
-          ClientRequest.setUrlParam("country", "CZE")
-        )
-      ))
+    () =>
+      Effect.gen(function*(_) {
+        const response = yield* _(testRoute(
+          exampleRouteGetQueryParameter,
+          ClientRequest.get("/hello").pipe(
+            ClientRequest.setUrlParam("country", "CZE")
+          )
+        ))
 
-      expect(response.status).toEqual(400)
-      expect(yield* _(response.json)).toEqual({
-        error: "Request validation error",
-        location: "query",
-        message: "country must be a string matching the pattern ^[A-Z]{2}$, received \"CZE\""
+        expect(response.status).toEqual(400)
+        expect(yield* _(response.json)).toEqual({
+          error: "Request validation error",
+          location: "query",
+          message: "country must be a string matching the pattern ^[A-Z]{2}$, received \"CZE\""
+        })
       })
-    })
   )
 
   it.scoped(
     "invalid JSON body - empty",
-    Effect.gen(function*(_) {
-      const response = yield* _(testRoute(
-        exampleRouteRequestBody,
-        ClientRequest.post("/hello")
-      ))
+    () =>
+      Effect.gen(function*(_) {
+        const response = yield* _(testRoute(
+          exampleRouteRequestBody,
+          ClientRequest.post("/hello")
+        ))
 
-      expect(response.status).toEqual(400)
-      expect(yield* _(response.json)).toEqual({
-        error: "Request validation error",
-        location: "body",
-        message: "value must be an object, received null"
+        expect(response.status).toEqual(400)
+        expect(yield* _(response.json)).toEqual({
+          error: "Request validation error",
+          location: "body",
+          message: "value must be an object, received null"
+        })
       })
-    })
   )
 
   it.scoped(
     "invalid JSON body - text",
-    Effect.gen(function*(_) {
-      const response = yield* _(testRoute(
-        exampleRouteRequestBody,
-        ClientRequest.post("/hello").pipe(ClientRequest.textBody("value"))
-      ))
+    () =>
+      Effect.gen(function*(_) {
+        const response = yield* _(testRoute(
+          exampleRouteRequestBody,
+          ClientRequest.post("/hello").pipe(ClientRequest.textBody("value"))
+        ))
 
-      expect(response.status).toEqual(400)
-      expect(yield* _(response.json)).toEqual({
-        error: "Request validation error",
-        location: "body",
-        message: "Invalid JSON"
+        expect(response.status).toEqual(400)
+        expect(yield* _(response.json)).toEqual({
+          error: "Request validation error",
+          location: "body",
+          message: "Invalid JSON"
+        })
       })
-    })
   )
 
   it.scoped(
     "invalid JSON body - incorrect schema",
-    Effect.gen(function*(_) {
-      const response = yield* _(testRoute(
-        exampleRouteRequestBody,
-        ClientRequest.post("/hello").pipe(
-          ClientRequest.unsafeJsonBody({ foo: 1 })
-        )
-      ))
+    () =>
+      Effect.gen(function*(_) {
+        const response = yield* _(testRoute(
+          exampleRouteRequestBody,
+          ClientRequest.post("/hello").pipe(
+            ClientRequest.unsafeJsonBody({ foo: 1 })
+          )
+        ))
 
-      expect(response.status).toEqual(400)
-      expect(yield* _(response.json)).toEqual({
-        error: "Request validation error",
-        location: "body",
-        message: "foo must be a string, received 1"
+        expect(response.status).toEqual(400)
+        expect(yield* _(response.json)).toEqual({
+          error: "Request validation error",
+          location: "body",
+          message: "foo must be a string, received 1"
+        })
       })
-    })
   )
 
   it.scoped(
     "invalid header",
-    Effect.gen(function*(_) {
-      const response = yield* _(testRoute(
-        exampleRouteRequestHeaders,
-        ClientRequest.post("/hello")
-      ))
+    () =>
+      Effect.gen(function*(_) {
+        const response = yield* _(testRoute(
+          exampleRouteRequestHeaders,
+          ClientRequest.post("/hello")
+        ))
 
-      expect(response.status).toEqual(400)
-      expect(yield* _(response.json)).toEqual({
-        error: "Request validation error",
-        location: "headers",
-        message: "x-header is missing"
+        expect(response.status).toEqual(400)
+        expect(yield* _(response.json)).toEqual({
+          error: "Request validation error",
+          location: "headers",
+          message: "x-header is missing"
+        })
       })
-    })
   )
 
   it.scoped(
     "invalid param",
-    Effect.gen(function*(_) {
-      const response = yield* _(testRoute(
-        exampleRouteParams,
-        ClientRequest.post("/hello/c")
-      ))
+    () =>
+      Effect.gen(function*(_) {
+        const response = yield* _(testRoute(
+          exampleRouteParams,
+          ClientRequest.post("/hello/c")
+        ))
 
-      expect(response.status).toEqual(400)
-      expect(yield* _(response.json)).toEqual({
-        error: "Request validation error",
-        location: "path",
-        message: "value must be \"a\" or \"b\", received \"c\""
+        expect(response.status).toEqual(400)
+        expect(yield* _(response.json)).toEqual({
+          error: "Request validation error",
+          location: "path",
+          message: "value must be \"a\" or \"b\", received \"c\""
+        })
       })
-    })
   )
 
   it.scoped(
     "invalid response",
-    Effect.gen(function*(_) {
-      const exampleRouteInvalid = exampleApiParams.pipe(
-        Route.make("hello", () => Effect.succeed(1 as unknown as string))
-      )
+    () =>
+      Effect.gen(function*(_) {
+        const exampleRouteInvalid = exampleApiParams.pipe(
+          Route.make("hello", () => Effect.succeed(1 as unknown as string))
+        )
 
-      const response = yield* _(testRoute(
-        exampleRouteInvalid,
-        ClientRequest.post("/hello/a")
-      ))
+        const response = yield* _(testRoute(
+          exampleRouteInvalid,
+          ClientRequest.post("/hello/a")
+        ))
 
-      expect(response.status).toEqual(500)
-      expect(yield* _(response.json)).toEqual({
-        error: "Invalid response body",
-        message: "value must be a string, received 1"
+        expect(response.status).toEqual(500)
+        expect(yield* _(response.json)).toEqual({
+          error: "Invalid response body",
+          message: "value must be a string, received 1"
+        })
       })
-    })
   )
 
   it.scoped(
     "multiple errors",
-    Effect.gen(function*(_) {
-      const response = yield* _(testRoute(
-        exampleMultipleQueryAllErrors,
-        ClientRequest.post("/test")
-      ))
+    () =>
+      Effect.gen(function*(_) {
+        const response = yield* _(testRoute(
+          exampleMultipleQueryAllErrors,
+          ClientRequest.post("/test")
+        ))
 
-      expect(response.status).toEqual(400)
-      expect(yield* _(response.json)).toEqual({
-        error: "Request validation error",
-        location: "query",
-        message: "another is missing, value is missing"
+        expect(response.status).toEqual(400)
+        expect(yield* _(response.json)).toEqual({
+          error: "Request validation error",
+          location: "query",
+          message: "another is missing, value is missing"
+        })
       })
-    })
   )
 
   it.scoped(
     "multiple errors",
-    Effect.gen(function*(_) {
-      const response = yield* _(testRoute(
-        exampleMultipleQueryFirstError,
-        ClientRequest.post("/test")
-      ))
+    () =>
+      Effect.gen(function*(_) {
+        const response = yield* _(testRoute(
+          exampleMultipleQueryFirstError,
+          ClientRequest.post("/test")
+        ))
 
-      expect(response.status).toEqual(400)
-      expect(yield* _(response.json)).toEqual({
-        error: "Request validation error",
-        location: "query",
-        message: "another is missing"
+        expect(response.status).toEqual(400)
+        expect(yield* _(response.json)).toEqual({
+          error: "Request validation error",
+          location: "query",
+          message: "another is missing"
+        })
       })
-    })
   )
 })
