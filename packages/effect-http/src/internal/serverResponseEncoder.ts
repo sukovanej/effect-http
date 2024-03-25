@@ -42,7 +42,7 @@ export const create = (
       const _input = isFullResponse ?
         yield* _(
           parseFullResponseInput(inputResponse),
-          Effect.orDie
+          Effect.mapError(() => createErrorResponse("Invalid response", "Server handler returned unexpected response"))
         ) :
         { status: ApiResponse.getStatus(responses[0]), body: inputResponse }
 

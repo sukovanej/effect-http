@@ -7,6 +7,7 @@ import { dual, identity, pipe } from "effect/Function"
 import * as Api from "../Api.js"
 import * as ApiEndpoint from "../ApiEndpoint.js"
 import type * as Client from "../Client.js"
+import * as ClientError from "../ClientError.js"
 import * as ClientRequestEncoder from "./clientRequestEncoder.js"
 import * as ClientResponseParser from "./clientResponseParser.js"
 
@@ -41,8 +42,8 @@ export const endpointClient = <
       Effect.map(mapRequest),
       Effect.flatMap(httpClient),
       Effect.catchTags({
-        RequestError: Effect.die, // TODO handle
-        ResponseError: Effect.die, // TODO handle
+        RequestError: (err) => ClientError.makeClientSide(err.error, err.message),
+        ResponseError: (err) => ClientError.makeServerSide(err.error, err.response.status, err.message),
         ClientError: (err) => Effect.fail(err)
       }),
       Effect.flatMap(responseParser.parseResponse),

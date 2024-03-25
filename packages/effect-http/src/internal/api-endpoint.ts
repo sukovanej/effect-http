@@ -458,10 +458,11 @@ export const isFullResponse = <
   endpoint: ApiEndpoint.ApiEndpoint<Id, Request, Response, Security>
 ) => {
   const response = getResponse(endpoint)
-  const hasMultipleResponses = response.length > 1
+  const successResponses = response.filter((response) => ApiResponse.getStatus(response) < 300)
+  const hasMultipleSuccessResponses = successResponses.length > 1
   const hasHeaders = !ApiSchema.isIgnored(ApiResponse.getHeadersSchema(response[0]))
 
-  return hasMultipleResponses || hasHeaders
+  return hasMultipleSuccessResponses || hasHeaders
 }
 
 /** @internal */

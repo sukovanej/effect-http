@@ -13,7 +13,6 @@ import type * as Api from "./Api.js"
 import type * as ApiEndpoint from "./ApiEndpoint.js"
 import type * as ApiRequest from "./ApiRequest.js"
 import type * as ApiResponse from "./ApiResponse.js"
-import type * as ApiSchema from "./ApiSchema.js"
 import type * as ClientError from "./ClientError.js"
 import * as internal from "./internal/client.js"
 import type * as utils from "./internal/utils.js"
@@ -110,14 +109,9 @@ export interface Response<S extends ApiResponse.ApiResponse.AnyStatus, B, H> {
 // Internal type helpers
 
 /** @ignore */
-type FilterNon200Responses<R extends ApiResponse.ApiResponse.Any> = R extends any ?
-  `${ApiResponse.ApiResponse.Status<R>}` extends `2${string}` ? R : never :
-  never
-
-/** @ignore */
 export type ClientFunctionResponse<
   R extends ApiResponse.ApiResponse.Any
-> = _ClientFunctionResponse<FilterNon200Responses<R>>
+> = _ClientFunctionResponse<utils.FilterNon200Responses<R>>
 
 /** @ignore */
 export type _ClientFunctionResponse<
@@ -128,17 +122,12 @@ export type _ClientFunctionResponse<
       ApiResponse.ApiResponse.Headers<R>
     > :
   never
-  : NeedsFullResponse<R> extends true ? Response<
+  : utils.NeedsFullResponse<R> extends true ? Response<
       ApiResponse.ApiResponse.Status<R>,
       ApiResponse.ApiResponse.Body<R>,
       ApiResponse.ApiResponse.Headers<R>
     >
-  : ApiResponse.ApiResponse.Body<R> extends ApiSchema.Ignored ? void
-  : ApiResponse.ApiResponse.Body<R>
-
-/** @ignore */
-type NeedsFullResponse<R extends ApiResponse.ApiResponse.Any> = ApiResponse.ApiResponse.Headers<R> extends
-  ApiSchema.Ignored ? false : true
+  : utils.IgnoredToVoid<ApiResponse.ApiResponse.Body<R>>
 
 /** @ignore */
 export type ToRequest<

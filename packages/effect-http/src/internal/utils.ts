@@ -56,3 +56,12 @@ export type RemoveIgnoredFields<E> = Types.Simplify<
     [K in keyof E as E[K] extends ApiSchema.Ignored ? never : K]: E[K]
   }
 >
+
+export type FilterNon200Responses<R extends ApiResponse.ApiResponse.Any> = R extends any ?
+  `${ApiResponse.ApiResponse.Status<R>}` extends `2${string}` ? R : never :
+  never
+
+export type NeedsFullResponse<R extends ApiResponse.ApiResponse.Any> = ApiResponse.ApiResponse.Headers<R> extends
+  ApiSchema.Ignored ? false : true
+
+export type IgnoredToVoid<R> = R extends ApiSchema.Ignored ? void : R
