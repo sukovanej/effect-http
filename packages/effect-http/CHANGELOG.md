@@ -1,5 +1,13 @@
 # effect-http
 
+## 0.60.5
+
+### Patch Changes
+
+- [#509](https://github.com/sukovanej/effect-http/pull/509) [`cb6253a`](https://github.com/sukovanej/effect-http/commit/cb6253a3af65411e7ec5fac3e59a5c35a75c6298) Thanks [@sukovanej](https://github.com/sukovanej)! - Update effect.
+
+- [#509](https://github.com/sukovanej/effect-http/pull/509) [`cb6253a`](https://github.com/sukovanej/effect-http/commit/cb6253a3af65411e7ec5fac3e59a5c35a75c6298) Thanks [@sukovanej](https://github.com/sukovanej)! - Deprecate `Middlewares.basicAUth`.
+
 ## 0.60.4
 
 ### Patch Changes
