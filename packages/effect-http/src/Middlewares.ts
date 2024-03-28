@@ -67,6 +67,7 @@ export interface BasicAuthCredentials {
  * Basic auth middleware.
  *
  * @category authorization
+ * @deprecated Use the `Security` module instead
  * @since 1.0.0
  */
 export const basicAuth: <R2, _>(
