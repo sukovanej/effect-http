@@ -29,7 +29,7 @@
     "coverage": "vitest --coverage"
   },
   "dependencies": {
-    "swagger-ui-dist": "^5.12.3"
+    "swagger-ui-dist": "^5.13.0"
   },
   "peerDependencies": {
     "@effect/platform": "^0.48.21",
