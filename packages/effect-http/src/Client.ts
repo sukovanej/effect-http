@@ -140,11 +140,18 @@ export type ToRequest<
 }>
 
 /** @ignore */
+export type ClientFunctionError<
+  R extends ApiResponse.ApiResponse.Any
+> = [ApiResponse.ApiResponse.Status<utils.Filter200Responses<R>>] extends [infer S extends number]
+  ? ClientError.ClientError<S>
+  : ClientError.ClientError
+
+/** @ignore */
 export type EndpointClient<E extends ApiEndpoint.ApiEndpoint.Any> = (
   input: ToRequest<ApiEndpoint.ApiEndpoint.Request<E>>,
   map?: (request: HttpClient.request.ClientRequest) => HttpClient.request.ClientRequest
 ) => Effect.Effect<
   ClientFunctionResponse<ApiEndpoint.ApiEndpoint.Response<E>>,
-  ClientError.ClientError,
+  ClientFunctionError<ApiEndpoint.ApiEndpoint.Response<E>>,
   ApiEndpoint.ApiEndpoint.Context<E>
 >

@@ -61,6 +61,10 @@ export type FilterNon200Responses<R extends ApiResponse.ApiResponse.Any> = R ext
   `${ApiResponse.ApiResponse.Status<R>}` extends `2${string}` ? R : never :
   never
 
+export type Filter200Responses<R extends ApiResponse.ApiResponse.Any> = R extends any ?
+  `${ApiResponse.ApiResponse.Status<R>}` extends `2${string}` ? never : R :
+  never
+
 export type NeedsFullResponse<R extends ApiResponse.ApiResponse.Any> = ApiResponse.ApiResponse.Headers<R> extends
   ApiSchema.Ignored ? false : true
 
