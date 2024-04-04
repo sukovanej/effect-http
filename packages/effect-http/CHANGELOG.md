@@ -1,5 +1,13 @@
 # effect-http
 
+## 0.60.6
+
+### Patch Changes
+
+- [#516](https://github.com/sukovanej/effect-http/pull/516) [`05f4ef3`](https://github.com/sukovanej/effect-http/commit/05f4ef30f257c289aad8f48ceb8ad63d3923196a) Thanks [@sukovanej](https://github.com/sukovanej)! - Update effect.
+
+- [#513](https://github.com/sukovanej/effect-http/pull/513) [`70eee08`](https://github.com/sukovanej/effect-http/commit/70eee08e87b78bbd171b601f45e93368d915080f) Thanks [@sukovanej](https://github.com/sukovanej)! - Update @effect/platform and @effect/schema.
+
 ## 0.60.5
 
 ### Patch Changes
