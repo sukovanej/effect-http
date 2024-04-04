@@ -30,16 +30,16 @@
     "coverage": "vitest --coverage"
   },
   "dependencies": {
-    "schema-openapi": "^0.34.4"
+    "schema-openapi": "^0.34.5"
   },
   "peerDependencies": {
-    "@effect/platform": "^0.48.22",
-    "@effect/schema": "^0.64.16",
-    "effect": "^2.4.15"
+    "@effect/platform": "^0.48.24",
+    "@effect/schema": "^0.64.18",
+    "effect": "^2.4.17"
   },
   "devDependencies": {
-    "@effect/platform": "^0.48.22",
-    "@effect/schema": "^0.64.16",
-    "effect": "^2.4.15"
+    "@effect/platform": "^0.48.24",
+    "@effect/schema": "^0.64.18",
+    "effect": "^2.4.17"
   }
 }
