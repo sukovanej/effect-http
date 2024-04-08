@@ -46,7 +46,7 @@
     "eslint-plugin-simple-import-sort": "^12.0.0",
     "eslint-plugin-sort-destructure-keys": "^1.5.0",
     "glob": "^10.3.12",
-    "madge": "^6.1.0",
+    "madge": "^7.0.0",
     "prettier": "^3.2.5",
     "rimraf": "^5.0.5",
     "tsx": "^4.7.2",
