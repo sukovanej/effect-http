@@ -5,7 +5,7 @@ import { Api, MockClient } from "effect-http"
 export const exampleApiGet = Api.make().pipe(
   Api.addEndpoint(
     Api.get("getValue", "/get-value").pipe(
-      Api.setResponseBody(Schema.number)
+      Api.setResponseBody(Schema.Number)
     )
   )
 )

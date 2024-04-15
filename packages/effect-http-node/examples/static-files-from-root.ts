@@ -9,7 +9,7 @@ import { debugLogger } from "./_utils.js"
 
 const api = Api.make().pipe(
   Api.addEndpoint(
-    Api.get("handle", "/api/handle").pipe(Api.setResponseBody(Schema.string))
+    Api.get("handle", "/api/handle").pipe(Api.setResponseBody(Schema.String))
   )
 )
 

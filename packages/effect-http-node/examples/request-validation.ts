@@ -1,10 +1,10 @@
 import { Schema } from "@effect/schema"
 import { Api } from "effect-http"
 
-const Stuff = Schema.struct({ value: Schema.number })
-const StuffRequest = Schema.struct({ field: Schema.array(Schema.string) })
-const StuffQuery = Schema.struct({ value: Schema.string })
-const StuffPath = Schema.struct({ param: Schema.string })
+const Stuff = Schema.Struct({ value: Schema.Number })
+const StuffRequest = Schema.Struct({ field: Schema.Array(Schema.String) })
+const StuffQuery = Schema.Struct({ value: Schema.String })
+const StuffPath = Schema.Struct({ param: Schema.String })
 
 export const api = Api.make({ title: "My api" }).pipe(
   Api.addEndpoint(

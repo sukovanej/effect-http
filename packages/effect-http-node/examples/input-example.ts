@@ -10,8 +10,8 @@ const api = pipe(
   Api.make({ title: "My api" }),
   Api.addEndpoint(
     Api.get("stuff", "/stuff").pipe(
-      Api.setResponseBody(Schema.string),
-      Api.setRequestQuery(Schema.struct({ value: Schema.string }))
+      Api.setResponseBody(Schema.String),
+      Api.setRequestQuery(Schema.Struct({ value: Schema.String }))
     )
   )
 )

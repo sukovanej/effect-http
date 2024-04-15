@@ -7,7 +7,7 @@ export const simpleApi1 = pipe(
   Api.make(),
   Api.addEndpoint(
     Api.get("myOperation", "/get").pipe(
-      Api.setResponseBody(Schema.string)
+      Api.setResponseBody(Schema.String)
     )
   )
 )
@@ -55,17 +55,17 @@ test.each(
     {
       expectFailure: false,
       path: "/hello/:input",
-      schema: Schema.struct({ input: Schema.string })
+      schema: Schema.Struct({ input: Schema.String })
     },
     {
       expectFailure: true,
       path: "/hello/:input?",
-      schema: Schema.struct({ input: Schema.string })
+      schema: Schema.Struct({ input: Schema.String })
     },
     {
       expectFailure: true,
       path: "/hello",
-      schema: Schema.struct({ input: Schema.string })
+      schema: Schema.Struct({ input: Schema.String })
     },
     {
       expectFailure: true,
@@ -75,19 +75,19 @@ test.each(
     {
       expectFailure: false,
       path: "/hello/:input/another/:another",
-      schema: Schema.struct({ input: Schema.string, another: Schema.string })
+      schema: Schema.Struct({ input: Schema.String, another: Schema.String })
     },
     {
       expectFailure: true,
       path: "/hello/:input/another/:another?",
-      schema: Schema.struct({ input: Schema.string, another: Schema.string })
+      schema: Schema.Struct({ input: Schema.String, another: Schema.String })
     },
     {
       expectFailure: false,
       path: "/hello/:input/another/:another?",
-      schema: Schema.struct({
-        input: Schema.string,
-        another: Schema.optional(Schema.string)
+      schema: Schema.Struct({
+        input: Schema.String,
+        another: Schema.optional(Schema.String)
       })
     }
   ] as const

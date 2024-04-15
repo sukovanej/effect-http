@@ -469,7 +469,7 @@ it.scoped(
 
       const api = Api.make().pipe(
         Api.addEndpoint(
-          Api.post("test", "/test").pipe(Api.setResponseBody(Schema.string), Api.setSecurity(security))
+          Api.post("test", "/test").pipe(Api.setResponseBody(Schema.String), Api.setSecurity(security))
         )
       )
 

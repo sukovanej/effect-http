@@ -12,12 +12,12 @@ export const api = pipe(
   Api.make(),
   Api.addEndpoint(
     Api.get("userById", "/api/users/:userId").pipe(
-      Api.setResponseBody(Schema.struct({ name: Schema.string })),
-      Api.setRequestPath(Schema.struct({ userId: Schema.string })),
+      Api.setResponseBody(Schema.Struct({ name: Schema.String })),
+      Api.setRequestPath(Schema.Struct({ userId: Schema.String })),
       Api.setRequestQuery(
-        Schema.struct({ include_deleted: Schema.optional(SchemaBooleanFromString) })
+        Schema.Struct({ include_deleted: Schema.optional(SchemaBooleanFromString) })
       ),
-      Api.setRequestHeaders(Schema.struct({ authorization: Schema.string }))
+      Api.setRequestHeaders(Schema.Struct({ authorization: Schema.String }))
     )
   )
 )

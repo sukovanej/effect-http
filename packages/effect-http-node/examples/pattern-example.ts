@@ -10,8 +10,8 @@ const api = pipe(
   Api.make({ title: "My awesome pets API", version: "1.0.0" }),
   Api.addEndpoint(
     Api.get("test", "/test").pipe(
-      Api.setResponseBody(Schema.string),
-      Api.setRequestQuery(Schema.struct({ value: Schema.string }))
+      Api.setResponseBody(Schema.String),
+      Api.setRequestQuery(Schema.Struct({ value: Schema.String }))
     )
   )
 )

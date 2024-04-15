@@ -7,7 +7,7 @@ import { NodeServer } from "effect-http-node"
 const api = Api.make().pipe(
   Api.addEndpoint(
     Api.post("mySecuredEndpoint", "/my-secured-endpoint").pipe(
-      Api.setResponseBody(Schema.string),
+      Api.setResponseBody(Schema.String),
       Api.setSecurity(Security.basic())
     )
   )

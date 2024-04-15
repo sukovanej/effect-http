@@ -16,8 +16,8 @@ it.scoped(
         Api.make(),
         Api.addEndpoint(
           Api.get("getUser", "/user").pipe(
-            Api.setResponseBody(Schema.struct({ name: Schema.string })),
-            Api.setRequestQuery(Schema.struct({ id: Schema.NumberFromString }))
+            Api.setResponseBody(Schema.Struct({ name: Schema.String })),
+            Api.setRequestQuery(Schema.Struct({ id: Schema.NumberFromString }))
           )
         )
       )
@@ -41,7 +41,7 @@ test.each(["GET", "PUT", "POST", "DELETE", "OPTIONS", "PATCH"] as const)(
   "Dummy call - %s",
   (method) =>
     Effect.gen(function*(_) {
-      const responseSchema = Schema.struct({ name: Schema.string })
+      const responseSchema = Schema.Struct({ name: Schema.String })
 
       const api = pipe(
         Api.make(),
@@ -71,18 +71,18 @@ it.scoped(
   "All input types",
   () =>
     Effect.gen(function*(_) {
-      const responseSchema = Schema.struct({
-        value: Schema.string,
-        anotherValue: Schema.number,
-        operation: Schema.string,
-        helloWorld: Schema.string
+      const responseSchema = Schema.Struct({
+        value: Schema.String,
+        anotherValue: Schema.Number,
+        operation: Schema.String,
+        helloWorld: Schema.String
       })
-      const querySchema = Schema.struct({
-        value: Schema.string,
+      const querySchema = Schema.Struct({
+        value: Schema.String,
         anotherValue: Schema.NumberFromString
       })
-      const paramsSchema = Schema.struct({ operation: Schema.string })
-      const bodySchema = Schema.struct({ helloWorld: Schema.string })
+      const paramsSchema = Schema.Struct({ operation: Schema.String })
+      const bodySchema = Schema.Struct({ helloWorld: Schema.String })
 
       const api = pipe(
         Api.make(),
@@ -130,10 +130,10 @@ it.scoped(
         Api.make(),
         Api.addEndpoint(
           Api.get("getUser", "/user").pipe(
-            Api.setResponseBody(Schema.struct({ name: Schema.string })),
-            Api.setRequestHeaders(Schema.struct({
+            Api.setResponseBody(Schema.Struct({ name: Schema.String })),
+            Api.setRequestHeaders(Schema.Struct({
               "x-my-header": Schema.NumberFromString,
-              "another-header": Schema.string
+              "another-header": Schema.String
             }))
           )
         )
@@ -172,7 +172,7 @@ it.scoped(
       const api = pipe(
         Api.make(),
         Api.addEndpoint(
-          Api.get("getUser", "/user").pipe(Api.setResponseBody(Schema.struct({ name: Schema.string })))
+          Api.get("getUser", "/user").pipe(Api.setResponseBody(Schema.Struct({ name: Schema.String })))
         )
       )
 
@@ -255,10 +255,10 @@ it.scoped(
         Api.addEndpoint(
           pipe(
             Api.get("test", "/test"),
-            Api.setResponse({ status: 200, body: Schema.string }),
-            Api.addResponse({ status: 201, body: Schema.number }),
-            Api.addResponse({ status: 400, body: Schema.string }),
-            Api.addResponse({ status: 422, body: Schema.string })
+            Api.setResponse({ status: 200, body: Schema.String }),
+            Api.addResponse({ status: 201, body: Schema.Number }),
+            Api.addResponse({ status: 400, body: Schema.String }),
+            Api.addResponse({ status: 422, body: Schema.String })
           )
         )
       )
@@ -292,9 +292,9 @@ it.scoped(
         Api.addEndpoint(
           pipe(
             Api.get("test", "/test"),
-            Api.setResponse({ status: 200, body: Schema.string }),
-            Api.addResponse({ status: 400, body: Schema.string }),
-            Api.addResponse({ status: 422, body: Schema.string })
+            Api.setResponse({ status: 200, body: Schema.String }),
+            Api.addResponse({ status: 400, body: Schema.String }),
+            Api.addResponse({ status: 422, body: Schema.String })
           )
         )
       )

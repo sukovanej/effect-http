@@ -18,7 +18,7 @@ const evaluate = (value: unknown) => (schema: Schema.Schema<any>) =>
 describe("struct", () => {
   test("simple string", () => {
     const errors = pipe(
-      Schema.struct({ name: Schema.string }),
+      Schema.Struct({ name: Schema.String }),
       evaluate({ name: 1 })
     )
 
@@ -27,7 +27,7 @@ describe("struct", () => {
 
   test("simple number", () => {
     const errors = pipe(
-      Schema.struct({ name: Schema.string, id: Schema.number }),
+      Schema.Struct({ name: Schema.String, id: Schema.Number }),
       evaluate({ name: "name", id: "id" })
     )
 
@@ -36,7 +36,7 @@ describe("struct", () => {
 
   test("missing", () => {
     const errors = pipe(
-      Schema.struct({ name: Schema.string, id: Schema.number }),
+      Schema.Struct({ name: Schema.String, id: Schema.Number }),
       evaluate({ nameWrong: "name", id: "id" })
     )
 
@@ -45,9 +45,9 @@ describe("struct", () => {
 
   test("nested", () => {
     const errors = pipe(
-      Schema.struct({
-        name: Schema.string,
-        users: Schema.array(Schema.struct({ value: Schema.string }))
+      Schema.Struct({
+        name: Schema.String,
+        users: Schema.Array(Schema.Struct({ value: Schema.String }))
       }),
       evaluate({
         name: "name",
@@ -60,11 +60,11 @@ describe("struct", () => {
 
   test("union", () => {
     const errors = pipe(
-      Schema.struct({
-        name: Schema.string,
-        users: Schema.array(
-          Schema.struct({
-            value: Schema.union(Schema.literal(1), Schema.literal("zdar"))
+      Schema.Struct({
+        name: Schema.String,
+        users: Schema.Array(
+          Schema.Struct({
+            value: Schema.Union(Schema.Literal(1), Schema.Literal("zdar"))
           })
         )
       }),
@@ -80,7 +80,7 @@ describe("struct", () => {
   })
 
   test("object", () => {
-    const errors = pipe(Schema.struct({ foo: Schema.string }), evaluate(null))
+    const errors = pipe(Schema.Struct({ foo: Schema.String }), evaluate(null))
 
     expect(errors).toEqual("value must be an object, received null")
   })
@@ -88,11 +88,11 @@ describe("struct", () => {
 
 test("pattern", () => {
   const errors = pipe(
-    Schema.struct({
-      name: Schema.string,
-      users: Schema.array(
-        Schema.struct({
-          value: pipe(Schema.string, Schema.pattern(/^[a-zA-Z]{2}$/))
+    Schema.Struct({
+      name: Schema.String,
+      users: Schema.Array(
+        Schema.Struct({
+          value: pipe(Schema.String, Schema.pattern(/^[a-zA-Z]{2}$/))
         })
       )
     }),
@@ -121,7 +121,7 @@ const getErrorOrThrow = <From, To>(
 
 describe("formatSchemaErrors", () => {
   test("struct", () => {
-    const schema = Schema.struct({ userName: Schema.string })
+    const schema = Schema.Struct({ userName: Schema.String })
 
     expect(getErrorOrThrow(schema, {})).toEqual("userName is missing")
     expect(getErrorOrThrow(schema, { userName: 1 })).toEqual(
@@ -130,9 +130,9 @@ describe("formatSchemaErrors", () => {
   })
 
   test("nested struct", () => {
-    const schema = Schema.struct({
-      field: Schema.struct({
-        another: Schema.string
+    const schema = Schema.Struct({
+      field: Schema.Struct({
+        another: Schema.String
       })
     })
 
@@ -145,13 +145,13 @@ describe("formatSchemaErrors", () => {
   })
 
   test("nested struct with union of structs", () => {
-    const schema = Schema.struct({
-      field: Schema.union(
-        Schema.struct({
-          another: Schema.string
+    const schema = Schema.Struct({
+      field: Schema.Union(
+        Schema.Struct({
+          another: Schema.String
         }),
-        Schema.struct({
-          value: Schema.number
+        Schema.Struct({
+          value: Schema.Number
         })
       )
     })
@@ -165,9 +165,9 @@ describe("formatSchemaErrors", () => {
   })
 
   test("index", () => {
-    const schema = Schema.struct({
-      field: Schema.array(
-        Schema.nullable(Schema.struct({ another: Schema.number }))
+    const schema = Schema.Struct({
+      field: Schema.Array(
+        Schema.NullOr(Schema.Struct({ another: Schema.Number }))
       )
     })
 
@@ -181,10 +181,10 @@ describe("formatSchemaErrors", () => {
   })
 
   test("index with literal", () => {
-    const schema = Schema.struct({
-      field: Schema.array(
-        Schema.nullable(
-          Schema.struct({ another: Schema.literal("a", "b", "c") })
+    const schema = Schema.Struct({
+      field: Schema.Array(
+        Schema.NullOr(
+          Schema.Struct({ another: Schema.Literal("a", "b", "c") })
         )
       )
     })
@@ -195,7 +195,7 @@ describe("formatSchemaErrors", () => {
   })
 
   test("struct with literal", () => {
-    const schema = Schema.struct({ patrik: Schema.literal("kure", "dominik") })
+    const schema = Schema.Struct({ patrik: Schema.Literal("kure", "dominik") })
 
     expect(getErrorOrThrow(schema, {})).toEqual("patrik is missing")
     expect(getErrorOrThrow(schema, { patrik: 1 })).toEqual(
@@ -204,13 +204,13 @@ describe("formatSchemaErrors", () => {
   })
 
   test("literal", () => {
-    const schema1 = Schema.literal("a", "b")
+    const schema1 = Schema.Literal("a", "b")
 
     expect(getErrorOrThrow(schema1, "c")).toEqual(
       "value must be \"a\" or \"b\", received \"c\""
     )
 
-    const schema2 = Schema.literal("a", "b", "c")
+    const schema2 = Schema.Literal("a", "b", "c")
 
     expect(getErrorOrThrow(schema2, "d")).toEqual(
       "value must be \"a\", \"b\" or \"c\", received \"d\""
@@ -230,8 +230,8 @@ describe("formatSchemaErrors", () => {
 describe("tuple", () => {
   test("missing", () => {
     const errors = pipe(
-      Schema.struct({
-        hello: Schema.tuple(Schema.string, Schema.tuple(Schema.string))
+      Schema.Struct({
+        hello: Schema.Tuple(Schema.String, Schema.Tuple(Schema.String))
       }),
       evaluate({
         hello: ["a", []]

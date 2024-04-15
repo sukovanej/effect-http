@@ -30,7 +30,7 @@ const api = Api.make().pipe(
   Api.addEndpoint(
     pipe(
       Api.post("endpoint", "/endpoint"),
-      Api.setResponseBody(Schema.string),
+      Api.setResponseBody(Schema.String),
       Api.setSecurity(mySecurity)
     )
   )

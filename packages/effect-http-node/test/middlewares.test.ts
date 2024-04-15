@@ -10,10 +10,10 @@ import { expect } from "vitest"
 const helloApi = pipe(
   Api.make(),
   Api.addEndpoint(
-    Api.get("ping", "/ping").pipe(Api.setResponseBody(Schema.literal("pong")))
+    Api.get("ping", "/ping").pipe(Api.setResponseBody(Schema.Literal("pong")))
   ),
   Api.addEndpoint(
-    Api.get("hello", "/hello").pipe(Api.setResponseBody(Schema.string))
+    Api.get("hello", "/hello").pipe(Api.setResponseBody(Schema.String))
   )
 )
 

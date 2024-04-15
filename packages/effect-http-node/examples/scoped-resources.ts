@@ -23,7 +23,7 @@ const resource = Effect.acquireRelease(
 const api = pipe(
   Api.make(),
   Api.addEndpoint(
-    Api.get("test", "/test").pipe(Api.setResponseBody(Schema.string))
+    Api.get("test", "/test").pipe(Api.setResponseBody(Schema.String))
   )
 )
 

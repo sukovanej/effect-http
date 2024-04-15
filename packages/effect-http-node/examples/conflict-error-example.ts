@@ -10,8 +10,8 @@ const api = pipe(
   Api.make({ title: "Users API" }),
   Api.addEndpoint(
     Api.post("storeUser", "/users").pipe(
-      Api.setResponseBody(Schema.string),
-      Api.setRequestBody(Schema.struct({ name: Schema.string }))
+      Api.setResponseBody(Schema.String),
+      Api.setRequestBody(Schema.Struct({ name: Schema.String }))
     )
   )
 )

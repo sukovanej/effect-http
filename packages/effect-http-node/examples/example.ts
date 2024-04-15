@@ -8,14 +8,14 @@ import { debugLogger } from "./_utils.js"
 
 // Schemas
 
-const HumanSchema = Schema.struct({
-  height: Schema.number,
-  name: Schema.string
+const HumanSchema = Schema.Struct({
+  height: Schema.Number,
+  name: Schema.String
 })
-const Lesnek = Schema.struct({ name: Schema.string })
-const Standa = Schema.record(
-  Schema.string,
-  Schema.union(Schema.string, Schema.number)
+const Lesnek = Schema.Struct({ name: Schema.String })
+const Standa = Schema.Record(
+  Schema.String,
+  Schema.Union(Schema.String, Schema.Number)
 )
 
 interface StuffService {
@@ -31,7 +31,7 @@ const dummyStuff = pipe(
 // Api
 
 const getLesnek = Api.get("getLesnek", "/lesnek").pipe(
-  Api.setResponseBody(Schema.string),
+  Api.setResponseBody(Schema.String),
   Api.setRequestQuery(Lesnek),
   Api.setSecurity(Security.bearer({ name: "myAwesomeBearerAuth", bearerFormat: "JWT" }))
 )
@@ -40,7 +40,7 @@ const api = pipe(
   Api.make({ title: "My awesome pets API", version: "1.0.0" }),
   Api.addEndpoint(getLesnek),
   Api.addEndpoint(
-    Api.get("getMilan", "/milan").pipe(Api.setResponseBody(Schema.string))
+    Api.get("getMilan", "/milan").pipe(Api.setResponseBody(Schema.String))
   ),
   Api.addEndpoint(
     Api.get("test", "/test").pipe(Api.setResponseBody(Standa), Api.setRequestQuery(Lesnek))
@@ -53,8 +53,8 @@ const api = pipe(
   ),
   Api.addEndpoint(
     Api.put("callStanda", "/api/zdar").pipe(
-      Api.setResponseBody(Schema.string),
-      Api.setRequestBody(Schema.struct({ zdar: Schema.literal("zdar") }))
+      Api.setResponseBody(Schema.String),
+      Api.setRequestBody(Schema.Struct({ zdar: Schema.Literal("zdar") }))
     )
   )
 )

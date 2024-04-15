@@ -12,7 +12,7 @@ const api = pipe(
   Api.addEndpoint(
     Api.post("upload", "/upload").pipe(
       Api.setRequestBody(Api.FormData),
-      Api.setResponseBody(Schema.string),
+      Api.setResponseBody(Schema.String),
       Api.setResponseRepresentations([Representation.plainText])
     )
   )

@@ -14,7 +14,7 @@ const readMyValue = Effect.flatMap(MyValue, Resource.get)
 const api = Api.make().pipe(
   Api.addEndpoint(
     Api.get("getValue", "/value").pipe(
-      Api.setResponseBody(Schema.string)
+      Api.setResponseBody(Schema.String)
     )
   )
 )

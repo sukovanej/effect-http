@@ -10,12 +10,12 @@ const api = pipe(
   Api.make({ title: "Users API" }),
   Api.addEndpoint(
     Api.get("getUser", "/user", { description: "Returns a User by id" }).pipe(
-      Api.setResponseBody(Schema.string)
+      Api.setResponseBody(Schema.String)
     )
   ),
   Api.addEndpoint(
     Api.get("metrics", "/metrics").pipe(
-      Api.setResponseBody(Schema.unknown)
+      Api.setResponseBody(Schema.Unknown)
     )
   )
 )

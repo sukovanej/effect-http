@@ -5,7 +5,7 @@ import { Api, ApiResponse, Client } from "effect-http"
 export const api = Api.make().pipe(
   Api.addEndpoint(
     Api.post("test", "/test").pipe(
-      Api.setResponseBody(Schema.string),
+      Api.setResponseBody(Schema.String),
       Api.addResponse(ApiResponse.make(400))
     )
   )
