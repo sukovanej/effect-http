@@ -25,8 +25,8 @@ it.scoped(
         Api.make(),
         Api.addEndpoint(
           Api.get("hello", "/hello").pipe(
-            Api.setResponseBody(Schema.string),
-            Api.setRequestQuery(Schema.struct({ input: Schema.NumberFromString }))
+            Api.setResponseBody(Schema.String),
+            Api.setRequestQuery(Schema.Struct({ input: Schema.NumberFromString }))
           )
         )
       )
@@ -53,7 +53,7 @@ it.scoped(
       const api = pipe(
         Api.make(),
         Api.addEndpoint(
-          Api.get("hello", "/hello").pipe(Api.setResponseBody(Schema.string))
+          Api.get("hello", "/hello").pipe(Api.setResponseBody(Schema.String))
         )
       )
 
@@ -81,8 +81,8 @@ it.scoped(
         Api.make(),
         Api.addEndpoint(
           Api.get("hello", "/hello").pipe(
-            Api.setResponseBody(Schema.string),
-            Api.setRequestQuery(Schema.struct({ input: Schema.NumberFromString }))
+            Api.setResponseBody(Schema.String),
+            Api.setRequestQuery(Schema.Struct({ input: Schema.NumberFromString }))
           )
         )
       )
@@ -114,8 +114,8 @@ it.scoped(
         Api.make(),
         Api.addEndpoint(
           Api.get("hello", "/hello/:input").pipe(
-            Api.setResponseBody(Schema.string),
-            Api.setRequestPath(Schema.struct({ input: Schema.NumberFromString }))
+            Api.setResponseBody(Schema.String),
+            Api.setRequestPath(Schema.Struct({ input: Schema.NumberFromString }))
           )
         )
       )
@@ -143,8 +143,8 @@ it.scoped(
         Api.make(),
         Api.addEndpoint(
           Api.get("hello", "/hello").pipe(
-            Api.setRequestQuery(Schema.struct({ input: Schema.NumberFromString })),
-            Api.setResponseBody(Schema.number),
+            Api.setRequestQuery(Schema.Struct({ input: Schema.NumberFromString })),
+            Api.setResponseBody(Schema.Number),
             Api.addResponse(ApiResponse.make(201))
           )
         )
@@ -185,8 +185,8 @@ it.scoped(
         Api.make(),
         Api.addEndpoint(
           Api.post("hello", "/hello").pipe(
-            Api.setResponseBody(Schema.string),
-            Api.setRequestBody(Schema.struct({ input: Schema.NumberFromString }))
+            Api.setResponseBody(Schema.String),
+            Api.setRequestBody(Schema.Struct({ input: Schema.NumberFromString }))
           )
         )
       )
@@ -214,7 +214,7 @@ it.scoped(
         Api.make(),
         Api.addEndpoint(
           Api.post("upload", "/upload").pipe(
-            Api.setResponseBody(Schema.string),
+            Api.setResponseBody(Schema.String),
             Api.setResponseRepresentations([Representation.plainText]),
             Api.setRequestBody(ApiSchema.FormData)
           )
@@ -267,12 +267,12 @@ const securityApi = pipe(
     pipe(
       Api.get("hello", "/hello", { description: "test description" }),
       Api.setResponseBody(
-        Schema.struct({
-          output: Schema.number,
-          security: Schema.tuple(Schema.string, Schema.string)
+        Schema.Struct({
+          output: Schema.Number,
+          security: Schema.Tuple(Schema.String, Schema.String)
         })
       ),
-      Api.setRequestQuery(Schema.struct({ input: Schema.NumberFromString })),
+      Api.setRequestQuery(Schema.Struct({ input: Schema.NumberFromString })),
       Api.setSecurity(security)
     )
   )
@@ -344,8 +344,8 @@ it.scoped(
         Api.make(),
         Api.addEndpoint(
           Api.get("hello", "/hello", { description: "test description" }).pipe(
-            Api.setRequestQuery(Schema.struct({ input: Schema.NumberFromString })),
-            Api.setResponseBody(Schema.string),
+            Api.setRequestQuery(Schema.Struct({ input: Schema.NumberFromString })),
+            Api.setResponseBody(Schema.String),
             Api.setSecurity(Security.bearer({ name: "myAwesomeBearer" }))
           )
         )
@@ -384,8 +384,8 @@ it.scoped(
         Api.make(),
         Api.addEndpoint(
           Api.get("hello", "/hello", { description: "test description" }).pipe(
-            Api.setResponseBody(Schema.string),
-            Api.setRequestQuery(Schema.struct({ input: Schema.NumberFromString })),
+            Api.setResponseBody(Schema.String),
+            Api.setRequestQuery(Schema.Struct({ input: Schema.NumberFromString })),
             Api.setSecurity(
               Security.or(myAwesomeBearerSecurity, myAwesomeBasicSecurity)
             )

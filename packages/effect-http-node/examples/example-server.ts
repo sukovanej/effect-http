@@ -5,9 +5,9 @@ import { Api, ExampleServer, RouterBuilder } from "effect-http"
 import { NodeServer } from "effect-http-node"
 import { debugLogger } from "./_utils.js"
 
-const Response = Schema.struct({
-  name: Schema.string,
-  value: Schema.number
+const Response = Schema.Struct({
+  name: Schema.String,
+  value: Schema.Number
 })
 
 const api = pipe(

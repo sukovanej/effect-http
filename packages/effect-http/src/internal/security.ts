@@ -279,7 +279,7 @@ export const never: Security.Security<never> = make(
 export const apiKey = (
   options: Security.ApiKeyOptions
 ): Security.Security<string> => {
-  const schema = Schema.struct({ [options.key]: Schema.string })
+  const schema = Schema.Struct({ [options.key]: Schema.String })
 
   const parse = pipe(
     options.in === "query"

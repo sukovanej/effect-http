@@ -7,8 +7,8 @@ import { NodeServer } from "effect-http-node"
 const api = Api.make().pipe(
   Api.addEndpoint(
     Api.get("hello", "/hello").pipe(
-      Api.setResponseBody(Schema.string),
-      Api.setRequestHeaders(Schema.struct({ "x-client-id": Schema.string }))
+      Api.setResponseBody(Schema.String),
+      Api.setRequestHeaders(Schema.Struct({ "x-client-id": Schema.String }))
     )
   )
 )

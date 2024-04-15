@@ -7,15 +7,15 @@ import { NodeServer } from "effect-http-node"
 import { debugLogger } from "./_utils.js"
 
 const helloEndpoint = Api.post("hello", "/hello").pipe(
-  Api.setResponseBody(Schema.number),
-  Api.setResponseHeaders(Schema.struct({
+  Api.setResponseBody(Schema.Number),
+  Api.setResponseHeaders(Schema.Struct({
     "my-header": pipe(
       Schema.NumberFromString,
       Schema.description("My header")
     )
   })),
-  Api.addResponse(ApiResponse.make(201, Schema.number)),
-  Api.addResponse({ status: 204, headers: Schema.struct({ "x-another": Schema.NumberFromString }) })
+  Api.addResponse(ApiResponse.make(201, Schema.Number)),
+  Api.addResponse({ status: 204, headers: Schema.Struct({ "x-another": Schema.NumberFromString }) })
 )
 
 const api = pipe(

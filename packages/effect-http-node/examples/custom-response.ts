@@ -12,8 +12,8 @@ const api = pipe(
     pipe(
       Api.get("hello", "/hello"),
       Api.setResponseStatus(201),
-      Api.setResponseBody(Schema.number),
-      Api.setResponseHeaders(Schema.struct({ "x-hello-world": Schema.string }))
+      Api.setResponseBody(Schema.Number),
+      Api.setResponseHeaders(Schema.Struct({ "x-hello-world": Schema.String }))
     )
   )
 )

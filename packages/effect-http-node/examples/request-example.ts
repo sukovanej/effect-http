@@ -31,7 +31,7 @@ const requestMyValue = Effect.flatMap(GetValueCache, (getValueCache) =>
 const api = pipe(
   Api.make(),
   Api.addEndpoint(
-    Api.get("getValue", "/value").pipe(Api.setResponseBody(Schema.string))
+    Api.get("getValue", "/value").pipe(Api.setResponseBody(Schema.String))
   )
 )
 

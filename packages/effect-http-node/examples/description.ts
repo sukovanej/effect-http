@@ -6,13 +6,13 @@ import { NodeServer } from "effect-http-node"
 import { debugLogger } from "./_utils.js"
 
 const Response = pipe(
-  Schema.struct({
-    name: Schema.string,
-    id: pipe(Schema.number, Schema.int(), Schema.positive())
+  Schema.Struct({
+    name: Schema.String,
+    id: pipe(Schema.Number, Schema.int(), Schema.positive())
   }),
   Schema.description("User")
 )
-const Query = Schema.struct({
+const Query = Schema.Struct({
   id: pipe(Schema.NumberFromString, Schema.description("User id"))
 })
 

@@ -6,7 +6,7 @@ import { Api, ApiGroup, ExampleServer, RouterBuilder } from "effect-http"
 import { NodeServer } from "effect-http-node"
 import { debugLogger } from "./_utils.js"
 
-const Response = Schema.struct({ name: Schema.string })
+const Response = Schema.Struct({ name: Schema.String })
 
 const testApi = pipe(
   ApiGroup.make("test", {

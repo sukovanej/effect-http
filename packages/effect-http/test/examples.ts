@@ -9,7 +9,7 @@ export const exampleApiGet = pipe(
   Api.addEndpoint(
     pipe(
       Api.get("getValue", "/get-value"),
-      Api.setResponseBody(Schema.number)
+      Api.setResponseBody(Schema.Number)
     )
   )
 )
@@ -18,14 +18,14 @@ export const exampleApiGet = pipe(
 
 export const exampleApiGetStringResponse = Api.make().pipe(
   Api.addEndpoint(
-    Api.get("hello", "/hello").pipe(Api.setResponseBody(Schema.number))
+    Api.get("hello", "/hello").pipe(Api.setResponseBody(Schema.Number))
   )
 )
 
 // Example POST, nullable body field
 
-const ExampleSchemaNullableField = Schema.struct({
-  value: Schema.optionFromNullable(Schema.string)
+const ExampleSchemaNullableField = Schema.Struct({
+  value: Schema.OptionFromNullOr(Schema.String)
 })
 
 export const exampleApiPostNullableField = Api.make().pipe(
@@ -41,15 +41,15 @@ export const exampleApiPostNullableField = Api.make().pipe(
 export const exampleApiGetQueryParameter = Api.make().pipe(
   Api.addEndpoint(
     Api.get("hello", "/hello").pipe(
-      Api.setRequestQuery(Schema.struct({ country: Schema.string.pipe(Schema.pattern(/^[A-Z]{2}$/)) })),
-      Api.setResponseBody(Schema.string)
+      Api.setRequestQuery(Schema.Struct({ country: Schema.String.pipe(Schema.pattern(/^[A-Z]{2}$/)) })),
+      Api.setResponseBody(Schema.String)
     )
   )
 )
 
 // Example GET, headers
 
-const _ExampleResponse = Schema.struct({ clientIdHash: Schema.string })
+const _ExampleResponse = Schema.Struct({ clientIdHash: Schema.String })
 interface ExampleResponseFrom extends Schema.Schema.Encoded<typeof _ExampleResponse> {}
 interface ExampleResponse extends Schema.Schema.Type<typeof _ExampleResponse> {}
 const ExampleResponse: Schema.Schema<ExampleResponse, ExampleResponseFrom> = _ExampleResponse
@@ -58,7 +58,7 @@ export const exampleApiGetHeaders = Api.make().pipe(
   Api.addEndpoint(
     Api.get("hello", "/hello").pipe(
       Api.setResponseBody(ExampleResponse),
-      Api.setRequestHeaders(Schema.struct({ "X-Client-Id": Schema.string }))
+      Api.setRequestHeaders(Schema.Struct({ "X-Client-Id": Schema.String }))
     )
   )
 )
@@ -69,9 +69,9 @@ export const exampleApiGetCustomResponseWithHeaders = Api.make().pipe(
   Api.addEndpoint(
     Api.get("hello", "/hello").pipe(
       Api.setResponseStatus(201),
-      Api.setResponseBody(Schema.struct({ value: Schema.string })),
-      Api.setResponseHeaders(Schema.struct({
-        "My-Header": Schema.literal("hello")
+      Api.setResponseBody(Schema.Struct({ value: Schema.String })),
+      Api.setResponseHeaders(Schema.Struct({
+        "My-Header": Schema.Literal("hello")
       }))
     )
   )
@@ -79,14 +79,14 @@ export const exampleApiGetCustomResponseWithHeaders = Api.make().pipe(
 
 // Example GET, option response field
 
-const ExampleSchemaOptionalField = Schema.struct({
-  foo: Schema.optional(Schema.string, { as: "Option", exact: true })
+const ExampleSchemaOptionalField = Schema.Struct({
+  foo: Schema.optional(Schema.String, { as: "Option", exact: true })
 })
 
 export const exampleApiGetOptionalField = Api.make().pipe(
   Api.addEndpoint(
     Api.get("hello", "/hello").pipe(
-      Api.setRequestQuery(Schema.struct({ value: Schema.literal("on", "off") })),
+      Api.setRequestQuery(Schema.Struct({ value: Schema.Literal("on", "off") })),
       Api.setResponseBody(ExampleSchemaOptionalField)
     )
   )
@@ -97,10 +97,10 @@ export const exampleApiGetOptionalField = Api.make().pipe(
 export const exampleApiRequestBody = Api.make().pipe(
   Api.addEndpoint(
     Api.post("hello", "/hello").pipe(
-      Api.setRequestBody(Schema.struct({
-        foo: Schema.string
+      Api.setRequestBody(Schema.Struct({
+        foo: Schema.String
       })),
-      Api.setResponseBody(Schema.string)
+      Api.setResponseBody(Schema.String)
     )
   )
 )
@@ -110,10 +110,10 @@ export const exampleApiRequestBody = Api.make().pipe(
 export const exampleApiRequestHeaders = Api.make().pipe(
   Api.addEndpoint(
     Api.post("hello", "/hello").pipe(
-      Api.setRequestHeaders(Schema.struct({
-        "X-HEADER": Schema.literal("a", "b")
+      Api.setRequestHeaders(Schema.Struct({
+        "X-HEADER": Schema.Literal("a", "b")
       })),
-      Api.setResponseBody(Schema.string)
+      Api.setResponseBody(Schema.String)
     )
   )
 )
@@ -123,9 +123,9 @@ export const exampleApiRequestHeaders = Api.make().pipe(
 export const exampleApiParams = Api.make().pipe(
   Api.addEndpoint(
     Api.post("hello", "/hello/:value").pipe(
-      Api.setResponseBody(Schema.string),
-      Api.setRequestPath(Schema.struct({
-        value: Schema.literal("a", "b")
+      Api.setResponseBody(Schema.String),
+      Api.setRequestPath(Schema.Struct({
+        value: Schema.Literal("a", "b")
       }))
     )
   )
@@ -136,7 +136,7 @@ export const exampleApiParams = Api.make().pipe(
 export const exampleApiPutResponse = Api.make().pipe(
   Api.addEndpoint(
     Api.put("myOperation", "/my-operation").pipe(
-      Api.setResponseBody(Schema.string)
+      Api.setResponseBody(Schema.String)
     )
   )
 )
@@ -145,15 +145,15 @@ export const exampleApiPutResponse = Api.make().pipe(
 export const exampleApiMultipleResponses = Api.make().pipe(
   Api.addEndpoint(
     Api.post("hello", "/hello").pipe(
-      Api.setRequestQuery(Schema.struct({ value: Schema.NumberFromString })),
+      Api.setRequestQuery(Schema.Struct({ value: Schema.NumberFromString })),
       Api.setResponseStatus(201),
-      Api.setResponseBody(Schema.number),
+      Api.setResponseBody(Schema.Number),
       Api.addResponse({
         status: 220,
-        body: Schema.number,
-        headers: Schema.struct({ "x-another-200": Schema.NumberFromString })
+        body: Schema.Number,
+        headers: Schema.Struct({ "x-another-200": Schema.NumberFromString })
       }),
-      Api.addResponse(ApiResponse.make(204, ApiSchema.Ignored, Schema.struct({ "x-another": Schema.NumberFromString })))
+      Api.addResponse(ApiResponse.make(204, ApiSchema.Ignored, Schema.Struct({ "x-another": Schema.NumberFromString })))
     )
   )
 )
@@ -163,32 +163,32 @@ export const exampleApiMultipleResponses = Api.make().pipe(
 export const exampleApiOptional = Api.make().pipe(
   Api.addEndpoint(
     Api.post("hello", "/hello/:value/another/:another?").pipe(
-      Api.setRequestQuery(Schema.struct({
+      Api.setRequestQuery(Schema.Struct({
         value: Schema.NumberFromString,
-        another: Schema.optional(Schema.string, { exact: true })
+        another: Schema.optional(Schema.String, { exact: true })
       })),
-      Api.setRequestPath(Schema.struct({
+      Api.setRequestPath(Schema.Struct({
         value: Schema.NumberFromString,
-        another: Schema.optional(Schema.string, { exact: true })
+        another: Schema.optional(Schema.String, { exact: true })
       })),
-      Api.setRequestHeaders(Schema.struct({
+      Api.setRequestHeaders(Schema.Struct({
         value: Schema.NumberFromString,
-        another: Schema.optional(Schema.string, { exact: true }),
-        hello: Schema.optional(Schema.string, { exact: true })
+        another: Schema.optional(Schema.String, { exact: true }),
+        hello: Schema.optional(Schema.String, { exact: true })
       })),
-      Api.setResponseBody(Schema.struct({
-        query: Schema.struct({
-          value: Schema.number,
-          another: Schema.optional(Schema.string, { exact: true })
+      Api.setResponseBody(Schema.Struct({
+        query: Schema.Struct({
+          value: Schema.Number,
+          another: Schema.optional(Schema.String, { exact: true })
         }),
-        params: Schema.struct({
-          value: Schema.number,
-          another: Schema.optional(Schema.string, { exact: true })
+        params: Schema.Struct({
+          value: Schema.Number,
+          another: Schema.optional(Schema.String, { exact: true })
         }),
-        headers: Schema.struct({
-          value: Schema.number,
-          another: Schema.optional(Schema.string, { exact: true }),
-          hello: Schema.optional(Schema.string, { exact: true })
+        headers: Schema.Struct({
+          value: Schema.Number,
+          another: Schema.optional(Schema.String, { exact: true }),
+          hello: Schema.optional(Schema.String, { exact: true })
         })
       }))
     )
@@ -200,14 +200,14 @@ export const exampleApiOptional = Api.make().pipe(
 export const exampleApiOptionalParams = Api.make().pipe(
   Api.addEndpoint(
     Api.post("hello", "/hello/:value/another/:another?").pipe(
-      Api.setRequestPath(Schema.struct({
+      Api.setRequestPath(Schema.Struct({
         value: Schema.NumberFromString,
-        another: Schema.optional(Schema.string, { exact: true })
+        another: Schema.optional(Schema.String, { exact: true })
       })),
-      Api.setResponseBody(Schema.struct({
-        params: Schema.struct({
-          value: Schema.number,
-          another: Schema.optional(Schema.string, { exact: true })
+      Api.setResponseBody(Schema.Struct({
+        params: Schema.Struct({
+          value: Schema.Number,
+          another: Schema.optional(Schema.String, { exact: true })
         })
       }))
     )
@@ -219,13 +219,13 @@ export const exampleApiOptionalParams = Api.make().pipe(
 export const exampleApiFullResponse = Api.make().pipe(
   Api.addEndpoint(
     Api.post("hello", "/hello").pipe(
-      Api.setResponseBody(Schema.number),
-      Api.setResponseHeaders(Schema.struct({ "My-Header": Schema.string }))
+      Api.setResponseBody(Schema.Number),
+      Api.setResponseHeaders(Schema.Struct({ "My-Header": Schema.String }))
     )
   ),
   Api.addEndpoint(
     Api.post("another", "/another").pipe(
-      Api.setResponseBody(Schema.number)
+      Api.setResponseBody(Schema.Number)
     )
   )
 )
@@ -233,8 +233,8 @@ export const exampleApiFullResponse = Api.make().pipe(
 export const exampleApiMultipleQueryValues = Api.make().pipe(
   Api.addEndpoint(
     Api.post("test", "/test").pipe(
-      Api.setRequestQuery(Schema.struct({ value: Schema.literal("x", "y"), another: Schema.string })),
-      Api.setResponseBody(Schema.string)
+      Api.setRequestQuery(Schema.Struct({ value: Schema.Literal("x", "y"), another: Schema.String })),
+      Api.setResponseBody(Schema.String)
     )
   )
 )
@@ -243,7 +243,7 @@ export const exampleApiRepresentations = Api.make().pipe(
   Api.addEndpoint(
     Api.post("test", "/test").pipe(
       Api.setResponseStatus(200),
-      Api.setResponseBody(Schema.string),
+      Api.setResponseBody(Schema.String),
       Api.setResponseRepresentations([Representation.plainText, Representation.json])
     )
   )
@@ -261,7 +261,7 @@ const mySecurity = pipe(
 export const exampleApiSecurityBearerAndBasic = Api.make().pipe(
   Api.addEndpoint(
     Api.post("test", "/test", { description: "test description" }).pipe(
-      Api.setResponseBody(Schema.string),
+      Api.setResponseBody(Schema.String),
       Api.setSecurity(mySecurity)
     )
   )

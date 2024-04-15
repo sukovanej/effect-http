@@ -5,7 +5,7 @@ import { NodeServer } from "effect-http-node"
 
 export const api = Api.make().pipe(
   Api.addEndpoint(
-    Api.post("test", "/test").pipe(Api.setRequestBody(Schema.string))
+    Api.post("test", "/test").pipe(Api.setRequestBody(Schema.String))
   )
 )
 

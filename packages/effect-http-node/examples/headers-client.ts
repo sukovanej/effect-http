@@ -9,9 +9,9 @@ export const api = pipe(
   Api.make(),
   Api.addEndpoint(
     Api.post("hello", "/hello").pipe(
-      Api.setResponseBody(Schema.string),
-      Api.setRequestBody(Schema.struct({ value: Schema.number })),
-      Api.setRequestHeaders(Schema.struct({ "x-client-id": Schema.string }))
+      Api.setResponseBody(Schema.String),
+      Api.setRequestBody(Schema.Struct({ value: Schema.Number })),
+      Api.setRequestHeaders(Schema.Struct({ "x-client-id": Schema.String }))
     )
   )
 )

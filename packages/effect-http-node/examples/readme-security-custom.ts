@@ -8,7 +8,7 @@ import { debugLogger } from "./_utils.js"
 
 const customSecurity = Security.make(
   pipe(
-    HttpServer.request.schemaHeaders(Schema.struct({ "x-api-key": Schema.string })),
+    HttpServer.request.schemaHeaders(Schema.Struct({ "x-api-key": Schema.String })),
     Effect.mapError(() => ServerError.unauthorizedError("Expected valid X-API-KEY header")),
     Effect.map((headers) => headers["x-api-key"])
   ),
@@ -18,7 +18,7 @@ const customSecurity = Security.make(
 const api = Api.make().pipe(
   Api.addEndpoint(
     Api.post("myRoute", "/my-route").pipe(
-      Api.setResponseBody(Schema.string),
+      Api.setResponseBody(Schema.String),
       Api.setSecurity(customSecurity)
     )
   )

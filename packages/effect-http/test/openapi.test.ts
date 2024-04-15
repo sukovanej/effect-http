@@ -9,7 +9,7 @@ test("description", () => {
     Api.make(),
     Api.addEndpoint(
       Api.put("myOperation", "/my-operation", { description: "my description" }).pipe(
-        Api.setResponseBody(Schema.string)
+        Api.setResponseBody(Schema.String)
       )
     )
   )
@@ -23,7 +23,7 @@ test("description", () => {
 
 test("reference and schema component", () => {
   const responseSchema = pipe(
-    Schema.struct({ someString: Schema.string }),
+    Schema.Struct({ someString: Schema.String }),
     Schema.identifier("ResponseSchema")
   )
 
@@ -104,7 +104,7 @@ test("full info object", () => {
 
 test("group info", () => {
   const responseSchema = pipe(
-    Schema.struct({ someString: Schema.string }),
+    Schema.Struct({ someString: Schema.String }),
     Schema.identifier("ResponseSchema")
   )
 
@@ -209,10 +209,10 @@ test("union in query params", () => {
     Api.make(),
     Api.addEndpoint(
       Api.post("myOperation", "/my-operation").pipe(
-        Api.setRequestQuery(Schema.union(
-          Schema.struct({ a: Schema.string }),
-          Schema.struct({ a: Schema.number, b: Schema.string }),
-          Schema.struct({ a: Schema.number, c: Schema.string }).pipe(
+        Api.setRequestQuery(Schema.Union(
+          Schema.Struct({ a: Schema.String }),
+          Schema.Struct({ a: Schema.Number, b: Schema.String }),
+          Schema.Struct({ a: Schema.Number, c: Schema.String }).pipe(
             Schema.attachPropertySignature("_tag", "Case2")
           )
         ))
@@ -266,11 +266,11 @@ test("http security scheme", () => {
     Api.make(),
     Api.addEndpoint(
       Api.post("myOperation", "/my-operation", { description: "options" }).pipe(
-        Api.setResponseBody(Schema.string),
-        Api.setRequestQuery(Schema.union(
-          Schema.struct({ a: Schema.string }),
-          Schema.struct({ a: Schema.number, b: Schema.string }),
-          Schema.struct({ a: Schema.number, c: Schema.string }).pipe(
+        Api.setResponseBody(Schema.String),
+        Api.setRequestQuery(Schema.Union(
+          Schema.Struct({ a: Schema.String }),
+          Schema.Struct({ a: Schema.Number, b: Schema.String }),
+          Schema.Struct({ a: Schema.Number, c: Schema.String }).pipe(
             Schema.attachPropertySignature("_tag", "Case2")
           )
         )),
@@ -315,7 +315,7 @@ test("response header as union", () => {
     Api.make(),
     Api.addEndpoint(
       Api.post("myOperation", "/my-operation", { description: "options" }).pipe(
-        Api.setResponseHeaders(Schema.union(Schema.struct({}), Schema.struct({ a: Schema.string })))
+        Api.setResponseHeaders(Schema.Union(Schema.Struct({}), Schema.Struct({ a: Schema.String })))
       )
     )
   )

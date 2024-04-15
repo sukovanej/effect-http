@@ -11,7 +11,7 @@ const mySecurity = Security.or(
 )
 
 const mySecuredEnpoint = Api.post("security", "/testSecurity").pipe(
-  Api.setResponseBody(Schema.string),
+  Api.setResponseBody(Schema.String),
   Api.setSecurity(mySecurity)
 )
 

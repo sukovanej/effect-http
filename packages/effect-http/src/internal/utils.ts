@@ -7,7 +7,7 @@ import * as ApiSchema from "../ApiSchema.js"
 /** @internal */
 export const getSchema = <A = Schema.Schema<any, any>>(
   input: Schema.Schema<any, any, unknown> | ApiSchema.Ignored,
-  defaultSchema: Schema.Schema<any, any> | A = Schema.unknown
+  defaultSchema: Schema.Schema<any, any> | A = Schema.Unknown
 ) => (ApiSchema.isIgnored(input) ? defaultSchema : input)
 
 /** @internal */
@@ -25,15 +25,15 @@ export const createResponseSchema = (
     return getSchema(ApiResponse.getBodySchema(response[0]))
   }
 
-  return Schema.union(
+  return Schema.Union(
     ...response.map(
       (response) =>
-        Schema.struct({
-          status: Schema.literal(ApiResponse.getStatus(response)),
+        Schema.Struct({
+          status: Schema.Literal(ApiResponse.getStatus(response)),
           body: getSchema(ApiResponse.getBodySchema(response)),
           headers: getSchema(
             ApiResponse.getHeadersSchema(response),
-            Schema.record(Schema.string, Schema.string)
+            Schema.Record(Schema.String, Schema.String)
           )
         })
     )

@@ -71,7 +71,7 @@ parameters.forEach(({ expected, name, security, setAuth }) =>
       Effect.gen(function*(_) {
         const api = Api.make().pipe(
           Api.addEndpoint(
-            Api.post("test", "/test").pipe(Api.setResponseBody(Schema.string), Api.setSecurity(security))
+            Api.post("test", "/test").pipe(Api.setResponseBody(Schema.String), Api.setSecurity(security))
           )
         )
 

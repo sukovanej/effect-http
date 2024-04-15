@@ -6,11 +6,11 @@ import { Effect, Layer, pipe } from "effect"
 import { Api, RouterBuilder } from "effect-http"
 import { NodeSwaggerFiles } from "effect-http-node"
 
-const Response = Schema.struct({
-  name: Schema.string,
-  id: pipe(Schema.number, Schema.int(), Schema.positive())
+const Response = Schema.Struct({
+  name: Schema.String,
+  id: pipe(Schema.Number, Schema.int(), Schema.positive())
 })
-const Query = Schema.struct({ id: Schema.NumberFromString })
+const Query = Schema.Struct({ id: Schema.NumberFromString })
 
 const api = pipe(
   Api.make({ title: "Users API" }),

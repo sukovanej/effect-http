@@ -162,10 +162,10 @@ const createHeadersSetter = (schema: ApiResponse.ApiResponse.Any) => {
   }
 }
 
-const FullResponseInput = Schema.struct({
-  body: Schema.optional(Schema.unknown),
-  headers: Schema.optional(Schema.record(Schema.string, Schema.unknown)),
-  status: Schema.number
+const FullResponseInput = Schema.Struct({
+  body: Schema.optional(Schema.Unknown),
+  headers: Schema.optional(Schema.Record(Schema.String, Schema.Unknown)),
+  status: Schema.Number
 })
 type FullResponseInput = Schema.Schema.Type<typeof FullResponseInput>
 

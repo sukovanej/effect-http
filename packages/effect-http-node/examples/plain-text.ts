@@ -8,7 +8,7 @@ import { PrettyLogger } from "effect-log"
 export const api = Api.make({ title: "Example API" }).pipe(
   Api.addEndpoint(
     Api.get("root", "/").pipe(
-      Api.setResponseBody(Schema.unknown),
+      Api.setResponseBody(Schema.Unknown),
       Api.setResponseRepresentations([Representation.plainText, Representation.json])
     )
   )

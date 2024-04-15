@@ -4,11 +4,11 @@ import { Effect, pipe } from "effect"
 import { Api, Client, RouterBuilder } from "effect-http"
 import { NodeServer } from "effect-http-node"
 
-const UserResponse = Schema.struct({
-  name: Schema.string,
-  id: pipe(Schema.number, Schema.int(), Schema.positive())
+const UserResponse = Schema.Struct({
+  name: Schema.String,
+  id: pipe(Schema.Number, Schema.int(), Schema.positive())
 })
-const GetUserQuery = Schema.struct({ id: Schema.NumberFromString })
+const GetUserQuery = Schema.Struct({ id: Schema.NumberFromString })
 
 const api = pipe(
   Api.make({ title: "Users API" }),
