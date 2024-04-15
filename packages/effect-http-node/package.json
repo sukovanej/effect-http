@@ -39,9 +39,9 @@
     "effect-http": "workspace:^"
   },
   "devDependencies": {
-    "@effect/platform": "^0.48.28",
-    "@effect/platform-bun": "^0.32.41",
-    "@effect/platform-node": "^0.45.30",
+    "@effect/platform": "^0.48.29",
+    "@effect/platform-bun": "^0.32.42",
+    "@effect/platform-node": "^0.45.31",
     "@effect/schema": "^0.65.0",
     "@types/node": "^20.12.7",
     "effect": "^2.4.19",
