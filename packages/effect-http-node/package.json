@@ -32,10 +32,10 @@
     "swagger-ui-dist": "^5.15.2"
   },
   "peerDependencies": {
-    "@effect/platform": "^0.48.27",
-    "@effect/platform-node": "^0.45.29",
-    "@effect/schema": "^0.64.20",
-    "effect": "^2.4.18",
+    "@effect/platform": "^0.48.29",
+    "@effect/platform-node": "^0.45.31",
+    "@effect/schema": "^0.65.0",
+    "effect": "^2.4.19",
     "effect-http": "workspace:^"
   },
   "devDependencies": {
