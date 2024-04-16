@@ -1,5 +1,5 @@
+import * as Array from "effect/Array"
 import * as Pipeable from "effect/Pipeable"
-import * as ReadonlyArray from "effect/ReadonlyArray"
 import type * as Api from "../Api.js"
 import * as ApiEndpoint from "../ApiEndpoint.js"
 import * as ApiGroup from "../ApiGroup.js"
@@ -63,7 +63,7 @@ export const addGroup = <E2 extends ApiEndpoint.ApiEndpoint.Any>(
   const current = self.groups.flatMap((group) => group.endpoints.map(ApiEndpoint.getId))
   const incomming = group.endpoints.map(ApiEndpoint.getId)
 
-  if (ReadonlyArray.intersection(current, incomming).length > 0) {
+  if (Array.intersection(current, incomming).length > 0) {
     throw new Error(`Duplicate endpoint ids found in the group`)
   }
 

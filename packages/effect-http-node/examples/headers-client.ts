@@ -1,5 +1,5 @@
 import { Schema } from "@effect/schema"
-import { Effect, pipe, ReadonlyArray } from "effect"
+import { Array, Effect, pipe } from "effect"
 import { Api, Client } from "effect-http"
 
 // Example client triggering the API from `examples/headers.ts`
@@ -22,6 +22,6 @@ Effect.all(
   client.hello({ body: { value: 1 }, headers: { "x-client-id": "abc" } }).pipe(
     Effect.flatMap((r) => Effect.logInfo(`Success ${r}`)),
     Effect.catchAll((e) => Effect.logInfo(`Error ${JSON.stringify(e)}`)),
-    ReadonlyArray.replicate(1000000)
+    Array.replicate(1000000)
   )
 ).pipe(Effect.scoped, Effect.runPromise)

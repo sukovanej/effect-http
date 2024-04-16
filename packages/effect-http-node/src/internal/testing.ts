@@ -35,17 +35,13 @@ export const make = <R, E, A extends Api.Api.Any>(
 
     return yield* _(
       Deferred.await(allocatedUrl),
-      Effect.map((url) =>
-        Client.make(
-          api,
-          { baseUrl: url, ...options, httpClient: HttpClient.client.fetch({ keepalive: false }) }
-        )
-      )
+      Effect.map((url) => Client.make(api, { baseUrl: url, ...options })),
+      HttpClient.client.withFetchOptions({ keepalive: false })
     )
   })
 
 export const makeRaw = <R, E>(
-  app: HttpServer.app.Default<R | SwaggerRouter.SwaggerFiles, E>
+  app: HttpServer.app.Default<E, R | SwaggerRouter.SwaggerFiles>
 ) =>
   Effect.gen(function*(_) {
     const allocatedUrl = yield* _(Deferred.make<string>())
@@ -67,8 +63,9 @@ export const makeRaw = <R, E>(
     return yield* _(
       Deferred.await(allocatedUrl),
       Effect.map((url) =>
-        HttpClient.client.fetch({ keepalive: false }).pipe(
-          HttpClient.client.mapRequest(HttpClient.request.prependUrl(url))
+        HttpClient.client.mapRequest(
+          HttpClient.client.fetch,
+          HttpClient.request.prependUrl(url)
         )
       )
     )

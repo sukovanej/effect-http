@@ -1,8 +1,8 @@
 import { ExampleCompiler } from "schema-openapi"
 
+import * as Array from "effect/Array"
 import * as Effect from "effect/Effect"
 import { pipe } from "effect/Function"
-import * as ReadonlyArray from "effect/ReadonlyArray"
 import * as Unify from "effect/Unify"
 import * as Api from "../Api.js"
 import * as ApiEndpoint from "../ApiEndpoint.js"
@@ -42,7 +42,7 @@ export const handleRemaining = <RemainingEndpoints extends ApiEndpoint.ApiEndpoi
 ): RouterBuilder.RouterBuilder<R | ApiEndpoint.ApiEndpoint.Context<RemainingEndpoints>, E, never> =>
   pipe(
     routerBuilder.remainingEndpoints,
-    ReadonlyArray.reduce(
+    Array.reduce(
       routerBuilder as RouterBuilder.RouterBuilder<
         R | ApiEndpoint.ApiEndpoint.Context<RemainingEndpoints>,
         E,
@@ -61,7 +61,7 @@ const createExampleHandler = (endpoint: ApiEndpoint.ApiEndpoint.Any) => {
 
   return () =>
     pipe(
-      Unify.unify(responseSchema && ExampleCompiler.randomExample(responseSchema) || Effect.unit),
+      Unify.unify(responseSchema && ExampleCompiler.randomExample(responseSchema) || Effect.void),
       Effect.mapError((error) =>
         ServerError.internalServerError(
           `Sorry, I don't have any example response. ${JSON.stringify(error)}`

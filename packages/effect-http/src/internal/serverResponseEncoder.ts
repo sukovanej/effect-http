@@ -3,10 +3,10 @@ import type * as Headers from "@effect/platform/Http/Headers"
 import type * as ServerRequest from "@effect/platform/Http/ServerRequest"
 import * as ServerResponse from "@effect/platform/Http/ServerResponse"
 import * as Schema from "@effect/schema/Schema"
+import * as Array from "effect/Array"
 import * as Effect from "effect/Effect"
 import { flow, pipe } from "effect/Function"
 import * as Option from "effect/Option"
-import * as ReadonlyArray from "effect/ReadonlyArray"
 import * as ApiEndpoint from "../ApiEndpoint.js"
 import * as ApiResponse from "../ApiResponse.js"
 import * as ApiSchema from "../ApiSchema.js"
@@ -66,7 +66,7 @@ export const create = (
 }
 
 const representationFromRequest = (
-  representations: ReadonlyArray.NonEmptyReadonlyArray<Representation.Representation>,
+  representations: Array.NonEmptyReadonlyArray<Representation.Representation>,
   request: ServerRequest.ServerRequest
 ): Representation.Representation => {
   if (representations.length === 0) {
@@ -78,10 +78,10 @@ const representationFromRequest = (
   // TODO: this logic needs to be improved a lot!
   return pipe(
     representations,
-    ReadonlyArray.filter(
+    Array.filter(
       (representation) => representation.contentType === accept
     ),
-    ReadonlyArray.head,
+    Array.head,
     Option.getOrElse(() => representations[0])
   )
 }

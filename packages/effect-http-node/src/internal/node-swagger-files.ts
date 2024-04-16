@@ -3,7 +3,7 @@ import * as Path from "@effect/platform/Path"
 import * as SwaggerRouter from "effect-http/SwaggerRouter"
 import * as Effect from "effect/Effect"
 import * as Layer from "effect/Layer"
-import * as ReadonlyRecord from "effect/ReadonlyRecord"
+import * as Record from "effect/Record"
 import { getAbsoluteFSPath } from "swagger-ui-dist"
 
 /** @internal */
@@ -30,7 +30,7 @@ export const SwaggerFilesLive = Effect.gen(function*(_) {
   const files = yield* _(
     SWAGGER_FILE_NAMES,
     Effect.forEach((path) => Effect.zip(Effect.succeed(path), readSwaggerFile(absolutePath, path))),
-    Effect.map(ReadonlyRecord.fromEntries)
+    Effect.map(Record.fromEntries)
   )
 
   const size = Object.entries(files).reduce(

@@ -1,7 +1,7 @@
 import { HttpServer } from "@effect/platform"
 import { Schema } from "@effect/schema"
 import * as it from "@effect/vitest"
-import { Context, Effect, Either, Layer, Option, pipe, ReadonlyArray } from "effect"
+import { Array, Context, Effect, Either, Layer, Option, pipe } from "effect"
 import { Api, ApiResponse, Client, ClientError, RouterBuilder, Security, ServerError } from "effect-http"
 import { NodeTesting } from "effect-http-node"
 import { createHash } from "node:crypto"
@@ -247,7 +247,7 @@ describe("type safe responses", () => {
           NodeTesting.make(app, exampleApiMultipleResponses),
           Effect.flatMap((client) =>
             Effect.all(
-              ReadonlyArray.map([12, 13, 14], (value) => client.hello({ query: { value } }))
+              Array.map([12, 13, 14], (value) => client.hello({ query: { value } }))
             )
           )
         )
@@ -295,7 +295,7 @@ it.scoped(
 
       const result = yield* _(
         NodeTesting.make(app, exampleApiOptional),
-        Effect.flatMap((client) => Effect.all(ReadonlyArray.map(params, (params) => client.hello(params))))
+        Effect.flatMap((client) => Effect.all(Array.map(params, (params) => client.hello(params))))
       )
 
       expect(result).toStrictEqual(params)
@@ -319,7 +319,7 @@ it.scoped(
 
       const result = yield* _(
         NodeTesting.make(app, exampleApiOptionalParams),
-        Effect.flatMap((client) => Effect.all(ReadonlyArray.map(params, (params) => client.hello(params))))
+        Effect.flatMap((client) => Effect.all(Array.map(params, (params) => client.hello(params))))
       )
 
       expect(result).toStrictEqual(params)
@@ -364,7 +364,7 @@ it.scoped(
     Effect.gen(function*(_) {
       const app = pipe(
         RouterBuilder.make(exampleApiEmptyResponse),
-        RouterBuilder.handle("test", () => Effect.unit),
+        RouterBuilder.handle("test", () => Effect.void),
         RouterBuilder.build
       )
 
@@ -394,7 +394,7 @@ it.scoped(
 
       const result = yield* _(
         NodeTesting.make(app, exampleApiOptionalParams),
-        Effect.flatMap((client) => Effect.all(ReadonlyArray.map(params, (params) => client.hello(params))))
+        Effect.flatMap((client) => Effect.all(Array.map(params, (params) => client.hello(params))))
       )
 
       expect(result).toStrictEqual(params)
@@ -439,7 +439,7 @@ it.scoped(
     Effect.gen(function*(_) {
       const app = pipe(
         RouterBuilder.make(exampleApiEmptyResponse),
-        RouterBuilder.handle("test", () => Effect.unit),
+        RouterBuilder.handle("test", () => Effect.void),
         RouterBuilder.build
       )
 

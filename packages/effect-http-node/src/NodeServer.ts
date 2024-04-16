@@ -26,7 +26,7 @@ export interface Options {
 export const listen: (
   options?: Partial<Options>
 ) => <R, E>(
-  router: HttpServer.app.Default<R, E>
+  router: HttpServer.app.Default<E, R>
 ) => Effect.Effect<
   never,
   HttpServer.error.ServeError,

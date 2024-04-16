@@ -6,7 +6,7 @@ import * as Encoding from "effect/Encoding"
 import { dual, pipe } from "effect/Function"
 import * as Option from "effect/Option"
 import * as Pipeable from "effect/Pipeable"
-import type * as ReadonlyRecord from "effect/ReadonlyRecord"
+import type * as Record from "effect/Record"
 import * as Unify from "effect/Unify"
 import type * as OpenApiTypes from "schema-openapi/OpenApiTypes"
 import type * as Security from "../Security.js"
@@ -32,7 +32,7 @@ export class SecurityImpl<A, E = never, R = never> implements Security.Security<
   readonly [TypeId] = variance
 
   constructor(
-    readonly openapi: ReadonlyRecord.ReadonlyRecord<
+    readonly openapi: Record.ReadonlyRecord<
       string,
       OpenApiTypes.OpenAPISecurityScheme
     >,
@@ -48,7 +48,7 @@ export class SecurityImpl<A, E = never, R = never> implements Security.Security<
 /** @internal */
 export const make = <A, E, R>(
   parser: Security.Security.Handler<A, E, R>,
-  openapi?: ReadonlyRecord.ReadonlyRecord<
+  openapi?: Record.ReadonlyRecord<
     string,
     OpenApiTypes.OpenAPISecurityScheme
   >
@@ -66,8 +66,7 @@ export const handleRequest = <A, E, R>(
 /** @internal */
 export const getOpenApi = <A, E, R>(
   security: Security.Security<A, E, R>
-): ReadonlyRecord.ReadonlyRecord<string, OpenApiTypes.OpenAPISecurityScheme> =>
-  (security as SecurityImpl<A, E, R>).openapi
+): Record.ReadonlyRecord<string, OpenApiTypes.OpenAPISecurityScheme> => (security as SecurityImpl<A, E, R>).openapi
 
 /** @internal */
 export const mapHandler: typeof Security.mapHandler = dual(
@@ -268,7 +267,7 @@ export const basic = (
 }
 
 /** @internal */
-export const unit: Security.Security<void> = make(Effect.unit)
+export const unit: Security.Security<void> = make(Effect.void)
 
 /** @internal */
 export const never: Security.Security<never> = make(

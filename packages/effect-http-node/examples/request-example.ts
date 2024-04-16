@@ -1,6 +1,6 @@
 import { NodeRuntime } from "@effect/platform-node"
 import { Schema } from "@effect/schema"
-import { Context, Duration, Effect, pipe, ReadonlyArray, Request, RequestResolver } from "effect"
+import { Array, Context, Duration, Effect, pipe, Request, RequestResolver } from "effect"
 import { Api, RouterBuilder, ServerError } from "effect-http"
 
 import { NodeServer } from "effect-http-node"
@@ -40,7 +40,7 @@ const app = pipe(
   RouterBuilder.handle("getValue", () =>
     Effect.flatMap(GetValueCache, (getValueCache) =>
       pipe(
-        Effect.all(ReadonlyArray.replicate(requestMyValue, 10), {
+        Effect.all(Array.replicate(requestMyValue, 10), {
           concurrency: 10
         }),
         Effect.mapError(() => ServerError.notFoundError("File not found")),

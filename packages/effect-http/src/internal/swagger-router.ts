@@ -4,10 +4,10 @@
  * @since 1.0.0
  */
 import * as HttpServer from "@effect/platform/HttpServer"
+import * as Array from "effect/Array"
 import * as Context from "effect/Context"
 import * as Effect from "effect/Effect"
 import { pipe } from "effect/Function"
-import * as ReadonlyArray from "effect/ReadonlyArray"
 import type * as SwaggerRouter from "../SwaggerRouter.js"
 
 /** @internal */
@@ -102,14 +102,14 @@ const calculatePrefix = Effect.gen(function*(_) {
 
   const parts = url.split("/")
 
-  if (!ReadonlyArray.isNonEmptyArray(parts)) {
+  if (!Array.isNonEmptyArray(parts)) {
     return ""
   }
 
   const last = parts[parts.length - 1]
 
   if (last.includes(".")) {
-    return pipe(ReadonlyArray.initNonEmpty(parts), ReadonlyArray.join("/"))
+    return pipe(Array.initNonEmpty(parts), Array.join("/"))
   }
 
   return url
@@ -122,7 +122,7 @@ const calculatePrefix = Effect.gen(function*(_) {
 export const make = (spec: unknown) => {
   let router = SWAGGER_FILE_NAMES.reduce(
     (router, swaggerFileName) => router.pipe(serverStaticDocsFile(swaggerFileName, `/${swaggerFileName}`)),
-    HttpServer.router.empty as HttpServer.router.Router<SwaggerRouter.SwaggerFiles, never>
+    HttpServer.router.empty as HttpServer.router.Router<never, SwaggerRouter.SwaggerFiles>
   )
 
   const serveIndex = Effect.gen(function*(_) {

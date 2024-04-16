@@ -39,7 +39,7 @@ export const fromEndpoint: <Endpoint extends ApiEndpoint.ApiEndpoint.Any, R, E>(
   options?: Partial<RouterBuilder.Options>
 ) => (
   endpoint: Endpoint
-) => Router.Route<R, Exclude<E, ServerError.ServerError>> = internal.fromEndpoint
+) => Router.Route<Exclude<E, ServerError.ServerError>, R> = internal.fromEndpoint
 
 /**
  * @category constructors
@@ -49,7 +49,7 @@ export const make: <A extends Api.Api.Any, Id extends Api.Api.Ids<A>, R, E>(
   id: Id,
   fn: HandlerFunction<Api.Api.EndpointById<A, Id>, R, E>,
   options?: Partial<RouterBuilder.Options>
-) => (api: A) => Router.Route<R, Exclude<E, ServerError.ServerError>> = internal.make
+) => (api: A) => Router.Route<Exclude<E, ServerError.ServerError>, R> = internal.make
 
 /** @ignore */
 type ToResponse<

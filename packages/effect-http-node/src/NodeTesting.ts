@@ -21,7 +21,7 @@ import * as internal from "./internal/testing.js"
  * @since 1.0.0
  */
 export const make: <R, E, A extends Api.Api.Any>(
-  app: HttpServer.app.Default<R, E>,
+  app: HttpServer.app.Default<E, R>,
   api: A,
   options?: Partial<Client.Options>
 ) => Effect.Effect<
@@ -48,12 +48,12 @@ export const make: <R, E, A extends Api.Api.Any>(
  * @since 1.0.0
  */
 export const makeRaw: <R, E>(
-  app: HttpServer.app.Default<R, E>
+  app: HttpServer.app.Default<E, R>
 ) => Effect.Effect<
   HttpClient.client.Client<
-    Scope.Scope,
+    HttpClient.response.ClientResponse,
     HttpClient.error.HttpClientError,
-    HttpClient.response.ClientResponse
+    Scope.Scope
   >,
   never,
   | Scope.Scope

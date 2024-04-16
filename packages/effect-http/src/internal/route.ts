@@ -18,7 +18,7 @@ export const fromEndpoint: <Endpoint extends ApiEndpoint.ApiEndpoint.Any, R, E>(
   options?: Partial<RouterBuilder.Options>
 ) => (
   endpoint: Endpoint
-) => Router.Route<R, Exclude<E, ServerError.ServerError>> = <Endpoint extends ApiEndpoint.ApiEndpoint.Any, R, E>(
+) => Router.Route<Exclude<E, ServerError.ServerError>, R> = <Endpoint extends ApiEndpoint.ApiEndpoint.Any, R, E>(
   fn: Route.HandlerFunction<Endpoint, R, E>,
   options?: Partial<RouterBuilder.Options>
 ) =>
@@ -60,7 +60,7 @@ export const make: <A extends Api.Api.Any, Id extends Api.Api.Ids<A>, R, E>(
   id: Id,
   fn: Route.HandlerFunction<Api.Api.EndpointById<A, Id>, R, E>,
   options?: Partial<RouterBuilder.Options>
-) => (api: A) => Router.Route<R, Exclude<E, ServerError.ServerError>> = (id, fn, options) => (api) => {
+) => (api: A) => Router.Route<Exclude<E, ServerError.ServerError>, R> = (id, fn, options) => (api) => {
   const endpoint = Api.getEndpoint(api, id)
 
   if (endpoint === undefined) {

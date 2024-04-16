@@ -26,4 +26,4 @@ export const SwaggerFiles: Context.Tag<SwaggerFiles, SwaggerFiles> = internal.Sw
  * @category constructors
  * @since 1.0.0
  */
-export const make: (spec: unknown) => HttpServer.router.Router<SwaggerFiles, never> = internal.make
+export const make: (spec: unknown) => HttpServer.router.Router<never, SwaggerFiles> = internal.make

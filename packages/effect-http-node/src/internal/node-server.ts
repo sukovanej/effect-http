@@ -16,7 +16,7 @@ const DEFAULT_LISTEN_OPTIONS: NodeServer.Options = {
  * @category combinators
  * @since 1.0.0
  */
-export const listen = (options?: Partial<NodeServer.Options>) => <R, E>(router: HttpServer.app.Default<R, E>) =>
+export const listen = (options?: Partial<NodeServer.Options>) => <R, E>(router: HttpServer.app.Default<E, R>) =>
   pipe(
     Effect.gen(function*(_) {
       const server = yield* _(HttpServer.server.Server)

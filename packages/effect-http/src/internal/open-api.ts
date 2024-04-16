@@ -3,10 +3,10 @@ import type * as OpenApiTypes from "schema-openapi/OpenApiTypes"
 
 import * as AST from "@effect/schema/AST"
 import * as Schema from "@effect/schema/Schema"
+import * as Array from "effect/Array"
 import { identity, pipe } from "effect/Function"
 import * as Option from "effect/Option"
-import * as ReadonlyArray from "effect/ReadonlyArray"
-import * as ReadonlyRecord from "effect/ReadonlyRecord"
+import * as Record from "effect/Record"
 import type * as Api from "../Api.js"
 import * as ApiEndpoint from "../ApiEndpoint.js"
 import * as ApiRequest from "../ApiRequest.js"
@@ -75,8 +75,8 @@ export const make = (
         const securityResult = pipe(
           security,
           Security.getOpenApi,
-          ReadonlyRecord.toEntries,
-          ReadonlyArray.reduce(
+          Record.toEntries,
+          Array.reduce(
             {
               operationSetters: [] as Array<any>,
               apiSetters: [] as Array<any>
@@ -116,8 +116,8 @@ export const make = (
     )
   )
 
-  if (ReadonlyArray.isNonEmptyReadonlyArray(api.groups)) {
-    const [firstGlobalTag, ...restGlobalTags] = ReadonlyArray.map(
+  if (Array.isNonEmptyReadonlyArray(api.groups)) {
+    const [firstGlobalTag, ...restGlobalTags] = Array.map(
       api.groups,
       (group) => ({ ...group.options, name: group.name })
     )
@@ -192,17 +192,15 @@ const getPropertySignatures = (
   if (ast._tag === "Union") {
     const requiredPropertyNamesInUnions = pipe(
       ast.types,
-      ReadonlyArray.map((type) =>
-        getPropertySignatures(openApiType, type).filter((ps) => !ps.isOptional).map((ps) => ps.name)
-      )
+      Array.map((type) => getPropertySignatures(openApiType, type).filter((ps) => !ps.isOptional).map((ps) => ps.name))
     )
 
     return pipe(
       ast.types,
-      ReadonlyArray.flatMap((type) => getPropertySignatures(openApiType, type)),
-      ReadonlyArray.groupBy((ps) => String(ps.name)),
-      ReadonlyRecord.toEntries,
-      ReadonlyArray.map(([_, ps]) => {
+      Array.flatMap((type) => getPropertySignatures(openApiType, type)),
+      Array.groupBy((ps) => String(ps.name)),
+      Record.toEntries,
+      Array.map(([_, ps]) => {
         const [first, ...rest] = ps
         return new AST.PropertySignature(
           first.name,

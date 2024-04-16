@@ -6,8 +6,8 @@
 import type * as Method from "@effect/platform/Http/Method"
 import type * as HttpServer from "@effect/platform/HttpServer"
 import type * as Schema from "@effect/schema/Schema"
+import type * as Array from "effect/Array"
 import type * as Pipeable from "effect/Pipeable"
-import type * as ReadonlyArray from "effect/ReadonlyArray"
 import type * as Types from "effect/Types"
 import type * as ApiRequest from "./ApiRequest.js"
 import type * as ApiResponse from "./ApiResponse.js"
@@ -513,7 +513,7 @@ export const addResponse: <
  * @since 1.0.0
  */
 export const setResponseRepresentations: (
-  representations: ReadonlyArray.NonEmptyReadonlyArray<Representation.Representation>
+  representations: Array.NonEmptyReadonlyArray<Representation.Representation>
 ) => <
   Id extends ApiEndpoint.AnyId,
   Request extends ApiRequest.ApiRequest.Any,

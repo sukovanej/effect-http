@@ -12,7 +12,7 @@ import * as ClientRequestEncoder from "./clientRequestEncoder.js"
 import * as ClientResponseParser from "./clientResponseParser.js"
 
 /** @internal */
-const defaultHttpClient = PlatformClient.fetch()
+const defaultHttpClient = PlatformClient.fetch
 
 /** @internal */
 export const endpointClient = <
