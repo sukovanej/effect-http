@@ -1000,7 +1000,7 @@ const api = Api.make().pipe(
 ```
 
 In a real environment, we will probably use the derived client
-using `MockClient.make`. But for tests, we probably want a dummy
+using `Client.make`. But for tests, we probably want a dummy
 client which will return values conforming the API. For such
 a use-case, we can derive a mock client.
 
