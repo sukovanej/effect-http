@@ -1,5 +1,5 @@
 import { HttpClient, HttpServer } from "@effect/platform"
-import { Effect, ReadonlyArray } from "effect"
+import { Array, Effect } from "effect"
 import { SwaggerRouter } from "effect-http"
 import { NodeTesting } from "effect-http-node"
 import { expect, test } from "vitest"
@@ -21,11 +21,11 @@ test("swagger-router mount", () =>
     const client = yield* _(NodeTesting.makeRaw(router))
     const responses = yield* _(
       docsUrls,
-      ReadonlyArray.map((url) => HttpClient.request.get(url)),
+      Array.map((url) => HttpClient.request.get(url)),
       Effect.forEach(client)
     )
 
-    expect(responses.map((response) => response.status)).toStrictEqual(ReadonlyArray.replicate(200, docsUrls.length))
+    expect(responses.map((response) => response.status)).toStrictEqual(Array.replicate(200, docsUrls.length))
 
     for (const indexResponse of responses.slice(0, 2)) {
       const html = yield* _(indexResponse.text)
@@ -41,11 +41,11 @@ test("swagger-router mountApp", () =>
     const client = yield* _(NodeTesting.makeRaw(router))
     const responses = yield* _(
       docsUrls,
-      ReadonlyArray.map((url) => HttpClient.request.get(url)),
+      Array.map((url) => HttpClient.request.get(url)),
       Effect.forEach(client)
     )
 
-    expect(responses.map((response) => response.status)).toStrictEqual(ReadonlyArray.replicate(200, docsUrls.length))
+    expect(responses.map((response) => response.status)).toStrictEqual(Array.replicate(200, docsUrls.length))
 
     for (const indexResponse of responses.slice(0, 2)) {
       const html = yield* _(indexResponse.text)

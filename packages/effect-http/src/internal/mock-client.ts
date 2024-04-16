@@ -32,7 +32,7 @@ export const make = <A extends Api.Api.Any>(
           if (customResponse !== undefined) {
             return Effect.succeed(customResponse)
           } else if (responseSchema === undefined) {
-            return Effect.unit
+            return Effect.void
           }
 
           return ExampleCompiler.randomExample(responseSchema)

@@ -24,7 +24,7 @@ import type * as SwaggerRouter from "./SwaggerRouter.js"
 export interface RouterBuilder<R, E, RemainingEndpoints extends ApiEndpoint.ApiEndpoint.Any> extends Pipeable.Pipeable {
   readonly remainingEndpoints: ReadonlyArray<RemainingEndpoints>
   readonly api: Api.Api.Any
-  readonly router: Router.Router<R, E>
+  readonly router: Router.Router<E, R>
   readonly options: Options
 }
 
@@ -62,7 +62,7 @@ export const handleRaw: <
   Id extends ApiEndpoint.ApiEndpoint.Id<RemainingEndpoints>
 >(
   id: Id,
-  handler: Router.Route.Handler<R2, E2>
+  handler: Router.Route.Handler<E2, R2>
 ) => <R1, E1>(
   builder: RouterBuilder<R1, E1, RemainingEndpoints>
 ) => RouterBuilder<
@@ -107,7 +107,7 @@ export const handle: <
  * @since 1.0.0
  */
 export const mapRouter = <R1, R2, E1, E2, RemainingEndpoints extends ApiEndpoint.ApiEndpoint.Any>(
-  fn: (router: Router.Router<R1, E1>) => Router.Router<R2, E2>
+  fn: (router: Router.Router<E1, R1>) => Router.Router<E2, R2>
 ) =>
 (
   builder: RouterBuilder<R1, E1, RemainingEndpoints>
@@ -124,7 +124,7 @@ export const mapRouter = <R1, R2, E1, E2, RemainingEndpoints extends ApiEndpoint
  */
 export const getRouter: <R, E>(
   builder: RouterBuilder<R, E, any>
-) => Router.Router<R, E> = internal.getRouter
+) => Router.Router<E, R> = internal.getRouter
 
 /**
  * Create an `App` instance.
@@ -134,7 +134,7 @@ export const getRouter: <R, E>(
  */
 export const build: <R, E>(
   builder: RouterBuilder<R, E, never>
-) => App.Default<R | SwaggerRouter.SwaggerFiles, E> = internal.build
+) => App.Default<E, R | SwaggerRouter.SwaggerFiles> = internal.build
 
 /**
  * Create an `App` instance.
@@ -147,4 +147,4 @@ export const build: <R, E>(
  */
 export const buildPartial: <R, E, RemainingEndpoints extends ApiEndpoint.ApiEndpoint.Any>(
   builder: RouterBuilder<R, E, RemainingEndpoints>
-) => App.Default<R | SwaggerRouter.SwaggerFiles, E> = internal.buildPartial
+) => App.Default<E, R | SwaggerRouter.SwaggerFiles> = internal.buildPartial

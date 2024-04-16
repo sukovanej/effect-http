@@ -1,9 +1,9 @@
 import type * as ClientResponse from "@effect/platform/Http/ClientResponse"
 import * as Schema from "@effect/schema/Schema"
+import * as Array from "effect/Array"
 import * as Effect from "effect/Effect"
 import { flow, pipe } from "effect/Function"
 import * as Option from "effect/Option"
-import * as ReadonlyArray from "effect/ReadonlyArray"
 import * as Unify from "effect/Unify"
 import * as ApiEndpoint from "../ApiEndpoint.js"
 import * as ApiResponse from "../ApiResponse.js"
@@ -83,12 +83,12 @@ const handleUnsucessful = Unify.unify(
       )
     }
 
-    return Effect.unit
+    return Effect.void
   }
 )
 
 const representationFromResponse = (
-  representations: ReadonlyArray.NonEmptyReadonlyArray<Representation.Representation>,
+  representations: Array.NonEmptyReadonlyArray<Representation.Representation>,
   response: ClientResponse.ClientResponse
 ): Representation.Representation => {
   if (representations.length === 0) {
@@ -100,17 +100,17 @@ const representationFromResponse = (
   // TODO: this logic needs to be improved a lot!
   return pipe(
     representations,
-    ReadonlyArray.filter(
+    Array.filter(
       (representation) => representation.contentType === contentType
     ),
-    ReadonlyArray.head,
+    Array.head,
     Option.getOrElse(() => representations[0])
   )
 }
 
 const decodeBody = (
   schema: Schema.Schema<any, any, never>,
-  representations: ReadonlyArray.NonEmptyReadonlyArray<Representation.Representation>
+  representations: Array.NonEmptyReadonlyArray<Representation.Representation>
 ) => {
   const parse = Schema.decodeUnknown(schema)
 
@@ -145,7 +145,7 @@ const decodeBody = (
 
 const parseBody: (
   schema: Schema.Schema<any, any, never> | ApiSchema.Ignored,
-  representations: ReadonlyArray.NonEmptyReadonlyArray<Representation.Representation>
+  representations: Array.NonEmptyReadonlyArray<Representation.Representation>
 ) => (
   response: ClientResponse.ClientResponse
 ) => Effect.Effect<any, ClientError.ClientError> = (

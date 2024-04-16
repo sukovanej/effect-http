@@ -39,7 +39,7 @@ export const handleRaw = <
   Id extends ApiEndpoint.ApiEndpoint.Id<RemainingEndpoints>
 >(
   id: Id,
-  handler: Router.Route.Handler<R2, E2>
+  handler: Router.Route.Handler<E2, R2>
 ) =>
 <R1, E1>(
   builder: RouterBuilder.RouterBuilder<R1, E1, RemainingEndpoints>
@@ -124,11 +124,11 @@ export const handle = <
 
 export const build = <R, E>(
   builder: RouterBuilder.RouterBuilder<R, E, never>
-): App.Default<R | SwaggerRouter.SwaggerFiles, E> => buildPartial(builder)
+): App.Default<E, R | SwaggerRouter.SwaggerFiles> => buildPartial(builder)
 
 export const buildPartial = <R, E, RemainingEndpoints extends ApiEndpoint.ApiEndpoint.Any>(
   builder: RouterBuilder.RouterBuilder<R, E, RemainingEndpoints>
-): App.Default<R | SwaggerRouter.SwaggerFiles, E> => {
+): App.Default<E, R | SwaggerRouter.SwaggerFiles> => {
   const swaggerRouter = builder.options.enableDocs ? SwaggerRouter.make(OpenApi.make(builder.api)) : Router.empty
   return Router.mount(builder.router, builder.options.docsPath, swaggerRouter).pipe(
     Effect.catchTag("RouteNotFound", () => ServerError.toServerResponse(ServerError.make(404, "Not Found")))
@@ -137,7 +137,7 @@ export const buildPartial = <R, E, RemainingEndpoints extends ApiEndpoint.ApiEnd
 
 export const getRouter = <R, E>(
   builder: RouterBuilder.RouterBuilder<R, E, any>
-): Router.Router<R, E> => builder.router
+): Router.Router<E, R> => builder.router
 
 /** @internal */
 const removeRemainingEndpoint = <
@@ -153,9 +153,9 @@ const removeRemainingEndpoint = <
 
 /** @internal */
 export const addRoute = <R1, R2, E1, E2>(
-  router: Router.Router<R1, E1>,
-  route: Router.Route<R2, E2>
+  router: Router.Router<E1, R1>,
+  route: Router.Route<E2, R2>
 ): Router.Router<
-  Exclude<R1 | R2, Router.RouteContext | ServerRequest.ServerRequest>,
-  E1 | E2
+  E1 | E2,
+  Exclude<R1 | R2, Router.RouteContext | ServerRequest.ServerRequest>
 > => Router.concat(Router.fromIterable([route]))(router) as any

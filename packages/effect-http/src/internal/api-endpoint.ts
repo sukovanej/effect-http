@@ -1,11 +1,11 @@
 import type * as Method from "@effect/platform/Http/Method"
 import type * as HttpServer from "@effect/platform/HttpServer"
 import type * as Schema from "@effect/schema/Schema"
+import * as Array from "effect/Array"
 import * as Equivalence from "effect/Equivalence"
 import { pipe } from "effect/Function"
 import * as Order from "effect/Order"
 import * as Pipeable from "effect/Pipeable"
-import * as ReadonlyArray from "effect/ReadonlyArray"
 import type * as ApiEndpoint from "../ApiEndpoint.js"
 import * as ApiRequest from "../ApiRequest.js"
 import * as ApiResponse from "../ApiResponse.js"
@@ -422,7 +422,7 @@ export const addResponse = <
 }
 
 export const setResponseRepresentations = (
-  representations: ReadonlyArray.NonEmptyReadonlyArray<Representation.Representation>
+  representations: Array.NonEmptyReadonlyArray<Representation.Representation>
 ) =>
 <
   Id extends ApiEndpoint.ApiEndpoint.AnyId,
@@ -490,7 +490,7 @@ const tupleEquivalence = Equivalence.tuple(
 )
 
 /** @internal */
-const arrayOfTupleEquals = ReadonlyArray.getEquivalence(tupleEquivalence)
+const arrayOfTupleEquals = Array.getEquivalence(tupleEquivalence)
 
 /** @internal */
 const checkPathPatternMatchesSchema = (
@@ -500,21 +500,21 @@ const checkPathPatternMatchesSchema = (
 ) => {
   const fromSchema = pipe(
     ApiSchema.isIgnored(schema) ? [] : getSchemaPropertySignatures(schema),
-    ReadonlyArray.fromIterable,
-    ReadonlyArray.map((ps) => [ps.name as string, ps.isOptional] as const),
-    ReadonlyArray.sort(tupleOrder)
+    Array.fromIterable,
+    Array.map((ps) => [ps.name as string, ps.isOptional] as const),
+    Array.sort(tupleOrder)
   )
 
   const fromPath = pipe(
     path.matchAll(/:(\w+)[?]?/g),
-    ReadonlyArray.fromIterable,
-    ReadonlyArray.map(([name]) => {
+    Array.fromIterable,
+    Array.map(([name]) => {
       if (name.endsWith("?")) {
         return [name.slice(1, -1), true] as const
       }
       return [name.slice(1), false] as const
     }),
-    ReadonlyArray.sort(tupleOrder)
+    Array.sort(tupleOrder)
   )
 
   const matched = arrayOfTupleEquals(fromPath, fromSchema)

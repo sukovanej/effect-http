@@ -1,4 +1,4 @@
-import { Context, Effect, Layer, Option, ReadonlyArray, Ref } from "effect"
+import { Array, Context, Effect, Layer, Option, Ref } from "effect"
 
 import type { CreateItemRequest, GetItemsQuery, Item, Items } from "./schemas.js"
 
@@ -21,7 +21,7 @@ export const ItemRepositoryInMemory = Ref.make([] as Items).pipe(
       getItems: (query) =>
         Ref.get(memory).pipe(
           Effect.map(
-            ReadonlyArray.filter((item) => {
+            Array.filter((item) => {
               const matchesId = query.id === undefined ? true : item.id === query.id
               const matchesTitle = query.title === undefined
                 ? true
@@ -45,7 +45,7 @@ export const ItemRepositoryInMemory = Ref.make([] as Items).pipe(
             updatedAt: Option.none()
           }
 
-          yield* _(Ref.update(memory, ReadonlyArray.append(newItem)))
+          yield* _(Ref.update(memory, Array.append(newItem)))
           return newItem
         })
     })

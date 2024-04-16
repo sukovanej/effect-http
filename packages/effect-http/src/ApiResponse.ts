@@ -4,8 +4,8 @@
  * @since 1.0.0
  */
 import type * as Schema from "@effect/schema/Schema"
+import type * as Array from "effect/Array"
 import type * as Pipeable from "effect/Pipeable"
-import type * as ReadonlyArray from "effect/ReadonlyArray"
 import type * as Types from "effect/Types"
 import type * as ApiSchema from "./ApiSchema.js"
 import * as internal from "./internal/api-response.js"
@@ -116,7 +116,7 @@ export const make: <S extends ApiResponse.AnyStatus, B = ApiSchema.Ignored, H = 
   status: S,
   body?: Schema.Schema<B, any, R> | ApiSchema.Ignored,
   headers?: Schema.Schema<H, any, R> | ApiSchema.Ignored,
-  representations?: ReadonlyArray.NonEmptyReadonlyArray<Representation.Representation>
+  representations?: Array.NonEmptyReadonlyArray<Representation.Representation>
 ) => ApiResponse<S, B, H, R> = internal.make
 
 /**
@@ -148,7 +148,7 @@ export const setHeaders: <H, R2>(schema: Schema.Schema<H, any, R2>) => <S extend
  * @since 1.0.0
  */
 export const setRepresentations: (
-  representations: ReadonlyArray.NonEmptyReadonlyArray<Representation.Representation>
+  representations: Array.NonEmptyReadonlyArray<Representation.Representation>
 ) => <S extends ApiResponse.AnyStatus, B, H, R>(
   response: ApiResponse<S, B, H, R>
 ) => ApiResponse<S, B, H, R> = internal.setRepresentations
@@ -183,4 +183,4 @@ export const getHeadersSchema: <S extends ApiResponse.AnyStatus, B, H, R>(
  */
 export const getRepresentations: <S extends ApiResponse.AnyStatus, B, H, R>(
   response: ApiResponse<S, B, H, R>
-) => ReadonlyArray.NonEmptyReadonlyArray<Representation.Representation> = internal.getRepresentations
+) => Array.NonEmptyReadonlyArray<Representation.Representation> = internal.getRepresentations

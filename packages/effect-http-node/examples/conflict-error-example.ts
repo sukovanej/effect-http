@@ -25,7 +25,7 @@ const UserRepository = Context.GenericTag<UserRepository>("UserRepository")
 
 const mockUserRepository = UserRepository.of({
   userExistsByName: () => Effect.succeed(true),
-  storeUser: () => Effect.unit
+  storeUser: () => Effect.void
 })
 
 const { storeUser, userExistsByName } = Effect.serviceFunctions(UserRepository)

@@ -7,7 +7,7 @@ import type * as Schema from "@effect/schema/Schema"
 import type * as Effect from "effect/Effect"
 import type * as Option from "effect/Option"
 import type * as Pipeable from "effect/Pipeable"
-import type * as ReadonlyRecord from "effect/ReadonlyRecord"
+import type * as Record from "effect/Record"
 import type * as Types from "effect/Types"
 import type * as OpenApiTypes from "schema-openapi/OpenApiTypes"
 import * as internal from "./internal/security.js"
@@ -91,7 +91,7 @@ export declare namespace Security {
  */
 export const make: <A, E, R>(
   parser: Security.Handler<A, E, R>,
-  openapi?: ReadonlyRecord.ReadonlyRecord<
+  openapi?: Record.ReadonlyRecord<
     string,
     OpenApiTypes.OpenAPISecurityScheme
   >
@@ -115,7 +115,7 @@ export const handleRequest: <A, E, R>(
  */
 export const getOpenApi: <A, E, R>(
   security: Security<A, E, R>
-) => ReadonlyRecord.ReadonlyRecord<string, OpenApiTypes.OpenAPISecurityScheme> = internal.getOpenApi
+) => Record.ReadonlyRecord<string, OpenApiTypes.OpenAPISecurityScheme> = internal.getOpenApi
 
 /**
  * @category combinators

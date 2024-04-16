@@ -1,11 +1,11 @@
 import * as AST from "@effect/schema/AST"
 import type * as ParseResult from "@effect/schema/ParseResult"
+import * as Array from "effect/Array"
 import * as Effect from "effect/Effect"
 import * as Equivalence from "effect/Equivalence"
 import { pipe } from "effect/Function"
 import * as Option from "effect/Option"
 import * as Order from "effect/Order"
-import * as ReadonlyArray from "effect/ReadonlyArray"
 
 const getDescription = AST.getAnnotation<AST.DescriptionAnnotation>(
   AST.DescriptionAnnotationId
@@ -31,8 +31,8 @@ const stringifyExpected = (
   error: Exclude<ValidationError, { _tag: "Missing" }>
 ) => {
   const expected = Option.all({
-    init: ReadonlyArray.init(error.expected),
-    last: ReadonlyArray.last(error.expected)
+    init: Array.init(error.expected),
+    last: Array.last(error.expected)
   }).pipe(
     Option.map(({ init, last }) => init.length === 0 ? last : `${init.join(", ")} or ${last}`),
     Option.getOrElse(() => error.expected.join(" or "))
@@ -198,19 +198,19 @@ export const formatParseError = (
     return errors.map(stringifyError).join(", ")
   }
 
-  if (!ReadonlyArray.isNonEmptyReadonlyArray(errors)) {
+  if (!Array.isNonEmptyReadonlyArray(errors)) {
     return `Unexpected validation errors: ${JSON.stringify(error)}`
   }
 
   const errorsWithMostPrecisePosition = pipe(
     errors,
-    ReadonlyArray.groupWith(
+    Array.groupWith(
       pipe(
         Equivalence.array(Equivalence.strict()),
         Equivalence.mapInput((e: ValidationError) => e.position)
       )
     ),
-    ReadonlyArray.max((a, b) => {
+    Array.max((a, b) => {
       // use errors with the longest position
       const longestPositionOrdering = Order.number(
         a[0].position.length,
@@ -244,7 +244,7 @@ export const formatParseError = (
 
   const errorsByTag = pipe(
     errorsWithMostPrecisePosition,
-    ReadonlyArray.groupBy((error) => error._tag)
+    Array.groupBy((error) => error._tag)
   )
 
   if ("Unexpected" in errorsByTag) {
@@ -254,7 +254,7 @@ export const formatParseError = (
 
     const expected = unexpectedErrors.flatMap((e) => e.expected)
 
-    if (ReadonlyArray.isNonEmptyArray(unexpectedErrors)) {
+    if (Array.isNonEmptyArray(unexpectedErrors)) {
       return stringifyError({ ...unexpectedErrors[0], expected })
     }
   }
@@ -262,7 +262,7 @@ export const formatParseError = (
   if ("Missing" in errorsByTag) {
     const unexpectedErrors = errorsByTag["Missing"] as Array<ValidationErrorMissing>
 
-    if (ReadonlyArray.isNonEmptyArray(unexpectedErrors)) {
+    if (Array.isNonEmptyArray(unexpectedErrors)) {
       return stringifyError(unexpectedErrors[0])
     }
   }

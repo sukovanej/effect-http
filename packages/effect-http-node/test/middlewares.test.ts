@@ -29,7 +29,7 @@ it.scoped(
         Middlewares.basicAuth(
           ({ password, user }) => {
             if (user === "mike" && password === "the-stock-broker") {
-              return Effect.unit
+              return Effect.void
             }
 
             return Effect.fail(ServerError.unauthorizedError("Wrong credentials"))
@@ -101,7 +101,7 @@ it.scoped(
       )
 
       const app = RouterBuilder.make(api).pipe(
-        RouterBuilder.handle("test", () => Effect.unit),
+        RouterBuilder.handle("test", () => Effect.void),
         RouterBuilder.build,
         Middlewares.cors({ allowedOrigins: ["localhost:3000"] })
       )

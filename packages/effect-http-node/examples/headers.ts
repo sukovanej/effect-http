@@ -1,6 +1,6 @@
 import { NodeRuntime } from "@effect/platform-node"
 import { Schema } from "@effect/schema"
-import { Context, Effect, pipe, ReadonlyArray, Ref } from "effect"
+import { Array, Context, Effect, pipe, Ref } from "effect"
 import { Api, Middlewares, RouterBuilder, ServerError } from "effect-http"
 
 import { NodeServer } from "effect-http-node"
@@ -35,12 +35,12 @@ const clients = ClientsService.of({
       Effect.map(([usages, timestamp]) =>
         pipe(
           usages,
-          ReadonlyArray.filter(
+          Array.filter(
             (usage) =>
               usage.clientId === clientId &&
               usage.timestamp > timestamp - RATE_WINDOW
           ),
-          ReadonlyArray.length,
+          Array.length,
           (usagesPerWindow) => ALLOWED_USAGES_PER_WINDOW - usagesPerWindow
         )
       )
