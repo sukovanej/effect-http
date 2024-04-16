@@ -44,7 +44,7 @@
     "@effect/platform-node": "^0.45.31",
     "@effect/schema": "^0.65.0",
     "@types/node": "^20.12.7",
-    "effect": "^2.4.19",
+    "effect": "^3.0.0",
     "effect-http": "workspace:^",
     "effect-log": "^0.30.17"
   }
