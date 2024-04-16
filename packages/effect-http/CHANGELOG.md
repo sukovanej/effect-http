@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.61.1
+
+### Patch Changes
+
+- [#525](https://github.com/sukovanej/effect-http/pull/525) [`157cb6d`](https://github.com/sukovanej/effect-http/commit/157cb6db647f50f69daca5f682793255fec57812) Thanks [@sukovanej](https://github.com/sukovanej)! - Update schema-openapi.
+
 ## 0.61.0
 
 ### Minor Changes
