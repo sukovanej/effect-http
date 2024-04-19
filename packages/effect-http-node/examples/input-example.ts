@@ -16,13 +16,15 @@ const api = pipe(
   )
 )
 
+const stuffHandler = RouterBuilder.handler(api, "stuff", ({ query }) =>
+  pipe(
+    Effect.fail(ServerError.notFoundError("I didnt find it")),
+    Effect.tap(() => Effect.log(`Received ${query.value}`))
+  ))
+
 const app = pipe(
   RouterBuilder.make(api),
-  RouterBuilder.handle("stuff", ({ query }) =>
-    pipe(
-      Effect.fail(ServerError.notFoundError("I didnt find it")),
-      Effect.tap(() => Effect.log(`Received ${query.value}`))
-    )),
+  RouterBuilder.handle(stuffHandler),
   RouterBuilder.build
 )
 
