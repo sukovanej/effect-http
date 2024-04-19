@@ -1,5 +1,14 @@
 # effect-http-node
 
+## 0.10.1
+
+### Patch Changes
+
+- [#534](https://github.com/sukovanej/effect-http/pull/534) [`1f030d2`](https://github.com/sukovanej/effect-http/commit/1f030d237b94037636e86b375bc45f4d1c93defa) Thanks [@sukovanej](https://github.com/sukovanej)! - Update @effect/platform.
+
+- Updated dependencies [[`1f030d2`](https://github.com/sukovanej/effect-http/commit/1f030d237b94037636e86b375bc45f4d1c93defa)]:
+  - effect-http@0.62.1
+
 ## 0.10.0
 
 ### Minor Changes
