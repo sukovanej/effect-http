@@ -11,65 +11,54 @@ import * as Layer from "effect/Layer"
 import { createServer } from "http"
 import * as NodeSwaggerFiles from "../NodeSwaggerFiles.js"
 
+/** @internal */
+const NodeServerLive = NodeHttpServer.server.layer(() => createServer(), {
+  port: undefined
+})
+
+/** @internal */
+const startTestServer = <R, E>(
+  app: HttpServer.app.Default<R | SwaggerRouter.SwaggerFiles, E>
+) =>
+  Effect.flatMap(Deferred.make<string>(), (allocatedUrl) =>
+    serverUrl.pipe(
+      Effect.flatMap((url) => Deferred.succeed(allocatedUrl, url)),
+      Effect.flatMap(() => Layer.launch(HttpServer.server.serve(app))),
+      Effect.provide(NodeServerLive),
+      Effect.provide(NodeSwaggerFiles.SwaggerFilesLive),
+      Effect.provide(NodeContext.layer),
+      Effect.forkScoped,
+      Effect.flatMap(() => Deferred.await(allocatedUrl))
+    ))
+
+/** @internal */
 export const make = <R, E, A extends Api.Api.Any>(
   app: HttpServer.app.Default<R | SwaggerRouter.SwaggerFiles, E>,
   api: A,
   options?: Partial<Client.Options>
 ) =>
-  Effect.gen(function*(_) {
-    const allocatedUrl = yield* _(Deferred.make<string>())
+  Effect.map(startTestServer(app), (url) =>
+    Client.make(api, {
+      ...options,
+      httpClient: (options?.httpClient ?? HttpClient.client.fetch).pipe(
+        HttpClient.client.mapRequest(HttpClient.request.prependUrl(url)),
+        HttpClient.client.transformResponse(
+          HttpClient.client.withFetchOptions({ keepalive: false })
+        )
+      )
+    }))
 
-    const NodeServerLive = NodeHttpServer.server.layer(() => createServer(), {
-      port: undefined
-    })
-
-    yield* _(
-      serverUrl,
-      Effect.flatMap((url) => Deferred.succeed(allocatedUrl, url)),
-      Effect.flatMap(() => Layer.launch(HttpServer.server.serve(app))),
-      Effect.provide(NodeServerLive),
-      Effect.provide(NodeSwaggerFiles.SwaggerFilesLive),
-      Effect.provide(NodeContext.layer),
-      Effect.forkScoped
-    )
-
-    return yield* _(
-      Deferred.await(allocatedUrl),
-      Effect.map((url) => Client.make(api, { baseUrl: url, ...options })),
-      HttpClient.client.withFetchOptions({ keepalive: false })
-    )
-  })
-
+/** @internal */
 export const makeRaw = <R, E>(
   app: HttpServer.app.Default<E, R | SwaggerRouter.SwaggerFiles>
 ) =>
-  Effect.gen(function*(_) {
-    const allocatedUrl = yield* _(Deferred.make<string>())
-
-    const NodeServerLive = NodeHttpServer.server.layer(() => createServer(), {
-      port: undefined
-    })
-
-    yield* _(
-      serverUrl,
-      Effect.flatMap((url) => Deferred.succeed(allocatedUrl, url)),
-      Effect.flatMap(() => Layer.launch(HttpServer.server.serve(app))),
-      Effect.provide(NodeServerLive),
-      Effect.provide(NodeSwaggerFiles.SwaggerFilesLive),
-      Effect.provide(NodeContext.layer),
-      Effect.forkScoped
-    )
-
-    return yield* _(
-      Deferred.await(allocatedUrl),
-      Effect.map((url) =>
-        HttpClient.client.mapRequest(
-          HttpClient.client.fetch,
-          HttpClient.request.prependUrl(url)
-        )
+  Effect.map(startTestServer(app), (url) =>
+    HttpClient.client.fetch.pipe(
+      HttpClient.client.mapRequest(HttpClient.request.prependUrl(url)),
+      HttpClient.client.transformResponse(
+        HttpClient.client.withFetchOptions({ keepalive: false })
       )
-    )
-  })
+    ))
 
 /** @internal */
 const serverUrl = Effect.map(HttpServer.server.Server, (server) => {
