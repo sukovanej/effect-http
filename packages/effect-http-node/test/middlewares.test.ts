@@ -1,8 +1,8 @@
 import * as ClientRequest from "@effect/platform/Http/ClientRequest"
 import { Schema } from "@effect/schema"
 import * as it from "@effect/vitest"
-import { Effect, identity, pipe } from "effect"
-import { Api, ClientError, Middlewares, RouterBuilder, ServerError } from "effect-http"
+import { Effect, pipe } from "effect"
+import { Api, Client, ClientError, Middlewares, RouterBuilder, ServerError } from "effect-http"
 import { NodeTesting } from "effect-http-node"
 import { apply } from "effect/Function"
 import { expect } from "vitest"
@@ -39,46 +39,15 @@ it.scoped(
         Effect.tapErrorCause(Effect.logError)
       )
 
-      const incorrectCredentials = Buffer.from("user:password").toString("base64")
-      const correctCredentials = Buffer.from("mike:the-stock-broker").toString(
-        "base64"
+      const client = yield* _(
+        NodeTesting.make(app, helloApi)
       )
-
-      const client = (
-        mapRequest: (
-          request: ClientRequest.ClientRequest
-        ) => ClientRequest.ClientRequest
-      ) => NodeTesting.make(app, helloApi, { mapRequest })
 
       const result = yield* _(
         Effect.all([
-          client(
-            ClientRequest.setHeader(
-              "Authorization",
-              `Basic ${incorrectCredentials}`
-            )
-          ).pipe(
-            Effect.flatMap((client) =>
-              client
-                .hello({
-                  headers: { Authorization: `Basic ${incorrectCredentials}` }
-                })
-                .pipe(Effect.flip)
-            )
-          ),
-          client(
-            ClientRequest.setHeader(
-              "Authorization",
-              `Basic ${incorrectCredentials}`
-            )
-          ).pipe(
-            Effect.flatMap((client) =>
-              client.hello({
-                headers: { Authorization: `Basic ${correctCredentials}` }
-              })
-            )
-          ),
-          client(identity).pipe(Effect.flatMap((client) => client.ping({})))
+          Effect.flip(client.hello({}, Client.setBasic("wrong", "creds"))),
+          client.hello({}, Client.setBasic("mike", "the-stock-broker")),
+          client.ping({})
         ])
       )
 

@@ -27,19 +27,16 @@ export const endpointClient = <
   const responseParser = ClientResponseParser.create(endpoint)
   const requestEncoder = ClientRequestEncoder.create(endpoint)
 
-  let mapRequest = options.mapRequest ?? identity
-
-  if (options.baseUrl) {
-    mapRequest = ClientRequest.prependUrl(options.baseUrl)
-  }
-
-  const httpClient = options.httpClient ?? defaultHttpClient
+  const httpClient = (options.httpClient ?? defaultHttpClient).pipe(
+    options.baseUrl ?
+      PlatformClient.mapRequest(ClientRequest.prependUrl(options.baseUrl)) :
+      identity
+  )
 
   return ((args: unknown, mapper?: (request: HttpClient.request.ClientRequest) => HttpClient.request.ClientRequest) =>
     pipe(
       requestEncoder.encodeRequest(args),
       Effect.map(mapper ?? identity),
-      Effect.map(mapRequest),
       Effect.flatMap(httpClient),
       Effect.catchTags({
         RequestError: (err) => ClientError.makeClientSide(err.error, err.message),

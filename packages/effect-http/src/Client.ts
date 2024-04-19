@@ -32,11 +32,8 @@ export type Client<A extends Api.Api.Any> = Types.Simplify<
  * @since 1.0.0
  */
 export interface Options {
-  mapRequest?: (
-    request: HttpClient.request.ClientRequest
-  ) => HttpClient.request.ClientRequest
   httpClient?: HttpClient.client.Client.Default
-  baseUrl: string
+  baseUrl?: string
 }
 
 /**
