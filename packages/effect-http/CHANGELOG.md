@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.63.0
+
+### Minor Changes
+
+- [#536](https://github.com/sukovanej/effect-http/pull/536) [`2881dea`](https://github.com/sukovanej/effect-http/commit/2881dea644b8002d357fc01ef5f0d2922f63267b) Thanks [@sukovanej](https://github.com/sukovanej)! - Remove `mapRequest` from `Client.make` options. Use `baseUrl` or `httpClient` options instead.
+
 ## 0.62.1
 
 ### Patch Changes
