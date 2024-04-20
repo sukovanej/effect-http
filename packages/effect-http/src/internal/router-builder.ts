@@ -4,7 +4,7 @@ import type * as ServerRequest from "@effect/platform/Http/ServerRequest"
 import * as Effect from "effect/Effect"
 import * as Pipeable from "effect/Pipeable"
 import type * as Scope from "effect/Scope"
-import type * as Api from "../Api.js"
+import * as Api from "../Api.js"
 import * as ApiEndpoint from "../ApiEndpoint.js"
 import * as OpenApi from "../OpenApi.js"
 import * as Route from "../Route.js"
@@ -86,33 +86,20 @@ const getRemainingEndpoint = <
   return endpoint
 }
 
-export const handle = <
-  R2,
-  E2,
-  RemainingEndpoints extends ApiEndpoint.ApiEndpoint.Any,
-  Id extends ApiEndpoint.ApiEndpoint.Id<RemainingEndpoints>
->(
-  id: Id,
-  fn: Route.HandlerFunction<
-    ApiEndpoint.ApiEndpoint.ExtractById<RemainingEndpoints, Id>,
-    R2,
-    E2
-  >
-) =>
-<R1, E1>(
-  builder: RouterBuilder.RouterBuilder<R1, E1, RemainingEndpoints>
-): RouterBuilder.RouterBuilder<
-  | Exclude<R1 | R2, Router.RouteContext | ServerRequest.ServerRequest>
-  | ApiEndpoint.ApiEndpoint.Context<ApiEndpoint.ApiEndpoint.ExtractById<RemainingEndpoints, Id>>,
-  E1 | Exclude<E2, ServerError.ServerError>,
-  ApiEndpoint.ApiEndpoint.ExcludeById<RemainingEndpoints, Id>
-> => {
-  const endpoint = getRemainingEndpoint(builder, id)
-  const remainingEndpoints = removeRemainingEndpoint(builder, id)
+export const handle = (...args: Array<any>) => (builder: RouterBuilder.RouterBuilder.Any): any => {
+  if (args.length === 2) {
+    const [id, handler] = args
+    const endpoint = getRemainingEndpoint(builder, id)
+    return handle({ handler, endpoint })(builder)
+  }
+
+  const { endpoint, handler } = args[0]
+
+  const remainingEndpoints = removeRemainingEndpoint(builder, endpoint.id)
 
   const router = addRoute(
     builder.router,
-    Route.fromEndpoint(fn, builder.options)(endpoint)
+    Route.fromEndpoint(handler, builder.options)(endpoint)
   )
 
   return {
@@ -121,6 +108,20 @@ export const handle = <
     remainingEndpoints
   }
 }
+
+export const handler = <
+  R,
+  E,
+  A extends Api.Api.Any,
+  Id extends Api.Api.Ids<A>
+>(
+  api: A,
+  id: Id,
+  handler: Route.HandlerFunction<Api.Api.EndpointById<A, Id>, R, E>
+): RouterBuilder.RouterBuilder.Handler<Api.Api.EndpointById<A, Id>, E, R> => ({
+  handler,
+  endpoint: Api.getEndpoint(api, id)
+})
 
 export const build = <R, E>(
   builder: RouterBuilder.RouterBuilder<R, E, never>

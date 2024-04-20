@@ -32,6 +32,29 @@ export interface RouterBuilder<R, E, RemainingEndpoints extends ApiEndpoint.ApiE
  * @category models
  * @since 1.0.0
  */
+export declare namespace RouterBuilder {
+  /**
+   * Any router builder
+   *
+   * @category models
+   * @since 1.0.0
+   */
+  export type Any = RouterBuilder<any, any, ApiEndpoint.ApiEndpoint.Any>
+
+  /**
+   * @category models
+   * @since 1.0.0
+   */
+  export interface Handler<Endpoint extends ApiEndpoint.ApiEndpoint.Any, E, R> {
+    readonly handler: Route.HandlerFunction<Endpoint, R, E>
+    readonly endpoint: Endpoint
+  }
+}
+
+/**
+ * @category models
+ * @since 1.0.0
+ */
 export interface Options {
   readonly parseOptions: AST.ParseOptions
   readonly enableDocs: boolean
@@ -79,26 +102,61 @@ export const handleRaw: <
  * @category constructors
  * @since 1.0.0
  */
-export const handle: <
-  R2,
-  E2,
-  RemainingEndpoints extends ApiEndpoint.ApiEndpoint.Any,
-  Id extends ApiEndpoint.ApiEndpoint.Id<RemainingEndpoints>
->(
-  id: Id,
-  fn: Route.HandlerFunction<
-    ApiEndpoint.ApiEndpoint.ExtractById<RemainingEndpoints, Id>,
+export const handle: {
+  <
     R2,
-    E2
+    E2,
+    RemainingEndpoints extends ApiEndpoint.ApiEndpoint.Any,
+    Endpoint extends RemainingEndpoints
+  >(
+    handler: RouterBuilder.Handler<Endpoint, E2, R2>
+  ): <R1, E1>(
+    builder: RouterBuilder<R1, E1, RemainingEndpoints>
+  ) => RouterBuilder<
+    | Exclude<R1 | R2, Router.RouteContext | ServerRequest.ServerRequest>
+    | ApiEndpoint.ApiEndpoint.Context<Endpoint>,
+    E1 | Exclude<E2, ServerError.ServerError>,
+    Exclude<RemainingEndpoints, Endpoint>
   >
-) => <R1, E1>(
-  builder: RouterBuilder<R1, E1, RemainingEndpoints>
-) => RouterBuilder<
-  | Exclude<R1 | R2, Router.RouteContext | ServerRequest.ServerRequest>
-  | ApiEndpoint.ApiEndpoint.Context<ApiEndpoint.ApiEndpoint.ExtractById<RemainingEndpoints, Id>>,
-  E1 | Exclude<E2, ServerError.ServerError>,
-  ApiEndpoint.ApiEndpoint.ExcludeById<RemainingEndpoints, Id>
-> = internal.handle
+
+  <
+    R2,
+    E2,
+    RemainingEndpoints extends ApiEndpoint.ApiEndpoint.Any,
+    Id extends ApiEndpoint.ApiEndpoint.Id<RemainingEndpoints>
+  >(
+    id: Id,
+    fn: Route.HandlerFunction<
+      ApiEndpoint.ApiEndpoint.ExtractById<RemainingEndpoints, Id>,
+      R2,
+      E2
+    >
+  ): <R1, E1>(
+    builder: RouterBuilder<R1, E1, RemainingEndpoints>
+  ) => RouterBuilder<
+    | Exclude<R1 | R2, Router.RouteContext | ServerRequest.ServerRequest>
+    | ApiEndpoint.ApiEndpoint.Context<ApiEndpoint.ApiEndpoint.ExtractById<RemainingEndpoints, Id>>,
+    E1 | Exclude<E2, ServerError.ServerError>,
+    ApiEndpoint.ApiEndpoint.ExcludeById<RemainingEndpoints, Id>
+  >
+} = internal.handle
+
+/**
+ * Handle an endpoint using a handler function.
+ *
+ * @category constructors
+ * @since 1.0.0
+ */
+export const handler: <
+  R,
+  E,
+  A extends Api.Api.Any,
+  Id extends Api.Api.Ids<A>
+>(
+  api: A,
+  id: Id,
+  fn: Route.HandlerFunction<Api.Api.EndpointById<A, Id>, R, E>
+) => RouterBuilder.Handler<Api.Api.EndpointById<A, Id>, E, R> = internal.handler
 
 /**
  * Modify the `Router`.

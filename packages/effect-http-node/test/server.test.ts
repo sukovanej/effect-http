@@ -13,6 +13,7 @@ import {
   exampleApiGetCustomResponseWithHeaders,
   exampleApiGetHeaders,
   exampleApiGetOptionalField,
+  exampleApiGetQueryParameter,
   exampleApiMultipleResponses,
   exampleApiOptional,
   exampleApiOptionalParams,
@@ -486,5 +487,24 @@ it.scoped(
       )
 
       expect(result).toBe("hello-user-pass")
+    })
+)
+
+it.scoped(
+  "standalone handler",
+  () =>
+    Effect.gen(function*(_) {
+      const helloHandler = RouterBuilder.handler(exampleApiGetQueryParameter, "hello", ({ query }) =>
+        Effect.succeed(query.country))
+
+      const app = pipe(
+        RouterBuilder.make(exampleApiGetQueryParameter),
+        RouterBuilder.handle(helloHandler),
+        RouterBuilder.build
+      )
+
+      const client = yield* _(NodeTesting.make(app, exampleApiGetQueryParameter))
+
+      expect(yield* _(client.hello({ query: { country: "CZ" } }))).toEqual("CZ")
     })
 )
