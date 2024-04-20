@@ -1,5 +1,27 @@
 # effect-http
 
+## 0.64.0
+
+### Minor Changes
+
+- [#539](https://github.com/sukovanej/effect-http/pull/539) [`4d1456f`](https://github.com/sukovanej/effect-http/commit/4d1456f4a928738fb1a456fb2e0b42d488ab7651) Thanks [@sukovanej](https://github.com/sukovanej)! - Add support for standalone handlers to allow an extraction of the handler logic.
+
+  ```ts
+  const myEndpointHandler = RouterBuilder.handler(
+    api,
+    "myEndpoint",
+    ({ query }) => Effect.succeed(query.country),
+  );
+
+  const app = pipe(
+    RouterBuilder.make(api),
+    RouterBuilder.handle(myEndpointHandler),
+    RouterBuilder.build,
+  );
+  ```
+
+- [#542](https://github.com/sukovanej/effect-http/pull/542) [`15b5a09`](https://github.com/sukovanej/effect-http/commit/15b5a0923adcda78ad7c3d463cde86f1bf40d3f8) Thanks [@sukovanej](https://github.com/sukovanej)! - Update schema-openapi.
+
 ## 0.63.0
 
 ### Minor Changes
