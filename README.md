@@ -39,6 +39,7 @@ breaking changes and the internals and the public API are still evolving and cha
 - [API on the client side](#api-on-the-client-side)
   - [Example server](#example-server)
   - [Mock client](#mock-client)
+- [Router handlers](#router-handlers)
 - [Compatibility](#compatibility)
 
 Install 
@@ -65,11 +66,11 @@ Bootstrap a simple API specification.
 import { Schema } from "@effect/schema";
 import { Api } from "effect-http";
 
-const UserResponse = Schema.struct({
-  name: Schema.string,
-  id: pipe(Schema.number, Schema.int(), Schema.positive())
+const UserResponse = Schema.Struct({
+  name: Schema.String,
+  id: pipe(Schema.Number, Schema.int(), Schema.positive())
 })
-const GetUserQuery = Schema.struct({ id: Schema.NumberFromString })
+const GetUserQuery = Schema.Struct({ id: Schema.NumberFromString })
 
 const api = pipe(
   Api.make({ title: "Users API" }),
@@ -147,10 +148,10 @@ They are specified in the input schemas object (3rd argument of `Api.get`, `Api.
 import { Schema } from "@effect/schema";
 import { Api } from "effect-http";
 
-const Stuff = Schema.struct({ value: Schema.number })
-const StuffRequest = Schema.struct({ field: Schema.array(Schema.string) })
-const StuffQuery = Schema.struct({ value: Schema.string })
-const StuffPath = Schema.struct({ param: Schema.string })
+const Stuff = Schema.Struct({ value: Schema.Number })
+const StuffRequest = Schema.Struct({ field: Schema.Array(Schema.String) })
+const StuffQuery = Schema.Struct({ value: Schema.String })
+const StuffPath = Schema.Struct({ param: Schema.String })
 
 export const api = Api.make({ title: "My api" }).pipe(
   Api.addEndpoint(
@@ -179,10 +180,10 @@ import { Schema } from "@effect/schema"
 import { pipe } from "effect"
 import { Api } from "effect-http"
 
-const Stuff = Schema.struct({ value: Schema.number })
-const StuffParams = Schema.struct({
-  param: Schema.string,
-  another: Schema.optional(Schema.string)
+const Stuff = Schema.Struct({ value: Schema.Number })
+const StuffParams = Schema.Struct({
+  param: Schema.String,
+  another: Schema.optional(Schema.String)
 })
 
 export const api = pipe(
@@ -216,8 +217,8 @@ import { NodeServer } from "effect-http-node"
 const api = Api.make().pipe(
   Api.addEndpoint(
     Api.get("hello", "/hello").pipe(
-      Api.setResponseBody(Schema.string),
-      Api.setRequestHeaders(Schema.struct({ "x-client-id": Schema.string }))
+      Api.setResponseBody(Schema.String),
+      Api.setRequestHeaders(Schema.Struct({ "x-client-id": Schema.String }))
     )
   )
 )
@@ -269,7 +270,7 @@ import { NodeServer } from "effect-http-node"
 const api = Api.make().pipe(
   Api.addEndpoint(
     Api.post("mySecuredEndpoint", "/my-secured-endpoint").pipe(
-      Api.setResponseBody(Schema.string),
+      Api.setResponseBody(Schema.String),
       Api.setSecurity(Security.basic())
     )
   )
@@ -407,7 +408,7 @@ import { Security, ServerError } from "effect-http"
 
 const customSecurity = Security.make(
   pipe(
-    HttpServer.request.schemaHeaders(Schema.struct({ "x-api-key": Schema.string })),
+    HttpServer.request.schemaHeaders(Schema.Struct({ "x-api-key": Schema.String })),
     Effect.mapError(() => ServerError.unauthorizedError("Expected valid X-API-KEY header")),
     Effect.map((headers) => headers["x-api-key"])
   ),
@@ -445,8 +446,8 @@ const api = pipe(
     pipe(
       Api.get("hello", "/hello"),
       Api.setResponseStatus(201),
-      Api.setResponseBody(Schema.number),
-      Api.setResponseHeaders(Schema.struct({ "x-hello-world": Schema.string }))
+      Api.setResponseBody(Schema.Number),
+      Api.setResponseHeaders(Schema.Struct({ "x-hello-world": Schema.String }))
     )
   )
 )
@@ -465,15 +466,15 @@ import { Effect, pipe } from "effect"
 import { Api, ApiResponse, RouterBuilder } from "effect-http"
 
 const helloEndpoint = Api.post("hello", "/hello").pipe(
-  Api.setResponseBody(Schema.number),
-  Api.setResponseHeaders(Schema.struct({
+  Api.setResponseBody(Schema.Number),
+  Api.setResponseHeaders(Schema.Struct({
     "my-header": pipe(
       Schema.NumberFromString,
       Schema.description("My header")
     )
   })),
-  Api.addResponse(ApiResponse.make(201, Schema.number)),
-  Api.addResponse({ status: 204, headers: Schema.struct({ "x-another": Schema.NumberFromString }) })
+  Api.addResponse(ApiResponse.make(201, Schema.Number)),
+  Api.addResponse({ status: 204, headers: Schema.Struct({ "x-another": Schema.NumberFromString }) })
 )
 
 const api = pipe(
@@ -515,7 +516,7 @@ Now, let's write an example test for the following server.
 ```ts
 const api = Api.api().pipe(
   Api.get("hello", "/hello", {
-    response: Schema.string,
+    response: Schema.String,
   }),
 );
 
@@ -601,8 +602,8 @@ const api = pipe(
   Api.make({ title: "Users API" }),
   Api.addEndpoint(
     Api.post("storeUser", "/users").pipe(
-      Api.setResponseBody(Schema.string),
-      Api.setRequestBody(Schema.struct({ name: Schema.string }))
+      Api.setResponseBody(Schema.String),
+      Api.setRequestBody(Schema.Struct({ name: Schema.String }))
     )
   )
 )
@@ -704,7 +705,7 @@ import { Api, ApiGroup, ExampleServer, RouterBuilder } from "effect-http"
 
 import { NodeServer } from "effect-http-node"
 
-const Response = Schema.struct({ name: Schema.string })
+const Response = Schema.Struct({ name: Schema.String })
 
 const testApi = pipe(
   ApiGroup.make("test", {
@@ -805,13 +806,13 @@ import { Api, RouterBuilder } from "effect-http"
 import { NodeServer } from "effect-http-node"
 
 const Response = pipe(
-  Schema.struct({
-    name: Schema.string,
-    id: pipe(Schema.number, Schema.int(), Schema.positive())
+  Schema.Struct({
+    name: Schema.String,
+    id: pipe(Schema.Number, Schema.int(), Schema.positive())
   }),
   Schema.description("User")
 )
-const Query = Schema.struct({
+const Query = Schema.Struct({
   id: pipe(Schema.NumberFromString, Schema.description("User id"))
 })
 
@@ -859,7 +860,7 @@ will contain `content-type: text/plain` header.
 export const api2 = Api.make().pipe(
   Api.addEndpoint(
     Api.get("myHandler", "/test").pipe(
-      Api.setResponseBody(Schema.string),
+      Api.setResponseBody(Schema.String),
       Api.setResponseRepresentations([Representation.plainText])
     )
   )
@@ -885,7 +886,7 @@ import { NodeServer } from "effect-http-node"
 export const api = Api.make({ title: "Example API" }).pipe(
   Api.addEndpoint(
     Api.get("root", "/").pipe(
-      Api.setResponseBody(Schema.unknown),
+      Api.setResponseBody(Schema.Unknown),
       Api.setResponseRepresentations([Representation.plainText, Representation.json])
     )
   )
@@ -952,9 +953,9 @@ import { Effect, pipe } from "effect"
 import { Api, ExampleServer, RouterBuilder } from "effect-http"
 import { NodeServer } from "effect-http-node"
 
-const Response = Schema.struct({
-  name: Schema.string,
-  value: Schema.number
+const Response = Schema.Struct({
+  name: Schema.String,
+  value: Schema.Number
 })
 
 const api = pipe(
@@ -993,7 +994,7 @@ import { Api } from "effect-http";
 const api = Api.make().pipe(
   Api.addEndpoint(
     Api.get("getValue", "/value").pipe(
-      Api.setResponseBody(Schema.number)
+      Api.setResponseBody(Schema.Number)
     )
   )
 )
@@ -1017,6 +1018,32 @@ return number `12` when calling the `getValue` operation.
 
 ```typescript
 const client = MockClient.make(api, { responses: { getValue: 12 } });
+```
+
+### Router handlers
+
+So far, we've been using the `RouterBuilder.handle` combinator to implement
+the logic of the endpoint in place.
+
+```ts
+export const app = RouterBuilder.make(api).pipe(
+  RouterBuilder.handle("endpoint", ({ query }) => Effect.succeed({ value: query.value + 1 })),
+  RouterBuilder.build
+)
+```
+
+The `RouterBuilder.handle` has also an overload which accepts a `Handler` object
+that can be constructed using a `RouterBuilder.handler` combinator. This approach
+allows e.g. to define the handler in a separate module.
+
+```ts
+const endpointHandler = RouterBuilder.handler(api, "endpoint", ({ query }) => 
+  Effect.succeed({ value: query.value + 1 }))
+
+export const app = RouterBuilder.make(api).pipe(
+  RouterBuilder.handle(endpointHandler),
+  RouterBuilder.build
+)
 ```
 
 ## Compatibility
