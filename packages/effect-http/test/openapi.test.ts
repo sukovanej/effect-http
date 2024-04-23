@@ -204,6 +204,39 @@ test("group info", () => {
   })
 })
 
+test("request body", () => {
+  const api = pipe(
+    Api.make(),
+    Api.addEndpoint(
+      Api.post("myOperation", "/my-operation").pipe(
+        Api.setRequestBody(Schema.Struct({ a: Schema.String }))
+      )
+    )
+  )
+
+  const openApi = OpenApi.make(api)
+
+  expect(openApi.paths["/my-operation"].post?.requestBody).toEqual({
+    content: {
+      "application/json": {
+        schema: {
+          properties: {
+            a: {
+              "description": "a string",
+              "type": "string"
+            }
+          },
+          required: [
+            "a"
+          ],
+          type: "object"
+        }
+      }
+    },
+    required: true
+  })
+})
+
 test("union in query params", () => {
   const api = pipe(
     Api.make(),
