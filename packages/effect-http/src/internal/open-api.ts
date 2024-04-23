@@ -69,7 +69,7 @@ export const make = (
         }
 
         if (!ApiSchema.isIgnored(body)) {
-          operationSpec.push(OpenApi.jsonRequest(body, descriptionSetter(body)))
+          operationSpec.push(OpenApi.jsonRequest(body, OpenApi.required, descriptionSetter(body)))
         }
 
         const securityResult = pipe(
