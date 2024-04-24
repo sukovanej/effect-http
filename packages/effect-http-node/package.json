@@ -29,7 +29,7 @@
     "coverage": "vitest --coverage"
   },
   "dependencies": {
-    "swagger-ui-dist": "^5.16.2"
+    "swagger-ui-dist": "^5.17.1"
   },
   "peerDependencies": {
     "@effect/platform": "^0.50.0",
@@ -39,10 +39,10 @@
     "effect-http": "workspace:^"
   },
   "devDependencies": {
-    "@effect/platform": "^0.50.1",
-    "@effect/platform-bun": "^0.33.6",
-    "@effect/platform-node": "^0.47.1",
-    "@effect/schema": "^0.66.4",
+    "@effect/platform": "^0.50.3",
+    "@effect/platform-bun": "^0.33.8",
+    "@effect/platform-node": "^0.47.3",
+    "@effect/schema": "^0.66.6",
     "@types/node": "^20.12.7",
     "effect": "^3.0.3",
     "effect-http": "workspace:^",
