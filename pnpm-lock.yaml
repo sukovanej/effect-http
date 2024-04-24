@@ -86,8 +86,8 @@ importers:
         specifier: ^12.1.0
         version: 12.1.0(eslint@8.57.0)
       eslint-plugin-sort-destructure-keys:
-        specifier: ^1.5.0
-        version: 1.5.0(eslint@8.57.0)
+        specifier: ^2.0.0
+        version: 2.0.0(eslint@8.57.0)
       glob:
         specifier: ^10.3.12
         version: 10.3.12
@@ -1757,11 +1757,11 @@ packages:
     peerDependencies:
       eslint: '>=5.0.0'
 
-  eslint-plugin-sort-destructure-keys@1.5.0:
-    resolution: {integrity: sha512-xGLyqHtbFXZNXQSvAiQ4ISBYokrbUywEhmaA50fKtSKgceCv5y3zjoNuZwcnajdM6q29Nxj+oXC9KcqfMsAPrg==}
-    engines: {node: '>=6.0.0'}
+  eslint-plugin-sort-destructure-keys@2.0.0:
+    resolution: {integrity: sha512-4w1UQCa3o/YdfWaLr9jY8LfGowwjwjmwClyFLxIsToiyIdZMq3x9Ti44nDn34DtTPP7PWg96tUONKVmATKhYGQ==}
+    engines: {node: '>=12'}
     peerDependencies:
-      eslint: 3 - 8
+      eslint: 5 - 9
 
   eslint-scope@7.2.2:
     resolution: {integrity: sha512-dOt21O7lTMhDM+X9mB4GX+DZrZtCUJPL/wlcTqxyrx5IvO0IYtILdtrQGQp+8n5S0gwSVmOf9NQrjMOgfQZlIg==}
@@ -5399,7 +5399,7 @@ snapshots:
     dependencies:
       eslint: 8.57.0
 
-  eslint-plugin-sort-destructure-keys@1.5.0(eslint@8.57.0):
+  eslint-plugin-sort-destructure-keys@2.0.0(eslint@8.57.0):
     dependencies:
       eslint: 8.57.0
       natural-compare-lite: 1.4.0
