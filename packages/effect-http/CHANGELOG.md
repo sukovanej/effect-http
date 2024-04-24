@@ -1,5 +1,13 @@
 # effect-http
 
+## 0.64.1
+
+### Patch Changes
+
+- [#543](https://github.com/sukovanej/effect-http/pull/543) [`307ec79`](https://github.com/sukovanej/effect-http/commit/307ec79ad4a09a4f03cf2f864b3a3464e74c56e5) Thanks [@Almaju](https://github.com/Almaju)! - Request body should be required by default
+
+- [#546](https://github.com/sukovanej/effect-http/pull/546) [`52a651d`](https://github.com/sukovanej/effect-http/commit/52a651d8de5dfecff722d645505ab00bd04b4502) Thanks [@sukovanej](https://github.com/sukovanej)! - Update schema-openapi.
+
 ## 0.64.0
 
 ### Minor Changes
