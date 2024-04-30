@@ -156,9 +156,8 @@ it.scoped(
       )
 
       expect(result).toEqual(
-        ClientError.makeServerSide(
+        ClientError.makeClientSide(
           {},
-          400,
           "Failed to encode headers. value must be an object, received undefined"
         )
       )
@@ -214,9 +213,8 @@ it.scoped(
       )
 
       expect(result).toEqual(
-        ClientError.makeServerSide(
+        ClientError.makeClientSide(
           {},
-          400,
           "Failed to encode query parameters. country must be a string matching the pattern ^[A-Z]{2}$, received \"abc\""
         )
       )
