@@ -9,7 +9,7 @@ it.effect(
   () =>
     Effect.gen(function*(_) {
       const client = MockClient.make(exampleApiGet)
-      const response = yield _(client.getValue({}))
+      const response = yield* _(client.getValue({}))
 
       expect(typeof response).toEqual("number")
     })
