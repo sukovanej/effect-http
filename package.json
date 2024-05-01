@@ -36,7 +36,7 @@
     "@types/swagger-ui-dist": "^3.30.4",
     "@typescript-eslint/eslint-plugin": "^7.8.0",
     "@typescript-eslint/parser": "^7.8.0",
-    "@vitest/coverage-v8": "^1.5.2",
+    "@vitest/coverage-v8": "^1.5.3",
     "babel-plugin-annotate-pure-calls": "^0.4.0",
     "eslint": "^8.57.0",
     "eslint-import-resolver-typescript": "^3.6.1",
@@ -49,9 +49,9 @@
     "madge": "^7.0.0",
     "prettier": "^3.2.5",
     "rimraf": "^5.0.5",
-    "tsx": "^4.7.3",
+    "tsx": "^4.8.2",
     "typescript": "^5.4.5",
-    "vitest": "^1.5.2"
+    "vitest": "^1.5.3"
   },
   "pnpm": {
     "patchedDependencies": {
