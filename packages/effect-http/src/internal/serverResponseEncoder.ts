@@ -1,12 +1,13 @@
 import * as Body from "@effect/platform/Http/Body"
 import type * as Headers from "@effect/platform/Http/Headers"
-import type * as ServerRequest from "@effect/platform/Http/ServerRequest"
+import * as ServerRequest from "@effect/platform/Http/ServerRequest"
 import * as ServerResponse from "@effect/platform/Http/ServerResponse"
 import * as Schema from "@effect/schema/Schema"
 import * as Array from "effect/Array"
 import * as Effect from "effect/Effect"
 import { flow, pipe } from "effect/Function"
 import * as Option from "effect/Option"
+import * as Unify from "effect/Unify"
 import * as ApiEndpoint from "../ApiEndpoint.js"
 import * as ApiResponse from "../ApiResponse.js"
 import * as ApiSchema from "../ApiSchema.js"
@@ -16,9 +17,8 @@ import { formatParseError } from "./formatParseError.js"
 
 interface ServerResponseEncoder {
   encodeResponse: (
-    request: ServerRequest.ServerRequest,
     inputResponse: unknown
-  ) => Effect.Effect<ServerResponse.ServerResponse, ServerError.ServerError>
+  ) => Effect.Effect<ServerResponse.ServerResponse, ServerError.ServerError, ServerRequest.ServerRequest>
 }
 
 const createErrorResponse = (error: string, message: string) => ServerError.makeJson(500, { error, message })
@@ -37,31 +37,33 @@ export const create = (
     {} as Record<number, ApiResponse.ApiResponse.Any>
   )
 
-  return make((request, inputResponse) =>
-    Effect.gen(function*(_) {
-      const _input = isFullResponse ?
-        yield* _(
-          parseFullResponseInput(inputResponse),
-          Effect.mapError(() => createErrorResponse("Invalid response", "Server handler returned unexpected response"))
-        ) :
-        { status: ApiResponse.getStatus(responses[0]), body: inputResponse }
+  return make((inputResponse) =>
+    pipe(
+      Unify.unify(
+        isFullResponse ?
+          Effect.mapError(
+            parseFullResponseInput(inputResponse),
+            () => createErrorResponse("Invalid response", "Server handler returned unexpected response")
+          )
+          : Effect.succeed({ status: ApiResponse.getStatus(responses[0]), body: inputResponse })
+      ),
+      Effect.zip(ServerRequest.ServerRequest),
+      Effect.flatMap(([parseInputResponse, request]) => {
+        const response = statusToSpec[parseInputResponse.status]
+        const setBody = createBodySetter(response)
+        const setHeaders = createHeadersSetter(response)
 
-      const response = statusToSpec[_input.status]
-      const setBody = createBodySetter(response)
-      const setHeaders = createHeadersSetter(response)
-
-      const representation = representationFromRequest(
-        ApiResponse.getRepresentations(response),
-        request
-      )
-
-      return yield* _(
-        ServerResponse.empty({ status: _input.status }).pipe(
-          setBody(_input, representation),
-          Effect.flatMap(setHeaders(_input))
+        const representation = representationFromRequest(
+          ApiResponse.getRepresentations(response),
+          request
         )
-      )
-    })
+
+        return ServerResponse.empty({ status: parseInputResponse.status }).pipe(
+          setBody(parseInputResponse, representation),
+          Effect.flatMap(setHeaders(parseInputResponse))
+        )
+      })
+    )
   )
 }
 

@@ -1,9 +1,8 @@
-import type * as Router from "@effect/platform/Http/Router"
+import * as Router from "@effect/platform/Http/Router"
 import * as ServerRequest from "@effect/platform/Http/ServerRequest"
 import type * as AST from "@effect/schema/AST"
 import * as Schema from "@effect/schema/Schema"
 import * as Effect from "effect/Effect"
-import * as Unify from "effect/Unify"
 import * as ApiEndpoint from "../ApiEndpoint.js"
 import * as ApiRequest from "../ApiRequest.js"
 import * as ApiSchema from "../ApiSchema.js"
@@ -12,13 +11,10 @@ import * as ServerError from "../ServerError.js"
 import { formatParseError } from "./formatParseError.js"
 
 interface ServerRequestParser {
-  parseRequest: (
-    request: ServerRequest.ServerRequest,
-    context: Router.RouteContext
-  ) => Effect.Effect<
+  parseRequest: Effect.Effect<
     { query: any; path: any; body: any; headers: any; security: any },
     ServerError.ServerError,
-    ServerRequest.ParsedSearchParams
+    ServerRequest.ServerRequest | ServerRequest.ParsedSearchParams | Router.RouteContext
   >
 }
 
@@ -39,56 +35,49 @@ const make = (
 export const create = (
   endpoint: ApiEndpoint.ApiEndpoint.Any,
   parseOptions?: AST.ParseOptions
-): ServerRequestParser => {
-  const parseBody = createBodyParser(endpoint, parseOptions)
-  const parseHeaders = createHeadersParser(endpoint, parseOptions)
-  const parseParams = createParamsParser(endpoint, parseOptions)
-  const parseSecurity = createSecurityParser(endpoint)
-
-  return make((request, context) =>
+): ServerRequestParser =>
+  make(
     Effect.all({
-      body: parseBody(request),
+      body: parseBody(endpoint, parseOptions),
       query: parseQuery(endpoint, parseOptions),
-      path: parseParams(context),
-      headers: parseHeaders(request),
-      security: parseSecurity(request)
+      path: parsePath(endpoint, parseOptions),
+      headers: parseHeaders(endpoint, parseOptions),
+      security: parseSecurity(endpoint)
     }) as any
   )
-}
 
-const createBodyParser = (
+const parseBody = (
   endpoint: ApiEndpoint.ApiEndpoint.Any,
   parseOptions?: AST.ParseOptions
 ) => {
   const schema = ApiRequest.getBodySchema(ApiEndpoint.getRequest(endpoint))
 
   if (ApiSchema.isIgnored(schema)) {
-    return () => Effect.succeed(undefined)
+    return Effect.succeed(undefined)
   }
 
   const parse = Schema.decodeUnknown(schema as Schema.Schema<any, any, never>)
 
-  return Unify.unify((request: ServerRequest.ServerRequest) => {
-    if (schema === ApiSchema.FormData) {
-      // TODO
-      return Effect.succeed(undefined)
-    }
+  if (schema === ApiSchema.FormData) {
+    // TODO
+    return Effect.succeed(undefined)
+  }
 
-    return request.json.pipe(
-      Effect.mapError((error) => {
-        if (error.reason === "Transport") {
-          return createError("body", "Unexpect request JSON body error")
-        }
+  return ServerRequest.ServerRequest.pipe(
+    Effect.flatMap((request) => request.json),
+    Effect.mapError((error) => {
+      if (error.reason === "Transport") {
+        return createError("body", "Unexpect request JSON body error")
+      }
 
-        return createError("body", "Invalid JSON")
-      }),
-      Effect.flatMap((request) =>
-        parse(request, parseOptions).pipe(
-          Effect.mapError((error) => createError("body", formatParseError(error, parseOptions)))
-        )
+      return createError("body", "Invalid JSON")
+    }),
+    Effect.flatMap((request) =>
+      parse(request, parseOptions).pipe(
+        Effect.mapError((error) => createError("body", formatParseError(error, parseOptions)))
       )
     )
-  })
+  )
 }
 
 const parseQuery = (
@@ -107,49 +96,46 @@ const parseQuery = (
   )
 }
 
-const createHeadersParser = (
+const parseHeaders = (
   endpoint: ApiEndpoint.ApiEndpoint.Any,
   parseOptions?: AST.ParseOptions
 ) => {
   const schema = ApiRequest.getHeadersSchema(ApiEndpoint.getRequest(endpoint))
 
   if (ApiSchema.isIgnored(schema)) {
-    return () => Effect.succeed(undefined)
+    return Effect.succeed(undefined)
   }
 
   const parse = Schema.decodeUnknown(schema as Schema.Schema<any, any, never>)
 
-  return (request: ServerRequest.ServerRequest) =>
-    parse(request.headers, parseOptions).pipe(
-      Effect.mapError((error) => createError("headers", formatParseError(error, parseOptions)))
-    )
+  return ServerRequest.ServerRequest.pipe(
+    Effect.flatMap((request) => parse(request.headers, parseOptions)),
+    Effect.mapError((error) => createError("headers", formatParseError(error, parseOptions)))
+  )
 }
 
-const createSecurityParser = (
+const parseSecurity = (
   endpoint: ApiEndpoint.ApiEndpoint.Any
 ) => {
   const security = ApiEndpoint.getSecurity(endpoint)
 
-  return (request: ServerRequest.ServerRequest) =>
-    Security.handleRequest(security).pipe(
-      Effect.provideService(ServerRequest.ServerRequest, request)
-    )
+  return Security.handleRequest(security)
 }
 
-const createParamsParser = (
+const parsePath = (
   endpoint: ApiEndpoint.ApiEndpoint.Any,
   parseOptions?: AST.ParseOptions
 ) => {
   const schema = ApiRequest.getPathSchema(ApiEndpoint.getRequest(endpoint))
 
   if (ApiSchema.isIgnored(schema)) {
-    return () => Effect.succeed(undefined)
+    return Effect.succeed(undefined)
   }
 
   const parse = Schema.decodeUnknown(schema as Schema.Schema<any, any, never>)
 
-  return (ctx: Router.RouteContext) =>
-    parse(ctx.params, parseOptions).pipe(
-      Effect.mapError((error) => createError("path", formatParseError(error, parseOptions)))
-    )
+  return Router.RouteContext.pipe(
+    Effect.flatMap((ctx) => parse(ctx.params, parseOptions)),
+    Effect.mapError((error) => createError("path", formatParseError(error, parseOptions)))
+  )
 }

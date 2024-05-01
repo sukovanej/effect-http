@@ -17,6 +17,7 @@ import {
   exampleApiMultipleResponses,
   exampleApiOptional,
   exampleApiOptionalParams,
+  exampleApiParams,
   exampleApiPutResponse
 } from "./examples.js"
 import { runTestEffect } from "./utils.js"
@@ -511,5 +512,27 @@ it.scoped(
       const client = yield* _(NodeTesting.make(app, exampleApiGetQueryParameter))
 
       expect(yield* _(client.hello({ query: { country: "CZ" } }))).toEqual("CZ")
+    })
+)
+
+it.scoped(
+  "path parameters",
+  () =>
+    Effect.gen(function*(_) {
+      const helloHandler = RouterBuilder.handler(
+        exampleApiParams,
+        "hello",
+        ({ path }) => Effect.succeed(path.value)
+      )
+
+      const app = pipe(
+        RouterBuilder.make(exampleApiParams),
+        RouterBuilder.handle(helloHandler),
+        RouterBuilder.build
+      )
+
+      const client = yield* _(NodeTesting.make(app, exampleApiParams))
+
+      expect(yield* _(client.hello({ path: { value: "a" } }))).toEqual("a")
     })
 )
