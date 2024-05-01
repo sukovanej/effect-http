@@ -1,6 +1,7 @@
 import * as Router from "@effect/platform/Http/Router"
 import * as ServerRequest from "@effect/platform/Http/ServerRequest"
 import * as Effect from "effect/Effect"
+import { pipe } from "effect/Function"
 import * as Api from "../Api.js"
 import * as ApiEndpoint from "../ApiEndpoint.js"
 import type * as Route from "../Route.js"
@@ -29,18 +30,18 @@ export const fromEndpoint: <Endpoint extends ApiEndpoint.ApiEndpoint.Any, R, E>(
   return Router.makeRoute(
     ApiEndpoint.getMethod(endpoint),
     ApiEndpoint.getPath(endpoint),
-    Effect.gen(function*(_) {
-      const request = yield* _(ServerRequest.ServerRequest)
-      const context = yield* _(Router.RouteContext)
-      const response = yield* _(
-        requestParser.parseRequest(request, context),
-        Effect.flatMap((input: any) => {
-          const { security, ...restInput } = input
-          return fn(restInput, security)
-        })
-      )
-      return yield* _(responseEncoder.encodeResponse(request, response))
-    }).pipe(
+    pipe(
+      Effect.zip(ServerRequest.ServerRequest, Router.RouteContext),
+      Effect.flatMap(([request, context]) =>
+        pipe(
+          requestParser.parseRequest(request, context),
+          Effect.flatMap((input: any) => {
+            const { security, ...restInput } = input
+            return fn(restInput, security)
+          }),
+          Effect.flatMap((response) => responseEncoder.encodeResponse(request, response))
+        )
+      ),
       Effect.catchAll((error) => {
         if (ServerError.isServerError(error)) {
           return ServerError.toServerResponse(error)

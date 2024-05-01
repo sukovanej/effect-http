@@ -15,7 +15,11 @@ interface ServerRequestParser {
   parseRequest: (
     request: ServerRequest.ServerRequest,
     context: Router.RouteContext
-  ) => Effect.Effect<{ query: any; path: any; body: any; headers: any; security: any }, ServerError.ServerError>
+  ) => Effect.Effect<
+    { query: any; path: any; body: any; headers: any; security: any },
+    ServerError.ServerError,
+    ServerRequest.ParsedSearchParams
+  >
 }
 
 const createError = (
@@ -37,7 +41,6 @@ export const create = (
   parseOptions?: AST.ParseOptions
 ): ServerRequestParser => {
   const parseBody = createBodyParser(endpoint, parseOptions)
-  const parseQuery = createQueryParser(endpoint, parseOptions)
   const parseHeaders = createHeadersParser(endpoint, parseOptions)
   const parseParams = createParamsParser(endpoint, parseOptions)
   const parseSecurity = createSecurityParser(endpoint)
@@ -45,7 +48,7 @@ export const create = (
   return make((request, context) =>
     Effect.all({
       body: parseBody(request),
-      query: parseQuery(context),
+      query: parseQuery(endpoint, parseOptions),
       path: parseParams(context),
       headers: parseHeaders(request),
       security: parseSecurity(request)
@@ -88,23 +91,20 @@ const createBodyParser = (
   })
 }
 
-const createQueryParser = (
+const parseQuery = (
   endpoint: ApiEndpoint.ApiEndpoint.Any,
   parseOptions?: AST.ParseOptions
 ) => {
   const schema = ApiRequest.getQuerySchema(ApiEndpoint.getRequest(endpoint))
 
   if (ApiSchema.isIgnored(schema)) {
-    return () => Effect.succeed(undefined)
+    return Effect.succeed(undefined)
   }
 
-  const parse = Schema.decodeUnknown(schema as Schema.Schema<any, any, never>)
-
-  return (context: Router.RouteContext) => {
-    return parse(context.searchParams, parseOptions).pipe(
-      Effect.mapError((error) => createError("query", formatParseError(error, parseOptions)))
-    )
-  }
+  return Effect.mapError(
+    ServerRequest.schemaSearchParams(schema, parseOptions),
+    (error) => createError("query", formatParseError(error, parseOptions))
+  )
 }
 
 const createHeadersParser = (

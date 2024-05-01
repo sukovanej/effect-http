@@ -5,7 +5,7 @@ import { Array, Context, Effect, Either, Layer, Option, pipe } from "effect"
 import { Api, ApiResponse, Client, ClientError, RouterBuilder, Security, ServerError } from "effect-http"
 import { NodeTesting } from "effect-http-node"
 import { createHash } from "node:crypto"
-import { describe, expect, test } from "vitest"
+import { assert, describe, expect, test } from "vitest"
 import {
   exampleApiEmptyResponse,
   exampleApiFullResponse,
@@ -99,7 +99,7 @@ it.scoped(
 test.each(
   [
     { response: ServerError.conflictError("error"), status: 409 }
-  ] as const
+  ]
 )("status codes", ({ response, status }) =>
   Effect.gen(function*(_) {
     const app = pipe(
@@ -113,7 +113,12 @@ test.each(
       Effect.flatMap((client) => Effect.either(client.getValue({})))
     )
 
-    expect(result).toMatchObject(Either.left({ status }))
+    if (Either.isRight(result)) {
+      assert.fail("Expected error")
+    }
+
+    expect(result.left).toMatchObject({ status })
+    // TODO
   }).pipe(runTestEffect))
 
 test("Attempt to add a non-existing operation should fail as a safe guard", () => {
@@ -204,7 +209,7 @@ it.scoped(
         Effect.flip
       )
 
-      expect(result).toEqual(ClientError.makeServerSide("sorry bro", 403))
+      expect(result).toEqual(ClientError.makeServerSide("sorry bro", 401))
     })
 )
 

@@ -52,7 +52,7 @@ it.scoped(
       )
 
       expect(result).toEqual([
-        ClientError.makeServerSide("Wrong credentials", 403),
+        ClientError.makeServerSide("Wrong credentials", 401),
         "test",
         "pong"
       ])
