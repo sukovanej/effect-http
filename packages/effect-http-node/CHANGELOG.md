@@ -1,5 +1,16 @@
 # effect-http-node
 
+## 0.12.4
+
+### Patch Changes
+
+- [#555](https://github.com/sukovanej/effect-http/pull/555) [`0d8ce3b`](https://github.com/sukovanej/effect-http/commit/0d8ce3b79dc9f971f6f198ea0a5062f841491dc5) Thanks [@sukovanej](https://github.com/sukovanej)! - Refactor internal parsers / encoders.
+
+- [#560](https://github.com/sukovanej/effect-http/pull/560) [`2673b0d`](https://github.com/sukovanej/effect-http/commit/2673b0d60bb8f5685229ec11019a8c733f73c6ae) Thanks [@sukovanej](https://github.com/sukovanej)! - Update @effect/platform.
+
+- Updated dependencies [[`0d8ce3b`](https://github.com/sukovanej/effect-http/commit/0d8ce3b79dc9f971f6f198ea0a5062f841491dc5), [`2673b0d`](https://github.com/sukovanej/effect-http/commit/2673b0d60bb8f5685229ec11019a8c733f73c6ae)]:
+  - effect-http@0.64.4
+
 ## 0.12.3
 
 ### Patch Changes
