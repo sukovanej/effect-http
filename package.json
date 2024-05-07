@@ -31,12 +31,12 @@
     "@effect/dtslint": "^0.1.0",
     "@effect/eslint-plugin": "^0.1.2",
     "@effect/language-service": "^0.1.0",
-    "@effect/vitest": "^0.4.0",
-    "@types/node": "^20.12.8",
+    "@effect/vitest": "^0.4.1",
+    "@types/node": "^20.12.10",
     "@types/swagger-ui-dist": "^3.30.4",
     "@typescript-eslint/eslint-plugin": "^7.8.0",
     "@typescript-eslint/parser": "^7.8.0",
-    "@vitest/coverage-v8": "^1.5.3",
+    "@vitest/coverage-v8": "^1.6.0",
     "babel-plugin-annotate-pure-calls": "^0.4.0",
     "eslint": "^8.57.0",
     "eslint-import-resolver-typescript": "^3.6.1",
@@ -49,9 +49,9 @@
     "madge": "^7.0.0",
     "prettier": "^3.2.5",
     "rimraf": "^5.0.5",
-    "tsx": "^4.8.2",
+    "tsx": "^4.9.3",
     "typescript": "^5.4.5",
-    "vitest": "^1.5.3"
+    "vitest": "^1.6.0"
   },
   "pnpm": {
     "patchedDependencies": {
