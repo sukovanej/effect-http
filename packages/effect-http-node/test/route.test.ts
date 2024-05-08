@@ -63,11 +63,8 @@ describe("examples", () => {
           Route.make("getValue", () => Effect.succeed(12))
         )
 
-        const response = yield* _(testRoute(
-          route,
-          ClientRequest.get("/get-value")
-        ))
-        const body = yield* _(response.json)
+        const response = yield* testRoute(route, ClientRequest.get("/get-value"))
+        const body = yield* response.json
 
         expect(body).toEqual(12)
       })
@@ -81,8 +78,8 @@ describe("examples", () => {
           Route.make("test", () => Effect.succeed({ value: Option.some("test") }))
         )
 
-        const response = yield* _(testRoute(route, ClientRequest.post("/test")))
-        const body = yield* _(response.json)
+        const response = yield* testRoute(route, ClientRequest.post("/test"))
+        const body = yield* response.json
 
         expect(body).toEqual({ value: "test" })
       })
@@ -92,13 +89,13 @@ describe("examples", () => {
     "get, query parameter",
     () =>
       Effect.gen(function*(_) {
-        const response = yield* _(testRoute(
+        const response = yield* testRoute(
           exampleRouteGetQueryParameter,
           ClientRequest.get("/hello").pipe(
             ClientRequest.appendUrlParam("country", "CZ")
           )
-        ))
-        const body = yield* _(response.json)
+        )
+        const body = yield* response.json
 
         expect(body).toEqual("CZ")
       })
@@ -119,8 +116,8 @@ describe("examples", () => {
             ))
         )
 
-        const response = yield* _(testRoute(route, ClientRequest.get("/hello")))
-        const body = yield* _(response.json)
+        const response = yield* testRoute(route, ClientRequest.get("/hello"))
+        const body = yield* response.json
 
         expect(response.status).toEqual(201)
         expect(response.headers).toMatchObject({
@@ -141,13 +138,13 @@ describe("examples", () => {
             }))
         )
 
-        const response = yield* _(testRoute(
+        const response = yield* testRoute(
           route,
           ClientRequest.get("/hello").pipe(
             ClientRequest.setUrlParam("value", "off")
           )
-        ))
-        const body = yield* _(response.json)
+        )
+        const body = yield* response.json
 
         expect(response.status).toEqual(200)
         expect(body).toEqual({})
@@ -156,26 +153,22 @@ describe("examples", () => {
 
   it.scoped("post, request body", () =>
     Effect.gen(function*(_) {
-      const response = yield* _(testRoute(
+      const response = yield* testRoute(
         exampleRouteRequestBody,
         ClientRequest.post("/hello").pipe(
           ClientRequest.unsafeJsonBody({ foo: "hello" })
         )
-      ))
+      )
 
-      const body = yield* _(response.json)
+      const body = yield* response.json
 
       expect(body).toEqual("hello")
     }))
 
   it.scoped("path parameters", () =>
     Effect.gen(function*(_) {
-      const response = yield* _(testRoute(
-        exampleRouteParams,
-        ClientRequest.post("/hello/a")
-      ))
-
-      const body = yield* _(response.json)
+      const response = yield* testRoute(exampleRouteParams, ClientRequest.post("/hello/a"))
+      const body = yield* response.json
 
       expect(body).toEqual("a")
     }))
@@ -184,13 +177,10 @@ describe("examples", () => {
 describe("error reporting", () => {
   it.scoped("missing query parameter", () =>
     Effect.gen(function*(_) {
-      const response = yield* _(testRoute(
-        exampleRouteGetQueryParameter,
-        ClientRequest.get("/hello")
-      ))
+      const response = yield* testRoute(exampleRouteGetQueryParameter, ClientRequest.get("/hello"))
 
       expect(response.status).toEqual(400)
-      expect(yield* _(response.json)).toEqual({
+      expect(yield* response.json).toEqual({
         error: "Request validation error",
         location: "query",
         message: "country is missing"
@@ -201,15 +191,15 @@ describe("error reporting", () => {
     "invalid query parameter",
     () =>
       Effect.gen(function*(_) {
-        const response = yield* _(testRoute(
+        const response = yield* testRoute(
           exampleRouteGetQueryParameter,
           ClientRequest.get("/hello").pipe(
             ClientRequest.setUrlParam("country", "CZE")
           )
-        ))
+        )
 
         expect(response.status).toEqual(400)
-        expect(yield* _(response.json)).toEqual({
+        expect(yield* response.json).toEqual({
           error: "Request validation error",
           location: "query",
           message: "country must be a string matching the pattern ^[A-Z]{2}$, received \"CZE\""
@@ -221,13 +211,10 @@ describe("error reporting", () => {
     "invalid JSON body - empty",
     () =>
       Effect.gen(function*(_) {
-        const response = yield* _(testRoute(
-          exampleRouteRequestBody,
-          ClientRequest.post("/hello")
-        ))
+        const response = yield* testRoute(exampleRouteRequestBody, ClientRequest.post("/hello"))
 
         expect(response.status).toEqual(400)
-        expect(yield* _(response.json)).toEqual({
+        expect(yield* response.json).toEqual({
           error: "Request validation error",
           location: "body",
           message: "value must be an object, received null"
@@ -239,13 +226,13 @@ describe("error reporting", () => {
     "invalid JSON body - text",
     () =>
       Effect.gen(function*(_) {
-        const response = yield* _(testRoute(
+        const response = yield* testRoute(
           exampleRouteRequestBody,
           ClientRequest.post("/hello").pipe(ClientRequest.textBody("value"))
-        ))
+        )
 
         expect(response.status).toEqual(400)
-        expect(yield* _(response.json)).toEqual({
+        expect(yield* response.json).toEqual({
           error: "Request validation error",
           location: "body",
           message: "Invalid JSON"
@@ -257,15 +244,15 @@ describe("error reporting", () => {
     "invalid JSON body - incorrect schema",
     () =>
       Effect.gen(function*(_) {
-        const response = yield* _(testRoute(
+        const response = yield* testRoute(
           exampleRouteRequestBody,
           ClientRequest.post("/hello").pipe(
             ClientRequest.unsafeJsonBody({ foo: 1 })
           )
-        ))
+        )
 
         expect(response.status).toEqual(400)
-        expect(yield* _(response.json)).toEqual({
+        expect(yield* response.json).toEqual({
           error: "Request validation error",
           location: "body",
           message: "foo must be a string, received 1"
@@ -277,13 +264,13 @@ describe("error reporting", () => {
     "invalid header",
     () =>
       Effect.gen(function*(_) {
-        const response = yield* _(testRoute(
+        const response = yield* testRoute(
           exampleRouteRequestHeaders,
           ClientRequest.post("/hello")
-        ))
+        )
 
         expect(response.status).toEqual(400)
-        expect(yield* _(response.json)).toEqual({
+        expect(yield* response.json).toEqual({
           error: "Request validation error",
           location: "headers",
           message: "x-header is missing"
@@ -295,13 +282,10 @@ describe("error reporting", () => {
     "invalid param",
     () =>
       Effect.gen(function*(_) {
-        const response = yield* _(testRoute(
-          exampleRouteParams,
-          ClientRequest.post("/hello/c")
-        ))
+        const response = yield* testRoute(exampleRouteParams, ClientRequest.post("/hello/c"))
 
         expect(response.status).toEqual(400)
-        expect(yield* _(response.json)).toEqual({
+        expect(yield* response.json).toEqual({
           error: "Request validation error",
           location: "path",
           message: "value must be \"a\" or \"b\", received \"c\""
@@ -317,13 +301,13 @@ describe("error reporting", () => {
           Route.make("hello", () => Effect.succeed(1 as unknown as string))
         )
 
-        const response = yield* _(testRoute(
+        const response = yield* testRoute(
           exampleRouteInvalid,
           ClientRequest.post("/hello/a")
-        ))
+        )
 
         expect(response.status).toEqual(500)
-        expect(yield* _(response.json)).toEqual({
+        expect(yield* response.json).toEqual({
           error: "Invalid response body",
           message: "value must be a string, received 1"
         })
@@ -334,13 +318,10 @@ describe("error reporting", () => {
     "multiple errors",
     () =>
       Effect.gen(function*(_) {
-        const response = yield* _(testRoute(
-          exampleMultipleQueryAllErrors,
-          ClientRequest.post("/test")
-        ))
+        const response = yield* testRoute(exampleMultipleQueryAllErrors, ClientRequest.post("/test"))
 
         expect(response.status).toEqual(400)
-        expect(yield* _(response.json)).toEqual({
+        expect(yield* response.json).toEqual({
           error: "Request validation error",
           location: "query",
           message: "another is missing, value is missing"
@@ -352,13 +333,10 @@ describe("error reporting", () => {
     "multiple errors",
     () =>
       Effect.gen(function*(_) {
-        const response = yield* _(testRoute(
-          exampleMultipleQueryFirstError,
-          ClientRequest.post("/test")
-        ))
+        const response = yield* testRoute(exampleMultipleQueryFirstError, ClientRequest.post("/test"))
 
         expect(response.status).toEqual(400)
-        expect(yield* _(response.json)).toEqual({
+        expect(yield* response.json).toEqual({
           error: "Request validation error",
           location: "query",
           message: "another is missing"

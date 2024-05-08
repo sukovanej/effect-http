@@ -7,9 +7,9 @@ import { exampleApiGet, exampleApiPostNullableField } from "./examples.js"
 it.effect(
   "random example",
   () =>
-    Effect.gen(function*(_) {
+    Effect.gen(function*() {
       const client = MockClient.make(exampleApiGet)
-      const response = yield* _(client.getValue({}))
+      const response = yield* client.getValue({})
 
       expect(typeof response).toEqual("number")
     })
@@ -18,11 +18,11 @@ it.effect(
 it.effect(
   "custom response",
   () =>
-    Effect.gen(function*(_) {
+    Effect.gen(function*() {
       const client = MockClient.make(exampleApiGet, {
         responses: { getValue: 12 }
       })
-      const response = yield* _(client.getValue({}))
+      const response = yield* client.getValue({})
 
       expect(response).toEqual(12)
     })
@@ -31,9 +31,9 @@ it.effect(
 it.effect(
   "response schema with `optionFromNullable`",
   () =>
-    Effect.gen(function*(_) {
+    Effect.gen(function*() {
       const client = MockClient.make(exampleApiPostNullableField)
-      const response = yield* _(client.test({}))
+      const response = yield* client.test({})
 
       expect(Option.isOption(response.value)).toBe(true)
     })
