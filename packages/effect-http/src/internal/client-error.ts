@@ -1,20 +1,33 @@
 import type * as ParseResult from "@effect/schema/ParseResult"
 import * as Data from "effect/Data"
+import * as Predicate from "effect/Predicate"
 import type * as ClientError from "../ClientError.js"
 import { formatParseError } from "./formatParseError.js"
+
+export const ClientSideErrorTypeId: ClientError.ClientSideErrorTypeId = Symbol.for(
+  "effect-http/ClientError/ClientSideErrorTypeId"
+) as ClientError.ClientSideErrorTypeId
+
+export const ServerSideErrorTypeId: ClientError.ServerSideErrorTypeId = Symbol.for(
+  "effect-http/ClientError/ServerSideErrorTypeId"
+) as ClientError.ServerSideErrorTypeId
 
 export class ClientErrorServerSideImpl<S extends number> extends Data.TaggedError("ClientError")<{
   message: string
   error: unknown
   status: S
   side: "server"
-}> implements ClientError.ClientErrorServerSide {}
+}> implements ClientError.ClientErrorServerSide {
+  readonly [ServerSideErrorTypeId] = {}
+}
 
 export class ClientErrorClientSideImpl extends Data.TaggedError("ClientError")<{
   message: string
   error: unknown
   side: "client"
-}> implements ClientError.ClientErrorClientSide {}
+}> implements ClientError.ClientErrorClientSide {
+  readonly [ClientSideErrorTypeId] = {}
+}
 
 export const makeClientSide = (error: unknown, message?: string) => {
   return new ClientErrorClientSideImpl({
@@ -70,3 +83,9 @@ export const makeClientSideResponseValidation = (location: string) => (error: Pa
     error,
     side: "client"
   })
+
+export const isClientSideError = (u: unknown): u is ClientError.ClientErrorClientSide =>
+  Predicate.isTagged(u, "ClientError") && ClientSideErrorTypeId in u
+
+export const isServerSideError = (u: unknown): u is ClientError.ClientErrorServerSide =>
+  Predicate.isTagged(u, "ClientError") && ServerSideErrorTypeId in u
