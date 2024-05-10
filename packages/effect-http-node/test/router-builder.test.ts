@@ -57,7 +57,7 @@ describe("examples", () => {
           NodeTesting.makeRaw(router),
           Effect.flatMap(apply(HttpClient.request.get("/get-value")))
         )
-        const body = yield* _(response.json)
+        const body = yield* response.json
 
         expect(response.status).toEqual(200)
         expect(body).toEqual(12)
@@ -78,7 +78,7 @@ describe("examples", () => {
           NodeTesting.makeRaw(router),
           Effect.flatMap(apply(HttpClient.request.post("/test")))
         )
-        const body = yield* _(response.json)
+        const body = yield* response.json
 
         expect(response.status).toEqual(200)
         expect(body).toEqual({ value: "test" })
@@ -100,7 +100,7 @@ describe("examples", () => {
           )
         )
 
-        const body = yield* _(response.json)
+        const body = yield* response.json
 
         expect(response.status).toEqual(200)
         expect(body).toEqual("CZ")
@@ -128,7 +128,7 @@ describe("examples", () => {
           NodeTesting.makeRaw(router),
           Effect.flatMap(apply(HttpClient.request.get("/hello")))
         )
-        const body = yield* _(response.json)
+        const body = yield* response.json
 
         expect(response.status).toEqual(201)
         expect(response.headers).toMatchObject({
@@ -161,7 +161,7 @@ describe("examples", () => {
             )
           )
         )
-        const body = yield* _(response.json)
+        const body = yield* response.json
 
         expect(response.status).toEqual(200)
         expect(body).toEqual({})
@@ -183,7 +183,7 @@ describe("examples", () => {
           )
         )
 
-        const body = yield* _(response.json)
+        const body = yield* response.json
 
         expect(response.status).toEqual(200)
         expect(body).toEqual("hello")
@@ -199,7 +199,7 @@ describe("examples", () => {
           Effect.flatMap(apply(HttpClient.request.post("/hello/a")))
         )
 
-        const body = yield* _(response.json)
+        const body = yield* response.json
 
         expect(response.status).toEqual(200)
         expect(body).toEqual("a")
@@ -218,7 +218,7 @@ describe("error reporting", () => {
         )
 
         expect(response.status).toEqual(400)
-        expect(yield* _(response.json)).toEqual({
+        expect(yield* response.json).toEqual({
           error: "Request validation error",
           location: "query",
           message: "country is missing"
@@ -242,7 +242,7 @@ describe("error reporting", () => {
         )
 
         expect(response.status).toEqual(400)
-        expect(yield* _(response.json)).toEqual({
+        expect(yield* response.json).toEqual({
           error: "Request validation error",
           location: "query",
           message: "country must be a string matching the pattern ^[A-Z]{2}$, received \"CZE\""
@@ -260,7 +260,7 @@ describe("error reporting", () => {
         )
 
         expect(response.status).toEqual(400)
-        expect(yield* _(response.json)).toEqual({
+        expect(yield* response.json).toEqual({
           error: "Request validation error",
           location: "body",
           message: "value must be an object, received null"
@@ -282,7 +282,7 @@ describe("error reporting", () => {
         )
 
         expect(response.status).toEqual(400)
-        expect(yield* _(response.json)).toEqual({
+        expect(yield* response.json).toEqual({
           error: "Request validation error",
           location: "body",
           message: "Invalid JSON"
@@ -306,7 +306,7 @@ describe("error reporting", () => {
         )
 
         expect(response.status).toEqual(400)
-        expect(yield* _(response.json)).toEqual({
+        expect(yield* response.json).toEqual({
           error: "Request validation error",
           location: "body",
           message: "foo must be a string, received 1"
@@ -324,7 +324,7 @@ describe("error reporting", () => {
         )
 
         expect(response.status).toEqual(400)
-        expect(yield* _(response.json)).toEqual({
+        expect(yield* response.json).toEqual({
           error: "Request validation error",
           location: "headers",
           message: "x-header is missing"
@@ -342,7 +342,7 @@ describe("error reporting", () => {
         )
 
         expect(response.status).toEqual(400)
-        expect(yield* _(response.json)).toEqual({
+        expect(yield* response.json).toEqual({
           error: "Request validation error",
           location: "path",
           message: "value must be \"a\" or \"b\", received \"c\""
@@ -366,7 +366,7 @@ describe("error reporting", () => {
         )
 
         expect(response.status).toEqual(500)
-        expect(yield* _(response.json)).toEqual({
+        expect(yield* response.json).toEqual({
           error: "Invalid response body",
           message: "value must be a string, received 1"
         })
@@ -405,8 +405,8 @@ it.scoped(
 
       expect(response2.status).toEqual(200)
 
-      expect(yield* _(response1.json)).toEqual(12)
-      expect(yield* _(response2.json)).toEqual(12)
+      expect(yield* response1.json).toEqual(12)
+      expect(yield* response2.json).toEqual(12)
     })
 )
 
@@ -442,15 +442,15 @@ it.scoped(
       )
 
       expect(textResponse.status).toEqual(200)
-      expect(yield* _(textResponse.text)).toEqual("test")
+      expect(yield* textResponse.text).toEqual("test")
       expect(textResponse.headers["content-type"]).toEqual("text/plain")
 
-      expect(yield* _(jsonResponse.json)).toEqual("test")
+      expect(yield* jsonResponse.json).toEqual("test")
       expect(jsonResponse.status).toEqual(200)
       expect(jsonResponse.headers["content-type"]).toEqual("application/json")
 
       // if no representation content-type matches the `Accept` header just use the first one
-      expect(yield* _(xmlResponse.text)).toEqual("test")
+      expect(yield* xmlResponse.text).toEqual("test")
       expect(xmlResponse.status).toEqual(200)
       expect(xmlResponse.headers["content-type"]).toEqual("text/plain")
     })

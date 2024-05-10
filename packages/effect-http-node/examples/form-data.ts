@@ -21,18 +21,18 @@ const api = pipe(
 const app = pipe(
   RouterBuilder.make(api),
   RouterBuilder.handle("upload", () =>
-    Effect.gen(function*(_) {
-      const request = yield* _(HttpServer.request.ServerRequest)
-      const formData = yield* _(request.multipart)
+    Effect.gen(function*() {
+      const request = yield* HttpServer.request.ServerRequest
+      const formData = yield* request.multipart
 
       const file = formData["file"]
 
       if (typeof file === "string") {
-        return yield* _(ServerError.badRequest("File not found"))
+        return yield* ServerError.badRequest("File not found")
       }
 
-      const fs = yield* _(FileSystem.FileSystem)
-      return yield* _(fs.readFileString(file[0].path))
+      const fs = yield* FileSystem.FileSystem
+      return yield* fs.readFileString(file[0].path)
     }).pipe(Effect.scoped)),
   RouterBuilder.build
 )

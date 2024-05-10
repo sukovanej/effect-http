@@ -13,10 +13,8 @@ class UserStorage extends Effect.Tag("UserStorage")<
   { getInfo: (user: string) => Effect.Effect<UserInfo> }
 >() {
   static dummy = Layer.succeed(
-    UserStorage,
-    UserStorage.of({
-      getInfo: (_: string) => Effect.succeed({ email: "email@gmail.com" })
-    })
+    this,
+    { getInfo: (_: string) => Effect.succeed({ email: "email@gmail.com" }) }
   )
 }
 
@@ -46,11 +44,11 @@ const app = RouterBuilder.make(api).pipe(
 )
 
 Effect.gen(function*(_) {
-  const fiber = yield* _(app, NodeServer.listen({ port: 3000 }), Effect.fork)
+  const fiber = yield* pipe(app, NodeServer.listen({ port: 3000 }), Effect.fork)
 
   const client = Client.make(api, { baseUrl: "http://localhost:3000" })
 
-  yield* _(
+  yield* pipe(
     client.endpoint({}, Client.setBasic("patrik", "slepice")),
     Effect.catchAllDefect(Effect.fail),
     Effect.onError((e) => Effect.logWarning(`Api call failed with ${e}`)),
@@ -58,7 +56,7 @@ Effect.gen(function*(_) {
     Effect.flatMap((response) => Effect.log(`Api call succeeded with ${response}`))
   )
 
-  yield* _(Fiber.join(fiber))
+  yield* Fiber.join(fiber)
 }).pipe(
   Effect.provide(UserStorage.dummy),
   NodeRuntime.runMain

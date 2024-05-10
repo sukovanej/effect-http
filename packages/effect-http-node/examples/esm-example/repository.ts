@@ -35,8 +35,8 @@ export const ItemRepositoryInMemory = Ref.make([] as Items).pipe(
           )
         ),
       createItem: (item) =>
-        Effect.gen(function*(_) {
-          const items = yield* _(Ref.get(memory))
+        Effect.gen(function*() {
+          const items = yield* Ref.get(memory)
 
           const newItem = {
             ...item,
@@ -45,7 +45,7 @@ export const ItemRepositoryInMemory = Ref.make([] as Items).pipe(
             updatedAt: Option.none()
           }
 
-          yield* _(Ref.update(memory, Array.append(newItem)))
+          yield* Ref.update(memory, Array.append(newItem))
           return newItem
         })
     })

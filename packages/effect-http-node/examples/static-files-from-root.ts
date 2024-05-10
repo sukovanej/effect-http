@@ -1,6 +1,6 @@
 import { NodeContext, NodeRuntime } from "@effect/platform-node"
 import { Schema } from "@effect/schema"
-import { Effect } from "effect"
+import { Effect, pipe } from "effect"
 import { Api, RouterBuilder } from "effect-http"
 
 import { HttpServer } from "@effect/platform"
@@ -14,14 +14,14 @@ const api = Api.make().pipe(
 )
 
 const StaticFilesMiddleware = HttpServer.middleware.make((app) =>
-  Effect.gen(function*(_) {
-    const request = yield* _(HttpServer.request.ServerRequest)
+  Effect.gen(function*() {
+    const request = yield* HttpServer.request.ServerRequest
 
     if (request.url.startsWith("/api")) {
-      return yield* _(app)
+      return yield* app
     }
 
-    return yield* _(
+    return yield* pipe(
       HttpServer.response.file(request.url.replace("/", "")),
       Effect.orElse(() => HttpServer.response.text("Not found", { status: 404 }))
     )
