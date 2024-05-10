@@ -127,7 +127,15 @@ const formatParseErrors = (
                 return Option.none()
               }
 
-              return Option.some(msg)
+              if (typeof msg === "string") {
+                return Option.some(msg)
+              }
+
+              if (Effect.isEffect(msg.message)) {
+                return Option.none()
+              }
+
+              return Option.some(msg.message)
             }),
             Option.getOrElse(() => formatAST(parseIssue.ast))
           )
