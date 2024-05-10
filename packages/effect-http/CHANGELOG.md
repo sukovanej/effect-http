@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.65.0
+
+### Minor Changes
+
+- [#564](https://github.com/sukovanej/effect-http/pull/564) [`20b87bf`](https://github.com/sukovanej/effect-http/commit/20b87bf2e0b13cbc09dbeb8369a0f0900a7aaabe) Thanks [@sukovanej](https://github.com/sukovanej)! - Add `ClientError.isClientSideError` and `ClientError.isServerSideError`.
+
 ## 0.64.4
 
 ### Patch Changes
