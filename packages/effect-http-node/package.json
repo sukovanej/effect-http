@@ -1,7 +1,7 @@
 {
   "name": "effect-http-node",
   "type": "module",
-  "version": "0.12.5",
+  "version": "0.13.0",
   "license": "MIT",
   "author": "Milan Suk <Milansuk@email.cz>",
   "description": "High-level declarative HTTP API for effect-ts",
