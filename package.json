@@ -1,7 +1,7 @@
 {
   "private": true,
   "type": "module",
-  "packageManager": "pnpm@9.0.4",
+  "packageManager": "pnpm@9.1.1",
   "scripts": {
     "clean": "node scripts/clean.mjs",
     "codegen": "pnpm --recursive --parallel run codegen",
