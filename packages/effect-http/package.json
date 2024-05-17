@@ -13,7 +13,7 @@
   "bugs": {
     "url": "https://github.com/sukovanej/effect-http/issues"
   },
-  "packageManager": "pnpm@9.0.4",
+  "packageManager": "pnpm@9.1.1",
   "publishConfig": {
     "access": "public",
     "directory": "dist"
@@ -38,8 +38,8 @@
     "effect": "^3.1.0"
   },
   "devDependencies": {
-    "@effect/platform": "^0.53.4",
-    "@effect/schema": "^0.67.1",
-    "effect": "^3.1.4"
+    "@effect/platform": "^0.53.8",
+    "@effect/schema": "^0.67.5",
+    "effect": "^3.1.5"
   }
 }
