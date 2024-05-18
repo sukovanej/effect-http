@@ -110,13 +110,6 @@ export * as Route from "./Route.js"
 export * as RouterBuilder from "./RouterBuilder.js"
 
 /**
- * Server errors.
- *
- * @since 1.0.0
- */
-export * as ServerError from "./ServerError.js"
-
-/**
  * Create a router serving Swagger files.
  *
  * @since 1.0.0

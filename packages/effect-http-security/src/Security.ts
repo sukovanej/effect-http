@@ -4,6 +4,7 @@
  */
 import type * as HttpServer from "@effect/platform/HttpServer"
 import type * as Schema from "@effect/schema/Schema"
+import type * as HttpError from "effect-http-error/HttpError"
 import type * as Effect from "effect/Effect"
 import type * as Option from "effect/Option"
 import type * as Pipeable from "effect/Pipeable"
@@ -84,11 +85,6 @@ export declare namespace Security {
   >
 }
 
-export interface UnauthorizedError {
-  _tag: "UnauthorizedError"
-  message: string
-}
-
 /**
  * @category constructors
  * @since 1.0.0
@@ -101,7 +97,7 @@ export const make: <A, E, R>(
   >
 ) => Security<
   A,
-  Exclude<E, UnauthorizedError>,
+  Exclude<E, HttpError.HttpError>,
   Exclude<R, HttpServer.request.ServerRequest>
 > = internal.make
 
@@ -204,7 +200,7 @@ export const mapEffect: {
     self: Security<A1, E1, R1>
   ) => Security<
     A2,
-    E1 | Exclude<E2, UnauthorizedError>,
+    E1 | Exclude<E2, HttpError.HttpError>,
     R1 | Exclude<R2, HttpServer.request.ServerRequest>
   >
   <A1, E1, R1, A2, E2, R2>(
@@ -212,7 +208,7 @@ export const mapEffect: {
     f: (a: A1) => Security<A2, E2, R2>
   ): Security<
     A2,
-    E1 | Exclude<E2, UnauthorizedError>,
+    E1 | Exclude<E2, HttpError.HttpError>,
     R1 | Exclude<R2, HttpServer.request.ServerRequest>
   >
 } = internal.mapEffect

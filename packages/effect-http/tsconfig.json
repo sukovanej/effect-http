@@ -3,6 +3,7 @@
   "include": [],
   "references": [
     { "path": "../effect-http-security" },
+    { "path": "../effect-http-error" },
     { "path": "tsconfig.src.json" },
     { "path": "tsconfig.test.json" }
   ]

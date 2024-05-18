@@ -2,7 +2,8 @@ import { HttpServer } from "@effect/platform"
 import { NodeRuntime } from "@effect/platform-node"
 import { Schema } from "@effect/schema"
 import { Effect, pipe } from "effect"
-import { Api, Middlewares, RouterBuilder, ServerError } from "effect-http"
+import { Api, Middlewares, RouterBuilder } from "effect-http"
+import { HttpError } from "effect-http-error"
 import { NodeServer } from "effect-http-node"
 import { Security } from "effect-http-security"
 import { debugLogger } from "./_utils.js"
@@ -10,7 +11,7 @@ import { debugLogger } from "./_utils.js"
 const customSecurity = Security.make(
   pipe(
     HttpServer.request.schemaHeaders(Schema.Struct({ "x-api-key": Schema.String })),
-    Effect.mapError(() => ServerError.unauthorizedError("Expected valid X-API-KEY header")),
+    Effect.mapError(() => HttpError.unauthorizedError("Expected valid X-API-KEY header")),
     Effect.map((headers) => headers["x-api-key"])
   ),
   { "myApiKey": { name: "X-API-KEY", type: "apiKey", in: "header", description: "My API key" } }

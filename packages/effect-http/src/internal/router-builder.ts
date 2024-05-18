@@ -1,6 +1,7 @@
 import type * as App from "@effect/platform/Http/App"
 import * as Router from "@effect/platform/Http/Router"
 import type * as ServerRequest from "@effect/platform/Http/ServerRequest"
+import * as HttpError from "effect-http-error/HttpError"
 import * as Effect from "effect/Effect"
 import * as Pipeable from "effect/Pipeable"
 import type * as Scope from "effect/Scope"
@@ -9,7 +10,6 @@ import * as ApiEndpoint from "../ApiEndpoint.js"
 import * as OpenApi from "../OpenApi.js"
 import * as Route from "../Route.js"
 import type * as RouterBuilder from "../RouterBuilder.js"
-import * as ServerError from "../ServerError.js"
 import * as SwaggerRouter from "../SwaggerRouter.js"
 
 const DEFAULT_OPTIONS: RouterBuilder.Options = {
@@ -132,7 +132,7 @@ export const buildPartial = <R, E, RemainingEndpoints extends ApiEndpoint.ApiEnd
 ): App.Default<E, R | SwaggerRouter.SwaggerFiles> => {
   const swaggerRouter = builder.options.enableDocs ? SwaggerRouter.make(OpenApi.make(builder.api)) : Router.empty
   return Router.mount(builder.router, builder.options.docsPath, swaggerRouter).pipe(
-    Effect.catchTag("RouteNotFound", () => ServerError.toServerResponse(ServerError.make(404, "Not Found")))
+    Effect.catchTag("RouteNotFound", () => HttpError.toResponse(HttpError.make(404, "Not Found")))
   )
 }
 

@@ -2,7 +2,8 @@ import * as ClientRequest from "@effect/platform/Http/ClientRequest"
 import { Schema } from "@effect/schema"
 import * as it from "@effect/vitest"
 import { Effect, pipe } from "effect"
-import { Api, Client, ClientError, Middlewares, RouterBuilder, ServerError } from "effect-http"
+import { Api, Client, ClientError, Middlewares, RouterBuilder } from "effect-http"
+import { HttpError } from "effect-http-error"
 import { NodeTesting } from "effect-http-node"
 import { apply } from "effect/Function"
 import { expect } from "vitest"
@@ -32,7 +33,7 @@ it.scoped(
               return Effect.void
             }
 
-            return Effect.fail(ServerError.unauthorizedError("Wrong credentials"))
+            return Effect.fail(HttpError.unauthorizedError("Wrong credentials"))
           },
           { skipPaths: ["/ping"] }
         ),

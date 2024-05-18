@@ -2,18 +2,18 @@ import * as Router from "@effect/platform/Http/Router"
 import * as ServerRequest from "@effect/platform/Http/ServerRequest"
 import type * as AST from "@effect/schema/AST"
 import * as Schema from "@effect/schema/Schema"
+import * as HttpError from "effect-http-error/HttpError"
 import * as Security from "effect-http-security/Security"
 import * as Effect from "effect/Effect"
 import * as ApiEndpoint from "../ApiEndpoint.js"
 import * as ApiRequest from "../ApiRequest.js"
 import * as ApiSchema from "../ApiSchema.js"
-import * as ServerError from "../ServerError.js"
 import { formatParseError } from "./formatParseError.js"
 
 interface ServerRequestParser {
   parseRequest: Effect.Effect<
     { query: any; path: any; body: any; headers: any; security: any },
-    ServerError.ServerError,
+    HttpError.HttpError,
     ServerRequest.ServerRequest | ServerRequest.ParsedSearchParams | Router.RouteContext
   >
 }
@@ -22,7 +22,7 @@ const createError = (
   location: "query" | "path" | "body" | "headers",
   message: string
 ) =>
-  ServerError.makeJson(400, {
+  HttpError.make(400, {
     error: "Request validation error",
     location,
     message

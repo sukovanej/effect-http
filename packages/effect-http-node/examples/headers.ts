@@ -1,8 +1,9 @@
 import { NodeRuntime } from "@effect/platform-node"
 import { Schema } from "@effect/schema"
 import { Array, Context, Effect, pipe, Ref } from "effect"
-import { Api, Middlewares, RouterBuilder, ServerError } from "effect-http"
+import { Api, Middlewares, RouterBuilder } from "effect-http"
 
+import { HttpError } from "effect-http-error"
 import { NodeServer } from "effect-http-node"
 import { debugLogger } from "./_utils.js"
 
@@ -79,13 +80,13 @@ const app = pipe(
       Effect.filterOrFail(
         Effect.flatMap(ClientsService, (clients) => clients.hasAccess(clientId)),
         (hasAccess) => hasAccess,
-        () => ServerError.unauthorizedError("Wrong api key")
+        () => HttpError.unauthorizedError("Wrong api key")
       ),
       Effect.flatMap(() => Effect.flatMap(ClientsService, (client) => client.getRemainingUsage(clientId))),
       Effect.tap((remainingUsages) => Effect.log(`Remaining ${remainingUsages} usages.`)),
       Effect.filterOrFail(
         (remainingUsages) => remainingUsages > 0,
-        () => ServerError.tooManyRequestsError("Rate limit exceeded")
+        () => HttpError.tooManyRequestsError("Rate limit exceeded")
       ),
       Effect.flatMap(() => Effect.flatMap(ClientsService, (client) => client.recordUsage(clientId))),
       Effect.as("hello there")

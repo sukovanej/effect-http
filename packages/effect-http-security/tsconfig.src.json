@@ -1,6 +1,9 @@
 {
   "extends": "../../tsconfig.base.json",
   "include": ["src"],
+  "references": [
+    { "path": "../effect-http-error" },
+  ],
   "compilerOptions": {
     "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo",
     "rootDir": "src",

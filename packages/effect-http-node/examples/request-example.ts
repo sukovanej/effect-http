@@ -1,7 +1,8 @@
 import { NodeRuntime } from "@effect/platform-node"
 import { Schema } from "@effect/schema"
 import { Array, Context, Duration, Effect, pipe, Request, RequestResolver } from "effect"
-import { Api, RouterBuilder, ServerError } from "effect-http"
+import { Api, RouterBuilder } from "effect-http"
+import { HttpError } from "effect-http-error"
 
 import { NodeServer } from "effect-http-node"
 import type { FileNotFoundError } from "./_utils.js"
@@ -43,7 +44,7 @@ const app = pipe(
         Effect.all(Array.replicate(requestMyValue, 10), {
           concurrency: 10
         }),
-        Effect.mapError(() => ServerError.notFoundError("File not found")),
+        Effect.mapError(() => HttpError.notFoundError("File not found")),
         Effect.withRequestCache(getValueCache),
         Effect.withRequestCaching(true),
         Effect.map((values) => values.join(", "))

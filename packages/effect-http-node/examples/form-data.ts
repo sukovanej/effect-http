@@ -1,9 +1,10 @@
 import { NodeContext, NodeRuntime } from "@effect/platform-node"
 import { Schema } from "@effect/schema"
 import { Effect, pipe } from "effect"
-import { Api, Representation, RouterBuilder, ServerError } from "effect-http"
+import { Api, Representation, RouterBuilder } from "effect-http"
 
 import { FileSystem, HttpServer } from "@effect/platform"
+import { HttpError } from "effect-http-error"
 import { NodeServer } from "effect-http-node"
 import { debugLogger } from "./_utils.js"
 
@@ -28,7 +29,7 @@ const app = pipe(
       const file = formData["file"]
 
       if (typeof file === "string") {
-        return yield* ServerError.badRequest("File not found")
+        return yield* HttpError.badRequest("File not found")
       }
 
       const fs = yield* FileSystem.FileSystem
