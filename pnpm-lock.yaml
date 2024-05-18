@@ -125,6 +125,9 @@ importers:
       effect:
         specifier: ^3.1.5
         version: 3.1.5
+      effect-http-security:
+        specifier: workspace:^
+        version: link:../effect-http-security/dist
     publishDirectory: dist
 
   packages/effect-http-node:
@@ -154,9 +157,25 @@ importers:
       effect-http:
         specifier: workspace:^
         version: link:../effect-http/dist
+      effect-http-security:
+        specifier: workspace:^
+        version: link:../effect-http-security/dist
       effect-log:
         specifier: ^0.31.2
         version: 0.31.2(effect@3.1.5)
+    publishDirectory: dist
+
+  packages/effect-http-security:
+    devDependencies:
+      '@effect/platform':
+        specifier: ^0.53.8
+        version: 0.53.8(@effect/schema@0.67.5(effect@3.1.5))(effect@3.1.5)
+      '@effect/schema':
+        specifier: ^0.67.5
+        version: 0.67.5(effect@3.1.5)
+      effect:
+        specifier: ^3.1.5
+        version: 3.1.5
     publishDirectory: dist
 
 packages:

@@ -1,10 +1,10 @@
 {
-  "name": "effect-http-node",
+  "name": "effect-http-security",
   "type": "module",
-  "version": "0.13.0",
+  "version": "0.0.1",
   "license": "MIT",
   "author": "Milan Suk <Milansuk@email.cz>",
-  "description": "High-level declarative HTTP API for effect-ts",
+  "description": "HTTP Security for effect-ts",
   "homepage": "https://sukovanej.github.io/effect-http",
   "repository": {
     "type": "git",
@@ -25,28 +25,18 @@
     "build-cjs": "babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps",
     "build-annotate": "babel build --plugins annotate-pure-calls --out-dir build --source-maps",
     "check": "tsc -b tsconfig.json",
+    "check:watch": "tsc -b tsconfig.json --watch",
     "test": "vitest",
     "coverage": "vitest --coverage"
   },
-  "dependencies": {
-    "swagger-ui-dist": "^5.17.10"
-  },
   "peerDependencies": {
     "@effect/platform": "^0.53.0",
-    "@effect/platform-node": "^0.49.0",
     "@effect/schema": "^0.67.0",
-    "effect": "^3.1.0",
-    "effect-http": "workspace:^"
+    "effect": "^3.1.0"
   },
   "devDependencies": {
     "@effect/platform": "^0.53.8",
-    "@effect/platform-bun": "^0.34.14",
-    "@effect/platform-node": "^0.49.8",
     "@effect/schema": "^0.67.5",
-    "@types/node": "^20.12.12",
-    "effect": "^3.1.5",
-    "effect-http": "workspace:^",
-    "effect-http-security": "workspace:^",
-    "effect-log": "^0.31.2"
+    "effect": "^3.1.5"
   }
 }

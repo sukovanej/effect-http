@@ -9,9 +9,8 @@ import type * as Option from "effect/Option"
 import type * as Pipeable from "effect/Pipeable"
 import type * as Record from "effect/Record"
 import type * as Types from "effect/Types"
-import type * as OpenApiTypes from "schema-openapi/OpenApiTypes"
 import * as internal from "./internal/security.js"
-import type * as ServerError from "./ServerError.js"
+
 /**
  * @since 1.0.0
  * @category type id
@@ -85,6 +84,11 @@ export declare namespace Security {
   >
 }
 
+export interface UnauthorizedError {
+  _tag: "UnauthorizedError"
+  message: string
+}
+
 /**
  * @category constructors
  * @since 1.0.0
@@ -93,11 +97,11 @@ export const make: <A, E, R>(
   parser: Security.Handler<A, E, R>,
   openapi?: Record.ReadonlyRecord<
     string,
-    OpenApiTypes.OpenAPISecurityScheme
+    unknown
   >
 ) => Security<
   A,
-  Exclude<E, ServerError.ServerError>,
+  Exclude<E, UnauthorizedError>,
   Exclude<R, HttpServer.request.ServerRequest>
 > = internal.make
 
@@ -115,7 +119,7 @@ export const handleRequest: <A, E, R>(
  */
 export const getOpenApi: <A, E, R>(
   security: Security<A, E, R>
-) => Record.ReadonlyRecord<string, OpenApiTypes.OpenAPISecurityScheme> = internal.getOpenApi
+) => Record.ReadonlyRecord<string, unknown> = internal.getOpenApi
 
 /**
  * @category combinators
@@ -200,7 +204,7 @@ export const mapEffect: {
     self: Security<A1, E1, R1>
   ) => Security<
     A2,
-    E1 | Exclude<E2, ServerError.ServerError>,
+    E1 | Exclude<E2, UnauthorizedError>,
     R1 | Exclude<R2, HttpServer.request.ServerRequest>
   >
   <A1, E1, R1, A2, E2, R2>(
@@ -208,7 +212,7 @@ export const mapEffect: {
     f: (a: A1) => Security<A2, E2, R2>
   ): Security<
     A2,
-    E1 | Exclude<E2, ServerError.ServerError>,
+    E1 | Exclude<E2, UnauthorizedError>,
     R1 | Exclude<R2, HttpServer.request.ServerRequest>
   >
 } = internal.mapEffect

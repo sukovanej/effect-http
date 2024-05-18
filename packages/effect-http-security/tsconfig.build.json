@@ -1,8 +1,5 @@
 {
   "extends": "./tsconfig.src.json",
-  "references": [
-    { "path": "../effect-http-security" },
-  ],
   "compilerOptions": {
     "tsBuildInfoFile": ".tsbuildinfo/build.tsbuildinfo",
     "outDir": "build/esm",

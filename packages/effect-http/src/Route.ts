@@ -7,6 +7,7 @@ import type * as Router from "@effect/platform/Http/Router"
 import type * as Effect from "effect/Effect"
 import type * as Types from "effect/Types"
 
+import type * as Security from "effect-http-security/Security"
 import type * as Api from "./Api.js"
 import type * as ApiEndpoint from "./ApiEndpoint.js"
 import type * as ApiRequest from "./ApiRequest.js"
@@ -14,7 +15,6 @@ import type * as ApiResponse from "./ApiResponse.js"
 import * as internal from "./internal/route.js"
 import type * as utils from "./internal/utils.js"
 import type * as RouterBuilder from "./RouterBuilder.js"
-import type * as Security from "./Security.js"
 import type * as ServerError from "./ServerError.js"
 
 /**

@@ -3,6 +3,7 @@ import type * as OpenApiTypes from "schema-openapi/OpenApiTypes"
 
 import * as AST from "@effect/schema/AST"
 import * as Schema from "@effect/schema/Schema"
+import * as Security from "effect-http-security/Security"
 import * as Array from "effect/Array"
 import { identity, pipe } from "effect/Function"
 import * as Option from "effect/Option"
@@ -12,7 +13,6 @@ import * as ApiEndpoint from "../ApiEndpoint.js"
 import * as ApiRequest from "../ApiRequest.js"
 import * as ApiResponse from "../ApiResponse.js"
 import * as ApiSchema from "../ApiSchema.js"
-import * as Security from "../Security.js"
 
 export const make = (
   api: Api.Api.Any
@@ -83,7 +83,7 @@ export const make = (
             },
             (result, [name, openapi]) => {
               result.operationSetters.push(OpenApi.securityRequirement(name))
-              result.apiSetters.push(OpenApi.securityScheme(name, openapi))
+              result.apiSetters.push(OpenApi.securityScheme(name, openapi as OpenApiTypes.OpenAPISecurityScheme))
               return result
             }
           )

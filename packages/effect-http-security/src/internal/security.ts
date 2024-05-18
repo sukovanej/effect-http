@@ -8,13 +8,10 @@ import * as Option from "effect/Option"
 import * as Pipeable from "effect/Pipeable"
 import type * as Record from "effect/Record"
 import * as Unify from "effect/Unify"
-import type * as OpenApiTypes from "schema-openapi/OpenApiTypes"
 import type * as Security from "../Security.js"
-import * as ServerError from "../ServerError.js"
-import { formatParseError } from "./formatParseError.js"
 
 export const TypeId: Security.TypeId = Symbol.for(
-  "effect-http/Security/TypeId"
+  "effect-http-security/Security/TypeId"
 ) as Security.TypeId
 
 /** @internal */
@@ -34,7 +31,7 @@ export class SecurityImpl<A, E = never, R = never> implements Security.Security<
   constructor(
     readonly openapi: Record.ReadonlyRecord<
       string,
-      OpenApiTypes.OpenAPISecurityScheme
+      unknown
     >,
     readonly parser: Security.Security.Handler<A, E, R>
   ) {}
@@ -50,11 +47,11 @@ export const make = <A, E, R>(
   parser: Security.Security.Handler<A, E, R>,
   openapi?: Record.ReadonlyRecord<
     string,
-    OpenApiTypes.OpenAPISecurityScheme
+    unknown
   >
 ): Security.Security<
   A,
-  Exclude<E, ServerError.ServerError>,
+  Exclude<E, Security.UnauthorizedError>,
   Exclude<R, HttpServer.request.ServerRequest>
 > => new SecurityImpl(openapi ?? {}, parser)
 
@@ -66,7 +63,7 @@ export const handleRequest = <A, E, R>(
 /** @internal */
 export const getOpenApi = <A, E, R>(
   security: Security.Security<A, E, R>
-): Record.ReadonlyRecord<string, OpenApiTypes.OpenAPISecurityScheme> => (security as SecurityImpl<A, E, R>).openapi
+): Record.ReadonlyRecord<string, unknown> => (security as SecurityImpl<A, E, R>).openapi
 
 /** @internal */
 export const mapHandler: typeof Security.mapHandler = dual(
@@ -78,7 +75,7 @@ export const mapHandler: typeof Security.mapHandler = dual(
     ) => Security.Security.Handler<B, E2, R2>
   ): Security.Security<
     B,
-    Exclude<E2, ServerError.ServerError>,
+    Exclude<E2, Security.UnauthorizedError>,
     Exclude<R2, HttpServer.request.ServerRequest>
   > => make(f(handleRequest(self)), getOpenApi(self))
 )
@@ -117,13 +114,13 @@ export const mapEffect = dual(
     f: (a: A1) => Effect.Effect<A2, E2, R2>
   ): Security.Security<
     A2,
-    E1 | Exclude<E2, ServerError.ServerError>,
+    E1 | Exclude<E2, Security.UnauthorizedError>,
     R1 | Exclude<R2, HttpServer.request.ServerRequest>
   > => mapHandler(self, Effect.flatMap(f) as any)
 )
 
 /** @internal */
-const unauthorizedError = (message: string) => ServerError.unauthorizedError({ error: "Unauthorized", message })
+const unauthorizedError = (message: string): Security.UnauthorizedError => ({ _tag: "UnauthorizedError", message })
 
 /** @internal */
 export const mapSchema = dual(
@@ -140,7 +137,7 @@ export const mapSchema = dual(
           parse(token),
           Effect.mapError((error) =>
             unauthorizedError(
-              `Security parsing error, ${formatParseError(error)}`
+              `Security parsing error, ${error}`
             )
           )
         )),

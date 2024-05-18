@@ -4,5 +4,6 @@
   "references": [
     { "path": "packages/effect-http" },
     { "path": "packages/effect-http-node" },
+    { "path": "packages/effect-http-security" },
   ]
 }

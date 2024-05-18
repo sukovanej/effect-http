@@ -1,8 +1,9 @@
 import { NodeRuntime } from "@effect/platform-node"
 import { Schema } from "@effect/schema"
 import { Effect } from "effect"
-import { Api, RouterBuilder, Security } from "effect-http"
+import { Api, RouterBuilder } from "effect-http"
 import { NodeServer } from "effect-http-node"
+import { Security } from "effect-http-security"
 
 const api = Api.make().pipe(
   Api.addEndpoint(

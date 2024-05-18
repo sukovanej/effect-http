@@ -11,10 +11,10 @@ import {
   ClientError,
   Representation,
   RouterBuilder,
-  Security,
   ServerError
 } from "effect-http"
 import { NodeTesting } from "effect-http-node"
+import { Security } from "effect-http-security"
 import { expect } from "vitest"
 
 it.scoped(

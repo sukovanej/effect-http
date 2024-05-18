@@ -110,12 +110,6 @@ export * as Route from "./Route.js"
 export * as RouterBuilder from "./RouterBuilder.js"
 
 /**
- * Authentication and authorization.
- * @since 1.0.0
- */
-export * as Security from "./Security.js"
-
-/**
  * Server errors.
  *
  * @since 1.0.0

@@ -2,8 +2,9 @@ import { HttpServer } from "@effect/platform"
 import { NodeRuntime } from "@effect/platform-node"
 import { Schema } from "@effect/schema"
 import { Effect, pipe } from "effect"
-import { Api, Middlewares, RouterBuilder, Security, ServerError } from "effect-http"
+import { Api, Middlewares, RouterBuilder, ServerError } from "effect-http"
 import { NodeServer } from "effect-http-node"
+import { Security } from "effect-http-security"
 import { debugLogger } from "./_utils.js"
 
 const customSecurity = Security.make(

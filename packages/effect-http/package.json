@@ -35,11 +35,13 @@
   "peerDependencies": {
     "@effect/platform": "^0.53.0",
     "@effect/schema": "^0.67.0",
-    "effect": "^3.1.0"
+    "effect": "^3.1.0",
+    "effect-http-security": "workspace:^"
   },
   "devDependencies": {
     "@effect/platform": "^0.53.8",
     "@effect/schema": "^0.67.5",
-    "effect": "^3.1.5"
+    "effect": "^3.1.5",
+    "effect-http-security": "workspace:^"
   }
 }
