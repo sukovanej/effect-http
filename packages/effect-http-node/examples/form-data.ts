@@ -1,10 +1,9 @@
 import { NodeContext, NodeRuntime } from "@effect/platform-node"
 import { Schema } from "@effect/schema"
 import { Effect, pipe } from "effect"
-import { Api, Representation, RouterBuilder } from "effect-http"
+import { Api, HttpError, Representation, RouterBuilder } from "effect-http"
 
 import { FileSystem, HttpServer } from "@effect/platform"
-import { HttpError } from "effect-http-error"
 import { NodeServer } from "effect-http-node"
 import { debugLogger } from "./_utils.js"
 

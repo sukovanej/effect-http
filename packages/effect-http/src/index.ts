@@ -67,6 +67,13 @@ export * as ClientError from "./ClientError.js"
 export * as ExampleServer from "./ExampleServer.js"
 
 /**
+ * HTTP errors.
+ *
+ * @since 1.0.0
+ */
+export * as HttpError from "./HttpError.js"
+
+/**
  * Mechanism for extendning behaviour of all handlers on the server.
  *
  * @since 1.0.0
@@ -108,6 +115,12 @@ export * as Route from "./Route.js"
  * @since 1.0.0
  */
 export * as RouterBuilder from "./RouterBuilder.js"
+
+/**
+ * Authentication and authorization.
+ * @since 1.0.0
+ */
+export * as Security from "./Security.js"
 
 /**
  * Create a router serving Swagger files.

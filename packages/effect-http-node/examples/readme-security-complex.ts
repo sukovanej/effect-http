@@ -1,9 +1,8 @@
 import { NodeRuntime } from "@effect/platform-node"
 import { Schema } from "@effect/schema"
 import { Effect, Fiber, Layer, pipe, Schedule } from "effect"
-import { Api, Client, Middlewares, RouterBuilder } from "effect-http"
+import { Api, Client, Middlewares, RouterBuilder, Security } from "effect-http"
 import { NodeServer } from "effect-http-node"
-import { Security } from "effect-http-security"
 
 interface UserInfo {
   email: string

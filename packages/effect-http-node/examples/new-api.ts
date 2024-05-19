@@ -1,7 +1,6 @@
 import { Schema } from "@effect/schema"
 import { pipe } from "effect"
-import { Api, ApiGroup, ApiResponse } from "effect-http"
-import { Security } from "effect-http-security"
+import { Api, ApiGroup, ApiResponse, Security } from "effect-http"
 
 interface MyRequirement {}
 interface AnotherDep {}
