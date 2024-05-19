@@ -867,7 +867,7 @@ export const api2 = Api.make().pipe(
 )
 ```
 
-The `representations` is a list and if it contains multiple possible represetations
+The `representations` is a list and if it contains multiple possible representations
 of the data it internal server logic will respect incomming `Accept` header to decide
 which representation to use.
 
