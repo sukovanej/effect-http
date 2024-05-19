@@ -11,7 +11,9 @@ const config: UserConfig = {
   test: {
     alias: {
       ...alias("effect-http"),
-      ...alias("effect-http-node")
+      ...alias("effect-http-node"),
+      ...alias("effect-http-security"),
+      ...alias("effect-http-error")
     }
   }
 }

@@ -1,7 +1,7 @@
 import { NodeRuntime } from "@effect/platform-node"
 import { Schema } from "@effect/schema"
 import { Effect, pipe } from "effect"
-import { Api, RouterBuilder, ServerError } from "effect-http"
+import { Api, HttpError, RouterBuilder } from "effect-http"
 
 import { NodeServer } from "effect-http-node"
 import { debugLogger } from "./_utils.js"
@@ -18,7 +18,7 @@ const api = pipe(
 
 const stuffHandler = RouterBuilder.handler(api, "stuff", ({ query }) =>
   pipe(
-    Effect.fail(ServerError.notFoundError("I didnt find it")),
+    Effect.fail(HttpError.notFoundError("I didnt find it")),
     Effect.tap(() => Effect.log(`Received ${query.value}`))
   ))
 

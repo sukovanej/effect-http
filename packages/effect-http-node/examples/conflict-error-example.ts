@@ -1,7 +1,7 @@
 import { NodeRuntime } from "@effect/platform-node"
 import { Schema } from "@effect/schema"
 import { Context, Effect, pipe } from "effect"
-import { Api, Middlewares, RouterBuilder, ServerError } from "effect-http"
+import { Api, HttpError, Middlewares, RouterBuilder } from "effect-http"
 
 import { NodeServer } from "effect-http-node"
 import { debugLogger } from "./_utils.js"
@@ -36,7 +36,7 @@ const app = RouterBuilder.make(api).pipe(
       userExistsByName(body.name),
       Effect.filterOrFail(
         (alreadyExists) => !alreadyExists,
-        () => ServerError.conflictError(`User "${body.name}" already exists.`)
+        () => HttpError.conflictError(`User "${body.name}" already exists.`)
       ),
       Effect.andThen(storeUser(body.name)),
       Effect.map(() => `User "${body.name}" stored.`)

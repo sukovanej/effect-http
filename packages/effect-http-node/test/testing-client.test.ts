@@ -3,18 +3,10 @@ import { NodeContext } from "@effect/platform-node"
 import { Schema } from "@effect/schema"
 import * as it from "@effect/vitest"
 import { Context, Effect, pipe, Predicate } from "effect"
-import {
-  Api,
-  ApiResponse,
-  ApiSchema,
-  Client,
-  ClientError,
-  Representation,
-  RouterBuilder,
-  Security,
-  ServerError
-} from "effect-http"
+import { Api, ApiResponse, ApiSchema, Client, ClientError, Representation, RouterBuilder } from "effect-http"
+import { HttpError } from "effect-http-error"
 import { NodeTesting } from "effect-http-node"
+import { Security } from "effect-http-security"
 import { expect } from "vitest"
 
 it.scoped(
@@ -59,7 +51,7 @@ it.scoped(
 
       const app = pipe(
         RouterBuilder.make(api),
-        RouterBuilder.handle("hello", () => Effect.fail(ServerError.notFoundError("oh oh"))),
+        RouterBuilder.handle("hello", () => Effect.fail(HttpError.notFoundError("oh oh"))),
         RouterBuilder.build
       )
 
@@ -230,11 +222,11 @@ it.scoped(
             const file = body["file"]
 
             if (file === null) {
-              return yield* _(ServerError.badRequest("Expected \"file\""))
+              return yield* _(HttpError.badRequest("Expected \"file\""))
             }
 
             if (Predicate.isString(file)) {
-              return yield* _(ServerError.badRequest("Expected file"))
+              return yield* _(HttpError.badRequest("Expected file"))
             }
 
             const fs = yield* _(FileSystem.FileSystem)

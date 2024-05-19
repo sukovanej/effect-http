@@ -1,11 +1,11 @@
 import * as Router from "@effect/platform/Http/Router"
+import * as HttpError from "effect-http-error/HttpError"
 import * as Effect from "effect/Effect"
 import { pipe } from "effect/Function"
 import * as Api from "../Api.js"
 import * as ApiEndpoint from "../ApiEndpoint.js"
 import type * as Route from "../Route.js"
 import type * as RouterBuilder from "../RouterBuilder.js"
-import * as ServerError from "../ServerError.js"
 import * as ServerRequestParser from "./serverRequestParser.js"
 import * as ServerResponseEncoder from "./serverResponseEncoder.js"
 
@@ -18,7 +18,7 @@ export const fromEndpoint: <Endpoint extends ApiEndpoint.ApiEndpoint.Any, R, E>(
   options?: Partial<RouterBuilder.Options>
 ) => (
   endpoint: Endpoint
-) => Router.Route<Exclude<E, ServerError.ServerError>, R> = <Endpoint extends ApiEndpoint.ApiEndpoint.Any, R, E>(
+) => Router.Route<Exclude<E, HttpError.HttpError>, R> = <Endpoint extends ApiEndpoint.ApiEndpoint.Any, R, E>(
   fn: Route.HandlerFunction<Endpoint, R, E>,
   options?: Partial<RouterBuilder.Options>
 ) =>
@@ -37,11 +37,11 @@ export const fromEndpoint: <Endpoint extends ApiEndpoint.ApiEndpoint.Any, R, E>(
       }),
       Effect.flatMap((response) => responseEncoder.encodeResponse(response)),
       Effect.catchAll((error) => {
-        if (ServerError.isServerError(error)) {
-          return ServerError.toServerResponse(error)
+        if (HttpError.isHttpError(error)) {
+          return HttpError.toResponse(error)
         }
 
-        return Effect.fail(error as Exclude<E, ServerError.ServerError>)
+        return Effect.fail(error as Exclude<E, HttpError.HttpError>)
       })
     )
   )
@@ -55,7 +55,7 @@ export const make: <A extends Api.Api.Any, Id extends Api.Api.Ids<A>, R, E>(
   id: Id,
   fn: Route.HandlerFunction<Api.Api.EndpointById<A, Id>, R, E>,
   options?: Partial<RouterBuilder.Options>
-) => (api: A) => Router.Route<Exclude<E, ServerError.ServerError>, R> = (id, fn, options) => (api) => {
+) => (api: A) => Router.Route<Exclude<E, HttpError.HttpError>, R> = (id, fn, options) => (api) => {
   const endpoint = Api.getEndpoint(api, id)
 
   if (endpoint === undefined) {

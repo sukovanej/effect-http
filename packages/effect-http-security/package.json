@@ -1,0 +1,44 @@
+{
+  "name": "effect-http-security",
+  "type": "module",
+  "version": "0.0.1",
+  "license": "MIT",
+  "author": "Milan Suk <Milansuk@email.cz>",
+  "description": "HTTP Security for effect-ts",
+  "homepage": "https://sukovanej.github.io/effect-http",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sukovanej/effect-http.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sukovanej/effect-http/issues"
+  },
+  "packageManager": "pnpm@9.1.1",
+  "publishConfig": {
+    "access": "public",
+    "directory": "dist"
+  },
+  "scripts": {
+    "codegen": "build-utils prepare-v2",
+    "build": "pnpm codegen && pnpm build-esm && pnpm build-cjs && pnpm build-annotate && build-utils pack-v2",
+    "build-esm": "tsc -b tsconfig.build.json",
+    "build-cjs": "babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps",
+    "build-annotate": "babel build --plugins annotate-pure-calls --out-dir build --source-maps",
+    "check": "tsc -b tsconfig.json",
+    "check:watch": "tsc -b tsconfig.json --watch",
+    "test": "vitest",
+    "coverage": "vitest --coverage"
+  },
+  "peerDependencies": {
+    "@effect/platform": "^0.53.0",
+    "@effect/schema": "^0.67.0",
+    "effect": "^3.1.0",
+    "effect-http-error": "workspace:^"
+  },
+  "devDependencies": {
+    "@effect/platform": "^0.53.8",
+    "@effect/schema": "^0.67.5",
+    "effect": "^3.1.5",
+    "effect-http-error": "workspace:^"
+  }
+}

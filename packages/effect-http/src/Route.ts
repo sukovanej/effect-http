@@ -7,6 +7,8 @@ import type * as Router from "@effect/platform/Http/Router"
 import type * as Effect from "effect/Effect"
 import type * as Types from "effect/Types"
 
+import type * as HttpError from "effect-http-error/HttpError"
+import type * as Security from "effect-http-security/Security"
 import type * as Api from "./Api.js"
 import type * as ApiEndpoint from "./ApiEndpoint.js"
 import type * as ApiRequest from "./ApiRequest.js"
@@ -14,8 +16,6 @@ import type * as ApiResponse from "./ApiResponse.js"
 import * as internal from "./internal/route.js"
 import type * as utils from "./internal/utils.js"
 import type * as RouterBuilder from "./RouterBuilder.js"
-import type * as Security from "./Security.js"
-import type * as ServerError from "./ServerError.js"
 
 /**
  * @category models
@@ -39,7 +39,7 @@ export const fromEndpoint: <Endpoint extends ApiEndpoint.ApiEndpoint.Any, R, E>(
   options?: Partial<RouterBuilder.Options>
 ) => (
   endpoint: Endpoint
-) => Router.Route<Exclude<E, ServerError.ServerError>, R> = internal.fromEndpoint
+) => Router.Route<Exclude<E, HttpError.HttpError>, R> = internal.fromEndpoint
 
 /**
  * @category constructors
@@ -49,7 +49,7 @@ export const make: <A extends Api.Api.Any, Id extends Api.Api.Ids<A>, R, E>(
   id: Id,
   fn: HandlerFunction<Api.Api.EndpointById<A, Id>, R, E>,
   options?: Partial<RouterBuilder.Options>
-) => (api: A) => Router.Route<Exclude<E, ServerError.ServerError>, R> = internal.make
+) => (api: A) => Router.Route<Exclude<E, HttpError.HttpError>, R> = internal.make
 
 /** @ignore */
 type ToResponse<

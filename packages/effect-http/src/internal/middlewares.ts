@@ -5,6 +5,7 @@
  */
 
 import * as HttpServer from "@effect/platform/HttpServer"
+import * as HttpError from "effect-http-error/HttpError"
 import * as Effect from "effect/Effect"
 import * as Either from "effect/Either"
 import * as Encoding from "effect/Encoding"
@@ -13,7 +14,6 @@ import { pipe } from "effect/Function"
 import * as HashMap from "effect/HashMap"
 import * as Metric from "effect/Metric"
 import type * as Middlewares from "../Middlewares.js"
-import * as ServerError from "../ServerError.js"
 
 export const accessLog = (level: "Info" | "Warning" | "Debug" = "Info") =>
   HttpServer.middleware.make((app) =>
@@ -82,7 +82,7 @@ export const errorLog = HttpServer.middleware.make((app) =>
 export const basicAuth = <R, _>(
   checkCredentials: (
     credentials: Middlewares.BasicAuthCredentials
-  ) => Effect.Effect<_, ServerError.ServerError, R>,
+  ) => Effect.Effect<_, HttpError.HttpError, R>,
   options?: Partial<{
     headerName: string
     skipPaths: ReadonlyArray<string>
@@ -101,38 +101,38 @@ export const basicAuth = <R, _>(
       const authHeader = request.headers[headerName.toLowerCase()]
 
       if (authHeader === undefined) {
-        return ServerError.unauthorizedError(
+        return HttpError.unauthorizedError(
           `Expected header ${headerName}`
-        ).pipe(ServerError.toServerResponse)
+        ).pipe(HttpError.toResponse)
       }
 
       const authorizationParts = authHeader.split(" ")
 
       if (authorizationParts.length !== 2) {
-        return ServerError.unauthorizedError(
+        return HttpError.unauthorizedError(
           "Incorrect auhorization scheme. Expected \"Basic <credentials>\""
-        ).pipe(ServerError.toServerResponse)
+        ).pipe(HttpError.toResponse)
       }
 
       if (authorizationParts[0] !== "Basic") {
-        return ServerError.unauthorizedError(
+        return HttpError.unauthorizedError(
           `Incorrect auhorization type. Expected "Basic", got "${authorizationParts[0]}"`
-        ).pipe(ServerError.toServerResponse)
+        ).pipe(HttpError.toResponse)
       }
 
       const credentialsDecoded = Encoding.decodeBase64String(authorizationParts[1])
 
       if (Either.isLeft(credentialsDecoded)) {
-        return ServerError.unauthorizedError("Invalid base64 encoding").pipe(ServerError.toServerResponse)
+        return HttpError.unauthorizedError("Invalid base64 encoding").pipe(HttpError.toResponse)
       }
 
       const credentialsText = credentialsDecoded.right
       const credentialsParts = credentialsText.split(":")
 
       if (credentialsParts.length !== 2) {
-        return ServerError.unauthorizedError(
+        return HttpError.unauthorizedError(
           "Incorrect basic auth credentials format. Expected base64 encoded \"<user>:<pass>\"."
-        ).pipe(ServerError.toServerResponse)
+        ).pipe(HttpError.toResponse)
       }
 
       const check = yield* _(
@@ -144,7 +144,7 @@ export const basicAuth = <R, _>(
       )
 
       if (Either.isLeft(check)) {
-        return ServerError.toServerResponse(check.left)
+        return HttpError.toResponse(check.left)
       }
 
       return yield* _(app)

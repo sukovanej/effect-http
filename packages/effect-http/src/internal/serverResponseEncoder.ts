@@ -3,6 +3,7 @@ import type * as Headers from "@effect/platform/Http/Headers"
 import * as ServerRequest from "@effect/platform/Http/ServerRequest"
 import * as ServerResponse from "@effect/platform/Http/ServerResponse"
 import * as Schema from "@effect/schema/Schema"
+import * as HttpError from "effect-http-error/HttpError"
 import * as Array from "effect/Array"
 import * as Effect from "effect/Effect"
 import { flow, pipe } from "effect/Function"
@@ -12,16 +13,15 @@ import * as ApiEndpoint from "../ApiEndpoint.js"
 import * as ApiResponse from "../ApiResponse.js"
 import * as ApiSchema from "../ApiSchema.js"
 import type * as Representation from "../Representation.js"
-import * as ServerError from "../ServerError.js"
 import { formatParseError } from "./formatParseError.js"
 
 interface ServerResponseEncoder {
   encodeResponse: (
     inputResponse: unknown
-  ) => Effect.Effect<ServerResponse.ServerResponse, ServerError.ServerError, ServerRequest.ServerRequest>
+  ) => Effect.Effect<ServerResponse.ServerResponse, HttpError.HttpError, ServerRequest.ServerRequest>
 }
 
-const createErrorResponse = (error: string, message: string) => ServerError.makeJson(500, { error, message })
+const createErrorResponse = (error: string, message: string) => HttpError.make(500, { error, message })
 
 const make = (
   encodeResponse: ServerResponseEncoder["encodeResponse"]

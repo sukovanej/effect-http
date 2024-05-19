@@ -1,6 +1,7 @@
 import { Schema } from "@effect/schema"
 import { pipe } from "effect"
-import { Api, ApiGroup, OpenApi, Security } from "effect-http"
+import { Api, ApiGroup, OpenApi } from "effect-http"
+import { Security } from "effect-http-security"
 import type { OpenAPISpecStatusCode } from "schema-openapi/OpenApiTypes"
 import { expect, test } from "vitest"
 

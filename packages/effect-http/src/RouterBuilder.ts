@@ -10,11 +10,11 @@ import type * as AST from "@effect/schema/AST"
 import type * as Pipeable from "effect/Pipeable"
 import type * as Scope from "effect/Scope"
 
+import type * as HttpError from "effect-http-error/HttpError"
 import type * as Api from "./Api.js"
 import type * as ApiEndpoint from "./ApiEndpoint.js"
 import * as internal from "./internal/router-builder.js"
 import type * as Route from "./Route.js"
-import type * as ServerError from "./ServerError.js"
 import type * as SwaggerRouter from "./SwaggerRouter.js"
 
 /**
@@ -115,7 +115,7 @@ export const handle: {
   ) => RouterBuilder<
     | Exclude<R1 | R2, Router.RouteContext | ServerRequest.ServerRequest>
     | ApiEndpoint.ApiEndpoint.Context<Endpoint>,
-    E1 | Exclude<E2, ServerError.ServerError>,
+    E1 | Exclude<E2, HttpError.HttpError>,
     Exclude<RemainingEndpoints, Endpoint>
   >
 
@@ -136,7 +136,7 @@ export const handle: {
   ) => RouterBuilder<
     | Exclude<R1 | R2, Router.RouteContext | ServerRequest.ServerRequest>
     | ApiEndpoint.ApiEndpoint.Context<ApiEndpoint.ApiEndpoint.ExtractById<RemainingEndpoints, Id>>,
-    E1 | Exclude<E2, ServerError.ServerError>,
+    E1 | Exclude<E2, HttpError.HttpError>,
     ApiEndpoint.ApiEndpoint.ExcludeById<RemainingEndpoints, Id>
   >
 } = internal.handle

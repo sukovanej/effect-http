@@ -2,8 +2,10 @@ import { HttpServer } from "@effect/platform"
 import { Schema } from "@effect/schema"
 import * as it from "@effect/vitest"
 import { Array, Context, Effect, Either, Layer, Option, pipe } from "effect"
-import { Api, ApiResponse, Client, ClientError, RouterBuilder, Security, ServerError } from "effect-http"
+import { Api, ApiResponse, Client, ClientError, RouterBuilder } from "effect-http"
+import { HttpError } from "effect-http-error"
 import { NodeTesting } from "effect-http-node"
+import { Security } from "effect-http-security"
 import { createHash } from "node:crypto"
 import { assert, describe, expect, test } from "vitest"
 import {
@@ -57,7 +59,7 @@ it.scoped(
   () =>
     Effect.gen(function*(_) {
       const app = RouterBuilder.make(exampleApiGet).pipe(
-        RouterBuilder.handle("getValue", () => Effect.fail(ServerError.notFoundError("Didnt find it"))),
+        RouterBuilder.handle("getValue", () => Effect.fail(HttpError.notFoundError("Didnt find it"))),
         RouterBuilder.build
       )
 
@@ -99,7 +101,7 @@ it.scoped(
 
 test.each(
   [
-    { response: ServerError.conflictError("error"), status: 409 }
+    { response: HttpError.conflictError("error"), status: 409 }
   ]
 )("status codes", ({ response, status }) =>
   Effect.gen(function*(_) {
@@ -201,7 +203,7 @@ it.scoped(
       const app = RouterBuilder.make(exampleApiGet).pipe(
         RouterBuilder.handle("getValue", () => Effect.succeed(1)),
         RouterBuilder.build,
-        HttpServer.middleware.make(() => ServerError.toServerResponse(ServerError.unauthorizedError("sorry bro")))
+        HttpServer.middleware.make(() => HttpError.toResponse(HttpError.unauthorizedError("sorry bro")))
       )
 
       const result = yield* _(

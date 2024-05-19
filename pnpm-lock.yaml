@@ -36,7 +36,7 @@ importers:
         version: 0.7.6
       '@effect/docgen':
         specifier: ^0.4.3
-        version: 0.4.3(tsx@4.10.4)(typescript@5.4.5)
+        version: 0.4.3(tsx@4.10.5)(typescript@5.4.5)
       '@effect/dtslint':
         specifier: ^0.1.0
         version: 0.1.0(typescript@5.4.5)
@@ -101,8 +101,8 @@ importers:
         specifier: ^5.0.7
         version: 5.0.7
       tsx:
-        specifier: ^4.10.4
-        version: 4.10.4
+        specifier: ^4.10.5
+        version: 4.10.5
       typescript:
         specifier: ^5.4.5
         version: 5.4.5
@@ -112,9 +112,28 @@ importers:
 
   packages/effect-http:
     dependencies:
+      effect-http-error:
+        specifier: workspace:^
+        version: link:../effect-http-error/dist
+      effect-http-security:
+        specifier: workspace:^
+        version: link:../effect-http-security/dist
       schema-openapi:
         specifier: ^0.38.1
         version: 0.38.1(@effect/schema@0.67.5(effect@3.1.5))(effect@3.1.5)
+    devDependencies:
+      '@effect/platform':
+        specifier: ^0.53.8
+        version: 0.53.8(@effect/schema@0.67.5(effect@3.1.5))(effect@3.1.5)
+      '@effect/schema':
+        specifier: ^0.67.5
+        version: 0.67.5(effect@3.1.5)
+      effect:
+        specifier: ^3.1.5
+        version: 3.1.5
+    publishDirectory: dist
+
+  packages/effect-http-error:
     devDependencies:
       '@effect/platform':
         specifier: ^0.53.8
@@ -154,9 +173,31 @@ importers:
       effect-http:
         specifier: workspace:^
         version: link:../effect-http/dist
+      effect-http-error:
+        specifier: workspace:^
+        version: link:../effect-http-error/dist
+      effect-http-security:
+        specifier: workspace:^
+        version: link:../effect-http-security/dist
       effect-log:
         specifier: ^0.31.2
         version: 0.31.2(effect@3.1.5)
+    publishDirectory: dist
+
+  packages/effect-http-security:
+    devDependencies:
+      '@effect/platform':
+        specifier: ^0.53.8
+        version: 0.53.8(@effect/schema@0.67.5(effect@3.1.5))(effect@3.1.5)
+      '@effect/schema':
+        specifier: ^0.67.5
+        version: 0.67.5(effect@3.1.5)
+      effect:
+        specifier: ^3.1.5
+        version: 3.1.5
+      effect-http-error:
+        specifier: workspace:^
+        version: link:../effect-http-error/dist
     publishDirectory: dist
 
 packages:
@@ -1758,8 +1799,8 @@ packages:
     resolution: {integrity: sha512-TMKDUnIte6bfb5nWv7V/caI169OHgvwjb7V4WkeUvbQQdjr5rWKqHFiKWb/fcOwB+CzBT+qbWjvj+DVwRskpIg==}
     engines: {node: '>=14'}
 
-  fp-ts@2.16.5:
-    resolution: {integrity: sha512-N8T8PwMSeTKKtkm9lkj/zSTAnPC/aJIIrQhnHxxkL0KLsRCNUPANksJOlMXxcKKCo7H1ORP3No9EMD+fP0tsdA==}
+  fp-ts@2.16.6:
+    resolution: {integrity: sha512-v7w209VPj4L6pPn/ftFRJu31Oa8QagwcVw7BZmLCUWU4AQoc954rX9ogSIahDf67Pg+GjPbkW/Kn9XWnlWJG0g==}
 
   fs-extra@11.1.1:
     resolution: {integrity: sha512-MGIE4HOvQCeUCzmlHs0vXpih4ysz4wg9qiSAu6cd42lVwPbTM1TjV7RusoyQqMmk/95gdQZX72u+YW+c3eEpFQ==}
@@ -3173,8 +3214,8 @@ packages:
     peerDependencies:
       typescript: '>=2.8.0 || >= 3.2.0-dev || >= 3.3.0-dev || >= 3.4.0-dev || >= 3.5.0-dev || >= 3.6.0-dev || >= 3.6.0-beta || >= 3.7.0-dev || >= 3.7.0-beta'
 
-  tsx@4.10.4:
-    resolution: {integrity: sha512-Gtg9qnZWNqC/OtcgiXfoAUdAKx3/cgKOYvEocAsv+m21MV/eKpV/WUjRXe6/sDCaGBl2/v8S6v29BpUnGMCX5A==}
+  tsx@4.10.5:
+    resolution: {integrity: sha512-twDSbf7Gtea4I2copqovUiNTEDrT8XNFXsuHpfGbdpW/z9ZW4fTghzzhAG0WfrCuJmJiOEY1nLIjq4u3oujRWQ==}
     engines: {node: '>=18.0.0'}
     hasBin: true
 
@@ -3792,13 +3833,13 @@ snapshots:
 
   '@effect/build-utils@0.7.6': {}
 
-  '@effect/docgen@0.4.3(tsx@4.10.4)(typescript@5.4.5)':
+  '@effect/docgen@0.4.3(tsx@4.10.5)(typescript@5.4.5)':
     dependencies:
       '@effect/markdown-toc': 0.1.0
       doctrine: 3.0.0
       glob: 10.3.15
       prettier: 3.2.5
-      tsx: 4.10.4
+      tsx: 4.10.5
       typescript: 5.4.5
 
   '@effect/dtslint@0.1.0(typescript@5.4.5)':
@@ -5078,9 +5119,9 @@ snapshots:
       dedent: 1.5.3
       eslint-plugin-markdown: 4.0.1(eslint@8.57.0)
       expect: 29.7.0
-      fp-ts: 2.16.5
+      fp-ts: 2.16.6
       glob: 10.3.15
-      io-ts: 2.2.21(fp-ts@2.16.5)
+      io-ts: 2.2.21(fp-ts@2.16.6)
       io-ts-extra: 0.11.6
       js-yaml: 3.14.1
       lodash: 4.17.21
@@ -5350,7 +5391,7 @@ snapshots:
       cross-spawn: 7.0.3
       signal-exit: 4.1.0
 
-  fp-ts@2.16.5: {}
+  fp-ts@2.16.6: {}
 
   fs-extra@11.1.1:
     dependencies:
@@ -5559,12 +5600,12 @@ snapshots:
 
   io-ts-extra@0.11.6:
     dependencies:
-      fp-ts: 2.16.5
-      io-ts: 2.2.21(fp-ts@2.16.5)
+      fp-ts: 2.16.6
+      io-ts: 2.2.21(fp-ts@2.16.6)
 
-  io-ts@2.2.21(fp-ts@2.16.5):
+  io-ts@2.2.21(fp-ts@2.16.6):
     dependencies:
-      fp-ts: 2.16.5
+      fp-ts: 2.16.6
 
   is-alphabetical@1.0.4: {}
 
@@ -6781,7 +6822,7 @@ snapshots:
       tslib: 1.14.1
       typescript: 5.4.5
 
-  tsx@4.10.4:
+  tsx@4.10.5:
     dependencies:
       esbuild: 0.20.2
       get-tsconfig: 4.7.5

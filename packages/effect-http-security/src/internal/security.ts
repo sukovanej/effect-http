@@ -1,5 +1,6 @@
 import * as HttpServer from "@effect/platform/HttpServer"
 import * as Schema from "@effect/schema/Schema"
+import * as HttpError from "effect-http-error/HttpError"
 import * as Effect from "effect/Effect"
 import * as Either from "effect/Either"
 import * as Encoding from "effect/Encoding"
@@ -8,13 +9,10 @@ import * as Option from "effect/Option"
 import * as Pipeable from "effect/Pipeable"
 import type * as Record from "effect/Record"
 import * as Unify from "effect/Unify"
-import type * as OpenApiTypes from "schema-openapi/OpenApiTypes"
 import type * as Security from "../Security.js"
-import * as ServerError from "../ServerError.js"
-import { formatParseError } from "./formatParseError.js"
 
 export const TypeId: Security.TypeId = Symbol.for(
-  "effect-http/Security/TypeId"
+  "effect-http-security/Security/TypeId"
 ) as Security.TypeId
 
 /** @internal */
@@ -34,7 +32,7 @@ export class SecurityImpl<A, E = never, R = never> implements Security.Security<
   constructor(
     readonly openapi: Record.ReadonlyRecord<
       string,
-      OpenApiTypes.OpenAPISecurityScheme
+      unknown
     >,
     readonly parser: Security.Security.Handler<A, E, R>
   ) {}
@@ -50,11 +48,11 @@ export const make = <A, E, R>(
   parser: Security.Security.Handler<A, E, R>,
   openapi?: Record.ReadonlyRecord<
     string,
-    OpenApiTypes.OpenAPISecurityScheme
+    unknown
   >
 ): Security.Security<
   A,
-  Exclude<E, ServerError.ServerError>,
+  Exclude<E, HttpError.HttpError>,
   Exclude<R, HttpServer.request.ServerRequest>
 > => new SecurityImpl(openapi ?? {}, parser)
 
@@ -66,7 +64,7 @@ export const handleRequest = <A, E, R>(
 /** @internal */
 export const getOpenApi = <A, E, R>(
   security: Security.Security<A, E, R>
-): Record.ReadonlyRecord<string, OpenApiTypes.OpenAPISecurityScheme> => (security as SecurityImpl<A, E, R>).openapi
+): Record.ReadonlyRecord<string, unknown> => (security as SecurityImpl<A, E, R>).openapi
 
 /** @internal */
 export const mapHandler: typeof Security.mapHandler = dual(
@@ -78,7 +76,7 @@ export const mapHandler: typeof Security.mapHandler = dual(
     ) => Security.Security.Handler<B, E2, R2>
   ): Security.Security<
     B,
-    Exclude<E2, ServerError.ServerError>,
+    Exclude<E2, HttpError.HttpError>,
     Exclude<R2, HttpServer.request.ServerRequest>
   > => make(f(handleRequest(self)), getOpenApi(self))
 )
@@ -117,13 +115,10 @@ export const mapEffect = dual(
     f: (a: A1) => Effect.Effect<A2, E2, R2>
   ): Security.Security<
     A2,
-    E1 | Exclude<E2, ServerError.ServerError>,
+    E1 | Exclude<E2, HttpError.HttpError>,
     R1 | Exclude<R2, HttpServer.request.ServerRequest>
   > => mapHandler(self, Effect.flatMap(f) as any)
 )
-
-/** @internal */
-const unauthorizedError = (message: string) => ServerError.unauthorizedError({ error: "Unauthorized", message })
 
 /** @internal */
 export const mapSchema = dual(
@@ -138,11 +133,7 @@ export const mapSchema = dual(
       Effect.flatMap(handleRequest(self), (token) =>
         pipe(
           parse(token),
-          Effect.mapError((error) =>
-            unauthorizedError(
-              `Security parsing error, ${formatParseError(error)}`
-            )
-          )
+          Effect.mapError((error) => HttpError.unauthorizedError(`Security parsing error, ${error}`))
         )),
       getOpenApi(self)
     )
@@ -175,7 +166,7 @@ export const asSome = <A, E, R>(
 const getAuthorizationHeader = pipe(
   HttpServer.request.ServerRequest,
   Effect.flatMap((request) => HttpServer.headers.get(request.headers, "authorization")),
-  Effect.mapError(() => unauthorizedError("No authorization header"))
+  Effect.mapError(() => HttpError.unauthorizedError("No authorization header"))
 )
 
 /** @internal */
@@ -184,12 +175,12 @@ const parseAuthorizationHeader = (scheme: string) =>
     const split = value.split(" ")
 
     if (split.length !== 2) {
-      return Effect.fail(unauthorizedError("Invalid authorization header"))
+      return Effect.fail(HttpError.unauthorizedError("Invalid authorization header"))
     }
 
     if (split[0].toLowerCase() !== scheme) {
       return Effect.fail(
-        unauthorizedError(`Expected ${scheme.toUpperCase()} authorization`)
+        HttpError.unauthorizedError(`Expected ${scheme.toUpperCase()} authorization`)
       )
     }
 
@@ -222,13 +213,13 @@ export const bearer = (
 const parseBasicAuthCredentials = Unify.unify((value: string) =>
   pipe(
     Encoding.decodeBase64String(value),
-    Either.mapLeft(() => unauthorizedError("Invalid base64-encoded basic authorization")),
+    Either.mapLeft(() => HttpError.unauthorizedError("Invalid base64-encoded basic authorization")),
     Either.flatMap((value) => {
       const split = value.split(":")
 
       if (split.length !== 2) {
         return Either.left(
-          unauthorizedError(
+          HttpError.unauthorizedError(
             `Invalid basic authorization header, expected "user:password".`
           )
         )
@@ -271,7 +262,7 @@ export const unit: Security.Security<void> = make(Effect.void)
 
 /** @internal */
 export const never: Security.Security<never> = make(
-  Effect.fail(unauthorizedError("No security"))
+  Effect.fail(HttpError.unauthorizedError("No security"))
 )
 
 /** @internal */
@@ -285,7 +276,7 @@ export const apiKey = (
       ? HttpServer.request.schemaBodyUrlParams(schema)
       : HttpServer.request.schemaHeaders(schema),
     Effect.map((obj) => obj[options.key]),
-    Effect.mapError(() => unauthorizedError(`Expected ${options.key} (${options.in}) api key`))
+    Effect.mapError(() => HttpError.unauthorizedError(`Expected ${options.key} (${options.in}) api key`))
   )
 
   return make(

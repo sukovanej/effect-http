@@ -299,7 +299,7 @@ with a JSON body containing the error message.
 
 #### Optional security
 
-Implementation-wise, the `Security<A, E, R>` contains an `Effect<A, E | ServerError, R | ServerRequest>`.
+Implementation-wise, the `Security<A, E, R>` contains an `Effect<A, E | HttpError, R | ServerRequest>`.
 Therefore, we can combine multiple security mechanisms similarly as if we were combining effects.
 
 For instance, we could make the authentication optional using the `Security.or` combinator.
@@ -393,7 +393,7 @@ client.endpoint({}, Client.setBasic("user", "pass"))
 A primitive security is constructed using `Security.make` function.
 
 It accepts a handler effect which is expected to access the `ServerRequest` 
-and possibly fail with a `ServerError`.
+and possibly fail with a `HttpError`.
 
 If we want to document the authorization mechanism in the OpenAPI, we must also provide the second argument
 of the `Security.make` which is a mapping of the auth identifier and actual security scheme spec.
@@ -404,12 +404,12 @@ Here is an example of a security validating a `X-API-KEY` header.
 import { HttpServer } from "@effect/platform"
 import { Schema } from "@effect/schema"
 import { Effect, pipe } from "effect"
-import { Security, ServerError } from "effect-http"
+import { Security, HttpError } from "effect-http"
 
 const customSecurity = Security.make(
   pipe(
     HttpServer.request.schemaHeaders(Schema.Struct({ "x-api-key": Schema.String })),
-    Effect.mapError(() => ServerError.unauthorizedError("Expected valid X-API-KEY header")),
+    Effect.mapError(() => HttpError.unauthorizedError("Expected valid X-API-KEY header")),
     Effect.map((headers) => headers["x-api-key"])
   ),
   { "myApiKey": { name: "x-api-key", type: "apiKey", in: "header", description: "My API key" } }
@@ -571,21 +571,21 @@ functions we can use in the error rail of the handler effect.
 
 ##### 4xx
 
-- 400 `ServerError.badRequest` - _client make an invalid request_
-- 401 `ServerError.unauthorizedError` - _invalid authentication credentials_
-- 403 `ServerError.forbiddenError` - _authorization failure_
-- 404 `ServerError.notFoundError` - _cannot find the requested resource_
-- 409 `ServerError.conflictError` - _request conflicts with the current state of the server_
-- 415 `ServerError.unsupportedMediaTypeError` - _unsupported payload format_
-- 429 `ServerError.tooManyRequestsError` - _the user has sent too many requests in a given amount of time_
+- 400 `HttpError.badRequest` - _client make an invalid request_
+- 401 `HttpError.unauthorizedError` - _invalid authentication credentials_
+- 403 `HttpError.forbiddenError` - _authorization failure_
+- 404 `HttpError.notFoundError` - _cannot find the requested resource_
+- 409 `HttpError.conflictError` - _request conflicts with the current state of the server_
+- 415 `HttpError.unsupportedMediaTypeError` - _unsupported payload format_
+- 429 `HttpError.tooManyRequestsError` - _the user has sent too many requests in a given amount of time_
 
 ##### 5xx
 
-- 500 `ServerError.internalServerError` - _internal server error_
-- 501 `ServerError.notImplementedError` - _functionality to fulfill the request is not supported_
-- 502 `ServerError.badGatewayError` - _invalid response from the upstream server_
-- 503 `ServerError.serviceunavailableError` - _server is not ready to handle the request_
-- 504 `ServerError.gatewayTimeoutError` - _request timeout from the upstream server_
+- 500 `HttpError.internalHttpError` - _internal server error_
+- 501 `HttpError.notImplementedError` - _functionality to fulfill the request is not supported_
+- 502 `HttpError.badGatewayError` - _invalid response from the upstream server_
+- 503 `HttpError.serviceunavailableError` - _server is not ready to handle the request_
+- 504 `HttpError.gatewayTimeoutError` - _request timeout from the upstream server_
 
 #### Example API with conflict API error
 
@@ -595,7 +595,7 @@ API will look as follows.
 ```typescript
 import { Schema } from "@effect/schema";
 import { Context, Effect, pipe } from "effect";
-import { Api, RouterBuilder, ServerError } from "effect-http";
+import { Api, RouterBuilder, HttpError } from "effect-http";
 import { NodeServer } from "effect-http-node";
 
 const api = pipe(
@@ -640,7 +640,7 @@ const app = RouterBuilder.make(api).pipe(
       userExistsByName(body.name),
       Effect.filterOrFail(
         (alreadyExists) => !alreadyExists,
-        () => ServerError.conflictError(`User "${body.name}" already exists.`),
+        () => HttpError.conflictError(`User "${body.name}" already exists.`),
       ),
       Effect.andThen(storeUser(body.name)),
       Effect.map(() => `User "${body.name}" stored.`),

@@ -6,8 +6,8 @@
 import type * as Effect from "effect/Effect"
 
 import type * as HttpServer from "@effect/platform/HttpServer"
+import type * as HttpError from "effect-http-error/HttpError"
 import * as internal from "./internal/middlewares.js"
-import type * as ServerError from "./ServerError.js"
 
 /**
  * Add access logs for handled requests. The log runs before each request.
@@ -73,7 +73,7 @@ export interface BasicAuthCredentials {
 export const basicAuth: <R2, _>(
   checkCredentials: (
     credentials: BasicAuthCredentials
-  ) => Effect.Effect<_, ServerError.ServerError, R2>,
+  ) => Effect.Effect<_, HttpError.HttpError, R2>,
   options?: Partial<{
     headerName: string
     skipPaths: ReadonlyArray<string>
