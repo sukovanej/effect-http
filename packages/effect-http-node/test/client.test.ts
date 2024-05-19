@@ -1,9 +1,11 @@
 import { HttpServer } from "@effect/platform"
+import { NodeContext, NodeHttpServer } from "@effect/platform-node"
 import { Schema } from "@effect/schema"
 import * as it from "@effect/vitest"
-import { Cause, Duration, Effect, Either, Exit, Fiber, Match, pipe } from "effect"
-import { Api, ExampleServer, RouterBuilder } from "effect-http"
-import { NodeTesting } from "effect-http-node"
+import { Cause, Deferred, Duration, Effect, Either, Exit, Fiber, Layer, Match, pipe } from "effect"
+import { Api, Client, ExampleServer, RouterBuilder, Security } from "effect-http"
+import { NodeSwaggerFiles, NodeTesting } from "effect-http-node"
+import { createServer } from "node:http"
 import { expect, test, vi } from "vitest"
 import { exampleApiEmptyResponse, exampleApiGetQueryParameter } from "./examples.js"
 import { runTestEffect } from "./utils.js"
@@ -316,6 +318,66 @@ it.scoped(
         NodeTesting.make(app, api),
         Effect.flatMap((client) => client.test({}))
       )
+
+      expect(result).toBe("test")
+    })
+)
+
+it.scoped(
+  "security context is not required on client side",
+  () =>
+    Effect.gen(function*(_) {
+      class MyTag extends Effect.Tag("MyTag")<MyTag, { value: string }>() {
+        static live = Layer.succeed(this, this.of({ value: "hello" }))
+      }
+
+      const securityWithContext = Security.mapEffect(Security.basic(), () => MyTag.value)
+
+      const api = pipe(
+        Api.make(),
+        Api.addEndpoint(
+          Api.get("test", "/test").pipe(
+            Api.setResponseBody(Schema.String),
+            Api.setSecurity(securityWithContext)
+          )
+        )
+      )
+
+      const app = RouterBuilder.make(api).pipe(
+        RouterBuilder.handle("test", () => Effect.succeed("test")),
+        RouterBuilder.build
+      )
+
+      // TODO: refactor to utils or maybe expose from the NodeTesting module
+      const serverUrl = Effect.map(HttpServer.server.Server, (server) => {
+        const address = server.address
+
+        if (address._tag === "UnixAddress") {
+          return address.path
+        }
+
+        return `http://localhost:${address.port}`
+      })
+
+      const NodeServerLive = NodeHttpServer.server.layer(() => createServer(), {
+        port: undefined
+      })
+
+      const baseUrl = yield* Effect.flatMap(Deferred.make<string>(), (allocatedUrl) =>
+        serverUrl.pipe(
+          Effect.flatMap((url) => Deferred.succeed(allocatedUrl, url)),
+          Effect.flatMap(() => Layer.launch(HttpServer.server.serve(app))),
+          Effect.provide(NodeServerLive),
+          Effect.provide(NodeSwaggerFiles.SwaggerFilesLive),
+          Effect.provide(NodeContext.layer),
+          Effect.provide(MyTag.live),
+          Effect.forkScoped,
+          Effect.flatMap(() => Deferred.await(allocatedUrl))
+        ))
+
+      const client = Client.make(api, { baseUrl })
+
+      const result = yield* client.test({}, Client.setBasic("user", "pass"))
 
       expect(result).toBe("test")
     })

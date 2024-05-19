@@ -113,6 +113,14 @@ export declare namespace ApiEndpoint {
    * @category models
    * @since 1.0.0
    */
+  export type ContextNoSecurity<Endpoint> = [Endpoint] extends [ApiEndpoint<any, infer Request, infer Response, any>]
+    ? ApiRequest.ApiRequest.Context<Request> | ApiResponse.ApiResponse.Context<Response>
+    : never
+
+  /**
+   * @category models
+   * @since 1.0.0
+   */
   export type ExtractById<Endpoint, Id extends AnyId> = Endpoint extends ApiEndpoint<Id, any, any, any> ? Endpoint
     : never
 

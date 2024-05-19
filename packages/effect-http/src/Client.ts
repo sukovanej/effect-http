@@ -143,5 +143,5 @@ export type EndpointClient<E extends ApiEndpoint.ApiEndpoint.Any> = (
 ) => Effect.Effect<
   ClientFunctionResponse<ApiEndpoint.ApiEndpoint.Response<E>>,
   ClientError.ClientError,
-  ApiEndpoint.ApiEndpoint.Context<E>
+  ApiEndpoint.ApiEndpoint.ContextNoSecurity<E>
 >

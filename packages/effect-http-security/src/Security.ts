@@ -205,7 +205,7 @@ export const mapEffect: {
   >
   <A1, E1, R1, A2, E2, R2>(
     self: Security<A1, E1, R1>,
-    f: (a: A1) => Security<A2, E2, R2>
+    f: (a: A1) => Effect.Effect<A2, E2, R2>
   ): Security<
     A2,
     E1 | Exclude<E2, HttpError.HttpError>,
