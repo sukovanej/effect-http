@@ -30,18 +30,18 @@
     "coverage": "vitest --coverage"
   },
   "dependencies": {
-    "schema-openapi": "^0.38.1",
     "effect-http-error": "workspace:^",
-    "effect-http-security": "workspace:^"
+    "effect-http-security": "workspace:^",
+    "schema-openapi": "^0.38.2"
   },
   "peerDependencies": {
     "@effect/platform": "^0.53.0",
     "@effect/schema": "^0.67.0",
-    "effect": "^3.1.0"
+    "effect": "^3.2.0"
   },
   "devDependencies": {
-    "@effect/platform": "^0.53.8",
-    "@effect/schema": "^0.67.5",
-    "effect": "^3.1.5"
+    "@effect/platform": "^0.53.12",
+    "@effect/schema": "^0.67.9",
+    "effect": "^3.2.1"
   }
 }
