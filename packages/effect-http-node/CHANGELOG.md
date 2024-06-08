@@ -1,5 +1,16 @@
 # effect-http-node
 
+## 0.13.4
+
+### Patch Changes
+
+- [#583](https://github.com/sukovanej/effect-http/pull/583) [`59a1d48`](https://github.com/sukovanej/effect-http/commit/59a1d48077a465e40b4235b01055f5e0ca016911) Thanks [@sukovanej](https://github.com/sukovanej)! - Update swagger-ui-dist.
+
+- [#586](https://github.com/sukovanej/effect-http/pull/586) [`65d0061`](https://github.com/sukovanej/effect-http/commit/65d00617681e1cd38c0a65ea52ff89433091537c) Thanks [@sukovanej](https://github.com/sukovanej)! - Update effect.
+
+- Updated dependencies [[`65d0061`](https://github.com/sukovanej/effect-http/commit/65d00617681e1cd38c0a65ea52ff89433091537c)]:
+  - effect-http@0.67.3
+
 ## 0.13.3
 
 ### Patch Changes
