@@ -10,9 +10,12 @@ import type * as AST from "@effect/schema/AST"
 import type * as Pipeable from "effect/Pipeable"
 import type * as Scope from "effect/Scope"
 
+import type { Security } from "effect-http"
 import type * as HttpError from "effect-http-error/HttpError"
 import type * as Api from "./Api.js"
 import type * as ApiEndpoint from "./ApiEndpoint.js"
+import type * as ApiRequest from "./ApiRequest.js"
+import type * as ApiResponse from "./ApiResponse.js"
 import * as internal from "./internal/router-builder.js"
 import type * as Route from "./Route.js"
 import type * as SwaggerRouter from "./SwaggerRouter.js"
@@ -49,6 +52,18 @@ export declare namespace RouterBuilder {
     readonly handler: Route.HandlerFunction<Endpoint, R, E>
     readonly endpoint: Endpoint
   }
+
+  /**
+   * @category models
+   * @since 1.0.0
+   */
+  export type MergeApiEndpoints<A, B> = A extends
+    ApiEndpoint.ApiEndpoint<infer Id1, ApiRequest.ApiRequest.Any, ApiResponse.ApiResponse.Any, Security.Security.Any> ?
+    B extends
+      ApiEndpoint.ApiEndpoint<infer Id2, ApiRequest.ApiRequest.Any, ApiResponse.ApiResponse.Any, Security.Security.Any>
+      ? Id1 extends Id2 ? A : never :
+    never
+    : never
 }
 
 /**
@@ -206,3 +221,19 @@ export const build: <R, E>(
 export const buildPartial: <R, E, RemainingEndpoints extends ApiEndpoint.ApiEndpoint.Any>(
   builder: RouterBuilder<R, E, RemainingEndpoints>
 ) => App.Default<E, R | SwaggerRouter.SwaggerFiles> = internal.buildPartial
+
+/**
+ * @category combining
+ * @since 1.0.0
+ */
+export const merge: {
+  <R1, E1, R2, E2, A1 extends ApiEndpoint.ApiEndpoint.Any, A2 extends ApiEndpoint.ApiEndpoint.Any>(
+    builder1: RouterBuilder<R1, E1, A1>,
+    builder2: RouterBuilder<R2, E2, A2>
+  ): RouterBuilder<R1 | R2, E1 | E2, RouterBuilder.MergeApiEndpoints<A1, A2>>
+  <R2, E2, A2 extends ApiEndpoint.ApiEndpoint.Any>(
+    builder2: RouterBuilder<R2, E2, A2>
+  ): <R1, E1, A1 extends ApiEndpoint.ApiEndpoint.Any>(
+    builder1: RouterBuilder<R1, E1, A1>
+  ) => RouterBuilder<R1 | R2, E1 | E2, RouterBuilder.MergeApiEndpoints<A1, A2>>
+} = internal.merge

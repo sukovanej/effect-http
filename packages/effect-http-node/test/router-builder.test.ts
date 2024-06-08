@@ -1,7 +1,7 @@
 import { HttpClient } from "@effect/platform"
 import * as it from "@effect/vitest"
 import { Effect, Option } from "effect"
-import { RouterBuilder } from "effect-http"
+import { Api, RouterBuilder } from "effect-http"
 import { NodeTesting } from "effect-http-node"
 import { apply } from "effect/Function"
 import { describe, expect } from "vitest"
@@ -53,10 +53,8 @@ describe("examples", () => {
           RouterBuilder.getRouter
         )
 
-        const response = yield* _(
-          NodeTesting.makeRaw(router),
-          Effect.flatMap(apply(HttpClient.request.get("/get-value")))
-        )
+        const client = yield* NodeTesting.makeRaw(router)
+        const response = yield* client(HttpClient.request.get("/get-value"))
         const body = yield* response.json
 
         expect(response.status).toEqual(200)
@@ -74,10 +72,8 @@ describe("examples", () => {
           RouterBuilder.getRouter
         )
 
-        const response = yield* _(
-          NodeTesting.makeRaw(router),
-          Effect.flatMap(apply(HttpClient.request.post("/test")))
-        )
+        const client = yield* NodeTesting.makeRaw(router)
+        const response = yield* client(HttpClient.request.post("/test"))
         const body = yield* response.json
 
         expect(response.status).toEqual(200)
@@ -89,15 +85,11 @@ describe("examples", () => {
     "get, query parameter",
     () =>
       Effect.gen(function*(_) {
+        const client = yield* NodeTesting.makeRaw(exampleRouteGetQueryParameter)
         const response = yield* _(
-          NodeTesting.makeRaw(exampleRouteGetQueryParameter),
-          Effect.flatMap(
-            apply(
-              HttpClient.request.get("/hello").pipe(
-                HttpClient.request.appendUrlParam("country", "CZ")
-              )
-            )
-          )
+          HttpClient.request.get("/hello"),
+          HttpClient.request.appendUrlParam("country", "CZ"),
+          client
         )
 
         const body = yield* response.json
@@ -124,10 +116,8 @@ describe("examples", () => {
           RouterBuilder.getRouter
         )
 
-        const response = yield* _(
-          NodeTesting.makeRaw(router),
-          Effect.flatMap(apply(HttpClient.request.get("/hello")))
-        )
+        const client = yield* NodeTesting.makeRaw(router)
+        const response = yield* client(HttpClient.request.get("/hello"))
         const body = yield* response.json
 
         expect(response.status).toEqual(201)
@@ -151,15 +141,11 @@ describe("examples", () => {
           RouterBuilder.getRouter
         )
 
+        const client = yield* NodeTesting.makeRaw(router)
         const response = yield* _(
-          NodeTesting.makeRaw(router),
-          Effect.flatMap(
-            apply(
-              HttpClient.request.get("/hello").pipe(
-                HttpClient.request.setUrlParam("value", "off")
-              )
-            )
-          )
+          HttpClient.request.get("/hello"),
+          HttpClient.request.setUrlParam("value", "off"),
+          client
         )
         const body = yield* response.json
 
@@ -172,15 +158,11 @@ describe("examples", () => {
     "post, request body",
     () =>
       Effect.gen(function*(_) {
+        const client = yield* NodeTesting.makeRaw(exampleRouteRequestBody)
         const response = yield* _(
-          NodeTesting.makeRaw(exampleRouteRequestBody),
-          Effect.flatMap(
-            apply(
-              HttpClient.request.post("/hello").pipe(
-                HttpClient.request.unsafeJsonBody({ foo: "hello" })
-              )
-            )
-          )
+          HttpClient.request.post("/hello"),
+          HttpClient.request.unsafeJsonBody({ foo: "hello" }),
+          client
         )
 
         const body = yield* response.json
@@ -194,10 +176,8 @@ describe("examples", () => {
     "path parameters",
     () =>
       Effect.gen(function*(_) {
-        const response = yield* _(
-          NodeTesting.makeRaw(exampleRouteParams),
-          Effect.flatMap(apply(HttpClient.request.post("/hello/a")))
-        )
+        const client = yield* NodeTesting.makeRaw(exampleRouteParams)
+        const response = yield* client(HttpClient.request.post("/hello/a"))
 
         const body = yield* response.json
 
@@ -212,10 +192,8 @@ describe("error reporting", () => {
     "missing query parameter",
     () =>
       Effect.gen(function*(_) {
-        const response = yield* _(
-          NodeTesting.makeRaw(exampleRouteGetQueryParameter),
-          Effect.flatMap(apply(HttpClient.request.get("/hello")))
-        )
+        const client = yield* NodeTesting.makeRaw(exampleRouteGetQueryParameter)
+        const response = yield* client(HttpClient.request.get("/hello"))
 
         expect(response.status).toEqual(400)
         expect(yield* response.json).toEqual({
@@ -230,15 +208,11 @@ describe("error reporting", () => {
     "invalid query parameter",
     () =>
       Effect.gen(function*(_) {
+        const client = yield* NodeTesting.makeRaw(exampleRouteGetQueryParameter)
         const response = yield* _(
-          NodeTesting.makeRaw(exampleRouteGetQueryParameter),
-          Effect.flatMap(
-            apply(
-              HttpClient.request.get("/hello").pipe(
-                HttpClient.request.setUrlParam("country", "CZE")
-              )
-            )
-          )
+          HttpClient.request.get("/hello"),
+          HttpClient.request.setUrlParam("country", "CZE"),
+          client
         )
 
         expect(response.status).toEqual(400)
@@ -254,10 +228,8 @@ describe("error reporting", () => {
     "invalid JSON body - empty",
     () =>
       Effect.gen(function*(_) {
-        const response = yield* _(
-          NodeTesting.makeRaw(exampleRouteRequestBody),
-          Effect.flatMap(apply(HttpClient.request.post("/hello")))
-        )
+        const client = yield* NodeTesting.makeRaw(exampleRouteRequestBody)
+        const response = yield* client(HttpClient.request.post("/hello"))
 
         expect(response.status).toEqual(400)
         expect(yield* response.json).toEqual({
@@ -272,13 +244,11 @@ describe("error reporting", () => {
     "invalid JSON body - text",
     () =>
       Effect.gen(function*(_) {
+        const client = yield* NodeTesting.makeRaw(exampleRouteRequestBody)
         const response = yield* _(
-          NodeTesting.makeRaw(exampleRouteRequestBody),
-          Effect.flatMap(
-            apply(
-              HttpClient.request.post("/hello").pipe(HttpClient.request.textBody("value"))
-            )
-          )
+          HttpClient.request.post("/hello"),
+          HttpClient.request.textBody("value"),
+          client
         )
 
         expect(response.status).toEqual(400)
@@ -294,15 +264,11 @@ describe("error reporting", () => {
     "invalid JSON body - incorrect schema",
     () =>
       Effect.gen(function*(_) {
+        const client = yield* NodeTesting.makeRaw(exampleRouteRequestBody)
         const response = yield* _(
-          NodeTesting.makeRaw(exampleRouteRequestBody),
-          Effect.flatMap(
-            apply(
-              HttpClient.request.post("/hello").pipe(
-                HttpClient.request.unsafeJsonBody({ foo: 1 })
-              )
-            )
-          )
+          HttpClient.request.post("/hello"),
+          HttpClient.request.unsafeJsonBody({ foo: 1 }),
+          client
         )
 
         expect(response.status).toEqual(400)
@@ -318,10 +284,8 @@ describe("error reporting", () => {
     "invalid header",
     () =>
       Effect.gen(function*(_) {
-        const response = yield* _(
-          NodeTesting.makeRaw(exampleRouteRequestHeaders),
-          Effect.flatMap(apply(HttpClient.request.post("/hello")))
-        )
+        const client = yield* NodeTesting.makeRaw(exampleRouteRequestHeaders)
+        const response = yield* client(HttpClient.request.post("/hello"))
 
         expect(response.status).toEqual(400)
         expect(yield* response.json).toEqual({
@@ -360,10 +324,8 @@ describe("error reporting", () => {
           RouterBuilder.getRouter
         )
 
-        const response = yield* _(
-          NodeTesting.makeRaw(exampleRouteInvalid),
-          Effect.flatMap(apply(HttpClient.request.post("/hello/a")))
-        )
+        const client = yield* NodeTesting.makeRaw(exampleRouteInvalid)
+        const response = yield* client(HttpClient.request.post("/hello/a"))
 
         expect(response.status).toEqual(500)
         expect(yield* response.json).toEqual({
@@ -390,15 +352,12 @@ it.scoped(
         RouterBuilder.getRouter
       )
 
-      const [response1, response2] = yield* _(
-        NodeTesting.makeRaw(app),
-        Effect.flatMap((client) =>
-          Effect.all([
-            client(HttpClient.request.post("/hello")),
-            client(HttpClient.request.post("/another"))
-          ])
-        )
-      )
+      const client = yield* NodeTesting.makeRaw(app)
+
+      const [response1, response2] = yield* Effect.all([
+        client(HttpClient.request.post("/hello")),
+        client(HttpClient.request.post("/another"))
+      ])
 
       expect(response1.status).toEqual(200)
       expect(response1.headers).toMatchObject({ "my-header": "test" })
@@ -420,26 +379,22 @@ it.scoped(
         RouterBuilder.getRouter
       )
 
-      const [textResponse, jsonResponse, xmlResponse] = yield* _(
-        NodeTesting.makeRaw(app),
-        Effect.flatMap((client) =>
-          Effect.all([
-            client(
-              HttpClient.request.post("/test").pipe(HttpClient.request.accept("text/plain"))
-            ),
-            client(
-              HttpClient.request.post("/test").pipe(
-                HttpClient.request.accept("application/json")
-              )
-            ),
-            client(
-              HttpClient.request.post("/test").pipe(
-                HttpClient.request.accept("application/xml")
-              )
-            )
-          ])
+      const client = yield* NodeTesting.makeRaw(app)
+      const [textResponse, jsonResponse, xmlResponse] = yield* Effect.all([
+        client(
+          HttpClient.request.post("/test").pipe(HttpClient.request.accept("text/plain"))
+        ),
+        client(
+          HttpClient.request.post("/test").pipe(
+            HttpClient.request.accept("application/json")
+          )
+        ),
+        client(
+          HttpClient.request.post("/test").pipe(
+            HttpClient.request.accept("application/xml")
+          )
         )
-      )
+      ])
 
       expect(textResponse.status).toEqual(200)
       expect(yield* textResponse.text).toEqual("test")
@@ -453,5 +408,72 @@ it.scoped(
       expect(yield* xmlResponse.text).toEqual("test")
       expect(xmlResponse.status).toEqual(200)
       expect(xmlResponse.headers["content-type"]).toEqual("text/plain")
+    })
+)
+
+it.scoped(
+  "merge data-first",
+  () =>
+    Effect.gen(function*(_) {
+      const routerBuilder1 = RouterBuilder.make(exampleApiFullResponse).pipe(
+        RouterBuilder.handle("hello", () =>
+          Effect.succeed({ headers: { "my-header": "test" }, status: 200 as const, body: 12 }))
+      )
+
+      const routerBuilder2 = RouterBuilder.make(exampleApiFullResponse).pipe(
+        RouterBuilder.handle("another", () =>
+          Effect.succeed(13))
+      )
+
+      const app = RouterBuilder.merge(routerBuilder1, routerBuilder2).pipe(
+        RouterBuilder.build
+      )
+
+      const client = yield* NodeTesting.makeRaw(app)
+      const [response1, response2] = yield* Effect.all([
+        client(HttpClient.request.post("/hello")),
+        client(HttpClient.request.post("/another"))
+      ])
+
+      expect(response1.status).toEqual(200)
+      expect(yield* response1.json).toEqual(12)
+      expect(response1.headers["my-header"]).toEqual("test")
+
+      expect(response2.status).toEqual(200)
+      expect(yield* response2.json).toEqual(13)
+    })
+)
+
+it.scoped(
+  "merge data-last",
+  () =>
+    Effect.gen(function*(_) {
+      const addEndpoint = <I extends string>(id: I) => Api.addEndpoint(Api.get(id, `/endpoint-${id}`))
+      const api = Api.make().pipe(
+        addEndpoint("1"),
+        addEndpoint("2"),
+        addEndpoint("3")
+      )
+
+      const routerBuilder1 = RouterBuilder.make(api).pipe(RouterBuilder.handle("1", () => Effect.void))
+      const routerBuilder2 = RouterBuilder.make(api).pipe(RouterBuilder.handle("2", () => Effect.void))
+      const routerBuilder3 = RouterBuilder.make(api).pipe(RouterBuilder.handle("3", () => Effect.void))
+
+      const app = routerBuilder1.pipe(
+        RouterBuilder.merge(routerBuilder2),
+        RouterBuilder.merge(routerBuilder3),
+        RouterBuilder.build
+      )
+
+      const client = yield* NodeTesting.makeRaw(app)
+      const responses = yield* Effect.all([
+        client(HttpClient.request.get("/endpoint-1")),
+        client(HttpClient.request.get("/endpoint-2")),
+        client(HttpClient.request.get("/endpoint-3"))
+      ])
+
+      for (const response of responses) {
+        expect(response.status).toEqual(200)
+      }
     })
 )

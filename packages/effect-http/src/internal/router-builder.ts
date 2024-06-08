@@ -3,6 +3,7 @@ import * as Router from "@effect/platform/Http/Router"
 import type * as ServerRequest from "@effect/platform/Http/ServerRequest"
 import * as HttpError from "effect-http-error/HttpError"
 import * as Effect from "effect/Effect"
+import { dual } from "effect/Function"
 import * as Pipeable from "effect/Pipeable"
 import type * as Scope from "effect/Scope"
 import * as Api from "../Api.js"
@@ -160,3 +161,30 @@ export const addRoute = <R1, R2, E1, E2>(
   E1 | E2,
   Exclude<R1 | R2, Router.RouteContext | ServerRequest.ServerRequest>
 > => Router.concat(Router.fromIterable([route]))(router) as any
+
+/** @internal */
+export const merge: {
+  <R1, E1, R2, E2, A1 extends ApiEndpoint.ApiEndpoint.Any, A2 extends ApiEndpoint.ApiEndpoint.Any>(
+    builder1: RouterBuilder.RouterBuilder<R1, E1, A1>,
+    builder2: RouterBuilder.RouterBuilder<R2, E2, A2>
+  ): RouterBuilder.RouterBuilder<R1 | R2, E1 | E2, RouterBuilder.RouterBuilder.MergeApiEndpoints<A1, A2>>
+  <R2, E2, A2 extends ApiEndpoint.ApiEndpoint.Any>(
+    builder2: RouterBuilder.RouterBuilder<R2, E2, A2>
+  ): <R1, E1, A1 extends ApiEndpoint.ApiEndpoint.Any>(
+    builder1: RouterBuilder.RouterBuilder<R1, E1, A1>
+  ) => RouterBuilder.RouterBuilder<R1 | R2, E1 | E2, RouterBuilder.RouterBuilder.MergeApiEndpoints<A1, A2>>
+} = dual(2, (builder1: RouterBuilder.RouterBuilder.Any, builder2: RouterBuilder.RouterBuilder.Any) => {
+  const remainingEndpointIds = builder2.remainingEndpoints.map((e) => ApiEndpoint.getId(e))
+
+  if (builder1.api !== builder2.api) {
+    throw new Error("Cannot merge router builder for different APIs")
+  }
+
+  return {
+    ...builder1,
+    remainingEndpoints: builder1.remainingEndpoints.filter((e) =>
+      remainingEndpointIds.includes(ApiEndpoint.getId(e))
+    ) as any,
+    router: Router.concat(builder1.router, builder2.router)
+  }
+})
