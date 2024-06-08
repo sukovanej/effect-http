@@ -1,5 +1,14 @@
 # effect-http-security
 
+## 0.1.3
+
+### Patch Changes
+
+- [#586](https://github.com/sukovanej/effect-http/pull/586) [`65d0061`](https://github.com/sukovanej/effect-http/commit/65d00617681e1cd38c0a65ea52ff89433091537c) Thanks [@sukovanej](https://github.com/sukovanej)! - Update effect.
+
+- Updated dependencies [[`65d0061`](https://github.com/sukovanej/effect-http/commit/65d00617681e1cd38c0a65ea52ff89433091537c)]:
+  - effect-http-error@0.1.3
+
 ## 0.1.2
 
 ### Patch Changes
