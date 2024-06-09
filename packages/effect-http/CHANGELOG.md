@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.68.0
+
+### Minor Changes
+
+- [#587](https://github.com/sukovanej/effect-http/pull/587) [`78d4861`](https://github.com/sukovanej/effect-http/commit/78d4861e74ffdd6122dc3ba3e7f66452bac86f17) Thanks [@sukovanej](https://github.com/sukovanej)! - Add `RouterBuilder.merge`.
+
 ## 0.67.3
 
 ### Patch Changes
