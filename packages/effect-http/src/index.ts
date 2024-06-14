@@ -67,6 +67,13 @@ export * as ClientError from "./ClientError.js"
 export * as ExampleServer from "./ExampleServer.js"
 
 /**
+ * Server side handler implementation of an endpoint.
+ *
+ * @since 1.0.0
+ */
+export * as Handler from "./Handler.js"
+
+/**
  * HTTP errors.
  *
  * @since 1.0.0
@@ -101,13 +108,6 @@ export * as OpenApi from "./OpenApi.js"
  * @since 1.0.0
  */
 export * as Representation from "./Representation.js"
-
-/**
- * Create @effect/platform/Http/Router `Router`
- *
- * @since 1.0.0
- */
-export * as Route from "./Route.js"
 
 /**
  * Build a `Router` satisfying an `Api.Api`.

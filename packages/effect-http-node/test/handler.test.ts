@@ -2,7 +2,8 @@ import * as ClientRequest from "@effect/platform/Http/ClientRequest"
 import * as HttpServer from "@effect/platform/HttpServer"
 import * as it from "@effect/vitest"
 import { Effect, Option } from "effect"
-import { Route } from "effect-http"
+import type { ApiEndpoint } from "effect-http"
+import { Api, Handler } from "effect-http"
 import { NodeTesting } from "effect-http-node"
 import { apply } from "effect/Function"
 import { describe, expect } from "vitest"
@@ -19,39 +20,38 @@ import {
 } from "./examples.js"
 
 const testRoute = <R, E>(
-  route: HttpServer.router.Route<R, E>,
+  handler: Handler.Handler<ApiEndpoint.ApiEndpoint.Any, R, E>,
   request: ClientRequest.ClientRequest
 ) =>
-  NodeTesting.makeRaw(HttpServer.router.fromIterable([route])).pipe(
+  NodeTesting.makeRaw(HttpServer.router.fromIterable([Handler.getRoute(handler)])).pipe(
     Effect.flatMap(apply(request))
   )
 
-const exampleRouteGetQueryParameter = exampleApiGetQueryParameter.pipe(
-  Route.make("hello", ({ query }) => Effect.succeed(query.country))
+const exampleRouteGetQueryParameter = Api.getEndpoint(exampleApiGetQueryParameter, "hello").pipe(
+  Handler.make(({ query }) => Effect.succeed(query.country))
 )
 
-const exampleRouteRequestBody = exampleApiRequestBody.pipe(
-  Route.make("hello", ({ body }) => Effect.succeed(body.foo))
+const exampleRouteRequestBody = Api.getEndpoint(exampleApiRequestBody, "hello").pipe(
+  Handler.make(({ body }) => Effect.succeed(body.foo))
 )
 
-const exampleRouteRequestHeaders = exampleApiRequestHeaders.pipe(
-  Route.make("hello", ({ headers }) => Effect.succeed(headers["x-header"]))
+const exampleRouteRequestHeaders = Api.getEndpoint(exampleApiRequestHeaders, "hello").pipe(
+  Handler.make(({ headers }) => Effect.succeed(headers["x-header"]))
 )
 
-const exampleRouteParams = exampleApiParams.pipe(
-  Route.make("hello", ({ path }) => Effect.succeed(path.value))
+const exampleRouteParams = Api.getEndpoint(exampleApiParams, "hello").pipe(
+  Handler.make(({ path }) => Effect.succeed(path.value))
 )
 
-const exampleMultipleQueryAllErrors = exampleApiMultipleQueryValues.pipe(
-  Route.make(
-    "test",
+const exampleMultipleQueryAllErrors = Api.getEndpoint(exampleApiMultipleQueryValues, "test").pipe(
+  Handler.make(
     ({ query }) => Effect.succeed(`${query.value}, ${query.value}`),
-    { parseOptions: { errors: "all" }, enableDocs: true }
+    { parseOptions: { errors: "all" } }
   )
 )
 
-const exampleMultipleQueryFirstError = exampleApiMultipleQueryValues.pipe(
-  Route.make("test", ({ query }) => Effect.succeed(`${query.value}, ${query.value}`))
+const exampleMultipleQueryFirstError = Api.getEndpoint(exampleApiMultipleQueryValues, "test").pipe(
+  Handler.make(({ query }) => Effect.succeed(`${query.value}, ${query.value}`))
 )
 
 describe("examples", () => {
@@ -59,8 +59,8 @@ describe("examples", () => {
     "get",
     () =>
       Effect.gen(function*(_) {
-        const route = exampleApiGet.pipe(
-          Route.make("getValue", () => Effect.succeed(12))
+        const route = Api.getEndpoint(exampleApiGet, "getValue").pipe(
+          Handler.make(() => Effect.succeed(12))
         )
 
         const response = yield* testRoute(route, ClientRequest.get("/get-value"))
@@ -74,8 +74,8 @@ describe("examples", () => {
     "post, optional body field",
     () =>
       Effect.gen(function*(_) {
-        const route = exampleApiPostNullableField.pipe(
-          Route.make("test", () => Effect.succeed({ value: Option.some("test") }))
+        const route = Api.getEndpoint(exampleApiPostNullableField, "test").pipe(
+          Handler.make(() => Effect.succeed({ value: Option.some("test") }))
         )
 
         const response = yield* testRoute(route, ClientRequest.post("/test"))
@@ -105,15 +105,16 @@ describe("examples", () => {
     "get, custom headers and status",
     () =>
       Effect.gen(function*(_) {
-        const route = exampleApiGetCustomResponseWithHeaders.pipe(
-          Route.make("hello", () =>
+        const route = Api.getEndpoint(exampleApiGetCustomResponseWithHeaders, "hello").pipe(
+          Handler.make(() =>
             Effect.succeed(
               {
                 status: 201,
                 headers: { "my-header": "hello" },
                 body: { value: "test" }
               } as const
-            ))
+            )
+          )
         )
 
         const response = yield* testRoute(route, ClientRequest.get("/hello"))
@@ -131,11 +132,12 @@ describe("examples", () => {
     "get, optional field",
     () =>
       Effect.gen(function*(_) {
-        const route = exampleApiGetOptionalField.pipe(
-          Route.make("hello", ({ query }) =>
+        const route = Api.getEndpoint(exampleApiGetOptionalField, "hello").pipe(
+          Handler.make(({ query }) =>
             Effect.succeed({
               foo: query.value === "on" ? Option.some("hello") : Option.none()
-            }))
+            })
+          )
         )
 
         const response = yield* testRoute(
@@ -297,8 +299,8 @@ describe("error reporting", () => {
     "invalid response",
     () =>
       Effect.gen(function*(_) {
-        const exampleRouteInvalid = exampleApiParams.pipe(
-          Route.make("hello", () => Effect.succeed(1 as unknown as string))
+        const exampleRouteInvalid = Api.getEndpoint(exampleApiParams, "hello").pipe(
+          Handler.make(() => Effect.succeed(1 as unknown as string))
         )
 
         const response = yield* testRoute(

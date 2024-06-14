@@ -6,10 +6,11 @@ import * as Effect from "effect/Effect"
 import { dual } from "effect/Function"
 import * as Pipeable from "effect/Pipeable"
 import type * as Scope from "effect/Scope"
+
 import * as Api from "../Api.js"
 import * as ApiEndpoint from "../ApiEndpoint.js"
+import * as Handler from "../Handler.js"
 import * as OpenApi from "../OpenApi.js"
-import * as Route from "../Route.js"
 import type * as RouterBuilder from "../RouterBuilder.js"
 import * as SwaggerRouter from "../SwaggerRouter.js"
 
@@ -105,35 +106,25 @@ export const handle = (...args: Array<any>) => (builder: RouterBuilder.RouterBui
   if (args.length === 2) {
     const [id, handler] = args
     const endpoint = getRemainingEndpoint(builder, id)
-    return handle({ handler, endpoint })(builder)
+    return handle(Handler.make(endpoint, handler))(builder)
   }
 
-  const { endpoint, handler } = args[0]
-
-  const remainingEndpoints = removeRemainingEndpoint(builder, endpoint.id)
-
-  const router = addRoute(
-    builder.router,
-    Route.fromEndpoint(handler, builder.options)(endpoint)
+  const handler = args[0] as Handler.Handler.Any
+  const remainingEndpoints = removeRemainingEndpoint(
+    builder,
+    ApiEndpoint.getId(Handler.getEndpoint(handler))
   )
+  const router = addRoute(builder.router, Handler.getRoute(handler))
 
   return new RouterBuilderImpl(remainingEndpoints, builder.api, router, builder.options)
 }
 
 /** @internal */
-export const handler = <
-  R,
-  E,
-  A extends Api.Api.Any,
-  Id extends Api.Api.Ids<A>
->(
+export const handler = <R, E, A extends Api.Api.Any, Id extends Api.Api.Ids<A>>(
   api: A,
   id: Id,
-  handler: Route.HandlerFunction<Api.Api.EndpointById<A, Id>, R, E>
-): RouterBuilder.RouterBuilder.Handler<Api.Api.EndpointById<A, Id>, E, R> => ({
-  handler,
-  endpoint: Api.getEndpoint(api, id)
-})
+  handler: Handler.Handler.Function<Api.Api.EndpointById<A, Id>, E, R>
+): Handler.Handler<Api.Api.EndpointById<A, Id>, E, R> => Handler.make(Api.getEndpoint(api, id), handler)
 
 /** @internal */
 export const build = <R, E>(

@@ -10,14 +10,14 @@ import type * as AST from "@effect/schema/AST"
 import type * as Pipeable from "effect/Pipeable"
 import type * as Scope from "effect/Scope"
 
-import type { Security } from "effect-http"
 import type * as HttpError from "effect-http-error/HttpError"
+import type * as Security from "effect-http/Security"
 import type * as Api from "./Api.js"
 import type * as ApiEndpoint from "./ApiEndpoint.js"
 import type * as ApiRequest from "./ApiRequest.js"
 import type * as ApiResponse from "./ApiResponse.js"
+import type * as Handler from "./Handler.js"
 import * as internal from "./internal/router-builder.js"
-import type * as Route from "./Route.js"
 import type * as SwaggerRouter from "./SwaggerRouter.js"
 
 /**
@@ -43,15 +43,6 @@ export declare namespace RouterBuilder {
    * @since 1.0.0
    */
   export type Any = RouterBuilder<any, any, ApiEndpoint.ApiEndpoint.Any>
-
-  /**
-   * @category models
-   * @since 1.0.0
-   */
-  export interface Handler<Endpoint extends ApiEndpoint.ApiEndpoint.Any, E, R> {
-    readonly handler: Route.HandlerFunction<Endpoint, R, E>
-    readonly endpoint: Endpoint
-  }
 
   /**
    * @category models
@@ -98,10 +89,7 @@ export const handleRaw: <
   E2,
   RemainingEndpoints extends ApiEndpoint.ApiEndpoint.Any,
   Id extends ApiEndpoint.ApiEndpoint.Id<RemainingEndpoints>
->(
-  id: Id,
-  handler: Router.Route.Handler<E2, R2>
-) => <R1, E1>(
+>(id: Id, handler: Router.Route.Handler<E2, R2>) => <R1, E1>(
   builder: RouterBuilder<R1, E1, RemainingEndpoints>
 ) => RouterBuilder<
   | R1
@@ -118,13 +106,8 @@ export const handleRaw: <
  * @since 1.0.0
  */
 export const handle: {
-  <
-    R2,
-    E2,
-    RemainingEndpoints extends ApiEndpoint.ApiEndpoint.Any,
-    Endpoint extends RemainingEndpoints
-  >(
-    handler: RouterBuilder.Handler<Endpoint, E2, R2>
+  <R2, E2, RemainingEndpoints extends ApiEndpoint.ApiEndpoint.Any, Endpoint extends RemainingEndpoints>(
+    handler: Handler.Handler<Endpoint, E2, R2>
   ): <R1, E1>(
     builder: RouterBuilder<R1, E1, RemainingEndpoints>
   ) => RouterBuilder<
@@ -141,11 +124,7 @@ export const handle: {
     Id extends ApiEndpoint.ApiEndpoint.Id<RemainingEndpoints>
   >(
     id: Id,
-    fn: Route.HandlerFunction<
-      ApiEndpoint.ApiEndpoint.ExtractById<RemainingEndpoints, Id>,
-      R2,
-      E2
-    >
+    fn: Handler.Handler.Function<ApiEndpoint.ApiEndpoint.ExtractById<RemainingEndpoints, Id>, E2, R2>
   ): <R1, E1>(
     builder: RouterBuilder<R1, E1, RemainingEndpoints>
   ) => RouterBuilder<
@@ -170,8 +149,8 @@ export const handler: <
 >(
   api: A,
   id: Id,
-  fn: Route.HandlerFunction<Api.Api.EndpointById<A, Id>, R, E>
-) => RouterBuilder.Handler<Api.Api.EndpointById<A, Id>, E, R> = internal.handler
+  fn: Handler.Handler.Function<Api.Api.EndpointById<A, Id>, E, R>
+) => Handler.Handler<Api.Api.EndpointById<A, Id>, E, R> = internal.handler
 
 /**
  * Modify the `Router`.

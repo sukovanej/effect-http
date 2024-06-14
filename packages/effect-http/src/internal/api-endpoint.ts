@@ -7,6 +7,7 @@ import * as Equivalence from "effect/Equivalence"
 import { pipe } from "effect/Function"
 import * as Order from "effect/Order"
 import * as Pipeable from "effect/Pipeable"
+import * as Predicate from "effect/Predicate"
 import type * as ApiEndpoint from "../ApiEndpoint.js"
 import * as ApiRequest from "../ApiRequest.js"
 import * as ApiResponse from "../ApiResponse.js"
@@ -528,3 +529,6 @@ const checkPathPatternMatchesSchema = (
 export const validateEndpoint = (endpoint: ApiEndpoint.ApiEndpoint.Any) => {
   checkPathPatternMatchesSchema(getId(endpoint), getPath(endpoint), ApiRequest.getPathSchema(getRequest(endpoint)))
 }
+
+export const isApiEndpoint = (u: unknown): u is ApiEndpoint.ApiEndpoint.Any =>
+  Predicate.hasProperty(u, TypeId) && Predicate.isObject(u[TypeId])
