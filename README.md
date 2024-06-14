@@ -41,6 +41,7 @@ breaking changes and the internals and the public API are still evolving and cha
   - [Mock client](#mock-client)
 - [Router handlers](#router-handlers)
 - [Compatibility](#compatibility)
+- [Scaling up](#scaling-up)
 
 Install 
 
@@ -1020,28 +1021,100 @@ return number `12` when calling the `getValue` operation.
 const client = MockClient.make(api, { responses: { getValue: 12 } });
 ```
 
-### Router handlers
+### Scaling up
 
-So far, we've been using the `RouterBuilder.handle` combinator to implement
-the logic of the endpoint in place.
+For bigger applications, you might want to separate the logic of endpoints
+or groups of endpoints into separate modules. This section describes some
+aproaches deal with it.
+
+Firstly, it is possible to declare endpoints independently of the `Api`
+or `ApiGroup` the're part of. Suppose we are creating a CMS system with
+articles, users, categories, etc. The API group responsible for management
+of articles would schematically look as follows.
 
 ```ts
-export const app = RouterBuilder.make(api).pipe(
-  RouterBuilder.handle("endpoint", ({ query }) => Effect.succeed({ value: query.value + 1 })),
-  RouterBuilder.build
+import { Api, ApiGroup } from 'effect-http';
+
+export const getArticleEndpoint = Api.get("getArticle", "/article").pipe(
+  Api.setResponseBody(Response)
+)
+export const storeArticleEndpoint = Api.post("storeArticle", "/article").pipe(
+  Api.setResponseBody(Response)
+)
+export const updateArticleEndpoint = Api.put("updateArticle", "/article").pipe(
+  Api.setResponseBody(Response)
+)
+export const deleteArticleEndpoint = Api.delete("deleteArticle", "/article").pipe(
+  Api.setResponseBody(Response)
+)
+
+export const articleApi = ApiGroup.make("Articles").pipe(
+  ApiGroup.addEndpoint(getArticleEndpoint),
+  ApiGroup.addEndpoint(storeArticleEndpoint),
+  ApiGroup.addEndpoint(updateArticleEndpoint),
+  ApiGroup.addEndpoint(deleteArticleEndpoint)
 )
 ```
 
-The `RouterBuilder.handle` has also an overload which accepts a `Handler` object
-that can be constructed using a `RouterBuilder.handler` combinator. This approach
-allows e.g. to define the handler in a separate module.
+Similarly, we'd define the API group for user management, categories and others.
+Let's combine these groups into our API definition.
 
 ```ts
-const endpointHandler = RouterBuilder.handler(api, "endpoint", ({ query }) => 
-  Effect.succeed({ value: query.value + 1 }))
+export const api = Api.make().pipe(
+  Api.addGroup(articleApi),
+  Api.addGroup(userApi),
+  Api.addGroup(categoryApi),
+  // ...
+)
+```
 
-export const app = RouterBuilder.make(api).pipe(
-  RouterBuilder.handle(endpointHandler),
+Each one of `deleteUserEndpoint`, `storeUserEndpoint`, ..., is an object
+of type `ApiEndpoint<Id, Request, Response, Security>`. They are a full type
+and runtime declarations of your endpoints. You can use these objects to
+implement the handlers for these endpoints. Produced handlers are objects
+of type `Handler<A, E, R>` (where `A` is a description of an endpoint
+`ApiEndpoint<Id, Request, Response, Security>`). Handlers are combined
+into a router using a `RouterBuilder`. You'd implement the handlers
+of the article API group as follows.
+
+```ts
+import { Handler, RouterBuilder } from 'effect-http';
+import { api, getArticleEndpoint, storeArticleEndpoint, updateArticleEndpoint, deleteArticleEndpoint } from 'path-to-your-api';
+
+const getArticleHandler = Handler.make(getArticleEndpoint, () => Effect.succeed(...))
+const storeArticleHandler = Handler.make(storeArticleEndpoint, () => Effect.succeed(...))
+const updateArticleHandler = Handler.make(updateArticleEndpoint, () => Effect.succeed(...))
+const deleteArticleHandler = Handler.make(deleteArticleEndpoint, () => Effect.succeed(...))
+
+export const articleRouterBuilder = RouterBuilder.make(api).pipe(
+  RouterBuilder.handle(getArticleHandler),
+  RouterBuilder.handle(storeArticleHandler),
+  RouterBuilder.handle(updateArticleHandler),
+  RouterBuilder.handle(deleteArticleHandler),
+)
+```
+
+> [!NOTE]
+> The `Handler.make` function has both data-first and data-last overloads.
+> If you prefer the pipe style, you can also do the following.
+>
+> ```ts
+> const getArticleHandler = getArticleEndpoint.pipe(
+>   Handler.make(() => Effect.succeed(...)
+> )
+> ```
+
+Finally, you merge all the router builders and build the app.
+
+```ts
+import { RouterBuilder } from 'effect-http';
+import { userRouterBuilder } from 'path-to-your-router-builder';
+
+const app = RouterBuilder.make(api).pipe(
+  RouterBuilder.merge(userRouterBuilder),
+  RouterBuilder.merge(articleRouterBuilder),
+  RouterBuilder.merge(categoryRouterBuilder),
+  // ...
   RouterBuilder.build
 )
 ```
