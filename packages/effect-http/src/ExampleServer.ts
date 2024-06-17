@@ -30,16 +30,16 @@ export const make: <A extends Api.Api.Any>(
  * @since 1.0.0
  */
 export const handle: <
-  RemainingEndpoints extends ApiEndpoint.ApiEndpoint.Any,
-  Id extends ApiEndpoint.ApiEndpoint.Id<RemainingEndpoints>
+  A extends ApiEndpoint.ApiEndpoint.Any,
+  Id extends ApiEndpoint.ApiEndpoint.Id<A>
 >(
   id: Id
 ) => <R, E>(
-  routerBuilder: RouterBuilder.RouterBuilder<R, E, RemainingEndpoints>
+  routerBuilder: RouterBuilder.RouterBuilder<A, E, R>
 ) => RouterBuilder.RouterBuilder<
-  R | ApiEndpoint.ApiEndpoint.Context<ApiEndpoint.ApiEndpoint.ExtractById<RemainingEndpoints, Id>>,
+  ApiEndpoint.ApiEndpoint.ExcludeById<A, Id>,
   E,
-  ApiEndpoint.ApiEndpoint.ExcludeById<RemainingEndpoints, Id>
+  R | ApiEndpoint.ApiEndpoint.Context<ApiEndpoint.ApiEndpoint.ExtractById<A, Id>>
 > = internal.handle
 
 /**
@@ -48,7 +48,6 @@ export const handle: <
  * @category utils
  * @since 1.0.0
  */
-export const handleRemaining: <RemainingEndpoints extends ApiEndpoint.ApiEndpoint.Any, R, E>(
-  routerBuilder: RouterBuilder.RouterBuilder<R, E, RemainingEndpoints>
-) => RouterBuilder.RouterBuilder<R | ApiEndpoint.ApiEndpoint.Context<RemainingEndpoints>, E, never> =
-  internal.handleRemaining
+export const handleRemaining: <A extends ApiEndpoint.ApiEndpoint.Any, E, R>(
+  routerBuilder: RouterBuilder.RouterBuilder<A, E, R>
+) => RouterBuilder.RouterBuilder<never, E, R | ApiEndpoint.ApiEndpoint.Context<A>> = internal.handleRemaining

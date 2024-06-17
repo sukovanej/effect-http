@@ -32,13 +32,13 @@ const DEFAULT_OPTIONS: RouterBuilder.Options = {
 }
 
 /** @internal */
-class RouterBuilderImpl<R, E, RemainingEndpoints extends ApiEndpoint.ApiEndpoint.Any>
-  implements RouterBuilder.RouterBuilder<R, E, RemainingEndpoints>, Pipeable.Pipeable
+class RouterBuilderImpl<A extends ApiEndpoint.ApiEndpoint.Any, E, R>
+  implements RouterBuilder.RouterBuilder<A, E, R>, Pipeable.Pipeable
 {
   readonly [TypeId] = variance
 
   constructor(
-    readonly remainingEndpoints: ReadonlyArray<RemainingEndpoints>,
+    readonly remainingEndpoints: ReadonlyArray<A>,
     readonly api: Api.Api.Any,
     readonly router: Router.Router<E, R>,
     readonly options: RouterBuilder.Options
@@ -54,7 +54,7 @@ class RouterBuilderImpl<R, E, RemainingEndpoints extends ApiEndpoint.ApiEndpoint
 export const make = <A extends Api.Api.Any>(
   api: A,
   options?: Partial<RouterBuilder.Options>
-): RouterBuilder.RouterBuilder<never, never, Api.Api.Endpoints<A>> =>
+): RouterBuilder.RouterBuilder<Api.Api.Endpoints<A>, never, never> =>
   new RouterBuilderImpl(
     api.groups.flatMap((group) => group.endpoints) as any,
     api,
@@ -63,21 +63,14 @@ export const make = <A extends Api.Api.Any>(
   )
 
 /** @internal */
-export const handleRaw = <
-  R2,
-  E2,
-  RemainingEndpoints extends ApiEndpoint.ApiEndpoint.Any,
-  Id extends ApiEndpoint.ApiEndpoint.Id<RemainingEndpoints>
->(
+export const handleRaw = <A extends ApiEndpoint.ApiEndpoint.Any, E2, R2, Id extends ApiEndpoint.ApiEndpoint.Id<A>>(
   id: Id,
   handler: Router.Route.Handler<E2, R2>
 ) =>
-<R1, E1>(
-  builder: RouterBuilder.RouterBuilder<R1, E1, RemainingEndpoints>
-): RouterBuilder.RouterBuilder<
-  R1 | Exclude<R2, Router.RouteContext | ServerRequest.ServerRequest | Scope.Scope>,
+<E1, R1>(builder: RouterBuilder.RouterBuilder<A, E1, R1>): RouterBuilder.RouterBuilder<
+  ApiEndpoint.ApiEndpoint.ExcludeById<A, Id>,
   E1 | E2,
-  ApiEndpoint.ApiEndpoint.ExcludeById<RemainingEndpoints, Id>
+  R1 | Exclude<R2, Router.RouteContext | ServerRequest.ServerRequest | Scope.Scope>
 > => {
   const endpoint = getRemainingEndpoint(builder, id)
   const remainingEndpoints = removeRemainingEndpoint(builder, id)
@@ -94,17 +87,17 @@ export const handleRaw = <
 
 /** @internal */
 const getRemainingEndpoint = <
-  R,
+  A extends ApiEndpoint.ApiEndpoint.Any,
   E,
-  RemainingEndpoints extends ApiEndpoint.ApiEndpoint.Any,
-  Id extends ApiEndpoint.ApiEndpoint.Id<RemainingEndpoints>
+  R,
+  Id extends ApiEndpoint.ApiEndpoint.Id<A>
 >(
-  builder: RouterBuilder.RouterBuilder<R, E, RemainingEndpoints>,
+  builder: RouterBuilder.RouterBuilder<A, E, R>,
   id: Id
-): ApiEndpoint.ApiEndpoint.ExtractById<RemainingEndpoints, Id> => {
+): ApiEndpoint.ApiEndpoint.ExtractById<A, Id> => {
   const endpoint = builder.remainingEndpoints.find(
     (endpoint) => ApiEndpoint.getId(endpoint) === id
-  ) as ApiEndpoint.ApiEndpoint.ExtractById<RemainingEndpoints, Id> | undefined
+  ) as ApiEndpoint.ApiEndpoint.ExtractById<A, Id> | undefined
 
   if (endpoint === undefined) {
     throw new Error(`Operation id ${id} not found`)
@@ -132,7 +125,7 @@ export const handle = (...args: Array<any>) => (builder: RouterBuilder.RouterBui
 }
 
 /** @internal */
-export const handler = <R, E, A extends Api.Api.Any, Id extends Api.Api.Ids<A>>(
+export const handler = <A extends Api.Api.Any, E, R, Id extends Api.Api.Ids<A>>(
   api: A,
   id: Id,
   handler: Handler.Handler.Function<Api.Api.EndpointById<A, Id>, E, R>
@@ -140,12 +133,12 @@ export const handler = <R, E, A extends Api.Api.Any, Id extends Api.Api.Ids<A>>(
 
 /** @internal */
 export const build = <R, E>(
-  builder: RouterBuilder.RouterBuilder<R, E, never>
+  builder: RouterBuilder.RouterBuilder<never, E, R>
 ): App.Default<E, R | SwaggerRouter.SwaggerFiles> => buildPartial(builder)
 
 /** @internal */
-export const buildPartial = <R, E, RemainingEndpoints extends ApiEndpoint.ApiEndpoint.Any>(
-  builder: RouterBuilder.RouterBuilder<R, E, RemainingEndpoints>
+export const buildPartial = <A extends ApiEndpoint.ApiEndpoint.Any, E, R>(
+  builder: RouterBuilder.RouterBuilder<A, E, R>
 ): App.Default<E, R | SwaggerRouter.SwaggerFiles> => {
   const swaggerRouter = builder.options.enableDocs ? SwaggerRouter.make(OpenApi.make(builder.api)) : Router.empty
   return Router.mount(builder.router, builder.options.docsPath, swaggerRouter).pipe(
@@ -154,24 +147,21 @@ export const buildPartial = <R, E, RemainingEndpoints extends ApiEndpoint.ApiEnd
 }
 
 /** @internal */
-export const getRouter = <R, E>(
-  builder: RouterBuilder.RouterBuilder<R, E, any>
+export const getRouter = <E, R>(
+  builder: RouterBuilder.RouterBuilder<any, E, R>
 ): Router.Router<E, R> => builder.router
 
 /** @internal */
-const removeRemainingEndpoint = <
-  RemainingEndpoints extends ApiEndpoint.ApiEndpoint.Any,
-  Id extends ApiEndpoint.ApiEndpoint.Id<RemainingEndpoints>
->(
-  builder: RouterBuilder.RouterBuilder<any, any, RemainingEndpoints>,
+const removeRemainingEndpoint = <A extends ApiEndpoint.ApiEndpoint.Any, Id extends ApiEndpoint.ApiEndpoint.Id<A>>(
+  builder: RouterBuilder.RouterBuilder<A, any, any>,
   id: Id
-): Array<ApiEndpoint.ApiEndpoint.ExcludeById<RemainingEndpoints, Id>> =>
+): Array<ApiEndpoint.ApiEndpoint.ExcludeById<A, Id>> =>
   builder.remainingEndpoints.filter(
     (endpoint) => ApiEndpoint.getId(endpoint) !== id
-  ) as Array<ApiEndpoint.ApiEndpoint.ExcludeById<RemainingEndpoints, Id>>
+  ) as Array<ApiEndpoint.ApiEndpoint.ExcludeById<A, Id>>
 
 /** @internal */
-export const addRoute = <R1, R2, E1, E2>(
+export const addRoute = <E1, E2, R1, R2>(
   router: Router.Router<E1, R1>,
   route: Router.Route<E2, R2>
 ): Router.Router<
@@ -182,14 +172,14 @@ export const addRoute = <R1, R2, E1, E2>(
 /** @internal */
 export const merge: {
   <R1, E1, R2, E2, A1 extends ApiEndpoint.ApiEndpoint.Any, A2 extends ApiEndpoint.ApiEndpoint.Any>(
-    builder1: RouterBuilder.RouterBuilder<R1, E1, A1>,
-    builder2: RouterBuilder.RouterBuilder<R2, E2, A2>
-  ): RouterBuilder.RouterBuilder<R1 | R2, E1 | E2, RouterBuilder.RouterBuilder.MergeApiEndpoints<A1, A2>>
+    builder1: RouterBuilder.RouterBuilder<A1, E1, R1>,
+    builder2: RouterBuilder.RouterBuilder<A2, E2, R2>
+  ): RouterBuilder.RouterBuilder<RouterBuilder.RouterBuilder.MergeApiEndpoints<A1, A2>, E1 | E2, R1 | R2>
   <R2, E2, A2 extends ApiEndpoint.ApiEndpoint.Any>(
-    builder2: RouterBuilder.RouterBuilder<R2, E2, A2>
+    builder2: RouterBuilder.RouterBuilder<A2, E2, R2>
   ): <R1, E1, A1 extends ApiEndpoint.ApiEndpoint.Any>(
-    builder1: RouterBuilder.RouterBuilder<R1, E1, A1>
-  ) => RouterBuilder.RouterBuilder<R1 | R2, E1 | E2, RouterBuilder.RouterBuilder.MergeApiEndpoints<A1, A2>>
+    builder1: RouterBuilder.RouterBuilder<A1, E1, R1>
+  ) => RouterBuilder.RouterBuilder<RouterBuilder.RouterBuilder.MergeApiEndpoints<A1, A2>, E1 | E2, R1 | R2>
 } = dual(2, (builder1: RouterBuilder.RouterBuilder.Any, builder2: RouterBuilder.RouterBuilder.Any) => {
   const remainingEndpointIds = builder2.remainingEndpoints.map((e) => ApiEndpoint.getId(e))
 
