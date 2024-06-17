@@ -17,6 +17,7 @@ import type * as Representation from "../Representation.js"
 import * as api_request from "./api-request.js"
 import * as api_response from "./api-response.js"
 
+/** @internal */
 export const TypeId: ApiEndpoint.TypeId = Symbol.for(
   "effect-http/Api/EndpointTypeId"
 ) as ApiEndpoint.TypeId
@@ -531,5 +532,6 @@ export const validateEndpoint = (endpoint: ApiEndpoint.ApiEndpoint.Any) => {
   checkPathPatternMatchesSchema(getId(endpoint), getPath(endpoint), ApiRequest.getPathSchema(getRequest(endpoint)))
 }
 
+/** @internal */
 export const isApiEndpoint = (u: unknown): u is ApiEndpoint.ApiEndpoint.Any =>
   Predicate.hasProperty(u, TypeId) && Predicate.isObject(u[TypeId])

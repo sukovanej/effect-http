@@ -4,14 +4,17 @@ import * as Predicate from "effect/Predicate"
 import type * as ClientError from "../ClientError.js"
 import { formatParseError } from "./formatParseError.js"
 
+/** @internal */
 export const ClientSideErrorTypeId: ClientError.ClientSideErrorTypeId = Symbol.for(
   "effect-http/ClientError/ClientSideErrorTypeId"
 ) as ClientError.ClientSideErrorTypeId
 
+/** @internal */
 export const ServerSideErrorTypeId: ClientError.ServerSideErrorTypeId = Symbol.for(
   "effect-http/ClientError/ServerSideErrorTypeId"
 ) as ClientError.ServerSideErrorTypeId
 
+/** @internal */
 export class ClientErrorServerSideImpl<S extends number> extends Data.TaggedError("ClientError")<{
   message: string
   error: unknown
@@ -21,6 +24,7 @@ export class ClientErrorServerSideImpl<S extends number> extends Data.TaggedErro
   readonly [ServerSideErrorTypeId] = {}
 }
 
+/** @internal */
 export class ClientErrorClientSideImpl extends Data.TaggedError("ClientError")<{
   message: string
   error: unknown
@@ -29,6 +33,7 @@ export class ClientErrorClientSideImpl extends Data.TaggedError("ClientError")<{
   readonly [ClientSideErrorTypeId] = {}
 }
 
+/** @internal */
 export const makeClientSide = (error: unknown, message?: string) => {
   return new ClientErrorClientSideImpl({
     message: message ?? (typeof error === "string" ? error : JSON.stringify(error)),
@@ -37,6 +42,7 @@ export const makeClientSide = (error: unknown, message?: string) => {
   })
 }
 
+/** @internal */
 const getMessage = (error: unknown) => {
   if (typeof error === "string") {
     return error
@@ -53,6 +59,7 @@ const getMessage = (error: unknown) => {
   return JSON.stringify(error)
 }
 
+/** @internal */
 export const makeServerSide = <S extends number>(
   error: unknown,
   status: S,
@@ -66,6 +73,7 @@ export const makeServerSide = <S extends number>(
   })
 }
 
+/** @internal */
 export const makeClientSideRequestValidation = (location: string) => (error: ParseResult.ParseError) =>
   new ClientErrorClientSideImpl({
     message: `Failed to encode ${location}. ${formatParseError(error)}`,
@@ -73,6 +81,7 @@ export const makeClientSideRequestValidation = (location: string) => (error: Par
     side: "client"
   })
 
+/** @internal */
 export const makeClientSideResponseValidation = (location: string) => (error: ParseResult.ParseError) =>
   new ClientErrorClientSideImpl({
     message: `Failed to validate response ${location}. ${
@@ -84,8 +93,10 @@ export const makeClientSideResponseValidation = (location: string) => (error: Pa
     side: "client"
   })
 
+/** @internal */
 export const isClientSideError = (u: unknown): u is ClientError.ClientErrorClientSide =>
   Predicate.isTagged(u, "ClientError") && ClientSideErrorTypeId in u
 
+/** @internal */
 export const isServerSideError = (u: unknown): u is ClientError.ClientErrorServerSide =>
   Predicate.isTagged(u, "ClientError") && ServerSideErrorTypeId in u

@@ -15,6 +15,7 @@ import * as HashMap from "effect/HashMap"
 import * as Metric from "effect/Metric"
 import type * as Middlewares from "../Middlewares.js"
 
+/** @internal */
 export const accessLog = (level: "Info" | "Warning" | "Debug" = "Info") =>
   HttpServer.middleware.make((app) =>
     pipe(
@@ -24,6 +25,7 @@ export const accessLog = (level: "Info" | "Warning" | "Debug" = "Info") =>
     )
   )
 
+/** @internal */
 export const uuidLogAnnotation = (logAnnotationKey = "requestId") =>
   HttpServer.middleware.make((app) =>
     pipe(
@@ -38,6 +40,7 @@ export const uuidLogAnnotation = (logAnnotationKey = "requestId") =>
     )
   )
 
+/** @internal */
 export const endpointCallsMetric = () => {
   const endpointCalledCounter = Metric.counter("server.endpoint_calls")
 
@@ -55,6 +58,7 @@ export const endpointCallsMetric = () => {
   )
 }
 
+/** @internal */
 export const errorLog = HttpServer.middleware.make((app) =>
   Effect.gen(function*(_) {
     const request = yield* _(HttpServer.request.ServerRequest)
@@ -79,6 +83,7 @@ export const errorLog = HttpServer.middleware.make((app) =>
   })
 )
 
+/** @internal */
 export const basicAuth = <R, _>(
   checkCredentials: (
     credentials: Middlewares.BasicAuthCredentials
@@ -151,6 +156,7 @@ export const basicAuth = <R, _>(
     })
   )
 
+/** @internal */
 export const cors = (_options?: Partial<Middlewares.CorsOptions>) => {
   const DEFAULTS = {
     allowedOrigins: ["*"],

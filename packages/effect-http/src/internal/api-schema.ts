@@ -3,10 +3,12 @@ import * as Predicate from "effect/Predicate"
 import * as OpenApiCompiler from "schema-openapi/OpenApiCompiler"
 import type * as ApiSchema from "../ApiSchema.js"
 
+/** @internal */
 export const IgnoredId: ApiSchema.IgnoredId = Symbol.for(
   "effect-http/ignored-id"
 ) as ApiSchema.IgnoredId
 
+/** @internal */
 export const Ignored: ApiSchema.Ignored = { [IgnoredId]: IgnoredId }
 
 /** @internal */

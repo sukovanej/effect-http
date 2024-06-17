@@ -8,14 +8,12 @@ import { createServer } from "http"
 import type * as NodeServer from "../NodeServer.js"
 import * as NodeSwaggerFiles from "../NodeSwaggerFiles.js"
 
+/** @internal */
 const DEFAULT_LISTEN_OPTIONS: NodeServer.Options = {
   port: undefined
 }
 
-/**
- * @category combinators
- * @since 1.0.0
- */
+/** @internal */
 export const listen = (options?: Partial<NodeServer.Options>) => <R, E>(router: HttpServer.app.Default<E, R>) =>
   pipe(
     HttpServer.server.logAddress,

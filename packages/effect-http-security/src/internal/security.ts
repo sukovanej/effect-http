@@ -11,6 +11,7 @@ import type * as Record from "effect/Record"
 import * as Unify from "effect/Unify"
 import type * as Security from "../Security.js"
 
+/** @internal */
 export const TypeId: Security.TypeId = Symbol.for(
   "effect-http-security/Security/TypeId"
 ) as Security.TypeId

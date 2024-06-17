@@ -9,16 +9,19 @@ import * as ApiSchema from "../ApiSchema.js"
 import * as ClientError from "../ClientError.js"
 import { formatParseError } from "./formatParseError.js"
 
+/** @internal */
 interface ClientRequestEncoder {
   encodeRequest: (
     input: unknown
   ) => Effect.Effect<ClientRequest.ClientRequest, ClientError.ClientError>
 }
 
+/** @internal */
 const make = (
   encodeRequest: ClientRequestEncoder["encodeRequest"]
 ): ClientRequestEncoder => ({ encodeRequest })
 
+/** @internal */
 export const create = (endpoint: ApiEndpoint.ApiEndpoint.Any): ClientRequestEncoder => {
   const encodeBody = createBodyEncoder(endpoint)
   const encodeQuery = createQueryEncoder(endpoint)
@@ -53,6 +56,7 @@ export const create = (endpoint: ApiEndpoint.ApiEndpoint.Any): ClientRequestEnco
   )
 }
 
+/** @internal */
 const ignoredSchemaEncoder = (name: string) => (input: unknown) => {
   if (input !== undefined) {
     return Effect.dieMessage(
@@ -63,6 +67,7 @@ const ignoredSchemaEncoder = (name: string) => (input: unknown) => {
   return Effect.succeed(undefined)
 }
 
+/** @internal */
 const createBodyEncoder = (endpoint: ApiEndpoint.ApiEndpoint.Any) => {
   const schema = ApiRequest.getBodySchema(ApiEndpoint.getRequest(endpoint))
 
@@ -84,10 +89,12 @@ const createBodyEncoder = (endpoint: ApiEndpoint.ApiEndpoint.Any) => {
   }
 }
 
+/** @internal */
 const isRecordOrUndefined = (
   i: unknown
 ): i is Record<string | symbol, unknown> | undefined => Predicate.isRecord(i) || Predicate.isUndefined(i)
 
+/** @internal */
 const createQueryEncoder = (endpoint: ApiEndpoint.ApiEndpoint.Any) => {
   const schema = ApiRequest.getQuerySchema(ApiEndpoint.getRequest(endpoint))
 
@@ -109,6 +116,7 @@ const createQueryEncoder = (endpoint: ApiEndpoint.ApiEndpoint.Any) => {
   }
 }
 
+/** @internal */
 const createHeadersEncoder = (endpoint: ApiEndpoint.ApiEndpoint.Any) => {
   const schema = ApiRequest.getHeadersSchema(ApiEndpoint.getRequest(endpoint))
 
@@ -130,6 +138,7 @@ const createHeadersEncoder = (endpoint: ApiEndpoint.ApiEndpoint.Any) => {
   }
 }
 
+/** @internal */
 const createPathEncoder = (endpoint: ApiEndpoint.ApiEndpoint.Any) => {
   const schema = ApiRequest.getPathSchema(ApiEndpoint.getRequest(endpoint))
 
@@ -151,6 +160,7 @@ const createPathEncoder = (endpoint: ApiEndpoint.ApiEndpoint.Any) => {
   }
 }
 
+/** @internal */
 const constructPath = (
   params: Record<string, string> | undefined,
   path: string

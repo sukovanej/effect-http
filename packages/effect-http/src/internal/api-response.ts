@@ -6,6 +6,7 @@ import * as Predicate from "effect/Predicate"
 import type * as ApiResponse from "../ApiResponse.js"
 import * as ApiSchema from "../ApiSchema.js"
 
+/** @internal */
 export const TypeId: ApiResponse.TypeId = Symbol.for(
   "effect-http/Api/ResponseTypeId"
 ) as ApiResponse.TypeId
@@ -41,6 +42,7 @@ class ApiResponseImpl<S extends ApiResponse.ApiResponse.AnyStatus, B, H, R>
   }
 }
 
+/** @internal */
 const defaultRepresentations = [Representation.json] as const
 
 /** @internal */

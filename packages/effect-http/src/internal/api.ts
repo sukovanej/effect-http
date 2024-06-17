@@ -6,6 +6,7 @@ import * as ApiGroup from "../ApiGroup.js"
 import * as api_endpoint from "./api-endpoint.js"
 import * as api_group from "./api-group.js"
 
+/** @internal */
 export const TypeId: Api.TypeId = Symbol.for(
   "effect-http/Api/TypeId"
 ) as Api.TypeId

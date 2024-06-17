@@ -10,6 +10,7 @@ import type * as MockClient from "../MockClient.js"
 import * as ClientRequestEncoder from "./clientRequestEncoder.js"
 import * as utils from "./utils.js"
 
+/** @internal */
 export const make = <A extends Api.Api.Any>(
   api: A,
   option?: Partial<MockClient.Options<A>>

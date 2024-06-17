@@ -8,9 +8,11 @@ import * as Predicate from "effect/Predicate"
 import * as Stream from "effect/Stream"
 import type * as HttpError from "../HttpError.js"
 
+/** @internal */
 const unsafeIsStream = (u: unknown): u is Stream.Stream<Uint8Array> =>
   typeof u === "object" && u !== null && Stream.StreamTypeId in u
 
+/** @internal */
 export class HttpErrorImpl extends Data.TaggedError("HttpError")<{
   status: number
   content: Body.Body
@@ -43,6 +45,7 @@ export class HttpErrorImpl extends Data.TaggedError("HttpError")<{
   }
 }
 
+/** @internal */
 export const toResponse = (error: HttpError.HttpError) => {
   const options: ServerResponse.Options.WithContentType = {
     status: error.status,
@@ -68,19 +71,44 @@ export const toResponse = (error: HttpError.HttpError) => {
   return absurd<never>(error.content)
 }
 
+/** @internal */
 export const make = (status: number, body?: unknown) => HttpErrorImpl.unsafeFromUnknown(status, body)
 
+/** @internal */
 export const badRequest = (body?: unknown) => make(400, body)
+
+/** @internal */
 export const unauthorizedError = (body?: unknown) => make(401, body)
+
+/** @internal */
 export const forbiddenError = (body?: unknown) => make(403, body)
+
+/** @internal */
 export const notFoundError = (body?: unknown) => make(404, body)
+
+/** @internal */
 export const conflictError = (body?: unknown) => make(409, body)
+
+/** @internal */
 export const unsupportedMediaTypeError = (body?: unknown) => make(415, body)
+
+/** @internal */
 export const tooManyRequestsError = (body?: unknown) => make(429, body)
+
+/** @internal */
 export const internalHttpError = (body?: unknown) => make(500, body)
+
+/** @internal */
 export const notImplementedError = (body?: unknown) => make(501, body)
+
+/** @internal */
 export const badGatewayError = (body?: unknown) => make(502, body)
+
+/** @internal */
 export const serviceUnavailableError = (body?: unknown) => make(503, body)
+
+/** @internal */
 export const gatewayTimeoutError = (body?: unknown) => make(504, body)
 
+/** @internal */
 export const isHttpError = (error: unknown): error is HttpError.HttpError => Predicate.isTagged(error, "HttpError")

@@ -14,6 +14,7 @@ import * as OpenApi from "../OpenApi.js"
 import type * as RouterBuilder from "../RouterBuilder.js"
 import * as SwaggerRouter from "../SwaggerRouter.js"
 
+/** @internal */
 export const TypeId: RouterBuilder.TypeId = Symbol.for(
   "effect-http/RouterBuilder/TypeId"
 ) as RouterBuilder.TypeId

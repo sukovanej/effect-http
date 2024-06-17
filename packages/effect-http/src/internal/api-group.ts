@@ -5,6 +5,7 @@ import * as ApiEndpoint from "../ApiEndpoint.js"
 import type * as ApiGroup from "../ApiGroup.js"
 import * as api_endpoint from "./api-endpoint.js"
 
+/** @internal */
 export const TypeId: ApiGroup.TypeId = Symbol.for(
   "effect-http/Api/ApiGroupTypeId"
 ) as ApiGroup.TypeId
@@ -48,6 +49,7 @@ export const validateNewEndpoint = (
   }
 }
 
+/** @internal */
 export const addEndpoint =
   <E2 extends ApiEndpoint.ApiEndpoint.Any>(endpoint: E2) =>
   <E1 extends ApiEndpoint.ApiEndpoint.Any>(self: ApiGroup.ApiGroup<E1>): ApiGroup.ApiGroup<E1 | E2> => {

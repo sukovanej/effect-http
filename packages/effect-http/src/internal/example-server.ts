@@ -10,6 +10,7 @@ import * as ApiEndpoint from "../ApiEndpoint.js"
 import * as RouterBuilder from "../RouterBuilder.js"
 import * as utils from "./utils.js"
 
+/** @internal */
 export const make = <A extends Api.Api.Any>(
   api: A
 ): RouterBuilder.RouterBuilder<
@@ -18,6 +19,7 @@ export const make = <A extends Api.Api.Any>(
   never
 > => handleRemaining(RouterBuilder.make(api))
 
+/** @internal */
 export const handle = <
   A extends ApiEndpoint.ApiEndpoint.Any,
   Id extends ApiEndpoint.ApiEndpoint.Id<A>
@@ -37,6 +39,7 @@ export const handle = <
   ) as any
 }
 
+/** @internal */
 export const handleRemaining = <A extends ApiEndpoint.ApiEndpoint.Any, R, E>(
   routerBuilder: RouterBuilder.RouterBuilder<A, E, R>
 ): RouterBuilder.RouterBuilder<never, E, R | ApiEndpoint.ApiEndpoint.Context<A>> =>
@@ -52,6 +55,7 @@ export const handleRemaining = <A extends ApiEndpoint.ApiEndpoint.Any, R, E>(
     )
   ) as RouterBuilder.RouterBuilder<never, E, R | ApiEndpoint.ApiEndpoint.Context<A>>
 
+/** @internal */
 const createExampleHandler = (endpoint: ApiEndpoint.ApiEndpoint.Any) => {
   const responseSchema = utils.createResponseSchema(endpoint)
 

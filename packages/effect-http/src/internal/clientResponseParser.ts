@@ -11,16 +11,19 @@ import * as ApiSchema from "../ApiSchema.js"
 import * as ClientError from "../ClientError.js"
 import type * as Representation from "../Representation.js"
 
+/** @internal */
 interface ClientResponseParser {
   parseResponse: (
     response: ClientResponse.ClientResponse
   ) => Effect.Effect<any, ClientError.ClientError>
 }
 
+/** @internal */
 const make = (
   parseResponse: ClientResponseParser["parseResponse"]
 ): ClientResponseParser => ({ parseResponse })
 
+/** @internal */
 export const create = (
   endpoint: ApiEndpoint.ApiEndpoint.Any
 ): ClientResponseParser => {
@@ -73,6 +76,7 @@ export const create = (
   )
 }
 
+/** @internal */
 const handleUnsucessful = Unify.unify(
   (response: ClientResponse.ClientResponse) => {
     if (response.status >= 300) {
@@ -87,6 +91,7 @@ const handleUnsucessful = Unify.unify(
   }
 )
 
+/** @internal */
 const representationFromResponse = (
   representations: Array.NonEmptyReadonlyArray<Representation.Representation>,
   response: ClientResponse.ClientResponse
@@ -108,6 +113,7 @@ const representationFromResponse = (
   )
 }
 
+/** @internal */
 const decodeBody = (
   schema: Schema.Schema<any, any, never>,
   representations: Array.NonEmptyReadonlyArray<Representation.Representation>
@@ -143,6 +149,7 @@ const decodeBody = (
   }
 }
 
+/** @internal */
 const parseBody: (
   schema: Schema.Schema<any, any, never> | ApiSchema.Ignored,
   representations: Array.NonEmptyReadonlyArray<Representation.Representation>

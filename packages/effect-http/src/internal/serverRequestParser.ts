@@ -10,6 +10,7 @@ import * as ApiRequest from "../ApiRequest.js"
 import * as ApiSchema from "../ApiSchema.js"
 import { formatParseError } from "./formatParseError.js"
 
+/** @internal */
 interface ServerRequestParser {
   parseRequest: Effect.Effect<
     { query: any; path: any; body: any; headers: any; security: any },
@@ -18,6 +19,7 @@ interface ServerRequestParser {
   >
 }
 
+/** @internal */
 const createError = (
   location: "query" | "path" | "body" | "headers",
   message: string
@@ -28,10 +30,12 @@ const createError = (
     message
   })
 
+/** @internal */
 const make = (
   parseRequest: ServerRequestParser["parseRequest"]
 ): ServerRequestParser => ({ parseRequest })
 
+/** @internal */
 export const create = (
   endpoint: ApiEndpoint.ApiEndpoint.Any,
   parseOptions?: AST.ParseOptions
@@ -46,6 +50,7 @@ export const create = (
     }) as any
   )
 
+/** @internal */
 const parseBody = (
   endpoint: ApiEndpoint.ApiEndpoint.Any,
   parseOptions?: AST.ParseOptions
@@ -80,6 +85,7 @@ const parseBody = (
   )
 }
 
+/** @internal */
 const parseQuery = (
   endpoint: ApiEndpoint.ApiEndpoint.Any,
   parseOptions?: AST.ParseOptions
@@ -96,6 +102,7 @@ const parseQuery = (
   )
 }
 
+/** @internal */
 const parseHeaders = (
   endpoint: ApiEndpoint.ApiEndpoint.Any,
   parseOptions?: AST.ParseOptions
@@ -114,6 +121,7 @@ const parseHeaders = (
   )
 }
 
+/** @internal */
 const parseSecurity = (
   endpoint: ApiEndpoint.ApiEndpoint.Any
 ) => {
@@ -122,6 +130,7 @@ const parseSecurity = (
   return Security.handleRequest(security)
 }
 
+/** @internal */
 const parsePath = (
   endpoint: ApiEndpoint.ApiEndpoint.Any,
   parseOptions?: AST.ParseOptions
