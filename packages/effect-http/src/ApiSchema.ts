@@ -2,7 +2,6 @@
  * @since 1.0.0
  */
 import type * as Schema from "@effect/schema/Schema"
-import * as Predicate from "effect/Predicate"
 import * as internal from "./internal/api-schema.js"
 
 /**
@@ -35,7 +34,7 @@ export interface Ignored {
  * @category refinements
  * @since 1.0.0
  */
-export const isIgnored = (u: unknown): u is Ignored => Predicate.hasProperty(u, IgnoredId) && u[IgnoredId] === IgnoredId
+export const isIgnored: (u: unknown) => u is Ignored = internal.isIgnored
 
 /**
  * FormData schema

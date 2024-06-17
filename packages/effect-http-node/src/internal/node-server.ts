@@ -18,14 +18,7 @@ const DEFAULT_LISTEN_OPTIONS: NodeServer.Options = {
  */
 export const listen = (options?: Partial<NodeServer.Options>) => <R, E>(router: HttpServer.app.Default<E, R>) =>
   pipe(
-    Effect.gen(function*(_) {
-      const server = yield* _(HttpServer.server.Server)
-      const address = server.address._tag === "UnixAddress"
-        ? server.address.path
-        : `${server.address.hostname}:${server.address.port}`
-
-      yield* _(Effect.log(`Listening on ${address}`))
-    }),
+    HttpServer.server.logAddress,
     Effect.flatMap(() => Layer.launch(HttpServer.server.serve(router))),
     Effect.scoped,
     Effect.provide(NodeHttpServer.server.layer(() => createServer(), { ...DEFAULT_LISTEN_OPTIONS, ...options })),

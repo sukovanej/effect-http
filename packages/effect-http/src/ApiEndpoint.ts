@@ -550,3 +550,9 @@ export const isFullResponse: <
 >(
   endpoint: ApiEndpoint<Id, Request, Response, Security>
 ) => boolean = internal.isFullResponse
+
+/**
+ * @category refinements
+ * @since 1.0.0
+ */
+export const isApiEndpoint: (u: unknown) => u is ApiEndpoint.Any = internal.isApiEndpoint

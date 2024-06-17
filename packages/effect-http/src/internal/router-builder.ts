@@ -6,33 +6,51 @@ import * as Effect from "effect/Effect"
 import { dual } from "effect/Function"
 import * as Pipeable from "effect/Pipeable"
 import type * as Scope from "effect/Scope"
+
 import * as Api from "../Api.js"
 import * as ApiEndpoint from "../ApiEndpoint.js"
+import * as Handler from "../Handler.js"
 import * as OpenApi from "../OpenApi.js"
-import * as Route from "../Route.js"
 import type * as RouterBuilder from "../RouterBuilder.js"
 import * as SwaggerRouter from "../SwaggerRouter.js"
 
+/** @internal */
 const DEFAULT_OPTIONS: RouterBuilder.Options = {
   parseOptions: { errors: "first", onExcessProperty: "ignore" },
   enableDocs: true,
   docsPath: "/docs"
 }
 
-export const make = <A extends Api.Api.Any>(
-  api: A,
-  options?: Partial<RouterBuilder.Options>
-): RouterBuilder.RouterBuilder<never, never, Api.Api.Endpoints<A>> => ({
-  remainingEndpoints: api.groups.flatMap((group) => group.endpoints) as any,
-  router: Router.empty,
-  api,
-  options: { ...DEFAULT_OPTIONS, ...options },
+/** @internal */
+class RouterBuilderImpl<R, E, RemainingEndpoints extends ApiEndpoint.ApiEndpoint.Any>
+  implements RouterBuilder.RouterBuilder<R, E, RemainingEndpoints>, Pipeable.Pipeable
+{
+  constructor(
+    readonly remainingEndpoints: ReadonlyArray<RemainingEndpoints>,
+    readonly api: Api.Api.Any,
+    readonly router: Router.Router<E, R>,
+    readonly options: RouterBuilder.Options
+  ) {}
+
   pipe() {
     // eslint-disable-next-line prefer-rest-params
     return Pipeable.pipeArguments(this, arguments)
   }
-})
+}
 
+/** @internal */
+export const make = <A extends Api.Api.Any>(
+  api: A,
+  options?: Partial<RouterBuilder.Options>
+): RouterBuilder.RouterBuilder<never, never, Api.Api.Endpoints<A>> =>
+  new RouterBuilderImpl(
+    api.groups.flatMap((group) => group.endpoints) as any,
+    api,
+    Router.empty,
+    { ...DEFAULT_OPTIONS, ...options }
+  )
+
+/** @internal */
 export const handleRaw = <
   R2,
   E2,
@@ -59,11 +77,7 @@ export const handleRaw = <
     )
   )
 
-  return {
-    ...builder,
-    router,
-    remainingEndpoints
-  }
+  return new RouterBuilderImpl(remainingEndpoints, builder.api, router, builder.options)
 }
 
 /** @internal */
@@ -87,47 +101,37 @@ const getRemainingEndpoint = <
   return endpoint
 }
 
+/** @internal */
 export const handle = (...args: Array<any>) => (builder: RouterBuilder.RouterBuilder.Any): any => {
   if (args.length === 2) {
     const [id, handler] = args
     const endpoint = getRemainingEndpoint(builder, id)
-    return handle({ handler, endpoint })(builder)
+    return handle(Handler.make(endpoint, handler))(builder)
   }
 
-  const { endpoint, handler } = args[0]
-
-  const remainingEndpoints = removeRemainingEndpoint(builder, endpoint.id)
-
-  const router = addRoute(
-    builder.router,
-    Route.fromEndpoint(handler, builder.options)(endpoint)
+  const handler = args[0] as Handler.Handler.Any
+  const remainingEndpoints = removeRemainingEndpoint(
+    builder,
+    ApiEndpoint.getId(Handler.getEndpoint(handler))
   )
+  const router = addRoute(builder.router, Handler.getRoute(handler))
 
-  return {
-    ...builder,
-    router,
-    remainingEndpoints
-  }
+  return new RouterBuilderImpl(remainingEndpoints, builder.api, router, builder.options)
 }
 
-export const handler = <
-  R,
-  E,
-  A extends Api.Api.Any,
-  Id extends Api.Api.Ids<A>
->(
+/** @internal */
+export const handler = <R, E, A extends Api.Api.Any, Id extends Api.Api.Ids<A>>(
   api: A,
   id: Id,
-  handler: Route.HandlerFunction<Api.Api.EndpointById<A, Id>, R, E>
-): RouterBuilder.RouterBuilder.Handler<Api.Api.EndpointById<A, Id>, E, R> => ({
-  handler,
-  endpoint: Api.getEndpoint(api, id)
-})
+  handler: Handler.Handler.Function<Api.Api.EndpointById<A, Id>, E, R>
+): Handler.Handler<Api.Api.EndpointById<A, Id>, E, R> => Handler.make(Api.getEndpoint(api, id), handler)
 
+/** @internal */
 export const build = <R, E>(
   builder: RouterBuilder.RouterBuilder<R, E, never>
 ): App.Default<E, R | SwaggerRouter.SwaggerFiles> => buildPartial(builder)
 
+/** @internal */
 export const buildPartial = <R, E, RemainingEndpoints extends ApiEndpoint.ApiEndpoint.Any>(
   builder: RouterBuilder.RouterBuilder<R, E, RemainingEndpoints>
 ): App.Default<E, R | SwaggerRouter.SwaggerFiles> => {
@@ -137,6 +141,7 @@ export const buildPartial = <R, E, RemainingEndpoints extends ApiEndpoint.ApiEnd
   )
 }
 
+/** @internal */
 export const getRouter = <R, E>(
   builder: RouterBuilder.RouterBuilder<R, E, any>
 ): Router.Router<E, R> => builder.router
@@ -180,11 +185,10 @@ export const merge: {
     throw new Error("Cannot merge router builder for different APIs")
   }
 
-  return {
-    ...builder1,
-    remainingEndpoints: builder1.remainingEndpoints.filter((e) =>
-      remainingEndpointIds.includes(ApiEndpoint.getId(e))
-    ) as any,
-    router: Router.concat(builder1.router, builder2.router)
-  }
+  return new RouterBuilderImpl(
+    builder1.remainingEndpoints.filter((e) => remainingEndpointIds.includes(ApiEndpoint.getId(e))) as any,
+    builder1.api,
+    Router.concat(builder1.router, builder2.router),
+    builder1.options
+  )
 })
