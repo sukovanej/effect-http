@@ -21,6 +21,18 @@ import * as internal from "./internal/router-builder.js"
 import type * as SwaggerRouter from "./SwaggerRouter.js"
 
 /**
+ * @since 1.0.0
+ * @category type id
+ */
+export const TypeId: unique symbol = internal.TypeId
+
+/**
+ * @since 1.0.0
+ * @category type id
+ */
+export type TypeId = typeof TypeId
+
+/**
  * @category models
  * @since 1.0.0
  */
@@ -216,3 +228,9 @@ export const merge: {
     builder1: RouterBuilder<R1, E1, A1>
   ) => RouterBuilder<R1 | R2, E1 | E2, RouterBuilder.MergeApiEndpoints<A1, A2>>
 } = internal.merge
+
+/**
+ * @category refinements
+ * @since 1.0.0
+ */
+export const isRouterBuilder: (u: unknown) => u is RouterBuilder.Any = internal.isRouterBuilder

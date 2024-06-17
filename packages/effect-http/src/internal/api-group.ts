@@ -1,5 +1,5 @@
 import * as Pipeable from "effect/Pipeable"
-import * as Predicate from "effect/Predicate"
+
 import type * as Api from "../Api.js"
 import * as ApiEndpoint from "../ApiEndpoint.js"
 import type * as ApiGroup from "../ApiGroup.js"
@@ -10,8 +10,14 @@ export const TypeId: ApiGroup.TypeId = Symbol.for(
 ) as ApiGroup.TypeId
 
 /** @internal */
+export const variance = {
+  /* c8 ignore next */
+  _A: (_: never) => _
+}
+
+/** @internal */
 export class ApiGroupImpl<Endpoints extends ApiEndpoint.ApiEndpoint.Any> implements ApiGroup.ApiGroup<Endpoints> {
-  readonly [TypeId] = TypeId
+  readonly [TypeId] = variance
 
   constructor(
     readonly name: string,
@@ -26,8 +32,7 @@ export class ApiGroupImpl<Endpoints extends ApiEndpoint.ApiEndpoint.Any> impleme
 }
 
 /** @internal */
-export const isApiGroup = (u: unknown): u is ApiGroup.ApiGroup.Any =>
-  Predicate.hasProperty(u, TypeId) && Predicate.isObject(u[TypeId])
+export const isApiGroup = (u: unknown): u is ApiGroup.ApiGroup.Any => typeof u === "object" && u !== null && TypeId in u
 
 /** @internal */
 export const make = (name: string, options?: Partial<Api.ApiOptions>): ApiGroup.ApiGroup.Empty =>

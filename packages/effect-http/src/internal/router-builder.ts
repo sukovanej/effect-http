@@ -14,6 +14,16 @@ import * as OpenApi from "../OpenApi.js"
 import type * as RouterBuilder from "../RouterBuilder.js"
 import * as SwaggerRouter from "../SwaggerRouter.js"
 
+export const TypeId: RouterBuilder.TypeId = Symbol.for(
+  "effect-http/RouterBuilder/TypeId"
+) as RouterBuilder.TypeId
+
+/** @internal */
+export const variance = {
+  /* c8 ignore next */
+  _A: (_: never) => _
+}
+
 /** @internal */
 const DEFAULT_OPTIONS: RouterBuilder.Options = {
   parseOptions: { errors: "first", onExcessProperty: "ignore" },
@@ -25,6 +35,8 @@ const DEFAULT_OPTIONS: RouterBuilder.Options = {
 class RouterBuilderImpl<R, E, RemainingEndpoints extends ApiEndpoint.ApiEndpoint.Any>
   implements RouterBuilder.RouterBuilder<R, E, RemainingEndpoints>, Pipeable.Pipeable
 {
+  readonly [TypeId] = variance
+
   constructor(
     readonly remainingEndpoints: ReadonlyArray<RemainingEndpoints>,
     readonly api: Api.Api.Any,
@@ -192,3 +204,7 @@ export const merge: {
     builder1.options
   )
 })
+
+/** @internal */
+export const isRouterBuilder = (u: unknown): u is RouterBuilder.RouterBuilder.Any =>
+  typeof u === "object" && u !== null && TypeId in u

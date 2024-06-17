@@ -11,8 +11,14 @@ export const TypeId: Api.TypeId = Symbol.for(
 ) as Api.TypeId
 
 /** @internal */
+export const variance = {
+  /* c8 ignore next */
+  _A: (_: never) => _
+}
+
+/** @internal */
 class ApiImpl<Endpoints extends ApiEndpoint.ApiEndpoint.Any> implements Api.Api<Endpoints> {
-  readonly [TypeId]: Api.TypeId = TypeId
+  readonly [TypeId] = variance
 
   constructor(
     readonly groups: ReadonlyArray<ApiGroup.ApiGroup<Endpoints>>,

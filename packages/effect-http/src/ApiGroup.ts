@@ -4,6 +4,8 @@
  * @since 1.0.0
  */
 import type * as Pipeable from "effect/Pipeable"
+import type * as Types from "effect/Types"
+
 import type * as ApiEndpoint from "./ApiEndpoint.js"
 import * as internal from "./internal/api-group.js"
 
@@ -35,9 +37,9 @@ export interface Options {
  * @category models
  * @since 1.0.0
  */
-export interface ApiGroup<E extends ApiEndpoint.ApiEndpoint.Any> extends Pipeable.Pipeable {
+export interface ApiGroup<A extends ApiEndpoint.ApiEndpoint.Any> extends Pipeable.Pipeable, ApiGroup.Variance<A> {
   readonly name: string
-  readonly endpoints: ReadonlyArray<E>
+  readonly endpoints: ReadonlyArray<A>
   readonly options: Options
 }
 
@@ -46,6 +48,16 @@ export interface ApiGroup<E extends ApiEndpoint.ApiEndpoint.Any> extends Pipeabl
  * @since 1.0.0
  */
 export declare namespace ApiGroup {
+  /**
+   * @category models
+   * @since 1.0.0
+   */
+  export interface Variance<A extends ApiEndpoint.ApiEndpoint.Any> {
+    readonly [TypeId]: {
+      readonly _A: Types.Covariant<A>
+    }
+  }
+
   /**
    * Any api group with `Endpoint = Endpoint.Any`.
    *
@@ -183,3 +195,9 @@ export {
    * @since 1.0.0
    */
 } from "./ApiEndpoint.js"
+
+/**
+ * @category refinements
+ * @since 1.0.0
+ */
+export const isApiGroup: (u: unknown) => u is ApiGroup.Any = internal.isApiGroup

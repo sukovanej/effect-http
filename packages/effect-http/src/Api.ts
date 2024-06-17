@@ -5,6 +5,8 @@
  */
 import type * as Schema from "@effect/schema/Schema"
 import type * as Pipeable from "effect/Pipeable"
+import type * as Types from "effect/Types"
+
 import type * as OpenApiTypes from "schema-openapi/OpenApiTypes"
 import type * as ApiEndpoint from "./ApiEndpoint.js"
 import type * as ApiGroup from "./ApiGroup.js"
@@ -42,8 +44,8 @@ export interface ApiOptions {
  * @category models
  * @since 1.0.0
  */
-export interface Api<E extends ApiEndpoint.ApiEndpoint.Any> extends Pipeable.Pipeable {
-  readonly groups: ReadonlyArray<ApiGroup.ApiGroup<E>>
+export interface Api<A extends ApiEndpoint.ApiEndpoint.Any> extends Pipeable.Pipeable, Api.Variance<A> {
+  readonly groups: ReadonlyArray<ApiGroup.ApiGroup<A>>
   readonly options: ApiOptions
 }
 
@@ -52,6 +54,16 @@ export interface Api<E extends ApiEndpoint.ApiEndpoint.Any> extends Pipeable.Pip
  * @since 1.0.0
  */
 export declare namespace Api {
+  /**
+   * @category models
+   * @since 1.0.0
+   */
+  export interface Variance<A extends ApiEndpoint.ApiEndpoint.Any> {
+    readonly [TypeId]: {
+      readonly _A: Types.Covariant<A>
+    }
+  }
+
   /**
    * Any api with `Endpoint = Endpoint.Any`
    *
@@ -105,7 +117,7 @@ export declare namespace Api {
 export const make: (options?: Partial<ApiOptions>) => Api.Empty = internal.make
 
 /**
- * @category modifications
+ * @category combining
  * @since 1.0.0
  */
 export const addEndpoint: <E2 extends ApiEndpoint.ApiEndpoint.Any>(
@@ -113,7 +125,7 @@ export const addEndpoint: <E2 extends ApiEndpoint.ApiEndpoint.Any>(
 ) => <E1 extends ApiEndpoint.ApiEndpoint.Any>(api: Api<E1>) => Api<E1 | E2> = internal.addEndpoint
 
 /**
- * @category modifications
+ * @category combining
  * @since 1.0.0
  */
 export const addGroup: <E2 extends ApiEndpoint.ApiEndpoint.Any>(
@@ -231,3 +243,9 @@ export {
  * @since 1.0.0
  */
 export const FormData: Schema.Schema<FormData> = ApiSchema.FormData
+
+/**
+ * @category refinements
+ * @since 1.0.0
+ */
+export const isApi: (u: unknown) => u is Api.Any = internal.isApi
