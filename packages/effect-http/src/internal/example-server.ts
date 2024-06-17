@@ -13,7 +13,7 @@ import * as utils from "./utils.js"
 export const make = <A extends Api.Api.Any>(
   api: A
 ): RouterBuilder.RouterBuilder<
-  Api.Api.Content<A>,
+  Api.Api.Context<A>,
   never,
   never
 > => handleRemaining(RouterBuilder.make(api))

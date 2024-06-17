@@ -21,7 +21,7 @@ import type * as RouterBuilder from "./RouterBuilder.js"
  */
 export const make: <A extends Api.Api.Any>(
   api: A
-) => RouterBuilder.RouterBuilder<Api.Api.Content<A>, never, never> = internal.make
+) => RouterBuilder.RouterBuilder<Api.Api.Context<A>, never, never> = internal.make
 
 /**
  * Create an example implementation for a single endpoint.
