@@ -9,6 +9,7 @@ import type * as ServerRequest from "@effect/platform/Http/ServerRequest"
 import type * as AST from "@effect/schema/AST"
 import type * as Pipeable from "effect/Pipeable"
 import type * as Scope from "effect/Scope"
+import type * as Types from "effect/Types"
 
 import type * as HttpError from "effect-http-error/HttpError"
 import type * as Security from "effect-http/Security"
@@ -36,7 +37,9 @@ export type TypeId = typeof TypeId
  * @category models
  * @since 1.0.0
  */
-export interface RouterBuilder<A extends ApiEndpoint.ApiEndpoint.Any, E, R> extends Pipeable.Pipeable {
+export interface RouterBuilder<A extends ApiEndpoint.ApiEndpoint.Any, E, R>
+  extends RouterBuilder.Variance<A, E, R>, Pipeable.Pipeable
+{
   readonly remainingEndpoints: ReadonlyArray<A>
   readonly api: Api.Api.Any
   readonly router: Router.Router<E, R>
@@ -48,6 +51,18 @@ export interface RouterBuilder<A extends ApiEndpoint.ApiEndpoint.Any, E, R> exte
  * @since 1.0.0
  */
 export declare namespace RouterBuilder {
+  /**
+   * @category models
+   * @since 1.0.0
+   */
+  export interface Variance<A extends ApiEndpoint.ApiEndpoint.Any, E, R> {
+    readonly [TypeId]: {
+      readonly _A: Types.Covariant<A>
+      readonly _E: Types.Covariant<E>
+      readonly _R: Types.Contravariant<R>
+    }
+  }
+
   /**
    * Any router builder
    *
@@ -158,15 +173,9 @@ export const handler: <R, E, A extends Api.Api.Any, Id extends Api.Api.Ids<A>>(
  * @category mapping
  * @since 1.0.0
  */
-export const mapRouter = <A extends ApiEndpoint.ApiEndpoint.Any, E1, E2, R1, R2>(
+export const mapRouter: <A extends ApiEndpoint.ApiEndpoint.Any, E1, E2, R1, R2>(
   fn: (router: Router.Router<E1, R1>) => Router.Router<E2, R2>
-) =>
-(
-  builder: RouterBuilder<A, E1, R1>
-): RouterBuilder<A, E2, R2> => ({
-  ...builder,
-  router: fn(builder.router)
-})
+) => (builder: RouterBuilder<A, E1, R1>) => RouterBuilder<A, E2, R2> = internal.mapRouter
 
 /**
  * Handle an endpoint using a raw `Router.Route.Handler`.

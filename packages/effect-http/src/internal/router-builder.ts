@@ -21,7 +21,11 @@ export const TypeId: RouterBuilder.TypeId = Symbol.for(
 /** @internal */
 export const variance = {
   /* c8 ignore next */
-  _A: (_: never) => _
+  _A: (_: never) => _,
+  /* c8 ignore next */
+  _E: (_: never) => _,
+  /* c8 ignore next */
+  _R: (_: any) => _
 }
 
 /** @internal */
@@ -130,6 +134,15 @@ export const handler = <A extends Api.Api.Any, E, R, Id extends Api.Api.Ids<A>>(
   id: Id,
   handler: Handler.Handler.Function<Api.Api.EndpointById<A, Id>, E, R>
 ): Handler.Handler<Api.Api.EndpointById<A, Id>, E, R> => Handler.make(Api.getEndpoint(api, id), handler)
+
+/** @internal */
+export const mapRouter = <A extends ApiEndpoint.ApiEndpoint.Any, E1, E2, R1, R2>(
+  fn: (router: Router.Router<E1, R1>) => Router.Router<E2, R2>
+) =>
+(
+  builder: RouterBuilder.RouterBuilder<A, E1, R1>
+): RouterBuilder.RouterBuilder<A, E2, R2> =>
+  new RouterBuilderImpl(builder.remainingEndpoints, builder.api, fn(builder.router), builder.options)
 
 /** @internal */
 export const build = <R, E>(
