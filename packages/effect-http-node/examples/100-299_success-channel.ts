@@ -13,6 +13,6 @@ export const api = Api.make().pipe(
 
 const client = Client.make(api)
 
-const log200 = (answer: string) => Effect.log(answer)
+const log200 = (body: string) => Effect.log(body)
 
-client.test({}).pipe((x) => x, Effect.tap(log200))
+Effect.tap(client.test({}), log200)
