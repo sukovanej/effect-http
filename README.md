@@ -1021,13 +1021,11 @@ return number `12` when calling the `getValue` operation.
 const client = MockClient.make(api, { responses: { getValue: 12 } });
 ```
 
-### Scaling up
+## Scaling up
 
 For bigger applications, you might want to separate the logic of endpoints
-or groups of endpoints into separate modules. This section describes some
-aproaches deal with it.
-
-Firstly, it is possible to declare endpoints independently of the `Api`
+or groups of endpoints into separate modules. This section shows how to do
+that. Firstly, it is possible to declare endpoints independently of the `Api`
 or `ApiGroup` the're part of. Suppose we are creating a CMS system with
 articles, users, categories, etc. The API group responsible for management
 of articles would schematically look as follows.
