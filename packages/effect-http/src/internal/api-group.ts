@@ -1,17 +1,24 @@
 import * as Pipeable from "effect/Pipeable"
-import * as Predicate from "effect/Predicate"
+
 import type * as Api from "../Api.js"
 import * as ApiEndpoint from "../ApiEndpoint.js"
 import type * as ApiGroup from "../ApiGroup.js"
 import * as api_endpoint from "./api-endpoint.js"
 
+/** @internal */
 export const TypeId: ApiGroup.TypeId = Symbol.for(
   "effect-http/Api/ApiGroupTypeId"
 ) as ApiGroup.TypeId
 
 /** @internal */
+export const variance = {
+  /* c8 ignore next */
+  _A: (_: never) => _
+}
+
+/** @internal */
 export class ApiGroupImpl<Endpoints extends ApiEndpoint.ApiEndpoint.Any> implements ApiGroup.ApiGroup<Endpoints> {
-  readonly [TypeId] = TypeId
+  readonly [TypeId] = variance
 
   constructor(
     readonly name: string,
@@ -26,8 +33,7 @@ export class ApiGroupImpl<Endpoints extends ApiEndpoint.ApiEndpoint.Any> impleme
 }
 
 /** @internal */
-export const isApiGroup = (u: unknown): u is ApiGroup.ApiGroup.Any =>
-  Predicate.hasProperty(u, TypeId) && Predicate.isObject(u[TypeId])
+export const isApiGroup = (u: unknown): u is ApiGroup.ApiGroup.Any => typeof u === "object" && u !== null && TypeId in u
 
 /** @internal */
 export const make = (name: string, options?: Partial<Api.ApiOptions>): ApiGroup.ApiGroup.Empty =>
@@ -43,6 +49,7 @@ export const validateNewEndpoint = (
   }
 }
 
+/** @internal */
 export const addEndpoint =
   <E2 extends ApiEndpoint.ApiEndpoint.Any>(endpoint: E2) =>
   <E1 extends ApiEndpoint.ApiEndpoint.Any>(self: ApiGroup.ApiGroup<E1>): ApiGroup.ApiGroup<E1 | E2> => {

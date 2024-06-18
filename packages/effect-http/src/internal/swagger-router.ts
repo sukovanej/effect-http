@@ -29,6 +29,7 @@ window.onload = function() {
 };
 `
 
+/** @internal */
 const createIndex = (path: string) => `
 <!-- HTML for static distribution bundle build -->
 <!DOCTYPE html>
@@ -51,6 +52,7 @@ const createIndex = (path: string) => `
 </html>
 `
 
+/** @internal */
 const SWAGGER_FILE_NAMES = [
   "index.css",
   "swagger-ui.css",
@@ -95,6 +97,7 @@ const serverStaticDocsFile = (filename: string, path?: HttpServer.router.PathInp
   )
 }
 
+/** @internal */
 const calculatePrefix = Effect.gen(function*(_) {
   const request = yield* _(HttpServer.request.ServerRequest)
 
@@ -115,10 +118,7 @@ const calculatePrefix = Effect.gen(function*(_) {
   return url
 })
 
-/**
- * @category constructors
- * @since 1.0.0
- */
+/** @internal */
 export const make = (spec: unknown) => {
   let router = SWAGGER_FILE_NAMES.reduce(
     (router, swaggerFileName) => router.pipe(serverStaticDocsFile(swaggerFileName, `/${swaggerFileName}`)),

@@ -7,26 +7,32 @@ import { pipe } from "effect/Function"
 import * as Option from "effect/Option"
 import * as Order from "effect/Order"
 
+/** @internal */
 const getDescription = AST.getAnnotation<AST.DescriptionAnnotation>(
   AST.DescriptionAnnotationId
 )
 
+/** @internal */
 const getTitle = AST.getAnnotation<AST.TitleAnnotation>(AST.TitleAnnotationId)
 
+/** @internal */
 const getMessage = AST.getAnnotation<AST.MessageAnnotation>(
   AST.MessageAnnotationId
 )
 
+/** @internal */
 const getIdentifier = AST.getAnnotation<AST.IdentifierAnnotation>(
   AST.IdentifierAnnotationId
 )
 
+/** @internal */
 const getExpected = (ast: AST.AST): Option.Option<string> =>
   getDescription(ast).pipe(
     Option.orElse(() => getTitle(ast)),
     Option.orElse(() => getIdentifier(ast))
   )
 
+/** @internal */
 const stringifyExpected = (
   error: Exclude<ValidationError, { _tag: "Missing" }>
 ) => {
@@ -41,6 +47,7 @@ const stringifyExpected = (
   return expected
 }
 
+/** @internal */
 const stringifyError = (error: ValidationError) => {
   if (error.message) {
     return error.message
@@ -63,17 +70,23 @@ const stringifyError = (error: ValidationError) => {
   return `${position} must be ${expected}, received ${received}`
 }
 
+/** @internal */
 type ValidationErrorBase = {
   position: Array<string | number>
   message?: string | undefined
 }
+
+/** @internal */
 type ValidationErrorUnexpected = ValidationErrorBase & {
   _tag: "Unexpected"
   expected: Array<string>
   received: unknown
 }
+
+/** @internal */
 type ValidationErrorMissing = ValidationErrorBase & { _tag: "Missing" }
 
+/** @internal */
 const validationErrorUnexpected = (
   position: Array<string | number>,
   expected: Array<string>,
@@ -87,6 +100,7 @@ const validationErrorUnexpected = (
   message
 })
 
+/** @internal */
 const validationErrorMissing = (
   position: Array<string | number>,
   message?: string | undefined
@@ -96,8 +110,10 @@ const validationErrorMissing = (
   message
 })
 
+/** @internal */
 type ValidationError = ValidationErrorUnexpected | ValidationErrorMissing
 
+/** @internal */
 const formatParseErrors = (
   parseIssue: ParseResult.ParseIssue
 ): ReadonlyArray<ValidationError> => {
@@ -174,6 +190,7 @@ const formatParseErrors = (
   ]
 }
 
+/** @internal */
 const formatAST = (ast: AST.AST) => {
   const expected = getExpected(ast)
 
@@ -192,6 +209,7 @@ const formatAST = (ast: AST.AST) => {
   return JSON.stringify(ast)
 }
 
+/** @internal */
 export const formatParseError = (
   error: ParseResult.ParseError,
   parseOptions?: AST.ParseOptions

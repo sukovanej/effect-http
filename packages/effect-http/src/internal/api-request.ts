@@ -3,6 +3,7 @@ import * as Pipeable from "effect/Pipeable"
 import type * as ApiRequest from "../ApiRequest.js"
 import * as ApiSchema from "../ApiSchema.js"
 
+/** @internal */
 export const TypeId: ApiRequest.TypeId = Symbol.for(
   "effect-http/Api/RequestTypeId"
 ) as ApiRequest.TypeId

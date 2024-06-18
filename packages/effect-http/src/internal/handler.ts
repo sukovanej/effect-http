@@ -9,6 +9,7 @@ import type * as Handler from "../Handler.js"
 import * as ServerRequestParser from "./serverRequestParser.js"
 import * as ServerResponseEncoder from "./serverResponseEncoder.js"
 
+/** @internal */
 export const TypeId: Handler.TypeId = Symbol.for(
   "effect-http/Handler/TypeId"
 ) as Handler.TypeId
@@ -54,6 +55,7 @@ export const make: {
   return (endpoint) => _make(endpoint, ...args)
 }
 
+/** @internal */
 const _make = <A extends ApiEndpoint.ApiEndpoint.Any, E, R>(
   endpoint: A,
   fn: Handler.Handler.Function<A, E, R>,

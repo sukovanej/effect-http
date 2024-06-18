@@ -1,13 +1,14 @@
 import type * as Method from "@effect/platform/Http/Method"
 import type * as HttpServer from "@effect/platform/HttpServer"
 import type * as Schema from "@effect/schema/Schema"
-import * as Security from "effect-http-security/Security"
 import * as Array from "effect/Array"
 import * as Equivalence from "effect/Equivalence"
 import { pipe } from "effect/Function"
 import * as Order from "effect/Order"
 import * as Pipeable from "effect/Pipeable"
 import * as Predicate from "effect/Predicate"
+
+import * as Security from "effect-http-security/Security"
 import type * as ApiEndpoint from "../ApiEndpoint.js"
 import * as ApiRequest from "../ApiRequest.js"
 import * as ApiResponse from "../ApiResponse.js"
@@ -16,6 +17,7 @@ import type * as Representation from "../Representation.js"
 import * as api_request from "./api-request.js"
 import * as api_response from "./api-response.js"
 
+/** @internal */
 export const TypeId: ApiEndpoint.TypeId = Symbol.for(
   "effect-http/Api/EndpointTypeId"
 ) as ApiEndpoint.TypeId
@@ -530,5 +532,6 @@ export const validateEndpoint = (endpoint: ApiEndpoint.ApiEndpoint.Any) => {
   checkPathPatternMatchesSchema(getId(endpoint), getPath(endpoint), ApiRequest.getPathSchema(getRequest(endpoint)))
 }
 
+/** @internal */
 export const isApiEndpoint = (u: unknown): u is ApiEndpoint.ApiEndpoint.Any =>
   Predicate.hasProperty(u, TypeId) && Predicate.isObject(u[TypeId])

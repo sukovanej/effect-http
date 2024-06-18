@@ -6,6 +6,7 @@
 import type * as Api from "./Api.js"
 import type * as ApiEndpoint from "./ApiEndpoint.js"
 import type * as Client from "./Client.js"
+import type * as Handler from "./Handler.js"
 import * as internal from "./internal/mock-client.js"
 
 /**
@@ -14,7 +15,7 @@ import * as internal from "./internal/mock-client.js"
  */
 export type Options<A extends Api.Api.Any> = {
   responses: {
-    [Id in Api.Api.Ids<A>]: Client.ClientFunctionResponse<
+    [Id in Api.Api.Ids<A>]: Handler.Handler.ToResponse<
       ApiEndpoint.ApiEndpoint.Response<Api.Api.EndpointById<A, Id>>
     >
   }

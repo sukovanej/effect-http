@@ -9,6 +9,7 @@ import type * as ServerRequest from "@effect/platform/Http/ServerRequest"
 import type * as AST from "@effect/schema/AST"
 import type * as Pipeable from "effect/Pipeable"
 import type * as Scope from "effect/Scope"
+import type * as Types from "effect/Types"
 
 import type * as HttpError from "effect-http-error/HttpError"
 import type * as Security from "effect-http/Security"
@@ -21,11 +22,25 @@ import * as internal from "./internal/router-builder.js"
 import type * as SwaggerRouter from "./SwaggerRouter.js"
 
 /**
+ * @since 1.0.0
+ * @category type id
+ */
+export const TypeId: unique symbol = internal.TypeId
+
+/**
+ * @since 1.0.0
+ * @category type id
+ */
+export type TypeId = typeof TypeId
+
+/**
  * @category models
  * @since 1.0.0
  */
-export interface RouterBuilder<R, E, RemainingEndpoints extends ApiEndpoint.ApiEndpoint.Any> extends Pipeable.Pipeable {
-  readonly remainingEndpoints: ReadonlyArray<RemainingEndpoints>
+export interface RouterBuilder<A extends ApiEndpoint.ApiEndpoint.Any, E, R>
+  extends RouterBuilder.Variance<A, E, R>, Pipeable.Pipeable
+{
+  readonly remainingEndpoints: ReadonlyArray<A>
   readonly api: Api.Api.Any
   readonly router: Router.Router<E, R>
   readonly options: Options
@@ -37,12 +52,24 @@ export interface RouterBuilder<R, E, RemainingEndpoints extends ApiEndpoint.ApiE
  */
 export declare namespace RouterBuilder {
   /**
+   * @category models
+   * @since 1.0.0
+   */
+  export interface Variance<A extends ApiEndpoint.ApiEndpoint.Any, E, R> {
+    readonly [TypeId]: {
+      readonly _A: Types.Covariant<A>
+      readonly _E: Types.Covariant<E>
+      readonly _R: Types.Contravariant<R>
+    }
+  }
+
+  /**
    * Any router builder
    *
    * @category models
    * @since 1.0.0
    */
-  export type Any = RouterBuilder<any, any, ApiEndpoint.ApiEndpoint.Any>
+  export type Any = RouterBuilder<ApiEndpoint.ApiEndpoint.Any, any, any>
 
   /**
    * @category models
@@ -76,7 +103,7 @@ export interface Options {
 export const make: <A extends Api.Api.Any>(
   api: A,
   options?: Partial<Options>
-) => RouterBuilder<never, never, Api.Api.Endpoints<A>> = internal.make
+) => RouterBuilder<Api.Api.Endpoints<A>, never, never> = internal.make
 
 /**
  * Handle an endpoint using a raw `Router.Route.Handler`.
@@ -85,18 +112,18 @@ export const make: <A extends Api.Api.Any>(
  * @since 1.0.0
  */
 export const handleRaw: <
-  R2,
+  A extends ApiEndpoint.ApiEndpoint.Any,
   E2,
-  RemainingEndpoints extends ApiEndpoint.ApiEndpoint.Any,
-  Id extends ApiEndpoint.ApiEndpoint.Id<RemainingEndpoints>
+  R2,
+  Id extends ApiEndpoint.ApiEndpoint.Id<A>
 >(id: Id, handler: Router.Route.Handler<E2, R2>) => <R1, E1>(
-  builder: RouterBuilder<R1, E1, RemainingEndpoints>
+  builder: RouterBuilder<A, E1, R1>
 ) => RouterBuilder<
+  ApiEndpoint.ApiEndpoint.ExcludeById<A, Id>,
+  E1 | E2 | ApiEndpoint.ApiEndpoint.Error<ApiEndpoint.ApiEndpoint.ExtractById<A, Id>>,
   | R1
-  | ApiEndpoint.ApiEndpoint.Context<ApiEndpoint.ApiEndpoint.ExtractById<RemainingEndpoints, Id>>
-  | Exclude<R2, Router.RouteContext | ServerRequest.ServerRequest | Scope.Scope>,
-  E1 | E2 | ApiEndpoint.ApiEndpoint.Error<ApiEndpoint.ApiEndpoint.ExtractById<RemainingEndpoints, Id>>,
-  ApiEndpoint.ApiEndpoint.ExcludeById<RemainingEndpoints, Id>
+  | ApiEndpoint.ApiEndpoint.Context<ApiEndpoint.ApiEndpoint.ExtractById<A, Id>>
+  | Exclude<R2, Router.RouteContext | ServerRequest.ServerRequest | Scope.Scope>
 > = internal.handleRaw
 
 /**
@@ -106,32 +133,25 @@ export const handleRaw: <
  * @since 1.0.0
  */
 export const handle: {
-  <R2, E2, RemainingEndpoints extends ApiEndpoint.ApiEndpoint.Any, Endpoint extends RemainingEndpoints>(
+  <R2, E2, A extends ApiEndpoint.ApiEndpoint.Any, Endpoint extends A>(
     handler: Handler.Handler<Endpoint, E2, R2>
-  ): <R1, E1>(
-    builder: RouterBuilder<R1, E1, RemainingEndpoints>
-  ) => RouterBuilder<
-    | Exclude<R1 | R2, Router.RouteContext | ServerRequest.ServerRequest>
-    | ApiEndpoint.ApiEndpoint.Context<Endpoint>,
+  ): <R1, E1>(builder: RouterBuilder<A, E1, R1>) => RouterBuilder<
+    Exclude<A, Endpoint>,
     E1 | Exclude<E2, HttpError.HttpError>,
-    Exclude<RemainingEndpoints, Endpoint>
+    | Exclude<R1 | R2, Router.RouteContext | ServerRequest.ServerRequest>
+    | ApiEndpoint.ApiEndpoint.Context<Endpoint>
   >
 
-  <
-    R2,
-    E2,
-    RemainingEndpoints extends ApiEndpoint.ApiEndpoint.Any,
-    Id extends ApiEndpoint.ApiEndpoint.Id<RemainingEndpoints>
-  >(
+  <A extends ApiEndpoint.ApiEndpoint.Any, E2, R2, Id extends ApiEndpoint.ApiEndpoint.Id<A>>(
     id: Id,
-    fn: Handler.Handler.Function<ApiEndpoint.ApiEndpoint.ExtractById<RemainingEndpoints, Id>, E2, R2>
+    fn: Handler.Handler.Function<ApiEndpoint.ApiEndpoint.ExtractById<A, Id>, E2, R2>
   ): <R1, E1>(
-    builder: RouterBuilder<R1, E1, RemainingEndpoints>
+    builder: RouterBuilder<A, R1, E1>
   ) => RouterBuilder<
-    | Exclude<R1 | R2, Router.RouteContext | ServerRequest.ServerRequest>
-    | ApiEndpoint.ApiEndpoint.Context<ApiEndpoint.ApiEndpoint.ExtractById<RemainingEndpoints, Id>>,
+    ApiEndpoint.ApiEndpoint.ExcludeById<A, Id>,
     E1 | Exclude<E2, HttpError.HttpError>,
-    ApiEndpoint.ApiEndpoint.ExcludeById<RemainingEndpoints, Id>
+    | Exclude<R1 | R2, Router.RouteContext | ServerRequest.ServerRequest>
+    | ApiEndpoint.ApiEndpoint.Context<ApiEndpoint.ApiEndpoint.ExtractById<A, Id>>
   >
 } = internal.handle
 
@@ -141,12 +161,7 @@ export const handle: {
  * @category constructors
  * @since 1.0.0
  */
-export const handler: <
-  R,
-  E,
-  A extends Api.Api.Any,
-  Id extends Api.Api.Ids<A>
->(
+export const handler: <R, E, A extends Api.Api.Any, Id extends Api.Api.Ids<A>>(
   api: A,
   id: Id,
   fn: Handler.Handler.Function<Api.Api.EndpointById<A, Id>, E, R>
@@ -158,15 +173,9 @@ export const handler: <
  * @category mapping
  * @since 1.0.0
  */
-export const mapRouter = <R1, R2, E1, E2, RemainingEndpoints extends ApiEndpoint.ApiEndpoint.Any>(
+export const mapRouter: <A extends ApiEndpoint.ApiEndpoint.Any, E1, E2, R1, R2>(
   fn: (router: Router.Router<E1, R1>) => Router.Router<E2, R2>
-) =>
-(
-  builder: RouterBuilder<R1, E1, RemainingEndpoints>
-): RouterBuilder<R2, E2, RemainingEndpoints> => ({
-  ...builder,
-  router: fn(builder.router)
-})
+) => (builder: RouterBuilder<A, E1, R1>) => RouterBuilder<A, E2, R2> = internal.mapRouter
 
 /**
  * Handle an endpoint using a raw `Router.Route.Handler`.
@@ -174,8 +183,8 @@ export const mapRouter = <R1, R2, E1, E2, RemainingEndpoints extends ApiEndpoint
  * @category destructors
  * @since 1.0.0
  */
-export const getRouter: <R, E>(
-  builder: RouterBuilder<R, E, any>
+export const getRouter: <E, R>(
+  builder: RouterBuilder<any, E, R>
 ) => Router.Router<E, R> = internal.getRouter
 
 /**
@@ -184,8 +193,8 @@ export const getRouter: <R, E>(
  * @category destructors
  * @since 1.0.0
  */
-export const build: <R, E>(
-  builder: RouterBuilder<R, E, never>
+export const build: <E, R>(
+  builder: RouterBuilder<never, E, R>
 ) => App.Default<E, R | SwaggerRouter.SwaggerFiles> = internal.build
 
 /**
@@ -197,8 +206,8 @@ export const build: <R, E>(
  * @category destructors
  * @since 1.0.0
  */
-export const buildPartial: <R, E, RemainingEndpoints extends ApiEndpoint.ApiEndpoint.Any>(
-  builder: RouterBuilder<R, E, RemainingEndpoints>
+export const buildPartial: <A extends ApiEndpoint.ApiEndpoint.Any, E, R>(
+  builder: RouterBuilder<A, E, R>
 ) => App.Default<E, R | SwaggerRouter.SwaggerFiles> = internal.buildPartial
 
 /**
@@ -207,12 +216,18 @@ export const buildPartial: <R, E, RemainingEndpoints extends ApiEndpoint.ApiEndp
  */
 export const merge: {
   <R1, E1, R2, E2, A1 extends ApiEndpoint.ApiEndpoint.Any, A2 extends ApiEndpoint.ApiEndpoint.Any>(
-    builder1: RouterBuilder<R1, E1, A1>,
-    builder2: RouterBuilder<R2, E2, A2>
-  ): RouterBuilder<R1 | R2, E1 | E2, RouterBuilder.MergeApiEndpoints<A1, A2>>
+    builder1: RouterBuilder<A1, E1, R1>,
+    builder2: RouterBuilder<A2, E2, R2>
+  ): RouterBuilder<RouterBuilder.MergeApiEndpoints<A1, A2>, E1 | E2, R1 | R2>
   <R2, E2, A2 extends ApiEndpoint.ApiEndpoint.Any>(
-    builder2: RouterBuilder<R2, E2, A2>
+    builder2: RouterBuilder<A2, E2, R2>
   ): <R1, E1, A1 extends ApiEndpoint.ApiEndpoint.Any>(
-    builder1: RouterBuilder<R1, E1, A1>
-  ) => RouterBuilder<R1 | R2, E1 | E2, RouterBuilder.MergeApiEndpoints<A1, A2>>
+    builder1: RouterBuilder<A1, E1, R1>
+  ) => RouterBuilder<RouterBuilder.MergeApiEndpoints<A1, A2>, E1 | E2, R1 | R2>
 } = internal.merge
+
+/**
+ * @category refinements
+ * @since 1.0.0
+ */
+export const isRouterBuilder: (u: unknown) => u is RouterBuilder.Any = internal.isRouterBuilder

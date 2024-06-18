@@ -69,7 +69,7 @@ export declare namespace Handler {
     (
       request: ToRequest<ApiEndpoint.ApiEndpoint.Request<A>>,
       security: ToSecurity<ApiEndpoint.ApiEndpoint.Security<A>>
-    ): Effect.Effect<ToResponse<utils.FilterNon200Responses<ApiEndpoint.ApiEndpoint.Response<A>>>, E, R>
+    ): Effect.Effect<ToResponse<ApiEndpoint.ApiEndpoint.Response<A>>, E, R>
   }
 
   /**
@@ -78,8 +78,16 @@ export declare namespace Handler {
    */
   export type Any = Handler<ApiEndpoint.ApiEndpoint.Any, any, any>
 
+  /**
+   * @category models
+   * @since 1.0.0
+   */
+  export type ToResponse<
+    R extends ApiResponse.ApiResponse.Any
+  > = _ToResponse<utils.FilterNon200Responses<R>>
+
   /** @ignore */
-  type ToResponse<
+  export type _ToResponse<
     R extends ApiResponse.ApiResponse.Any
   > = utils.IsUnion<R> extends true ? R extends any ? ToFullResponse<R> : never
     : utils.NeedsFullResponse<R> extends true ? ToFullResponse<R>
@@ -99,7 +107,10 @@ export declare namespace Handler {
     : never
     : never
 
-  /** @ignore */
+  /**
+   * @category models
+   * @since 1.0.0
+   */
   export type ToRequest<R extends ApiRequest.ApiRequest.Any> = utils.RemoveIgnoredFields<{
     readonly body: ApiRequest.ApiRequest.Body<R>
     readonly path: ApiRequest.ApiRequest.Path<R>
@@ -107,7 +118,10 @@ export declare namespace Handler {
     readonly headers: ApiRequest.ApiRequest.Headers<R>
   }>
 
-  /** @ignore */
+  /**
+   * @category models
+   * @since 1.0.0
+   */
   export type ToSecurity<Security extends Security.Security.Any> = Security.Security.Success<Security>
 }
 

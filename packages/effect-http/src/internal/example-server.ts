@@ -10,24 +10,26 @@ import * as ApiEndpoint from "../ApiEndpoint.js"
 import * as RouterBuilder from "../RouterBuilder.js"
 import * as utils from "./utils.js"
 
+/** @internal */
 export const make = <A extends Api.Api.Any>(
   api: A
 ): RouterBuilder.RouterBuilder<
-  Api.Api.Content<A>,
+  Api.Api.Context<A>,
   never,
   never
 > => handleRemaining(RouterBuilder.make(api))
 
+/** @internal */
 export const handle = <
-  RemainingEndpoints extends ApiEndpoint.ApiEndpoint.Any,
-  Id extends ApiEndpoint.ApiEndpoint.Id<RemainingEndpoints>
+  A extends ApiEndpoint.ApiEndpoint.Any,
+  Id extends ApiEndpoint.ApiEndpoint.Id<A>
 >(id: Id) =>
 <R, E>(
-  routerBuilder: RouterBuilder.RouterBuilder<R, E, RemainingEndpoints>
+  routerBuilder: RouterBuilder.RouterBuilder<A, E, R>
 ): RouterBuilder.RouterBuilder<
-  R | ApiEndpoint.ApiEndpoint.Context<ApiEndpoint.ApiEndpoint.ExtractById<RemainingEndpoints, Id>>,
+  ApiEndpoint.ApiEndpoint.ExcludeById<A, Id>,
   E,
-  ApiEndpoint.ApiEndpoint.ExcludeById<RemainingEndpoints, Id>
+  R | ApiEndpoint.ApiEndpoint.Context<ApiEndpoint.ApiEndpoint.ExtractById<A, Id>>
 > => {
   const endpoint = Api.getEndpoint(routerBuilder.api, id)
 
@@ -37,25 +39,23 @@ export const handle = <
   ) as any
 }
 
-export const handleRemaining = <RemainingEndpoints extends ApiEndpoint.ApiEndpoint.Any, R, E>(
-  routerBuilder: RouterBuilder.RouterBuilder<R, E, RemainingEndpoints>
-): RouterBuilder.RouterBuilder<R | ApiEndpoint.ApiEndpoint.Context<RemainingEndpoints>, E, never> =>
+/** @internal */
+export const handleRemaining = <A extends ApiEndpoint.ApiEndpoint.Any, R, E>(
+  routerBuilder: RouterBuilder.RouterBuilder<A, E, R>
+): RouterBuilder.RouterBuilder<never, E, R | ApiEndpoint.ApiEndpoint.Context<A>> =>
   pipe(
     routerBuilder.remainingEndpoints,
     Array.reduce(
-      routerBuilder as RouterBuilder.RouterBuilder<
-        R | ApiEndpoint.ApiEndpoint.Context<RemainingEndpoints>,
-        E,
-        RemainingEndpoints
-      >,
+      routerBuilder as RouterBuilder.RouterBuilder<A, E, R | ApiEndpoint.ApiEndpoint.Context<A>>,
       (server, endpoint) =>
         pipe(
           server,
           RouterBuilder.handle(ApiEndpoint.getId(endpoint) as any, createExampleHandler(endpoint) as any)
         ) as any
     )
-  ) as RouterBuilder.RouterBuilder<R | ApiEndpoint.ApiEndpoint.Context<RemainingEndpoints>, E, never>
+  ) as RouterBuilder.RouterBuilder<never, E, R | ApiEndpoint.ApiEndpoint.Context<A>>
 
+/** @internal */
 const createExampleHandler = (endpoint: ApiEndpoint.ApiEndpoint.Any) => {
   const responseSchema = utils.createResponseSchema(endpoint)
 

@@ -14,6 +14,7 @@ import * as ApiRequest from "../ApiRequest.js"
 import * as ApiResponse from "../ApiResponse.js"
 import * as ApiSchema from "../ApiSchema.js"
 
+/** @internal */
 export const make = (
   api: Api.Api.Any
 ): OpenApiTypes.OpenAPISpec<OpenApiTypes.OpenAPISchemaType> => {
@@ -158,6 +159,7 @@ export const make = (
 
 /**
  * Convert path pattern to OpenApi syntax. Replaces :param by {param}.
+ * @internal
  */
 const createPath = (path: string) =>
   path
@@ -165,6 +167,7 @@ const createPath = (path: string) =>
     .replace(/:(\w+)[?]/g, "{$1}")
     .replace(/:(\w+)$/g, "{$1}")
 
+/** @internal */
 const descriptionSetter = <A extends { description?: string }>(
   schema: Schema.Schema<any, any, any>
 ) =>
@@ -177,6 +180,7 @@ const descriptionSetter = <A extends { description?: string }>(
     })
   )
 
+/** @internal */
 const getPropertySignatures = (
   openApiType: "query" | "header" | "path",
   ast: AST.AST
@@ -218,6 +222,7 @@ const getPropertySignatures = (
   )
 }
 
+/** @internal */
 const createParameterSetters = (
   type: "query" | "header" | "path",
   schema: Schema.Schema<any, any, any>
@@ -239,6 +244,7 @@ const createParameterSetters = (
   })
 }
 
+/** @internal */
 const createResponseHeaderSetter = (schema: Schema.Schema<any, any, unknown>) => {
   const ps = getPropertySignatures("header", schema.ast)
 

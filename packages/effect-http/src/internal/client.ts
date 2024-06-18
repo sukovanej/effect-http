@@ -15,14 +15,11 @@ import * as ClientResponseParser from "./clientResponseParser.js"
 const defaultHttpClient = PlatformClient.fetch
 
 /** @internal */
-export const endpointClient = <
-  A extends Api.Api.Any,
-  Id extends Api.Api.Ids<A>
->(
+export const endpointClient = <A extends Api.Api.Any, Id extends Api.Api.Ids<A>>(
   id: Id,
   api: A,
   options: Partial<Client.Options>
-): Client.EndpointClient<Api.Api.EndpointById<A, Id>> => {
+): Client.Client.Function<Api.Api.EndpointById<A, Id>> => {
   const endpoint = Api.getEndpoint(api, id)
   const responseParser = ClientResponseParser.create(endpoint)
   const requestEncoder = ClientRequestEncoder.create(endpoint)

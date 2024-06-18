@@ -3,14 +3,17 @@ import * as Effect from "effect/Effect"
 import * as Pipeable from "effect/Pipeable"
 import type * as Representation from "../Representation.js"
 
+/** @internal */
 export const TypeId: Representation.TypeId = Symbol.for(
   "effect-http/Representation/Representation"
 ) as Representation.TypeId
 
+/** @internal */
 class RepresentationErrorImpl extends Data.TaggedError("RepresentationError")<{ message: string }>
   implements Representation.RepresentationError
 {}
 
+/** @internal */
 const representationProto = {
   [TypeId]: TypeId,
   pipe() {
@@ -19,6 +22,7 @@ const representationProto = {
   }
 }
 
+/** @internal */
 export const make = (
   fields: Omit<Representation.Representation, Representation.TypeId | "pipe">
 ): Representation.Representation => {
@@ -26,6 +30,7 @@ export const make = (
   return Object.assign(representation, fields)
 }
 
+/** @internal */
 export const json = make({
   stringify: (input) =>
     Effect.try({
@@ -46,6 +51,7 @@ export const json = make({
   contentType: "application/json"
 })
 
+/** @internal */
 export const plainText = make({
   stringify: (input) => {
     if (typeof input === "string") {

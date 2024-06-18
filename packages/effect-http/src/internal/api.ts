@@ -6,13 +6,20 @@ import * as ApiGroup from "../ApiGroup.js"
 import * as api_endpoint from "./api-endpoint.js"
 import * as api_group from "./api-group.js"
 
+/** @internal */
 export const TypeId: Api.TypeId = Symbol.for(
   "effect-http/Api/TypeId"
 ) as Api.TypeId
 
 /** @internal */
+export const variance = {
+  /* c8 ignore next */
+  _A: (_: never) => _
+}
+
+/** @internal */
 class ApiImpl<Endpoints extends ApiEndpoint.ApiEndpoint.Any> implements Api.Api<Endpoints> {
-  readonly [TypeId]: Api.TypeId = TypeId
+  readonly [TypeId] = variance
 
   constructor(
     readonly groups: ReadonlyArray<ApiGroup.ApiGroup<Endpoints>>,

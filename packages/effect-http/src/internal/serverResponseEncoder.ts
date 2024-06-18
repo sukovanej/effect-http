@@ -15,18 +15,22 @@ import * as ApiSchema from "../ApiSchema.js"
 import type * as Representation from "../Representation.js"
 import { formatParseError } from "./formatParseError.js"
 
+/** @internal */
 interface ServerResponseEncoder {
   encodeResponse: (
     inputResponse: unknown
   ) => Effect.Effect<ServerResponse.ServerResponse, HttpError.HttpError, ServerRequest.ServerRequest>
 }
 
+/** @internal */
 const createErrorResponse = (error: string, message: string) => HttpError.make(500, { error, message })
 
+/** @internal */
 const make = (
   encodeResponse: ServerResponseEncoder["encodeResponse"]
 ): ServerResponseEncoder => ({ encodeResponse })
 
+/** @internal */
 export const create = (
   endpoint: ApiEndpoint.ApiEndpoint.Any
 ): ServerResponseEncoder => {
@@ -67,6 +71,7 @@ export const create = (
   )
 }
 
+/** @internal */
 const representationFromRequest = (
   representations: Array.NonEmptyReadonlyArray<Representation.Representation>,
   request: ServerRequest.ServerRequest
@@ -88,6 +93,7 @@ const representationFromRequest = (
   )
 }
 
+/** @internal */
 const encodeBody = (schema: Schema.Schema<any, any, never>) => {
   const encode = Schema.encode(schema)
 
@@ -111,6 +117,7 @@ const encodeBody = (schema: Schema.Schema<any, any, never>) => {
     )
 }
 
+/** @internal */
 const createBodySetter = (response: ApiResponse.ApiResponse.Any) => {
   const body = ApiResponse.getBodySchema(response)
   const bodySchema = ApiSchema.isIgnored(body) ? undefined : body
@@ -133,6 +140,7 @@ const createBodySetter = (response: ApiResponse.ApiResponse.Any) => {
   }
 }
 
+/** @internal */
 const createHeadersSetter = (schema: ApiResponse.ApiResponse.Any) => {
   const headers = ApiResponse.getHeadersSchema(schema)
 
@@ -164,11 +172,15 @@ const createHeadersSetter = (schema: ApiResponse.ApiResponse.Any) => {
   }
 }
 
+/** @internal */
 const FullResponseInput = Schema.Struct({
   body: Schema.optional(Schema.Unknown),
   headers: Schema.optional(Schema.Record(Schema.String, Schema.Unknown)),
   status: Schema.Number
 })
+
+/** @internal */
 type FullResponseInput = Schema.Schema.Type<typeof FullResponseInput>
 
+/** @internal */
 const parseFullResponseInput = Schema.decodeUnknown(FullResponseInput)
