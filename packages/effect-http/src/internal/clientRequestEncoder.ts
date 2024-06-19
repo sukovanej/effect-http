@@ -7,7 +7,6 @@ import * as ApiEndpoint from "../ApiEndpoint.js"
 import * as ApiRequest from "../ApiRequest.js"
 import * as ApiSchema from "../ApiSchema.js"
 import * as ClientError from "../ClientError.js"
-import { formatParseError } from "./formatParseError.js"
 
 /** @internal */
 interface ClientRequestEncoder {
@@ -82,7 +81,7 @@ const createBodyEncoder = (endpoint: ApiEndpoint.ApiEndpoint.Any) => {
       Effect.mapError((error) =>
         ClientError.makeClientSide(
           error,
-          `Failed to encode body. ${formatParseError(error)}`
+          `Failed to encode body. ${error.message}`
         )
       )
     )
@@ -109,7 +108,7 @@ const createQueryEncoder = (endpoint: ApiEndpoint.ApiEndpoint.Any) => {
       Effect.mapError((error) =>
         ClientError.makeClientSide(
           error,
-          `Failed to encode query parameters. ${formatParseError(error)}`
+          `Failed to encode query parameters. ${error.message}`
         )
       )
     )
@@ -131,7 +130,7 @@ const createHeadersEncoder = (endpoint: ApiEndpoint.ApiEndpoint.Any) => {
       Effect.mapError((error) =>
         ClientError.makeClientSide(
           error,
-          `Failed to encode headers. ${formatParseError(error)}`
+          `Failed to encode headers. ${error.message}`
         )
       )
     )
@@ -153,7 +152,7 @@ const createPathEncoder = (endpoint: ApiEndpoint.ApiEndpoint.Any) => {
       Effect.mapError((error) =>
         ClientError.makeClientSide(
           error,
-          `Failed to encode path parmeters, ${formatParseError(error)}.`
+          `Failed to encode path parmeters. ${error.message}.`
         )
       )
     )

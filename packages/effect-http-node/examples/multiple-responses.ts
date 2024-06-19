@@ -11,7 +11,7 @@ const helloEndpoint = Api.post("hello", "/hello").pipe(
   Api.setResponseHeaders(Schema.Struct({
     "my-header": pipe(
       Schema.NumberFromString,
-      Schema.description("My header")
+      Schema.annotations({ description: "My header" })
     )
   })),
   Api.addResponse(ApiResponse.make(201, Schema.Number)),

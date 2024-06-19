@@ -2,7 +2,6 @@ import type * as ParseResult from "@effect/schema/ParseResult"
 import * as Data from "effect/Data"
 import * as Predicate from "effect/Predicate"
 import type * as ClientError from "../ClientError.js"
-import { formatParseError } from "./formatParseError.js"
 
 /** @internal */
 export const ClientSideErrorTypeId: ClientError.ClientSideErrorTypeId = Symbol.for(
@@ -76,7 +75,7 @@ export const makeServerSide = <S extends number>(
 /** @internal */
 export const makeClientSideRequestValidation = (location: string) => (error: ParseResult.ParseError) =>
   new ClientErrorClientSideImpl({
-    message: `Failed to encode ${location}. ${formatParseError(error)}`,
+    message: `Failed to encode ${location}. ${error.message}`,
     error,
     side: "client"
   })
@@ -84,11 +83,7 @@ export const makeClientSideRequestValidation = (location: string) => (error: Par
 /** @internal */
 export const makeClientSideResponseValidation = (location: string) => (error: ParseResult.ParseError) =>
   new ClientErrorClientSideImpl({
-    message: `Failed to validate response ${location}. ${
-      formatParseError(
-        error
-      )
-    }`,
+    message: `Failed to validate response ${location}. ${error.message}`,
     error,
     side: "client"
   })

@@ -31,7 +31,10 @@ export const exampleApiGetQueryParameter = Api.make().pipe(
   Api.addEndpoint(
     Api.get("hello", "/hello").pipe(
       Api.setRequestQuery(Schema.Struct({
-        country: Schema.String.pipe(Schema.pattern(/^[A-Z]{2}$/))
+        country: Schema.String.pipe(
+          Schema.pattern(/^[A-Z]{2}$/),
+          Schema.annotations({ message: () => "Must be a valid country code" })
+        )
       })),
       Api.setResponseBody(Schema.String)
     )

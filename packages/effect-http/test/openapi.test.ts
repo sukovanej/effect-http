@@ -25,7 +25,7 @@ test("description", () => {
 test("reference and schema component", () => {
   const responseSchema = pipe(
     Schema.Struct({ someString: Schema.String }),
-    Schema.identifier("ResponseSchema")
+    Schema.annotations({ identifier: "ResponseSchema" })
   )
 
   const api = pipe(
@@ -106,7 +106,7 @@ test("full info object", () => {
 test("group info", () => {
   const responseSchema = pipe(
     Schema.Struct({ someString: Schema.String }),
-    Schema.identifier("ResponseSchema")
+    Schema.annotations({ identifier: "ResponseSchema" })
   )
 
   const api = Api.make().pipe(
