@@ -35,8 +35,8 @@
     "schema-openapi": "^0.39.0"
   },
   "peerDependencies": {
-    "@effect/platform": "^0.56.0",
-    "@effect/schema": "^0.67.0",
+    "@effect/platform": "^0.57.0",
+    "@effect/schema": "^0.68.0",
     "effect": "^3.3.0"
   },
   "devDependencies": {
