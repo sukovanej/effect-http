@@ -185,7 +185,9 @@ describe("error reporting", () => {
       expect(yield* response.json).toEqual({
         error: "Request validation error",
         location: "query",
-        message: "country is missing"
+        message: `{ readonly country: a string matching the pattern ^[A-Z]{2}$ }
+└─ ["country"]
+   └─ is missing`
       })
     }))
 
@@ -204,7 +206,9 @@ describe("error reporting", () => {
         expect(yield* response.json).toEqual({
           error: "Request validation error",
           location: "query",
-          message: "country must be a string matching the pattern ^[A-Z]{2}$, received \"CZE\""
+          message: `{ readonly country: a string matching the pattern ^[A-Z]{2}$ }
+└─ ["country"]
+   └─ Must be a valid country code`
         })
       })
   )
@@ -219,7 +223,7 @@ describe("error reporting", () => {
         expect(yield* response.json).toEqual({
           error: "Request validation error",
           location: "body",
-          message: "value must be an object, received null"
+          message: "Expected { readonly foo: string }, actual null"
         })
       })
   )
@@ -257,7 +261,9 @@ describe("error reporting", () => {
         expect(yield* response.json).toEqual({
           error: "Request validation error",
           location: "body",
-          message: "foo must be a string, received 1"
+          "message": `{ readonly foo: string }
+└─ ["foo"]
+   └─ Expected string, actual 1`
         })
       })
   )
@@ -275,7 +281,9 @@ describe("error reporting", () => {
         expect(yield* response.json).toEqual({
           error: "Request validation error",
           location: "headers",
-          message: "x-header is missing"
+          message: `{ readonly x-header: "a" | "b" }
+└─ ["x-header"]
+   └─ is missing`
         })
       })
   )
@@ -290,7 +298,11 @@ describe("error reporting", () => {
         expect(yield* response.json).toEqual({
           error: "Request validation error",
           location: "path",
-          message: "value must be \"a\" or \"b\", received \"c\""
+          message: `{ readonly value: "a" | "b" }
+└─ ["value"]
+   └─ "a" | "b"
+      ├─ Expected "a", actual "c"
+      └─ Expected "b", actual "c"`
         })
       })
   )
@@ -311,7 +323,7 @@ describe("error reporting", () => {
         expect(response.status).toEqual(500)
         expect(yield* response.json).toEqual({
           error: "Invalid response body",
-          message: "value must be a string, received 1"
+          message: "Expected string, actual 1"
         })
       })
   )
@@ -326,7 +338,11 @@ describe("error reporting", () => {
         expect(yield* response.json).toEqual({
           error: "Request validation error",
           location: "query",
-          message: "another is missing, value is missing"
+          message: `{ readonly another: string; readonly value: "x" | "y" }
+├─ ["another"]
+│  └─ is missing
+└─ ["value"]
+   └─ is missing`
         })
       })
   )
@@ -341,7 +357,9 @@ describe("error reporting", () => {
         expect(yield* response.json).toEqual({
           error: "Request validation error",
           location: "query",
-          message: "another is missing"
+          message: `{ readonly another: string; readonly value: "x" | "y" }
+└─ ["another"]
+   └─ is missing`
         })
       })
   )

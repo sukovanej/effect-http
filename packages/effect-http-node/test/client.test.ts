@@ -157,7 +157,9 @@ it.scoped(
         Effect.flip
       )
 
-      expect(result.message).toEqual("Failed to encode headers. value must be an object, received undefined")
+      expect(result.message).toEqual(
+        "Failed to encode headers. Expected { readonly another-header: string; readonly x-my-header: NumberFromString }, actual undefined"
+      )
       expect(result.side).toEqual("client")
 
       // TODO
@@ -219,7 +221,9 @@ it.scoped(
       )
 
       expect(result.message).toEqual(
-        "Failed to encode query parameters. country must be a string matching the pattern ^[A-Z]{2}$, received \"abc\""
+        `Failed to encode query parameters. { readonly country: a string matching the pattern ^[A-Z]{2}$ }
+└─ ["country"]
+   └─ Must be a valid country code`
       )
       expect(result.side).toEqual("client")
 

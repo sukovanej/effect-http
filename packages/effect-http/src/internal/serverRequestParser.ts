@@ -8,7 +8,6 @@ import * as Effect from "effect/Effect"
 import * as ApiEndpoint from "../ApiEndpoint.js"
 import * as ApiRequest from "../ApiRequest.js"
 import * as ApiSchema from "../ApiSchema.js"
-import { formatParseError } from "./formatParseError.js"
 
 /** @internal */
 interface ServerRequestParser {
@@ -79,7 +78,7 @@ const parseBody = (
     }),
     Effect.flatMap((request) =>
       parse(request, parseOptions).pipe(
-        Effect.mapError((error) => createError("body", formatParseError(error, parseOptions)))
+        Effect.mapError((error) => createError("body", error.message))
       )
     )
   )
@@ -98,7 +97,7 @@ const parseQuery = (
 
   return Effect.mapError(
     ServerRequest.schemaSearchParams(schema, parseOptions),
-    (error) => createError("query", formatParseError(error, parseOptions))
+    (error) => createError("query", error.message)
   )
 }
 
@@ -117,7 +116,7 @@ const parseHeaders = (
 
   return ServerRequest.ServerRequest.pipe(
     Effect.flatMap((request) => parse(request.headers, parseOptions)),
-    Effect.mapError((error) => createError("headers", formatParseError(error, parseOptions)))
+    Effect.mapError((error) => createError("headers", error.message))
   )
 }
 
@@ -145,6 +144,6 @@ const parsePath = (
 
   return Router.RouteContext.pipe(
     Effect.flatMap((ctx) => parse(ctx.params, parseOptions)),
-    Effect.mapError((error) => createError("path", formatParseError(error, parseOptions)))
+    Effect.mapError((error) => createError("path", error.message))
   )
 }

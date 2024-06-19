@@ -471,7 +471,7 @@ const helloEndpoint = Api.post("hello", "/hello").pipe(
   Api.setResponseHeaders(Schema.Struct({
     "my-header": pipe(
       Schema.NumberFromString,
-      Schema.description("My header")
+      Schema.annotations({ description: "My header" })
     )
   })),
   Api.addResponse(ApiResponse.make(201, Schema.Number)),
@@ -786,8 +786,8 @@ annotations and propagates them into the specification.
 
 Some descriptions are provided from the built-in `@effect/schema/Schema` combinators.
 For example, the usage of `Schema.Int.pipe(Schema.positive())` will result in "_a positive number_"
-description in the OpenApi schema. One can also add custom description using the
-`Schema.description` combinator.
+description in the OpenApi schema. One can also add custom description using
+`Schema.annotations({ description:  ... })`.
 
 On top of types descriptions which are included in the `schema` field, effect-http
 also checks top-level schema descriptions and uses them for the parent object which
@@ -811,10 +811,10 @@ const Response = pipe(
     name: Schema.String,
     id: pipe(Schema.Number, Schema.int(), Schema.positive())
   }),
-  Schema.description("User")
+  Schema.annotations({ description: "User" })
 )
 const Query = Schema.Struct({
-  id: pipe(Schema.NumberFromString, Schema.description("User id"))
+  id: pipe(Schema.NumberFromString, Schema.annotations({ description: "User id" }))
 })
 
 const api = pipe(

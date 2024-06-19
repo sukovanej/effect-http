@@ -10,10 +10,10 @@ const Response = pipe(
     name: Schema.String,
     id: pipe(Schema.Number, Schema.int(), Schema.positive())
   }),
-  Schema.description("User")
+  Schema.annotations({ description: "User" })
 )
 const Query = Schema.Struct({
-  id: pipe(Schema.NumberFromString, Schema.description("User id"))
+  id: pipe(Schema.NumberFromString, Schema.annotations({ description: "User id" }))
 })
 
 const api = pipe(

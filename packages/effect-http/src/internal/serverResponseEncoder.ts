@@ -13,7 +13,6 @@ import * as ApiEndpoint from "../ApiEndpoint.js"
 import * as ApiResponse from "../ApiResponse.js"
 import * as ApiSchema from "../ApiSchema.js"
 import type * as Representation from "../Representation.js"
-import { formatParseError } from "./formatParseError.js"
 
 /** @internal */
 interface ServerResponseEncoder {
@@ -100,7 +99,7 @@ const encodeBody = (schema: Schema.Schema<any, any, never>) => {
   return (body: unknown, representation: Representation.Representation) => (response: ServerResponse.ServerResponse) =>
     pipe(
       encode(body),
-      Effect.mapError((error) => createErrorResponse("Invalid response body", formatParseError(error))),
+      Effect.mapError((error) => createErrorResponse("Invalid response body", error.message)),
       Effect.flatMap(
         flow(
           representation.stringify,
@@ -165,7 +164,7 @@ const createHeadersSetter = (schema: ApiResponse.ApiResponse.Any) => {
       Effect.mapError((error) =>
         createErrorResponse(
           "Invalid response headers",
-          formatParseError(error)
+          error.message
         )
       )
     )
