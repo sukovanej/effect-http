@@ -32,7 +32,7 @@
   "dependencies": {
     "effect-http-error": "workspace:^",
     "effect-http-security": "workspace:^",
-    "schema-openapi": "^0.38.3"
+    "schema-openapi": "^0.39.0"
   },
   "peerDependencies": {
     "@effect/platform": "^0.56.0",
@@ -40,8 +40,8 @@
     "effect": "^3.3.0"
   },
   "devDependencies": {
-    "@effect/platform": "^0.56.0",
-    "@effect/schema": "^0.67.21",
-    "effect": "^3.3.0"
+    "@effect/platform": "^0.57.4",
+    "@effect/schema": "^0.68.1",
+    "effect": "^3.3.5"
   }
 }
