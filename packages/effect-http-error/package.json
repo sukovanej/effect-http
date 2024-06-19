@@ -1,7 +1,7 @@
 {
   "name": "effect-http-error",
   "type": "module",
-  "version": "0.1.3",
+  "version": "0.2.0",
   "license": "MIT",
   "author": "Milan Suk <Milansuk@email.cz>",
   "description": "HTTP errors for effect-ts",

@@ -1,5 +1,18 @@
 # effect-http-security
 
+## 0.2.0
+
+### Minor Changes
+
+- [#593](https://github.com/sukovanej/effect-http/pull/593) [`16762d6`](https://github.com/sukovanej/effect-http/commit/16762d6edade9ed283efcf0b11416b184eace5b9) Thanks [@sukovanej](https://github.com/sukovanej)! - Update @effect/platform and @effect/schema.
+
+### Patch Changes
+
+- [#592](https://github.com/sukovanej/effect-http/pull/592) [`89dfb16`](https://github.com/sukovanej/effect-http/commit/89dfb1600b505364b66e7712f6e18a0c664aac8d) Thanks [@sukovanej](https://github.com/sukovanej)! - Add missing @internal annotations.
+
+- Updated dependencies [[`16762d6`](https://github.com/sukovanej/effect-http/commit/16762d6edade9ed283efcf0b11416b184eace5b9), [`89dfb16`](https://github.com/sukovanej/effect-http/commit/89dfb1600b505364b66e7712f6e18a0c664aac8d)]:
+  - effect-http-error@0.2.0
+
 ## 0.1.3
 
 ### Patch Changes

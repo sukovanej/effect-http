@@ -1,5 +1,22 @@
 # effect-http-node
 
+## 0.14.0
+
+### Minor Changes
+
+- [#593](https://github.com/sukovanej/effect-http/pull/593) [`16762d6`](https://github.com/sukovanej/effect-http/commit/16762d6edade9ed283efcf0b11416b184eace5b9) Thanks [@sukovanej](https://github.com/sukovanej)! - Update @effect/platform and @effect/schema.
+
+- [#590](https://github.com/sukovanej/effect-http/pull/590) [`ff7faf4`](https://github.com/sukovanej/effect-http/commit/ff7faf4c4fd5f442c14e399e81d8a84521b3be34) Thanks [@sukovanej](https://github.com/sukovanej)! - Replace `Route` module by a new `Handler` module.
+
+### Patch Changes
+
+- [#590](https://github.com/sukovanej/effect-http/pull/590) [`ff7faf4`](https://github.com/sukovanej/effect-http/commit/ff7faf4c4fd5f442c14e399e81d8a84521b3be34) Thanks [@sukovanej](https://github.com/sukovanej)! - Use `HttpServer.server.logAddress` internally instead of a custom formatting.
+
+- [#592](https://github.com/sukovanej/effect-http/pull/592) [`89dfb16`](https://github.com/sukovanej/effect-http/commit/89dfb1600b505364b66e7712f6e18a0c664aac8d) Thanks [@sukovanej](https://github.com/sukovanej)! - Add missing @internal annotations.
+
+- Updated dependencies [[`89dfb16`](https://github.com/sukovanej/effect-http/commit/89dfb1600b505364b66e7712f6e18a0c664aac8d), [`89dfb16`](https://github.com/sukovanej/effect-http/commit/89dfb1600b505364b66e7712f6e18a0c664aac8d), [`16762d6`](https://github.com/sukovanej/effect-http/commit/16762d6edade9ed283efcf0b11416b184eace5b9), [`16762d6`](https://github.com/sukovanej/effect-http/commit/16762d6edade9ed283efcf0b11416b184eace5b9), [`89dfb16`](https://github.com/sukovanej/effect-http/commit/89dfb1600b505364b66e7712f6e18a0c664aac8d), [`89dfb16`](https://github.com/sukovanej/effect-http/commit/89dfb1600b505364b66e7712f6e18a0c664aac8d), [`ff7faf4`](https://github.com/sukovanej/effect-http/commit/ff7faf4c4fd5f442c14e399e81d8a84521b3be34), [`89dfb16`](https://github.com/sukovanej/effect-http/commit/89dfb1600b505364b66e7712f6e18a0c664aac8d), [`89dfb16`](https://github.com/sukovanej/effect-http/commit/89dfb1600b505364b66e7712f6e18a0c664aac8d)]:
+  - effect-http@0.69.0
+
 ## 0.13.5
 
 ### Patch Changes

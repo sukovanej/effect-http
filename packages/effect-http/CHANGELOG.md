@@ -1,5 +1,33 @@
 # effect-http
 
+## 0.69.0
+
+### Minor Changes
+
+- [#592](https://github.com/sukovanej/effect-http/pull/592) [`89dfb16`](https://github.com/sukovanej/effect-http/commit/89dfb1600b505364b66e7712f6e18a0c664aac8d) Thanks [@sukovanej](https://github.com/sukovanej)! - Refactor client types. Use `Handler.Handler.*` helper types.
+
+- [#592](https://github.com/sukovanej/effect-http/pull/592) [`89dfb16`](https://github.com/sukovanej/effect-http/commit/89dfb1600b505364b66e7712f6e18a0c664aac8d) Thanks [@sukovanej](https://github.com/sukovanej)! - Add variance to `RouterBuilder`.
+
+- [#593](https://github.com/sukovanej/effect-http/pull/593) [`16762d6`](https://github.com/sukovanej/effect-http/commit/16762d6edade9ed283efcf0b11416b184eace5b9) Thanks [@sukovanej](https://github.com/sukovanej)! - Remove custom schema error formatter and use the default one.
+
+- [#593](https://github.com/sukovanej/effect-http/pull/593) [`16762d6`](https://github.com/sukovanej/effect-http/commit/16762d6edade9ed283efcf0b11416b184eace5b9) Thanks [@sukovanej](https://github.com/sukovanej)! - Update @effect/platform and @effect/schema.
+
+- [#592](https://github.com/sukovanej/effect-http/pull/592) [`89dfb16`](https://github.com/sukovanej/effect-http/commit/89dfb1600b505364b66e7712f6e18a0c664aac8d) Thanks [@sukovanej](https://github.com/sukovanej)! - Fix typo - `Api.Api.Content` -> `Api.Api.Context`.
+
+- [#592](https://github.com/sukovanej/effect-http/pull/592) [`89dfb16`](https://github.com/sukovanej/effect-http/commit/89dfb1600b505364b66e7712f6e18a0c664aac8d) Thanks [@sukovanej](https://github.com/sukovanej)! - Add missing `TypeId`s and refinements.
+
+- [#590](https://github.com/sukovanej/effect-http/pull/590) [`ff7faf4`](https://github.com/sukovanej/effect-http/commit/ff7faf4c4fd5f442c14e399e81d8a84521b3be34) Thanks [@sukovanej](https://github.com/sukovanej)! - Replace `Route` module by a new `Handler` module.
+
+- [#592](https://github.com/sukovanej/effect-http/pull/592) [`89dfb16`](https://github.com/sukovanej/effect-http/commit/89dfb1600b505364b66e7712f6e18a0c664aac8d) Thanks [@sukovanej](https://github.com/sukovanej)! - Re-order type arguments of the RouterBuilder type.
+
+### Patch Changes
+
+- [#592](https://github.com/sukovanej/effect-http/pull/592) [`89dfb16`](https://github.com/sukovanej/effect-http/commit/89dfb1600b505364b66e7712f6e18a0c664aac8d) Thanks [@sukovanej](https://github.com/sukovanej)! - Add missing @internal annotations.
+
+- Updated dependencies [[`16762d6`](https://github.com/sukovanej/effect-http/commit/16762d6edade9ed283efcf0b11416b184eace5b9), [`89dfb16`](https://github.com/sukovanej/effect-http/commit/89dfb1600b505364b66e7712f6e18a0c664aac8d)]:
+  - effect-http-security@0.2.0
+  - effect-http-error@0.2.0
+
 ## 0.68.0
 
 ### Minor Changes
