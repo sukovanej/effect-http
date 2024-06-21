@@ -25,3 +25,13 @@ export const make: (api: Api.Api.Any) => OpenApiTypes.OpenAPISpec = internal.mak
  * @since 1.0.0
  */
 export const makeSchema: (api: Schema.Schema.AnyNoContext) => OpenApiTypes.OpenAPISchemaType = internal.makeSchema
+
+/**
+ * Set up an OpenAPI for the given schema.
+ *
+ * @category combining
+ * @since 1.0.0
+ */
+export const annotate: (
+  spec: OpenApiTypes.OpenAPISchemaType
+) => <A, I, R>(self: Schema.Schema<A, I, R>) => Schema.Schema<A, I, R> = internal.annotate

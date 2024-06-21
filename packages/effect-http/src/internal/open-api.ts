@@ -2,7 +2,7 @@ import * as AST from "@effect/schema/AST"
 import * as Schema from "@effect/schema/Schema"
 import * as Security from "effect-http-security/Security"
 import * as Array from "effect/Array"
-import { identity, pipe } from "effect/Function"
+import { pipe } from "effect/Function"
 import * as Option from "effect/Option"
 import * as Record from "effect/Record"
 
@@ -17,12 +17,28 @@ import type * as OpenApiTypes from "../OpenApiTypes.js"
 export const make = (
   api: Api.Api.Any
 ): OpenApiTypes.OpenAPISpec => {
-  const apiSetters: Array<any> = []
-  const refs: Record<string, OpenApiTypes.OpenAPISchemaType> = {}
+  const componentSchemasFromReference: Array<[id: string, ast: AST.AST]> = []
+  const addedComponentSchemas = new Set<string>()
 
-  const pathSpecs = api.groups.reduce((paths, group) =>
-    group.endpoints.reduce(
-      (paths, endpoint) => {
+  const addComponentSchemaCallback: ComponentSchemaCallback = (id, ast) => {
+    if (!addedComponentSchemas.has(id)) {
+      componentSchemasFromReference.push([id, ast] as const)
+      addedComponentSchemas.add(id)
+    }
+  }
+
+  const openApi: OpenApiTypes.OpenAPISpec = {
+    openapi: "3.0.3",
+    info: {
+      title: api.options.title,
+      version: api.options.version
+    },
+    paths: {}
+  }
+
+  api.groups.forEach((group) =>
+    group.endpoints.forEach(
+      (endpoint) => {
         const options = ApiEndpoint.getOptions(endpoint)
         const security = ApiEndpoint.getSecurity(endpoint)
 
@@ -39,12 +55,12 @@ export const make = (
           const responseSpec: OpenApiTypes.OpenApiSpecResponse = { description: `Response ${status}` }
 
           if (!ApiSchema.isIgnored(body) && !ApiSchema.isIgnored(headers)) {
-            responseSpec.description = 'No content'
+            responseSpec.description = "No content"
           }
 
           if (!ApiSchema.isIgnored(body)) {
             const content: OpenApiTypes.OpenApiSpecMediaType = {
-              schema: makeSchema(body, refs)
+              schema: makeSchema(body, addComponentSchemaCallback)
             }
 
             const description = AST.getDescriptionAnnotation(body.ast)
@@ -53,13 +69,18 @@ export const make = (
               content.description = description.value
             }
 
-            responseSpec.content =  {
+            responseSpec.content = {
               "application/json": content
             }
           }
 
           if (!ApiSchema.isIgnored(headers)) {
-            responseSpec.headers = createResponseHeaders(headers, refs)
+            responseSpec.headers = createResponseHeaders(headers, addComponentSchemaCallback)
+          }
+
+          operationSpec.responses = {
+            ...operationSpec.responses,
+            [String(status)]: responseSpec
           }
         }
 
@@ -75,7 +96,7 @@ export const make = (
             parameters = operationSpec.parameters
           }
 
-          parameters.push(...createParameters(type, schema, refs))
+          parameters.push(...createParameters(type, schema, addComponentSchemaCallback))
         }
 
         const request = ApiEndpoint.getRequest(endpoint)
@@ -98,13 +119,13 @@ export const make = (
         }
 
         if (!ApiSchema.isIgnored(body)) {
-          operationSpec.requestBody = { 
-            content: { 
-              "application/json": { 
-                schema: makeSchema(body, refs)
-              } 
-            }, 
-            required: true 
+          operationSpec.requestBody = {
+            content: {
+              "application/json": {
+                schema: makeSchema(body, addComponentSchemaCallback)
+              }
+            },
+            required: true
           }
 
           const description = AST.getDescriptionAnnotation(body.ast)
@@ -114,69 +135,57 @@ export const make = (
           }
         }
 
-        const securityResult = pipe(
-          security,
-          Security.getOpenApi,
-          Record.toEntries,
-          Array.reduce(
-            {
-              operationSetters: [] as Array<any>,
-              apiSetters: [] as Array<any>
-            },
-            (result, [name, openapi]) => {
-              result.operationSetters.push(OpenApi.securityRequirement(name))
-              result.apiSetters.push(OpenApi.securityScheme(name, openapi as OpenApiTypes.OpenAPISecurityScheme))
-              return result
-            }
-          )
-        )
-        operationSpec.push(...securityResult.operationSetters)
-        apiSetters.push(...securityResult.apiSetters)
+        const securityList = Record.toEntries(Security.getOpenApi(security))
+
+        if (securityList.length > 0) {
+          operationSpec.security = securityList.map(([name]) => ({ [name]: [] }))
+        }
+
+        for (const [name, schemes] of securityList) {
+          const securitySchemes = openApi.components?.securitySchemes ?? {}
+          securitySchemes[name] = schemes as OpenApiTypes.OpenAPISecurityScheme
+
+          const components = openApi.components ?? {}
+          components.securitySchemes = securitySchemes
+
+          openApi.components = components
+        }
 
         if (options.description !== undefined) {
-          operationSpec["description"] = options.description
+          operationSpec.description = options.description
         }
 
         if (options.summary !== undefined) {
-          operationSpec["summary"] = options.summary
+          operationSpec.summary = options.summary
         }
 
         if (options.deprecated) {
           operationSpec["deprecated"] = true
         }
 
-        return addPath(paths, createPath(ApiEndpoint.getPath(endpoint)), {
-          [ApiEndpoint.getMethod(endpoint).toLowerCase() as OpenApiTypes.OpenAPISpecMethodName]: operationSpec
-        })
-      },
-      paths
-    ), {} as OpenApiTypes.OpenAPISpecPaths)
+        const pathName = createPath(ApiEndpoint.getPath(endpoint))
+
+        openApi.paths = {
+          ...openApi.paths,
+          [pathName]: {
+            ...openApi.paths[pathName],
+            [ApiEndpoint.getMethod(endpoint).toLowerCase() as OpenApiTypes.OpenAPISpecMethodName]: operationSpec
+          }
+        }
+      }
+    )
+  )
 
   if (Array.isNonEmptyReadonlyArray(api.groups)) {
-    const [firstGlobalTag, ...restGlobalTags] = Array.map(
+    openApi.tags = Array.map(
       api.groups,
       (group) => ({ ...group.options, name: group.name })
     )
-
-    pathSpecs.push(OpenApi.globalTags(firstGlobalTag, ...restGlobalTags))
   }
 
   if (api.options.servers) {
-    pathSpecs.push(
-      ...api.options.servers.map((server) =>
-        typeof server === "string"
-          ? OpenApi.server(server)
-          : OpenApi.server(server.url, (_s) => ({ ..._s, ...server }))
-      )
-    )
+    openApi.servers = api.options.servers.map((server) => typeof server === "string" ? ({ url: server }) : server)
   }
-
-  const openApi = OpenApi.openAPI(
-    api.options.title,
-    api.options.version,
-    ...apiSetters,
-    ...pathSpecs
-  )
 
   if (api.options.description) {
     openApi.info.description = api.options.description
@@ -186,20 +195,36 @@ export const make = (
     openApi.info.license = api.options.license
   }
 
+  if (componentSchemasFromReference.length > 0) {
+    const schemas: Record<string, OpenApiTypes.OpenAPISchemaType> = {}
+
+    let reference: [string, AST.AST] | undefined
+
+    while ((reference = componentSchemasFromReference.pop())) {
+      const [name, ast] = reference
+      schemas[name] = openAPISchemaForAst(removeIdentifierAnnotation(ast), addComponentSchemaCallback)
+    }
+
+    openApi.components = { schemas }
+  }
+
   return openApi
 }
 
-const addPath = (
-  paths: OpenApiTypes.OpenAPISpecPaths,
-  path: string,
-  item: OpenApiTypes.OpenAPISpecPathItem
-): OpenApiTypes.OpenAPISpecPaths => ({
-  ...paths,
-  [path]: {
-    ...paths[path],
-    ...item
+const removeAnnotation = (key: symbol) => (ast: AST.AST & AST.Annotated): AST.AST => {
+  if (Object.prototype.hasOwnProperty.call(ast.annotations, key)) {
+    // copied from the implementation of AST.annotations
+    const { [key]: _, ...annotations } = ast.annotations
+    const d = Object.getOwnPropertyDescriptors(ast)
+    d.annotations.value = annotations
+    return Object.create(Object.getPrototypeOf(ast), d)
   }
-})
+  return ast
+}
+
+const removeIdentifierAnnotation = removeAnnotation(
+  AST.IdentifierAnnotationId
+)
 
 /**
  * Convert path pattern to OpenApi syntax. Replaces :param by {param}.
@@ -210,12 +235,6 @@ const createPath = (path: string) =>
     .replace(/:(\w+)(\/)/g, "{$1}$2")
     .replace(/:(\w+)[?]/g, "{$1}")
     .replace(/:(\w+)$/g, "{$1}")
-
-/** @internal */
-const getSchemaDescription = <A extends { description?: string }>(
-  schema: Schema.Schema.Any
-) => AST.getDescriptionAnnotation(schema.ast),
-
 
 /** @internal */
 const getPropertySignatures = (
@@ -263,7 +282,7 @@ const getPropertySignatures = (
 const createParameters = (
   type: "query" | "header" | "path",
   schema: Schema.Schema<any, any, any>,
-  refs: Record<string, OpenApiTypes.OpenAPISchemaType>
+  componentSchemaCallback: ComponentSchemaCallback
 ): Array<OpenApiTypes.OpenAPISpecParameter> => {
   return getPropertySignatures(type, schema.ast).map((ps) => {
     if (typeof ps.name !== "string") {
@@ -275,16 +294,16 @@ const createParameters = (
     const parameter: OpenApiTypes.OpenAPISpecParameter = {
       name: ps.name,
       in: type,
-      schema: makeSchema(schema, refs),
+      schema: makeSchema(schema, componentSchemaCallback)
     }
 
     if (!ps.isOptional) {
-      parameter['required'] = true
+      parameter["required"] = true
     }
 
     const description = AST.getDescriptionAnnotation(schema.ast)
     if (Option.isSome(description)) {
-      parameter['description'] = description.value
+      parameter["description"] = description.value
     }
 
     return parameter
@@ -292,11 +311,13 @@ const createParameters = (
 }
 
 /** @internal */
-const createResponseHeaders = (schema: Schema.Schema.Any, refs: Record<string, OpenApiTypes.OpenAPISchemaType>) => {
+const createResponseHeaders = (schema: Schema.Schema.Any, componentSchemaCallback: ComponentSchemaCallback) => {
   const ps = getPropertySignatures("header", schema.ast)
 
   return Object.fromEntries(ps.map((ps) => {
-    const schema: OpenApiTypes.OpenApiSpecResponseHeader = { schema: makeSchema(Schema.make(ps.type), refs) }
+    const schema: OpenApiTypes.OpenApiSpecResponseHeader = {
+      schema: makeSchema(Schema.make(ps.type), componentSchemaCallback)
+    }
     const description = AST.getDescriptionAnnotation(ps.type)
 
     if (Option.isSome(description)) {
@@ -383,19 +404,22 @@ const createEnum = <T extends AST.LiteralValue>(
 }
 
 /** @internal */
-export const reference = (referenceName: string): OpenApiTypes.OpenAPISpecReference => ({
+const reference = (referenceName: string): OpenApiTypes.OpenAPISpecReference => ({
   $ref: `#/components/schemas/${referenceName}`
 })
+
+export type ComponentSchemaCallback = (id: string, ast: AST.AST) => void
 
 /** @internal */
 export const openAPISchemaForAst = (
   ast: AST.AST,
-  refs: Record<string, OpenApiTypes.OpenAPISchemaType>
+  componentSchemaCallback: ComponentSchemaCallback | undefined
 ): OpenApiTypes.OpenAPISchemaType => {
   const handleReference = (ast: AST.AST): OpenApiTypes.OpenAPISchemaType | null => {
     const identifier = Option.getOrUndefined(AST.getIdentifierAnnotation(ast))
-    if (identifier !== undefined && identifier !== "") {
-      return refs[identifier] ?? null
+    if (identifier !== undefined && componentSchemaCallback) {
+      componentSchemaCallback(identifier, ast)
+      return reference(identifier)
     }
     return null
   }
@@ -663,7 +687,7 @@ export const openAPISchemaForAst = (
 /** @internal */
 export const makeSchema = (
   schema: Schema.Schema.Any,
-  refs: Record<string, OpenApiTypes.OpenAPISchemaType>
+  componentSchemaCallback?: ComponentSchemaCallback
 ): OpenApiTypes.OpenAPISchemaType => {
-  return openAPISchemaForAst(schema.ast, refs)
+  return openAPISchemaForAst(schema.ast, componentSchemaCallback)
 }
