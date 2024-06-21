@@ -31,8 +31,7 @@
   },
   "dependencies": {
     "effect-http-error": "workspace:^",
-    "effect-http-security": "workspace:^",
-    "schema-openapi": "^0.39.1"
+    "effect-http-security": "workspace:^"
   },
   "peerDependencies": {
     "@effect/platform": "^0.58.0",

@@ -779,8 +779,7 @@ corresponding titles for each group.
 
 ## Descriptions in OpenApi
 
-The [schema-openapi](https://github.com/sukovanej/schema-openapi) library which is
-used for OpenApi derivation from the `Schema` takes into account
+The OpenAPI logic takes into account
 [description](https://effect-ts.github.io/schema/modules/Schema.ts.html#description)
 annotations and propagates them into the specification.
 

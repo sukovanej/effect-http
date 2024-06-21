@@ -118,9 +118,6 @@ importers:
       effect-http-security:
         specifier: workspace:^
         version: link:../effect-http-security/dist
-      schema-openapi:
-        specifier: ^0.39.1
-        version: 0.39.1(@effect/schema@0.68.4(effect@3.4.0))(effect@3.4.0)
     devDependencies:
       '@apidevtools/swagger-parser':
         specifier: ^10.1.0
@@ -3163,12 +3160,6 @@ packages:
     resolution: {integrity: sha512-t0X5PaizPc2H4+rCwszAqHZRtr4bugo4pgiCvrBFvIX0XFxnr29g77LJcpyj9A0DcKf7gXMLcgvRjsonYI6x4g==}
     engines: {node: '>=14'}
     hasBin: true
-
-  schema-openapi@0.39.1:
-    resolution: {integrity: sha512-VpgewDR0ltlQ6VGC7V2gsLUM39+ottjhuc6/AR2hW+XTgUYL3LcobVHsxOYhkBnuMm0Gs5eaSH8qU9aLFMPxxQ==}
-    peerDependencies:
-      '@effect/schema': ^0.68.0
-      effect: ^3.4.0
 
   semver@5.7.2:
     resolution: {integrity: sha512-cBznnQ9KjJqU67B52RMC65CMarK2600WFnbkcaiwWq3xy/5haFJlshgnpjovMVJ+Hff49d8GEn0b87C5pDQ10g==}
@@ -6999,11 +6990,6 @@ snapshots:
   sass-lookup@5.0.1:
     dependencies:
       commander: 10.0.1
-
-  schema-openapi@0.39.1(@effect/schema@0.68.4(effect@3.4.0))(effect@3.4.0):
-    dependencies:
-      '@effect/schema': 0.68.4(effect@3.4.0)
-      effect: 3.4.0
 
   semver@5.7.2: {}
 
