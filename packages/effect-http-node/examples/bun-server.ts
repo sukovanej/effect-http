@@ -29,9 +29,9 @@ const app = pipe(
 )
 
 const server = pipe(
-  HttpServer.server.serve(app),
+  HttpServer.serve(app),
   Layer.provide(NodeSwaggerFiles.SwaggerFilesLive),
-  Layer.provide(BunHttpServer.server.layer({ port: 3000 })),
+  Layer.provide(BunHttpServer.layer({ port: 3000 })),
   Layer.provide(BunContext.layer),
   Layer.launch,
   Effect.scoped

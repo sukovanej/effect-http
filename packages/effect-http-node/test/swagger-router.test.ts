@@ -1,4 +1,4 @@
-import { HttpClient, HttpServer } from "@effect/platform"
+import { HttpClientRequest, HttpRouter } from "@effect/platform"
 import { Array, Effect } from "effect"
 import { SwaggerRouter } from "effect-http"
 import { NodeTesting } from "effect-http-node"
@@ -15,13 +15,13 @@ const docsUrls = [
 
 test("swagger-router mount", () =>
   Effect.gen(function*(_) {
-    const router = HttpServer.router.empty.pipe(
-      HttpServer.router.mount("/api/docs", SwaggerRouter.make({}))
+    const router = HttpRouter.empty.pipe(
+      HttpRouter.mount("/api/docs", SwaggerRouter.make({}))
     )
     const client = yield* _(NodeTesting.makeRaw(router))
     const responses = yield* _(
       docsUrls,
-      Array.map((url) => HttpClient.request.get(url)),
+      Array.map((url) => HttpClientRequest.get(url)),
       Effect.forEach(client)
     )
 
@@ -35,13 +35,13 @@ test("swagger-router mount", () =>
 
 test("swagger-router mountApp", () =>
   Effect.gen(function*(_) {
-    const router = HttpServer.router.empty.pipe(
-      HttpServer.router.mountApp("/api/docs", SwaggerRouter.make({}))
+    const router = HttpRouter.empty.pipe(
+      HttpRouter.mountApp("/api/docs", SwaggerRouter.make({}))
     )
     const client = yield* _(NodeTesting.makeRaw(router))
     const responses = yield* _(
       docsUrls,
-      Array.map((url) => HttpClient.request.get(url)),
+      Array.map((url) => HttpClientRequest.get(url)),
       Effect.forEach(client)
     )
 

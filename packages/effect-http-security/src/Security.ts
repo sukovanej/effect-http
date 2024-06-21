@@ -2,7 +2,7 @@
  * Authentication and authorization.
  * @since 1.0.0
  */
-import type * as HttpServer from "@effect/platform/HttpServer"
+import type * as HttpServerRequest from "@effect/platform/HttpServerRequest"
 import type * as Schema from "@effect/schema/Schema"
 import type * as HttpError from "effect-http-error/HttpError"
 import type * as Effect from "effect/Effect"
@@ -81,7 +81,7 @@ export declare namespace Security {
   export type Handler<A, E, R> = Effect.Effect<
     A,
     E,
-    R | HttpServer.request.ServerRequest
+    R | HttpServerRequest.HttpServerRequest
   >
 }
 
@@ -98,7 +98,7 @@ export const make: <A, E, R>(
 ) => Security<
   A,
   Exclude<E, HttpError.HttpError>,
-  Exclude<R, HttpServer.request.ServerRequest>
+  Exclude<R, HttpServerRequest.HttpServerRequest>
 > = internal.make
 
 /**
@@ -201,7 +201,7 @@ export const mapEffect: {
   ) => Security<
     A2,
     E1 | Exclude<E2, HttpError.HttpError>,
-    R1 | Exclude<R2, HttpServer.request.ServerRequest>
+    R1 | Exclude<R2, HttpServerRequest.HttpServerRequest>
   >
   <A1, E1, R1, A2, E2, R2>(
     self: Security<A1, E1, R1>,
@@ -209,7 +209,7 @@ export const mapEffect: {
   ): Security<
     A2,
     E1 | Exclude<E2, HttpError.HttpError>,
-    R1 | Exclude<R2, HttpServer.request.ServerRequest>
+    R1 | Exclude<R2, HttpServerRequest.HttpServerRequest>
   >
 } = internal.mapEffect
 

@@ -1,4 +1,4 @@
-import { HttpServer } from "@effect/platform"
+import { HttpRouter, HttpServer, HttpServerResponse } from "@effect/platform"
 import { NodeContext, NodeHttpServer } from "@effect/platform-node"
 import { Schema } from "@effect/schema"
 import * as it from "@effect/vitest"
@@ -241,8 +241,8 @@ it.scoped(
   "no-content client non-2xx response",
   () =>
     Effect.gen(function*(_) {
-      const app = HttpServer.router.empty.pipe(
-        HttpServer.router.post("/test", HttpServer.response.text("validation error", { status: 400 }))
+      const app = HttpRouter.empty.pipe(
+        HttpRouter.post("/test", HttpServerResponse.text("validation error", { status: 400 }))
       )
 
       const result = yield* _(
@@ -353,7 +353,7 @@ it.scoped(
       )
 
       // TODO: refactor to utils or maybe expose from the NodeTesting module
-      const serverUrl = Effect.map(HttpServer.server.Server, (server) => {
+      const serverUrl = Effect.map(HttpServer.HttpServer, (server) => {
         const address = server.address
 
         if (address._tag === "UnixAddress") {
@@ -363,14 +363,14 @@ it.scoped(
         return `http://localhost:${address.port}`
       })
 
-      const NodeServerLive = NodeHttpServer.server.layer(() => createServer(), {
+      const NodeServerLive = NodeHttpServer.layer(() => createServer(), {
         port: undefined
       })
 
       const baseUrl = yield* Effect.flatMap(Deferred.make<string>(), (allocatedUrl) =>
         serverUrl.pipe(
           Effect.flatMap((url) => Deferred.succeed(allocatedUrl, url)),
-          Effect.flatMap(() => Layer.launch(HttpServer.server.serve(app))),
+          Effect.flatMap(() => Layer.launch(HttpServer.serve(app))),
           Effect.provide(NodeServerLive),
           Effect.provide(NodeSwaggerFiles.SwaggerFilesLive),
           Effect.provide(NodeContext.layer),

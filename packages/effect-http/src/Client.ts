@@ -6,6 +6,7 @@
  * @since 1.0.0
  */
 import type * as HttpClient from "@effect/platform/HttpClient"
+import type * as HttpClientRequest from "@effect/platform/HttpClientRequest"
 import type * as Effect from "effect/Effect"
 import type * as Types from "effect/Types"
 
@@ -31,7 +32,7 @@ export type Client<A extends Api.Api.Any> = Types.Simplify<
  * @since 1.0.0
  */
 export interface Options {
-  httpClient?: HttpClient.client.Client.Default
+  httpClient?: HttpClient.HttpClient.Default
   baseUrl?: string
 }
 
@@ -46,7 +47,7 @@ export declare namespace Client {
    */
   export type Function<E extends ApiEndpoint.ApiEndpoint.Any> = (
     input: Handler.Handler.ToRequest<ApiEndpoint.ApiEndpoint.Request<E>>,
-    map?: (request: HttpClient.request.ClientRequest) => HttpClient.request.ClientRequest
+    map?: (request: HttpClientRequest.HttpClientRequest) => HttpClientRequest.HttpClientRequest
   ) => Effect.Effect<
     Handler.Handler.ToResponse<ApiEndpoint.ApiEndpoint.Response<E>>,
     ClientError.ClientError,
@@ -80,8 +81,8 @@ export const make: <A extends Api.Api.Any>(
  * @since 1.0.0
  */
 export const setBasic: {
-  (user: string, pass: string): (request: HttpClient.request.ClientRequest) => HttpClient.request.ClientRequest
-  (request: HttpClient.request.ClientRequest, user: string, pass: string): HttpClient.request.ClientRequest
+  (user: string, pass: string): (request: HttpClientRequest.HttpClientRequest) => HttpClientRequest.HttpClientRequest
+  (request: HttpClientRequest.HttpClientRequest, user: string, pass: string): HttpClientRequest.HttpClientRequest
 } = internal.setBasicAuth
 
 /**
@@ -89,8 +90,8 @@ export const setBasic: {
  * @since 1.0.0
  */
 export const setBearer: {
-  (token: string): (request: HttpClient.request.ClientRequest) => HttpClient.request.ClientRequest
-  (request: HttpClient.request.ClientRequest, token: string): HttpClient.request.ClientRequest
+  (token: string): (request: HttpClientRequest.HttpClientRequest) => HttpClientRequest.HttpClientRequest
+  (request: HttpClientRequest.HttpClientRequest, token: string): HttpClientRequest.HttpClientRequest
 } = internal.setBearer
 
 /**
@@ -102,13 +103,13 @@ export const setApiKey: {
     key: string,
     _in: "query" | "header",
     apiKey: string
-  ): (request: HttpClient.request.ClientRequest) => HttpClient.request.ClientRequest
+  ): (request: HttpClientRequest.HttpClientRequest) => HttpClientRequest.HttpClientRequest
   (
-    request: HttpClient.request.ClientRequest,
+    request: HttpClientRequest.HttpClientRequest,
     key: string,
     _in: "query" | "header",
     apiKey: string
-  ): HttpClient.request.ClientRequest
+  ): HttpClientRequest.HttpClientRequest
 } = internal.setApiKey
 
 /**

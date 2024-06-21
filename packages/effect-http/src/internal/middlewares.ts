@@ -4,7 +4,10 @@
  * @since 1.0.0
  */
 
-import * as HttpServer from "@effect/platform/HttpServer"
+import * as Headers from "@effect/platform/Headers"
+import * as HttpMiddleware from "@effect/platform/HttpMiddleware"
+import * as HttpServerRequest from "@effect/platform/HttpServerRequest"
+import * as HttpServerResponse from "@effect/platform/HttpServerResponse"
 import * as HttpError from "effect-http-error/HttpError"
 import * as Effect from "effect/Effect"
 import * as Either from "effect/Either"
@@ -13,13 +16,14 @@ import * as FiberRef from "effect/FiberRef"
 import { pipe } from "effect/Function"
 import * as HashMap from "effect/HashMap"
 import * as Metric from "effect/Metric"
+
 import type * as Middlewares from "../Middlewares.js"
 
 /** @internal */
 export const accessLog = (level: "Info" | "Warning" | "Debug" = "Info") =>
-  HttpServer.middleware.make((app) =>
+  HttpMiddleware.make((app) =>
     pipe(
-      HttpServer.request.ServerRequest,
+      HttpServerRequest.HttpServerRequest,
       Effect.flatMap((request) => Effect[`log${level}`](`${request.method} ${request.url}`)),
       Effect.flatMap(() => app)
     )
@@ -27,7 +31,7 @@ export const accessLog = (level: "Info" | "Warning" | "Debug" = "Info") =>
 
 /** @internal */
 export const uuidLogAnnotation = (logAnnotationKey = "requestId") =>
-  HttpServer.middleware.make((app) =>
+  HttpMiddleware.make((app) =>
     pipe(
       Effect.sync(() => crypto.randomUUID()),
       Effect.flatMap((uuid) =>
@@ -44,9 +48,9 @@ export const uuidLogAnnotation = (logAnnotationKey = "requestId") =>
 export const endpointCallsMetric = () => {
   const endpointCalledCounter = Metric.counter("server.endpoint_calls")
 
-  return HttpServer.middleware.make((app) =>
+  return HttpMiddleware.make((app) =>
     Effect.gen(function*(_) {
-      const request = yield* _(HttpServer.request.ServerRequest)
+      const request = yield* _(HttpServerRequest.HttpServerRequest)
 
       yield* _(
         Metric.increment(endpointCalledCounter),
@@ -59,9 +63,9 @@ export const endpointCallsMetric = () => {
 }
 
 /** @internal */
-export const errorLog = HttpServer.middleware.make((app) =>
+export const errorLog = HttpMiddleware.make((app) =>
   Effect.gen(function*(_) {
-    const request = yield* _(HttpServer.request.ServerRequest)
+    const request = yield* _(HttpServerRequest.HttpServerRequest)
 
     const response = yield* _(app, Effect.tapErrorCause(Effect.logError))
 
@@ -93,11 +97,11 @@ export const basicAuth = <R, _>(
     skipPaths: ReadonlyArray<string>
   }>
 ) =>
-  HttpServer.middleware.make((app) =>
+  HttpMiddleware.make((app) =>
     Effect.gen(function*(_) {
       const headerName = options?.headerName ?? "Authorization"
       const skippedPaths = options?.skipPaths ?? []
-      const request = yield* _(HttpServer.request.ServerRequest)
+      const request = yield* _(HttpServerRequest.HttpServerRequest)
 
       if (skippedPaths.includes(request.url)) {
         return yield* _(app)
@@ -247,9 +251,9 @@ export const cors = (_options?: Partial<Middlewares.CorsOptions>) => {
     return undefined
   })()
 
-  return HttpServer.middleware.make((app) =>
+  return HttpMiddleware.make((app) =>
     Effect.gen(function*(_) {
-      const request = yield* _(HttpServer.request.ServerRequest)
+      const request = yield* _(HttpServerRequest.HttpServerRequest)
 
       const origin = request.headers["origin"]
       const accessControlRequestHeaders = request.headers["access-control-request-headers"]
@@ -268,15 +272,15 @@ export const cors = (_options?: Partial<Middlewares.CorsOptions>) => {
           ...maxAge
         }
 
-        return HttpServer.response.empty({
+        return HttpServerResponse.empty({
           status: 204,
-          headers: HttpServer.headers.fromInput(corsHeaders)
+          headers: Headers.fromInput(corsHeaders)
         })
       }
 
       const response = yield* _(app)
 
-      return response.pipe(HttpServer.response.setHeaders(corsHeaders))
+      return response.pipe(HttpServerResponse.setHeaders(corsHeaders))
     })
   )
 }

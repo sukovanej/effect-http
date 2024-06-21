@@ -1,4 +1,4 @@
-import * as Router from "@effect/platform/Http/Router"
+import * as HttpRouter from "@effect/platform/HttpRouter"
 import * as HttpError from "effect-http-error/HttpError"
 import { pipe } from "effect/Function"
 
@@ -28,7 +28,7 @@ export const variance = {
 class HandlerImpl<A extends ApiEndpoint.ApiEndpoint.Any, E, R> implements Handler.Handler<A, E, R> {
   readonly [TypeId] = variance
 
-  constructor(readonly endpoint: A, readonly route: Router.Route<E, R>) {}
+  constructor(readonly endpoint: A, readonly route: HttpRouter.Route<E, R>) {}
 
   pipe() {
     // eslint-disable-next-line prefer-rest-params
@@ -64,7 +64,7 @@ const _make = <A extends ApiEndpoint.ApiEndpoint.Any, E, R>(
   const responseEncoder = ServerResponseEncoder.create(endpoint)
   const requestParser = ServerRequestParser.create(endpoint, options?.parseOptions)
 
-  const router = Router.makeRoute(
+  const router = HttpRouter.makeRoute(
     ApiEndpoint.getMethod(endpoint),
     ApiEndpoint.getPath(endpoint),
     pipe(
@@ -90,7 +90,7 @@ const _make = <A extends ApiEndpoint.ApiEndpoint.Any, E, R>(
 /** @internal */
 export const getRoute = <A extends ApiEndpoint.ApiEndpoint.Any, E, R>(
   handler: Handler.Handler<A, E, R>
-): Router.Route<E, R> => (handler as HandlerImpl<A, E, R>).route
+): HttpRouter.Route<E, R> => (handler as HandlerImpl<A, E, R>).route
 
 /** @internal */
 export const getEndpoint = <A extends ApiEndpoint.ApiEndpoint.Any, E, R>(

@@ -3,7 +3,10 @@
  *
  * @since 1.0.0
  */
-import * as HttpServer from "@effect/platform/HttpServer"
+import * as Headers from "@effect/platform/Headers"
+import * as HttpRouter from "@effect/platform/HttpRouter"
+import * as HttpServerRequest from "@effect/platform/HttpServerRequest"
+import * as HttpServerResponse from "@effect/platform/HttpServerResponse"
 import * as Array from "effect/Array"
 import * as Context from "effect/Context"
 import * as Effect from "effect/Effect"
@@ -81,17 +84,17 @@ const createHeaders = (file: string) => {
 }
 
 /** @internal */
-const serverStaticDocsFile = (filename: string, path?: HttpServer.router.PathInput) => {
+const serverStaticDocsFile = (filename: string, path?: HttpRouter.PathInput) => {
   const headers = createHeaders(filename)
 
-  return HttpServer.router.get(
+  return HttpRouter.get(
     path ?? `/${filename}`,
     Effect.gen(function*(_) {
       const { files } = yield* _(SwaggerFiles)
       const content = files[filename]
 
-      return HttpServer.response.text(content, {
-        headers: HttpServer.headers.fromInput(headers)
+      return HttpServerResponse.text(content, {
+        headers: Headers.fromInput(headers)
       })
     })
   )
@@ -99,7 +102,7 @@ const serverStaticDocsFile = (filename: string, path?: HttpServer.router.PathInp
 
 /** @internal */
 const calculatePrefix = Effect.gen(function*(_) {
-  const request = yield* _(HttpServer.request.ServerRequest)
+  const request = yield* _(HttpServerRequest.HttpServerRequest)
 
   const url = request.originalUrl
 
@@ -122,14 +125,14 @@ const calculatePrefix = Effect.gen(function*(_) {
 export const make = (spec: unknown) => {
   let router = SWAGGER_FILE_NAMES.reduce(
     (router, swaggerFileName) => router.pipe(serverStaticDocsFile(swaggerFileName, `/${swaggerFileName}`)),
-    HttpServer.router.empty as HttpServer.router.Router<never, SwaggerRouter.SwaggerFiles>
+    HttpRouter.empty as HttpRouter.HttpRouter<never, SwaggerRouter.SwaggerFiles>
   )
 
   const serveIndex = Effect.gen(function*(_) {
     const prefix = yield* _(calculatePrefix)
     const index = createIndex(prefix)
-    return HttpServer.response.text(index, {
-      headers: HttpServer.headers.fromInput({
+    return HttpServerResponse.text(index, {
+      headers: Headers.fromInput({
         "content-type": "text/html"
       })
     })
@@ -138,18 +141,18 @@ export const make = (spec: unknown) => {
   const serveSwaggerInitializer = Effect.gen(function*(_) {
     const prefix = yield* _(calculatePrefix)
     const swaggerInitialiser = createSwaggerInitializer(`${prefix}/openapi.json`)
-    return HttpServer.response.text(swaggerInitialiser, {
-      headers: HttpServer.headers.fromInput({
+    return HttpServerResponse.text(swaggerInitialiser, {
+      headers: Headers.fromInput({
         "content-type": "application/javascript"
       })
     })
   })
 
   router = router.pipe(
-    HttpServer.router.get(`/`, serveIndex),
-    HttpServer.router.get(`/index.html`, serveIndex),
-    HttpServer.router.get(`/openapi.json`, Effect.orDie(HttpServer.response.json(spec))),
-    HttpServer.router.get(`/swagger-initializer.js`, serveSwaggerInitializer)
+    HttpRouter.get(`/`, serveIndex),
+    HttpRouter.get(`/index.html`, serveIndex),
+    HttpRouter.get(`/openapi.json`, Effect.orDie(HttpServerResponse.json(spec))),
+    HttpRouter.get(`/swagger-initializer.js`, serveSwaggerInitializer)
   )
 
   return router

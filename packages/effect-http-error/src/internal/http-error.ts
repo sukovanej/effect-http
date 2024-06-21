@@ -1,11 +1,12 @@
-import * as Body from "@effect/platform/Http/Body"
-import * as Headers from "@effect/platform/Http/Headers"
-import * as ServerResponse from "@effect/platform/Http/ServerResponse"
+import * as Headers from "@effect/platform/Headers"
+import * as HttpBody from "@effect/platform/HttpBody"
+import * as HttpServerResponse from "@effect/platform/HttpServerResponse"
 import * as Data from "effect/Data"
 import { absurd, identity, pipe } from "effect/Function"
 import * as Pipeable from "effect/Pipeable"
 import * as Predicate from "effect/Predicate"
 import * as Stream from "effect/Stream"
+
 import type * as HttpError from "../HttpError.js"
 
 /** @internal */
@@ -15,9 +16,9 @@ const unsafeIsStream = (u: unknown): u is Stream.Stream<Uint8Array> =>
 /** @internal */
 export class HttpErrorImpl extends Data.TaggedError("HttpError")<{
   status: number
-  content: Body.Body
+  content: HttpBody.HttpBody
 }> implements HttpError.HttpError {
-  constructor(status: number, content: Body.Body) {
+  constructor(status: number, content: HttpBody.HttpBody) {
     super({ status, content })
   }
 
@@ -25,15 +26,15 @@ export class HttpErrorImpl extends Data.TaggedError("HttpError")<{
     let content = undefined
 
     if (body === undefined) {
-      content = Body.empty
+      content = HttpBody.empty
     } else if (body instanceof Uint8Array) {
-      content = Body.uint8Array(body)
+      content = HttpBody.uint8Array(body)
     } else if (typeof body === "string") {
-      content = Body.text(body)
+      content = HttpBody.text(body)
     } else if (unsafeIsStream(body)) {
-      content = Body.stream(body)
+      content = HttpBody.stream(body)
     } else {
-      content = Body.unsafeJson(body)
+      content = HttpBody.unsafeJson(body)
     }
 
     return new HttpErrorImpl(status, content)
@@ -47,7 +48,7 @@ export class HttpErrorImpl extends Data.TaggedError("HttpError")<{
 
 /** @internal */
 export const toResponse = (error: HttpError.HttpError) => {
-  const options: ServerResponse.Options.WithContentType = {
+  const options: HttpServerResponse.Options.WithContentType = {
     status: error.status,
     contentType: error.content.contentType,
     headers: pipe(
@@ -56,19 +57,21 @@ export const toResponse = (error: HttpError.HttpError) => {
     )
   }
 
-  if (error.content._tag === "Empty") {
-    return ServerResponse.empty(options)
-  } else if (error.content._tag === "Uint8Array") {
-    return ServerResponse.uint8Array(error.content.body, options)
-  } else if (error.content._tag === "Raw") {
-    return ServerResponse.raw(error.content.body, options)
-  } else if (error.content._tag === "Stream") {
-    return ServerResponse.stream(error.content.stream, options)
-  } else if (error.content._tag === "FormData") {
-    return ServerResponse.formData(error.content.formData, options)
+  const content = error.content
+
+  if (content._tag === "Empty") {
+    return HttpServerResponse.empty(options)
+  } else if (content._tag === "Uint8Array") {
+    return HttpServerResponse.uint8Array(content.body, options)
+  } else if (content._tag === "Raw") {
+    return HttpServerResponse.raw(content.body, options)
+  } else if (content._tag === "Stream") {
+    return HttpServerResponse.stream(content.stream, options)
+  } else if (content._tag === "FormData") {
+    return HttpServerResponse.formData(content.formData, options)
   }
 
-  return absurd<never>(error.content)
+  return absurd<never>(content)
 }
 
 /** @internal */

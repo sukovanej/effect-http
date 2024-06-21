@@ -1,4 +1,4 @@
-import * as ClientRequest from "@effect/platform/Http/ClientRequest"
+import { HttpClientRequest } from "@effect/platform"
 import { Schema } from "@effect/schema"
 import * as it from "@effect/vitest"
 import { Effect, pipe } from "effect"
@@ -78,7 +78,7 @@ it.scoped(
 
       const response = yield* _(
         NodeTesting.makeRaw(app),
-        Effect.flatMap(apply(ClientRequest.get("/test")))
+        Effect.flatMap(apply(HttpClientRequest.get("/test")))
       )
 
       expect(response.headers["access-control-allow-origin"]).contains(

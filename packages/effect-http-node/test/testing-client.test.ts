@@ -1,4 +1,4 @@
-import { FileSystem, HttpClient, HttpServer } from "@effect/platform"
+import { FileSystem, HttpClientRequest, HttpRouter, HttpServerRequest } from "@effect/platform"
 import { NodeContext } from "@effect/platform-node"
 import { Schema } from "@effect/schema"
 import * as it from "@effect/vitest"
@@ -84,7 +84,7 @@ it.scoped(
       const app = pipe(
         RouterBuilder.make(api),
         RouterBuilder.handle("hello", ({ query }) => Effect.map(MyService, (v) => `${query.input + v}`)),
-        RouterBuilder.mapRouter(HttpServer.router.provideService(MyService, 2)),
+        RouterBuilder.mapRouter(HttpRouter.provideService(MyService, 2)),
         RouterBuilder.build
       )
 
@@ -217,7 +217,7 @@ it.scoped(
         RouterBuilder.make(api),
         RouterBuilder.handle("upload", () =>
           Effect.gen(function*(_) {
-            const request = yield* _(HttpServer.request.ServerRequest)
+            const request = yield* _(HttpServerRequest.HttpServerRequest)
             const body = yield* _(request.multipart)
             const file = body["file"]
 
@@ -288,7 +288,7 @@ it.scoped(
       const response = yield* _(
         NodeTesting.make(app, securityApi),
         Effect.flatMap(
-          (client) => client.hello({ query: { input: 12 } }, HttpClient.request.setHeader("authorization", "Bearer 22"))
+          (client) => client.hello({ query: { input: 12 } }, HttpClientRequest.setHeader("authorization", "Bearer 22"))
         )
       )
 
@@ -316,7 +316,7 @@ it.scoped(
         Effect.flatMap((client) =>
           client.hello(
             { query: { input: 12 } },
-            HttpClient.request.setHeader("authorization", "wrong-format")
+            HttpClientRequest.setHeader("authorization", "wrong-format")
           )
         ),
         Effect.flip

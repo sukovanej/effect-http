@@ -3,8 +3,8 @@
  *
  * @since 1.0.0
  */
-import type * as Body from "@effect/platform/Http/Body"
-import type * as ServerResponse from "@effect/platform/Http/ServerResponse"
+import type * as HttpBody from "@effect/platform/HttpBody"
+import type * as HttpServerResponse from "@effect/platform/HttpServerResponse"
 import type * as Cause from "effect/Cause"
 import type * as Pipeable from "effect/Pipeable"
 
@@ -17,7 +17,7 @@ import * as internal from "./internal/http-error.js"
 export interface HttpError extends Cause.YieldableError, Pipeable.Pipeable {
   readonly _tag: "HttpError"
   readonly status: number
-  readonly content: Body.Body
+  readonly content: HttpBody.HttpBody
 }
 
 /**
@@ -26,7 +26,7 @@ export interface HttpError extends Cause.YieldableError, Pipeable.Pipeable {
  */
 export const toResponse: (
   error: HttpError
-) => ServerResponse.ServerResponse = internal.toResponse
+) => HttpServerResponse.HttpServerResponse = internal.toResponse
 
 /**
  * @category constructors

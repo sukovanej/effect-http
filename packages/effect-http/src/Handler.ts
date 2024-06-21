@@ -3,7 +3,7 @@
  *
  * @since 1.0.0
  */
-import type * as Router from "@effect/platform/Http/Router"
+import type * as HttpRouter from "@effect/platform/HttpRouter"
 import type * as AST from "@effect/schema/AST"
 import type * as Effect from "effect/Effect"
 import type * as Types from "effect/Types"
@@ -147,7 +147,7 @@ export const make: {
  */
 export const getRoute: <A extends ApiEndpoint.ApiEndpoint.Any, E, R>(
   handler: Handler<A, E, R>
-) => Router.Route<E, R> = internal.getRoute
+) => HttpRouter.Route<E, R> = internal.getRoute
 
 /**
  * @category getters

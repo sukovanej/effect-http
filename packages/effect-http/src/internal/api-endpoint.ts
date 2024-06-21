@@ -1,6 +1,7 @@
-import type * as Method from "@effect/platform/Http/Method"
-import type * as HttpServer from "@effect/platform/HttpServer"
+import type * as HttpMethod from "@effect/platform/HttpMethod"
+import type * as HttpRouter from "@effect/platform/HttpRouter"
 import type * as Schema from "@effect/schema/Schema"
+import * as Security from "effect-http-security/Security"
 import * as Array from "effect/Array"
 import * as Equivalence from "effect/Equivalence"
 import { pipe } from "effect/Function"
@@ -8,7 +9,6 @@ import * as Order from "effect/Order"
 import * as Pipeable from "effect/Pipeable"
 import * as Predicate from "effect/Predicate"
 
-import * as Security from "effect-http-security/Security"
 import type * as ApiEndpoint from "../ApiEndpoint.js"
 import * as ApiRequest from "../ApiRequest.js"
 import * as ApiResponse from "../ApiResponse.js"
@@ -45,8 +45,8 @@ class ApiEndpointImpl<
 
   constructor(
     readonly id: Id,
-    readonly path: HttpServer.router.PathInput,
-    readonly method: Method.Method,
+    readonly path: HttpRouter.PathInput,
+    readonly method: HttpMethod.HttpMethod,
     readonly request: Request,
     readonly responses: ReadonlyArray<Response>,
     readonly security: Security,
@@ -61,9 +61,9 @@ class ApiEndpointImpl<
 
 /** @internal */
 export const make = <Id extends ApiEndpoint.ApiEndpoint.AnyId>(
-  method: Method.Method,
+  method: HttpMethod.HttpMethod,
   id: Id,
-  path: HttpServer.router.PathInput,
+  path: HttpRouter.PathInput,
   options?: Partial<ApiEndpoint.Options>
 ): ApiEndpoint.ApiEndpoint.Default<Id> =>
   new ApiEndpointImpl(

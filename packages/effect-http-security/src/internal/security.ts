@@ -1,4 +1,5 @@
-import * as HttpServer from "@effect/platform/HttpServer"
+import * as Headers from "@effect/platform/Headers"
+import * as HttpServerRequest from "@effect/platform/HttpServerRequest"
 import * as Schema from "@effect/schema/Schema"
 import * as HttpError from "effect-http-error/HttpError"
 import * as Effect from "effect/Effect"
@@ -54,7 +55,7 @@ export const make = <A, E, R>(
 ): Security.Security<
   A,
   Exclude<E, HttpError.HttpError>,
-  Exclude<R, HttpServer.request.ServerRequest>
+  Exclude<R, HttpServerRequest.HttpServerRequest>
 > => new SecurityImpl(openapi ?? {}, parser)
 
 /** @internal */
@@ -78,7 +79,7 @@ export const mapHandler: typeof Security.mapHandler = dual(
   ): Security.Security<
     B,
     Exclude<E2, HttpError.HttpError>,
-    Exclude<R2, HttpServer.request.ServerRequest>
+    Exclude<R2, HttpServerRequest.HttpServerRequest>
   > => make(f(handleRequest(self)), getOpenApi(self))
 )
 
@@ -117,7 +118,7 @@ export const mapEffect = dual(
   ): Security.Security<
     A2,
     E1 | Exclude<E2, HttpError.HttpError>,
-    R1 | Exclude<R2, HttpServer.request.ServerRequest>
+    R1 | Exclude<R2, HttpServerRequest.HttpServerRequest>
   > => mapHandler(self, Effect.flatMap(f) as any)
 )
 
@@ -165,8 +166,8 @@ export const asSome = <A, E, R>(
 
 /** @internal */
 const getAuthorizationHeader = pipe(
-  HttpServer.request.ServerRequest,
-  Effect.flatMap((request) => HttpServer.headers.get(request.headers, "authorization")),
+  HttpServerRequest.HttpServerRequest,
+  Effect.flatMap((request) => Headers.get(request.headers, "authorization")),
   Effect.mapError(() => HttpError.unauthorizedError("No authorization header"))
 )
 
@@ -274,8 +275,8 @@ export const apiKey = (
 
   const parse = pipe(
     options.in === "query"
-      ? HttpServer.request.schemaBodyUrlParams(schema)
-      : HttpServer.request.schemaHeaders(schema),
+      ? HttpServerRequest.schemaBodyUrlParams(schema)
+      : HttpServerRequest.schemaHeaders(schema),
     Effect.map((obj) => obj[options.key]),
     Effect.mapError(() => HttpError.unauthorizedError(`Expected ${options.key} (${options.in}) api key`))
   )

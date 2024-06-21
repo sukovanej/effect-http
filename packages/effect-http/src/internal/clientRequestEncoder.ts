@@ -1,4 +1,4 @@
-import * as ClientRequest from "@effect/platform/Http/ClientRequest"
+import * as HttpClientRequest from "@effect/platform/HttpClientRequest"
 import * as Schema from "@effect/schema/Schema"
 import * as Effect from "effect/Effect"
 import { identity, pipe } from "effect/Function"
@@ -12,7 +12,7 @@ import * as ClientError from "../ClientError.js"
 interface ClientRequestEncoder {
   encodeRequest: (
     input: unknown
-  ) => Effect.Effect<ClientRequest.ClientRequest, ClientError.ClientError>
+  ) => Effect.Effect<HttpClientRequest.HttpClientRequest, ClientError.ClientError>
 }
 
 /** @internal */
@@ -39,15 +39,15 @@ export const create = (endpoint: ApiEndpoint.ApiEndpoint.Any): ClientRequestEnco
       const finalPath = constructPath(path || {}, ApiEndpoint.getPath(endpoint))
 
       const request = pipe(
-        ClientRequest.get(finalPath),
-        ClientRequest.setMethod(ApiEndpoint.getMethod(endpoint)),
+        HttpClientRequest.get(finalPath),
+        HttpClientRequest.setMethod(ApiEndpoint.getMethod(endpoint)),
         body === undefined
           ? identity
           : body instanceof FormData
-          ? ClientRequest.formDataBody(body)
-          : ClientRequest.unsafeJsonBody(body),
-        query ? ClientRequest.setUrlParams(query) : identity,
-        headers ? ClientRequest.setHeaders(headers) : identity
+          ? HttpClientRequest.formDataBody(body)
+          : HttpClientRequest.unsafeJsonBody(body),
+        query ? HttpClientRequest.setUrlParams(query) : identity,
+        headers ? HttpClientRequest.setHeaders(headers) : identity
       )
 
       return request

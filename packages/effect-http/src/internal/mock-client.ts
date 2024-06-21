@@ -1,8 +1,9 @@
 import { ExampleCompiler } from "schema-openapi"
 
-import type * as HttpClient from "@effect/platform/HttpClient"
+import type * as HttpClientRequest from "@effect/platform/HttpClientRequest"
 import * as Effect from "effect/Effect"
 import { identity, pipe } from "effect/Function"
+
 import type * as Api from "../Api.js"
 import * as ApiEndpoint from "../ApiEndpoint.js"
 import type * as Client from "../Client.js"
@@ -24,7 +25,7 @@ export const make = <A extends Api.Api.Any>(
 
     const fn = (
       args: unknown,
-      mapRequest: (request: HttpClient.request.ClientRequest) => HttpClient.request.ClientRequest
+      mapRequest: (request: HttpClientRequest.HttpClientRequest) => HttpClientRequest.HttpClientRequest
     ) => {
       return pipe(
         requestEncoder.encodeRequest(args),

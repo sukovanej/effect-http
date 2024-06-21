@@ -3,7 +3,7 @@ import { Schema } from "@effect/schema"
 import { Effect, pipe } from "effect"
 import { Api, HttpError, Representation, RouterBuilder } from "effect-http"
 
-import { FileSystem, HttpServer } from "@effect/platform"
+import { FileSystem, HttpServerRequest } from "@effect/platform"
 import { NodeServer } from "effect-http-node"
 import { debugLogger } from "./_utils.js"
 
@@ -22,7 +22,7 @@ const app = pipe(
   RouterBuilder.make(api),
   RouterBuilder.handle("upload", () =>
     Effect.gen(function*() {
-      const request = yield* HttpServer.request.ServerRequest
+      const request = yield* HttpServerRequest.HttpServerRequest
       const formData = yield* request.multipart
 
       const file = formData["file"]

@@ -3,7 +3,7 @@
  *
  * @since 1.0.0
  */
-import type * as HttpServer from "@effect/platform/HttpServer"
+import type * as HttpRouter from "@effect/platform/HttpRouter"
 import type * as Context from "effect/Context"
 
 import * as internal from "./internal/swagger-router.js"
@@ -26,4 +26,4 @@ export const SwaggerFiles: Context.Tag<SwaggerFiles, SwaggerFiles> = internal.Sw
  * @category constructors
  * @since 1.0.0
  */
-export const make: (spec: unknown) => HttpServer.router.Router<never, SwaggerFiles> = internal.make
+export const make: (spec: unknown) => HttpRouter.HttpRouter<never, SwaggerFiles> = internal.make

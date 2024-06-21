@@ -1,6 +1,5 @@
-import * as PlatformClient from "@effect/platform/Http/Client"
-import * as ClientRequest from "@effect/platform/Http/ClientRequest"
 import * as HttpClient from "@effect/platform/HttpClient"
+import * as HttpClientRequest from "@effect/platform/HttpClientRequest"
 import * as Effect from "effect/Effect"
 import * as Encoding from "effect/Encoding"
 import { dual, identity, pipe } from "effect/Function"
@@ -12,7 +11,7 @@ import * as ClientRequestEncoder from "./clientRequestEncoder.js"
 import * as ClientResponseParser from "./clientResponseParser.js"
 
 /** @internal */
-const defaultHttpClient = PlatformClient.fetch
+const defaultHttpClient = HttpClient.fetch
 
 /** @internal */
 export const endpointClient = <A extends Api.Api.Any, Id extends Api.Api.Ids<A>>(
@@ -26,11 +25,14 @@ export const endpointClient = <A extends Api.Api.Any, Id extends Api.Api.Ids<A>>
 
   const httpClient = (options.httpClient ?? defaultHttpClient).pipe(
     options.baseUrl ?
-      PlatformClient.mapRequest(ClientRequest.prependUrl(options.baseUrl)) :
+      HttpClient.mapRequest(HttpClientRequest.prependUrl(options.baseUrl)) :
       identity
   )
 
-  return ((args: unknown, mapper?: (request: HttpClient.request.ClientRequest) => HttpClient.request.ClientRequest) =>
+  return ((
+    args: unknown,
+    mapper?: (request: HttpClientRequest.HttpClientRequest) => HttpClientRequest.HttpClientRequest
+  ) =>
     pipe(
       requestEncoder.encodeRequest(args),
       Effect.map(mapper ?? identity),
@@ -62,24 +64,24 @@ export const make = <A extends Api.Api.Any>(
 /** @internal */
 export const setBasicAuth = dual(
   3,
-  (request: HttpClient.request.ClientRequest, user: string, pass: string): HttpClient.request.ClientRequest =>
-    HttpClient.request.setHeader(request, "Authorization", `Basic ${Encoding.encodeBase64(`${user}:${pass}`)}`)
+  (request: HttpClientRequest.HttpClientRequest, user: string, pass: string): HttpClientRequest.HttpClientRequest =>
+    HttpClientRequest.setHeader(request, "Authorization", `Basic ${Encoding.encodeBase64(`${user}:${pass}`)}`)
 )
 
 /** @internal */
 export const setBearer = dual(
   2,
-  (request: HttpClient.request.ClientRequest, token: string): HttpClient.request.ClientRequest =>
-    HttpClient.request.setHeader(request, "Authorization", `Bearer ${token}`)
+  (request: HttpClientRequest.HttpClientRequest, token: string): HttpClientRequest.HttpClientRequest =>
+    HttpClientRequest.setHeader(request, "Authorization", `Bearer ${token}`)
 )
 
 /** @internal */
 export const setApiKey = dual(4, (
-  request: HttpClient.request.ClientRequest,
+  request: HttpClientRequest.HttpClientRequest,
   key: string,
   _in: "query" | "header",
   apiKey: string
-): HttpClient.request.ClientRequest =>
+): HttpClientRequest.HttpClientRequest =>
   _in === "query"
-    ? HttpClient.request.setUrlParam(request, key, apiKey)
-    : HttpClient.request.setHeader(request, key, apiKey))
+    ? HttpClientRequest.setUrlParam(request, key, apiKey)
+    : HttpClientRequest.setHeader(request, key, apiKey))

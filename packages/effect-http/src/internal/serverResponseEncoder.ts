@@ -1,7 +1,7 @@
-import * as Body from "@effect/platform/Http/Body"
-import type * as Headers from "@effect/platform/Http/Headers"
-import * as ServerRequest from "@effect/platform/Http/ServerRequest"
-import * as ServerResponse from "@effect/platform/Http/ServerResponse"
+import type * as Headers from "@effect/platform/Headers"
+import * as HttpBody from "@effect/platform/HttpBody"
+import * as HttpServerRequest from "@effect/platform/HttpServerRequest"
+import * as HttpServerResponse from "@effect/platform/HttpServerResponse"
 import * as Schema from "@effect/schema/Schema"
 import * as HttpError from "effect-http-error/HttpError"
 import * as Array from "effect/Array"
@@ -9,6 +9,7 @@ import * as Effect from "effect/Effect"
 import { flow, pipe } from "effect/Function"
 import * as Option from "effect/Option"
 import * as Unify from "effect/Unify"
+
 import * as ApiEndpoint from "../ApiEndpoint.js"
 import * as ApiResponse from "../ApiResponse.js"
 import * as ApiSchema from "../ApiSchema.js"
@@ -18,7 +19,7 @@ import type * as Representation from "../Representation.js"
 interface ServerResponseEncoder {
   encodeResponse: (
     inputResponse: unknown
-  ) => Effect.Effect<ServerResponse.ServerResponse, HttpError.HttpError, ServerRequest.ServerRequest>
+  ) => Effect.Effect<HttpServerResponse.HttpServerResponse, HttpError.HttpError, HttpServerRequest.HttpServerRequest>
 }
 
 /** @internal */
@@ -50,7 +51,7 @@ export const create = (
           )
           : Effect.succeed({ status: ApiResponse.getStatus(responses[0]), body: inputResponse })
       ),
-      Effect.zip(ServerRequest.ServerRequest),
+      Effect.zip(HttpServerRequest.HttpServerRequest),
       Effect.flatMap(([parseInputResponse, request]) => {
         const response = statusToSpec[parseInputResponse.status]
         const setBody = createBodySetter(response)
@@ -61,7 +62,7 @@ export const create = (
           request
         )
 
-        return ServerResponse.empty({ status: parseInputResponse.status }).pipe(
+        return HttpServerResponse.empty({ status: parseInputResponse.status }).pipe(
           setBody(parseInputResponse, representation),
           Effect.flatMap(setHeaders(parseInputResponse))
         )
@@ -73,7 +74,7 @@ export const create = (
 /** @internal */
 const representationFromRequest = (
   representations: Array.NonEmptyReadonlyArray<Representation.Representation>,
-  request: ServerRequest.ServerRequest
+  request: HttpServerRequest.HttpServerRequest
 ): Representation.Representation => {
   if (representations.length === 0) {
     representations[0]
@@ -96,7 +97,8 @@ const representationFromRequest = (
 const encodeBody = (schema: Schema.Schema<any, any, never>) => {
   const encode = Schema.encode(schema)
 
-  return (body: unknown, representation: Representation.Representation) => (response: ServerResponse.ServerResponse) =>
+  return (body: unknown, representation: Representation.Representation) =>
+  (response: HttpServerResponse.HttpServerResponse) =>
     pipe(
       encode(body),
       Effect.mapError((error) => createErrorResponse("Invalid response body", error.message)),
@@ -108,8 +110,8 @@ const encodeBody = (schema: Schema.Schema<any, any, never>) => {
       ),
       Effect.map((body) =>
         response.pipe(
-          ServerResponse.setBody(
-            Body.text(body, representation.contentType)
+          HttpServerResponse.setBody(
+            HttpBody.text(body, representation.contentType)
           )
         )
       )
@@ -126,7 +128,7 @@ const createBodySetter = (response: ApiResponse.ApiResponse.Any) => {
     inputResponse: FullResponseInput,
     representation: Representation.Representation
   ) =>
-  (response: ServerResponse.ServerResponse) => {
+  (response: HttpServerResponse.HttpServerResponse) => {
     if (encode === undefined && inputResponse.body !== undefined) {
       return Effect.die("Unexpected response body")
     } else if (encode !== undefined && inputResponse.body === undefined) {
@@ -147,7 +149,7 @@ const createHeadersSetter = (schema: ApiResponse.ApiResponse.Any) => {
     ? undefined
     : Schema.encode(headers as Schema.Schema<any, any, never>)
 
-  return (inputResponse: FullResponseInput) => (response: ServerResponse.ServerResponse) => {
+  return (inputResponse: FullResponseInput) => (response: HttpServerResponse.HttpServerResponse) => {
     if (parseHeaders === undefined && inputResponse.headers !== undefined) {
       return Effect.die("Unexpected response headers")
     } else if (
@@ -160,7 +162,7 @@ const createHeadersSetter = (schema: ApiResponse.ApiResponse.Any) => {
     }
 
     return parseHeaders(inputResponse.headers).pipe(
-      Effect.map((headers) => response.pipe(ServerResponse.setHeaders(headers as Headers.Input))),
+      Effect.map((headers) => response.pipe(HttpServerResponse.setHeaders(headers as Headers.Input))),
       Effect.mapError((error) =>
         createErrorResponse(
           "Invalid response headers",

@@ -1,4 +1,4 @@
-import { HttpServer } from "@effect/platform"
+import { Headers, HttpServerResponse } from "@effect/platform"
 import { NodeRuntime } from "@effect/platform-node"
 import { Schema } from "@effect/schema"
 import { Effect } from "effect"
@@ -18,9 +18,9 @@ export const api = Api.make({ title: "Example API" }).pipe(
 export const app = RouterBuilder.make(api).pipe(
   RouterBuilder.handleRaw(
     "root",
-    HttpServer.response.text("Hello World!", {
+    HttpServerResponse.text("Hello World!", {
       status: 200 as const,
-      headers: HttpServer.headers.fromInput({ "content-type": "text/plain" })
+      headers: Headers.fromInput({ "content-type": "text/plain" })
     })
   ),
   RouterBuilder.build
