@@ -40,6 +40,7 @@
     "effect": "^3.4.0"
   },
   "devDependencies": {
+    "@apidevtools/swagger-parser": "^10.1.0",
     "@effect/platform": "^0.58.1",
     "@effect/schema": "^0.68.4",
     "effect": "^3.4.0"
