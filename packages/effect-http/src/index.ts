@@ -102,6 +102,12 @@ export * as MockClient from "./MockClient.js"
 export * as OpenApi from "./OpenApi.js"
 
 /**
+ * @category models
+ * @since 1.0.0
+ */
+export * as OpenApiTypes from "./OpenApiTypes.js"
+
+/**
  * `Representation` is a data structure holding information about how to
  * serialize and deserialize a server response for a given conten type.
  *
