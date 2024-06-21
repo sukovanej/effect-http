@@ -6,9 +6,15 @@
 import type * as Effect from "effect/Effect"
 import type * as Scope from "effect/Scope"
 
-import type { NodeContext } from "@effect/platform-node"
+import type * as NodeContext from "@effect/platform-node/NodeContext"
+import type * as Etag from "@effect/platform/Etag"
+import type * as HttpApp from "@effect/platform/HttpApp"
 import type * as HttpClient from "@effect/platform/HttpClient"
+import type * as HttpClientError from "@effect/platform/HttpClientError"
+import type * as HttpClientResponse from "@effect/platform/HttpClientResponse"
+import type * as HttpPlatform from "@effect/platform/HttpPlatform"
 import type * as HttpServer from "@effect/platform/HttpServer"
+import type * as HttpServerRequest from "@effect/platform/HttpServerRequest"
 import type * as Api from "effect-http/Api"
 import type * as Client from "effect-http/Client"
 import type * as SwaggerRouter from "effect-http/SwaggerRouter"
@@ -21,7 +27,7 @@ import * as internal from "./internal/testing.js"
  * @since 1.0.0
  */
 export const make: <R, E, A extends Api.Api.Any>(
-  app: HttpServer.app.Default<E, R>,
+  app: HttpApp.Default<E, R>,
   api: A,
   options?: Partial<Client.Options>
 ) => Effect.Effect<
@@ -31,8 +37,8 @@ export const make: <R, E, A extends Api.Api.Any>(
   | Exclude<
     Exclude<
       Exclude<
-        Exclude<R, HttpServer.request.ServerRequest | Scope.Scope>,
-        HttpServer.server.Server | HttpServer.platform.Platform | HttpServer.etag.Generator | NodeContext.NodeContext
+        Exclude<R, HttpServerRequest.HttpServerRequest | Scope.Scope>,
+        HttpServer.HttpServer | HttpPlatform.HttpPlatform | Etag.Generator | NodeContext.NodeContext
       >,
       SwaggerRouter.SwaggerFiles
     >,
@@ -48,11 +54,11 @@ export const make: <R, E, A extends Api.Api.Any>(
  * @since 1.0.0
  */
 export const makeRaw: <R, E>(
-  app: HttpServer.app.Default<E, R>
+  app: HttpApp.Default<E, R>
 ) => Effect.Effect<
-  HttpClient.client.Client<
-    HttpClient.response.ClientResponse,
-    HttpClient.error.HttpClientError,
+  HttpClient.HttpClient<
+    HttpClientResponse.HttpClientResponse,
+    HttpClientError.HttpClientError,
     Scope.Scope
   >,
   never,
@@ -60,8 +66,8 @@ export const makeRaw: <R, E>(
   | Exclude<
     Exclude<
       Exclude<
-        Exclude<R, HttpServer.request.ServerRequest | Scope.Scope>,
-        HttpServer.server.Server | HttpServer.platform.Platform | HttpServer.etag.Generator | NodeContext.NodeContext
+        Exclude<R, HttpServerRequest.HttpServerRequest | Scope.Scope>,
+        HttpServer.HttpServer | HttpPlatform.HttpPlatform | Etag.Generator | NodeContext.NodeContext
       >,
       SwaggerRouter.SwaggerFiles
     >,

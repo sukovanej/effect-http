@@ -1,4 +1,4 @@
-import type * as ClientResponse from "@effect/platform/Http/ClientResponse"
+import type * as HttpClientResponse from "@effect/platform/HttpClientResponse"
 import * as Schema from "@effect/schema/Schema"
 import * as Array from "effect/Array"
 import * as Effect from "effect/Effect"
@@ -14,7 +14,7 @@ import type * as Representation from "../Representation.js"
 /** @internal */
 interface ClientResponseParser {
   parseResponse: (
-    response: ClientResponse.ClientResponse
+    response: HttpClientResponse.HttpClientResponse
   ) => Effect.Effect<any, ClientError.ClientError>
 }
 
@@ -78,7 +78,7 @@ export const create = (
 
 /** @internal */
 const handleUnsucessful = Unify.unify(
-  (response: ClientResponse.ClientResponse) => {
+  (response: HttpClientResponse.HttpClientResponse) => {
     if (response.status >= 300) {
       return response.json.pipe(
         Effect.orElse(() => response.text),
@@ -94,7 +94,7 @@ const handleUnsucessful = Unify.unify(
 /** @internal */
 const representationFromResponse = (
   representations: Array.NonEmptyReadonlyArray<Representation.Representation>,
-  response: ClientResponse.ClientResponse
+  response: HttpClientResponse.HttpClientResponse
 ): Representation.Representation => {
   if (representations.length === 0) {
     representations[0]
@@ -120,7 +120,7 @@ const decodeBody = (
 ) => {
   const parse = Schema.decodeUnknown(schema)
 
-  return (response: ClientResponse.ClientResponse) => {
+  return (response: HttpClientResponse.HttpClientResponse) => {
     const representation = representationFromResponse(
       representations,
       response
@@ -154,7 +154,7 @@ const parseBody: (
   schema: Schema.Schema<any, any, never> | ApiSchema.Ignored,
   representations: Array.NonEmptyReadonlyArray<Representation.Representation>
 ) => (
-  response: ClientResponse.ClientResponse
+  response: HttpClientResponse.HttpClientResponse
 ) => Effect.Effect<any, ClientError.ClientError> = (
   schema,
   representations

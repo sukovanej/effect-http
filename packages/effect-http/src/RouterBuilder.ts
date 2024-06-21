@@ -3,9 +3,9 @@
  *
  * @since 1.0.0
  */
-import type * as App from "@effect/platform/Http/App"
-import type * as Router from "@effect/platform/Http/Router"
-import type * as ServerRequest from "@effect/platform/Http/ServerRequest"
+import type * as HttpApp from "@effect/platform/HttpApp"
+import type * as HttpRouter from "@effect/platform/HttpRouter"
+import type * as HttpServerRequest from "@effect/platform/HttpServerRequest"
 import type * as AST from "@effect/schema/AST"
 import type * as Pipeable from "effect/Pipeable"
 import type * as Scope from "effect/Scope"
@@ -42,7 +42,7 @@ export interface RouterBuilder<A extends ApiEndpoint.ApiEndpoint.Any, E, R>
 {
   readonly remainingEndpoints: ReadonlyArray<A>
   readonly api: Api.Api.Any
-  readonly router: Router.Router<E, R>
+  readonly router: HttpRouter.HttpRouter<E, R>
   readonly options: Options
 }
 
@@ -116,14 +116,14 @@ export const handleRaw: <
   E2,
   R2,
   Id extends ApiEndpoint.ApiEndpoint.Id<A>
->(id: Id, handler: Router.Route.Handler<E2, R2>) => <R1, E1>(
+>(id: Id, handler: HttpRouter.Route.Handler<E2, R2>) => <R1, E1>(
   builder: RouterBuilder<A, E1, R1>
 ) => RouterBuilder<
   ApiEndpoint.ApiEndpoint.ExcludeById<A, Id>,
   E1 | E2 | ApiEndpoint.ApiEndpoint.Error<ApiEndpoint.ApiEndpoint.ExtractById<A, Id>>,
   | R1
   | ApiEndpoint.ApiEndpoint.Context<ApiEndpoint.ApiEndpoint.ExtractById<A, Id>>
-  | Exclude<R2, Router.RouteContext | ServerRequest.ServerRequest | Scope.Scope>
+  | Exclude<R2, HttpRouter.RouteContext | HttpServerRequest.HttpServerRequest | Scope.Scope>
 > = internal.handleRaw
 
 /**
@@ -138,7 +138,7 @@ export const handle: {
   ): <R1, E1>(builder: RouterBuilder<A, E1, R1>) => RouterBuilder<
     Exclude<A, Endpoint>,
     E1 | Exclude<E2, HttpError.HttpError>,
-    | Exclude<R1 | R2, Router.RouteContext | ServerRequest.ServerRequest>
+    | Exclude<R1 | R2, HttpRouter.RouteContext | HttpServerRequest.HttpServerRequest>
     | ApiEndpoint.ApiEndpoint.Context<Endpoint>
   >
 
@@ -150,7 +150,7 @@ export const handle: {
   ) => RouterBuilder<
     ApiEndpoint.ApiEndpoint.ExcludeById<A, Id>,
     E1 | Exclude<E2, HttpError.HttpError>,
-    | Exclude<R1 | R2, Router.RouteContext | ServerRequest.ServerRequest>
+    | Exclude<R1 | R2, HttpRouter.RouteContext | HttpServerRequest.HttpServerRequest>
     | ApiEndpoint.ApiEndpoint.Context<ApiEndpoint.ApiEndpoint.ExtractById<A, Id>>
   >
 } = internal.handle
@@ -174,7 +174,7 @@ export const handler: <R, E, A extends Api.Api.Any, Id extends Api.Api.Ids<A>>(
  * @since 1.0.0
  */
 export const mapRouter: <A extends ApiEndpoint.ApiEndpoint.Any, E1, E2, R1, R2>(
-  fn: (router: Router.Router<E1, R1>) => Router.Router<E2, R2>
+  fn: (router: HttpRouter.HttpRouter<E1, R1>) => HttpRouter.HttpRouter<E2, R2>
 ) => (builder: RouterBuilder<A, E1, R1>) => RouterBuilder<A, E2, R2> = internal.mapRouter
 
 /**
@@ -185,7 +185,7 @@ export const mapRouter: <A extends ApiEndpoint.ApiEndpoint.Any, E1, E2, R1, R2>(
  */
 export const getRouter: <E, R>(
   builder: RouterBuilder<any, E, R>
-) => Router.Router<E, R> = internal.getRouter
+) => HttpRouter.HttpRouter<E, R> = internal.getRouter
 
 /**
  * Create an `App` instance.
@@ -195,7 +195,7 @@ export const getRouter: <E, R>(
  */
 export const build: <E, R>(
   builder: RouterBuilder<never, E, R>
-) => App.Default<E, R | SwaggerRouter.SwaggerFiles> = internal.build
+) => HttpApp.Default<E, R | SwaggerRouter.SwaggerFiles> = internal.build
 
 /**
  * Create an `App` instance.
@@ -208,7 +208,7 @@ export const build: <E, R>(
  */
 export const buildPartial: <A extends ApiEndpoint.ApiEndpoint.Any, E, R>(
   builder: RouterBuilder<A, E, R>
-) => App.Default<E, R | SwaggerRouter.SwaggerFiles> = internal.buildPartial
+) => HttpApp.Default<E, R | SwaggerRouter.SwaggerFiles> = internal.buildPartial
 
 /**
  * @category combining

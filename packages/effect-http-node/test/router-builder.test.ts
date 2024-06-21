@@ -1,4 +1,4 @@
-import { HttpClient } from "@effect/platform"
+import { HttpClientRequest } from "@effect/platform"
 import * as it from "@effect/vitest"
 import { Effect, Option } from "effect"
 import { Api, RouterBuilder } from "effect-http"
@@ -54,7 +54,7 @@ describe("examples", () => {
         )
 
         const client = yield* NodeTesting.makeRaw(router)
-        const response = yield* client(HttpClient.request.get("/get-value"))
+        const response = yield* client(HttpClientRequest.get("/get-value"))
         const body = yield* response.json
 
         expect(response.status).toEqual(200)
@@ -73,7 +73,7 @@ describe("examples", () => {
         )
 
         const client = yield* NodeTesting.makeRaw(router)
-        const response = yield* client(HttpClient.request.post("/test"))
+        const response = yield* client(HttpClientRequest.post("/test"))
         const body = yield* response.json
 
         expect(response.status).toEqual(200)
@@ -87,8 +87,8 @@ describe("examples", () => {
       Effect.gen(function*(_) {
         const client = yield* NodeTesting.makeRaw(exampleRouteGetQueryParameter)
         const response = yield* _(
-          HttpClient.request.get("/hello"),
-          HttpClient.request.appendUrlParam("country", "CZ"),
+          HttpClientRequest.get("/hello"),
+          HttpClientRequest.appendUrlParam("country", "CZ"),
           client
         )
 
@@ -117,7 +117,7 @@ describe("examples", () => {
         )
 
         const client = yield* NodeTesting.makeRaw(router)
-        const response = yield* client(HttpClient.request.get("/hello"))
+        const response = yield* client(HttpClientRequest.get("/hello"))
         const body = yield* response.json
 
         expect(response.status).toEqual(201)
@@ -143,8 +143,8 @@ describe("examples", () => {
 
         const client = yield* NodeTesting.makeRaw(router)
         const response = yield* _(
-          HttpClient.request.get("/hello"),
-          HttpClient.request.setUrlParam("value", "off"),
+          HttpClientRequest.get("/hello"),
+          HttpClientRequest.setUrlParam("value", "off"),
           client
         )
         const body = yield* response.json
@@ -160,8 +160,8 @@ describe("examples", () => {
       Effect.gen(function*(_) {
         const client = yield* NodeTesting.makeRaw(exampleRouteRequestBody)
         const response = yield* _(
-          HttpClient.request.post("/hello"),
-          HttpClient.request.unsafeJsonBody({ foo: "hello" }),
+          HttpClientRequest.post("/hello"),
+          HttpClientRequest.unsafeJsonBody({ foo: "hello" }),
           client
         )
 
@@ -177,7 +177,7 @@ describe("examples", () => {
     () =>
       Effect.gen(function*(_) {
         const client = yield* NodeTesting.makeRaw(exampleRouteParams)
-        const response = yield* client(HttpClient.request.post("/hello/a"))
+        const response = yield* client(HttpClientRequest.post("/hello/a"))
 
         const body = yield* response.json
 
@@ -193,7 +193,7 @@ describe("error reporting", () => {
     () =>
       Effect.gen(function*(_) {
         const client = yield* NodeTesting.makeRaw(exampleRouteGetQueryParameter)
-        const response = yield* client(HttpClient.request.get("/hello"))
+        const response = yield* client(HttpClientRequest.get("/hello"))
 
         expect(response.status).toEqual(400)
         expect(yield* response.json).toEqual({
@@ -212,8 +212,8 @@ describe("error reporting", () => {
       Effect.gen(function*(_) {
         const client = yield* NodeTesting.makeRaw(exampleRouteGetQueryParameter)
         const response = yield* _(
-          HttpClient.request.get("/hello"),
-          HttpClient.request.setUrlParam("country", "CZE"),
+          HttpClientRequest.get("/hello"),
+          HttpClientRequest.setUrlParam("country", "CZE"),
           client
         )
 
@@ -233,7 +233,7 @@ describe("error reporting", () => {
     () =>
       Effect.gen(function*(_) {
         const client = yield* NodeTesting.makeRaw(exampleRouteRequestBody)
-        const response = yield* client(HttpClient.request.post("/hello"))
+        const response = yield* client(HttpClientRequest.post("/hello"))
 
         expect(response.status).toEqual(400)
         expect(yield* response.json).toEqual({
@@ -250,8 +250,8 @@ describe("error reporting", () => {
       Effect.gen(function*(_) {
         const client = yield* NodeTesting.makeRaw(exampleRouteRequestBody)
         const response = yield* _(
-          HttpClient.request.post("/hello"),
-          HttpClient.request.textBody("value"),
+          HttpClientRequest.post("/hello"),
+          HttpClientRequest.textBody("value"),
           client
         )
 
@@ -270,8 +270,8 @@ describe("error reporting", () => {
       Effect.gen(function*(_) {
         const client = yield* NodeTesting.makeRaw(exampleRouteRequestBody)
         const response = yield* _(
-          HttpClient.request.post("/hello"),
-          HttpClient.request.unsafeJsonBody({ foo: 1 }),
+          HttpClientRequest.post("/hello"),
+          HttpClientRequest.unsafeJsonBody({ foo: 1 }),
           client
         )
 
@@ -291,7 +291,7 @@ describe("error reporting", () => {
     () =>
       Effect.gen(function*(_) {
         const client = yield* NodeTesting.makeRaw(exampleRouteRequestHeaders)
-        const response = yield* client(HttpClient.request.post("/hello"))
+        const response = yield* client(HttpClientRequest.post("/hello"))
 
         expect(response.status).toEqual(400)
         expect(yield* response.json).toEqual({
@@ -310,7 +310,7 @@ describe("error reporting", () => {
       Effect.gen(function*(_) {
         const response = yield* _(
           NodeTesting.makeRaw(exampleRouteParams),
-          Effect.flatMap(apply(HttpClient.request.post("/hello/c")))
+          Effect.flatMap(apply(HttpClientRequest.post("/hello/c")))
         )
 
         expect(response.status).toEqual(400)
@@ -337,7 +337,7 @@ describe("error reporting", () => {
         )
 
         const client = yield* NodeTesting.makeRaw(exampleRouteInvalid)
-        const response = yield* client(HttpClient.request.post("/hello/a"))
+        const response = yield* client(HttpClientRequest.post("/hello/a"))
 
         expect(response.status).toEqual(500)
         expect(yield* response.json).toEqual({
@@ -367,8 +367,8 @@ it.scoped(
       const client = yield* NodeTesting.makeRaw(app)
 
       const [response1, response2] = yield* Effect.all([
-        client(HttpClient.request.post("/hello")),
-        client(HttpClient.request.post("/another"))
+        client(HttpClientRequest.post("/hello")),
+        client(HttpClientRequest.post("/another"))
       ])
 
       expect(response1.status).toEqual(200)
@@ -394,16 +394,16 @@ it.scoped(
       const client = yield* NodeTesting.makeRaw(app)
       const [textResponse, jsonResponse, xmlResponse] = yield* Effect.all([
         client(
-          HttpClient.request.post("/test").pipe(HttpClient.request.accept("text/plain"))
+          HttpClientRequest.post("/test").pipe(HttpClientRequest.accept("text/plain"))
         ),
         client(
-          HttpClient.request.post("/test").pipe(
-            HttpClient.request.accept("application/json")
+          HttpClientRequest.post("/test").pipe(
+            HttpClientRequest.accept("application/json")
           )
         ),
         client(
-          HttpClient.request.post("/test").pipe(
-            HttpClient.request.accept("application/xml")
+          HttpClientRequest.post("/test").pipe(
+            HttpClientRequest.accept("application/xml")
           )
         )
       ])
@@ -443,8 +443,8 @@ it.scoped(
 
       const client = yield* NodeTesting.makeRaw(app)
       const [response1, response2] = yield* Effect.all([
-        client(HttpClient.request.post("/hello")),
-        client(HttpClient.request.post("/another"))
+        client(HttpClientRequest.post("/hello")),
+        client(HttpClientRequest.post("/another"))
       ])
 
       expect(response1.status).toEqual(200)
@@ -479,9 +479,9 @@ it.scoped(
 
       const client = yield* NodeTesting.makeRaw(app)
       const responses = yield* Effect.all([
-        client(HttpClient.request.get("/endpoint-1")),
-        client(HttpClient.request.get("/endpoint-2")),
-        client(HttpClient.request.get("/endpoint-3"))
+        client(HttpClientRequest.get("/endpoint-1")),
+        client(HttpClientRequest.get("/endpoint-2")),
+        client(HttpClientRequest.get("/endpoint-3"))
       ])
 
       for (const response of responses) {

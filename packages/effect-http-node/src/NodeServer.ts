@@ -7,7 +7,12 @@ import type * as Effect from "effect/Effect"
 import type * as Scope from "effect/Scope"
 
 import type * as NodeContext from "@effect/platform-node/NodeContext"
+import type * as Etag from "@effect/platform/Etag"
+import type * as HttpApp from "@effect/platform/HttpApp"
+import type * as HttpPlatform from "@effect/platform/HttpPlatform"
 import type * as HttpServer from "@effect/platform/HttpServer"
+import type * as HttpServerError from "@effect/platform/HttpServerError"
+import type * as HttpServerRequest from "@effect/platform/HttpServerRequest"
 import type * as SwaggerRouter from "effect-http/SwaggerRouter"
 import * as internal from "./internal/node-server.js"
 
@@ -26,14 +31,14 @@ export interface Options {
 export const listen: (
   options?: Partial<Options>
 ) => <R, E>(
-  router: HttpServer.app.Default<E, R>
+  router: HttpApp.Default<E, R>
 ) => Effect.Effect<
   never,
-  HttpServer.error.ServeError,
+  HttpServerError.ServeError,
   Exclude<
     Exclude<
-      Exclude<R, HttpServer.request.ServerRequest | Scope.Scope>,
-      HttpServer.server.Server | HttpServer.platform.Platform | HttpServer.etag.Generator | NodeContext.NodeContext
+      Exclude<R, HttpServerRequest.HttpServerRequest | Scope.Scope>,
+      HttpServer.HttpServer | HttpPlatform.HttpPlatform | Etag.Generator | NodeContext.NodeContext
     >,
     SwaggerRouter.SwaggerFiles
   >

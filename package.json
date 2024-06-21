@@ -31,8 +31,8 @@
     "@effect/dtslint": "^0.1.0",
     "@effect/eslint-plugin": "^0.1.2",
     "@effect/language-service": "^0.1.0",
-    "@effect/vitest": "^0.5.15",
-    "@types/node": "^20.14.5",
+    "@effect/vitest": "^0.5.16",
+    "@types/node": "^20.14.7",
     "@types/swagger-ui-dist": "^3.30.5",
     "@typescript-eslint/eslint-plugin": "^7.13.1",
     "@typescript-eslint/parser": "^7.13.1",
@@ -49,8 +49,8 @@
     "madge": "^7.0.0",
     "prettier": "^3.3.2",
     "rimraf": "^5.0.7",
-    "tsx": "^4.15.6",
-    "typescript": "^5.4.5",
+    "tsx": "^4.15.7",
+    "typescript": "^5.5.2",
     "vitest": "^1.6.0"
   },
   "pnpm": {

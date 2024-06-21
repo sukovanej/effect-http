@@ -1,6 +1,6 @@
-import type * as App from "@effect/platform/Http/App"
-import * as Router from "@effect/platform/Http/Router"
-import type * as ServerRequest from "@effect/platform/Http/ServerRequest"
+import type * as HttpApp from "@effect/platform/HttpApp"
+import * as HttpRouter from "@effect/platform/HttpRouter"
+import type * as HttpServerRequest from "@effect/platform/HttpServerRequest"
 import * as HttpError from "effect-http-error/HttpError"
 import * as Effect from "effect/Effect"
 import { dual } from "effect/Function"
@@ -45,7 +45,7 @@ class RouterBuilderImpl<A extends ApiEndpoint.ApiEndpoint.Any, E, R>
   constructor(
     readonly remainingEndpoints: ReadonlyArray<A>,
     readonly api: Api.Api.Any,
-    readonly router: Router.Router<E, R>,
+    readonly router: HttpRouter.HttpRouter<E, R>,
     readonly options: RouterBuilder.Options
   ) {}
 
@@ -63,25 +63,25 @@ export const make = <A extends Api.Api.Any>(
   new RouterBuilderImpl(
     api.groups.flatMap((group) => group.endpoints) as any,
     api,
-    Router.empty,
+    HttpRouter.empty,
     { ...DEFAULT_OPTIONS, ...options }
   )
 
 /** @internal */
 export const handleRaw = <A extends ApiEndpoint.ApiEndpoint.Any, E2, R2, Id extends ApiEndpoint.ApiEndpoint.Id<A>>(
   id: Id,
-  handler: Router.Route.Handler<E2, R2>
+  handler: HttpRouter.Route.Handler<E2, R2>
 ) =>
 <E1, R1>(builder: RouterBuilder.RouterBuilder<A, E1, R1>): RouterBuilder.RouterBuilder<
   ApiEndpoint.ApiEndpoint.ExcludeById<A, Id>,
   E1 | E2,
-  R1 | Exclude<R2, Router.RouteContext | ServerRequest.ServerRequest | Scope.Scope>
+  R1 | Exclude<R2, HttpRouter.RouteContext | HttpServerRequest.HttpServerRequest | Scope.Scope>
 > => {
   const endpoint = getRemainingEndpoint(builder, id)
   const remainingEndpoints = removeRemainingEndpoint(builder, id)
 
   const router = builder.router.pipe(
-    Router.route(ApiEndpoint.getMethod(endpoint))(
+    HttpRouter.route(ApiEndpoint.getMethod(endpoint))(
       ApiEndpoint.getPath(endpoint),
       handler
     )
@@ -138,7 +138,7 @@ export const handler = <A extends Api.Api.Any, E, R, Id extends Api.Api.Ids<A>>(
 
 /** @internal */
 export const mapRouter = <A extends ApiEndpoint.ApiEndpoint.Any, E1, E2, R1, R2>(
-  fn: (router: Router.Router<E1, R1>) => Router.Router<E2, R2>
+  fn: (router: HttpRouter.HttpRouter<E1, R1>) => HttpRouter.HttpRouter<E2, R2>
 ) =>
 (
   builder: RouterBuilder.RouterBuilder<A, E1, R1>
@@ -148,14 +148,14 @@ export const mapRouter = <A extends ApiEndpoint.ApiEndpoint.Any, E1, E2, R1, R2>
 /** @internal */
 export const build = <R, E>(
   builder: RouterBuilder.RouterBuilder<never, E, R>
-): App.Default<E, R | SwaggerRouter.SwaggerFiles> => buildPartial(builder)
+): HttpApp.Default<E, R | SwaggerRouter.SwaggerFiles> => buildPartial(builder)
 
 /** @internal */
 export const buildPartial = <A extends ApiEndpoint.ApiEndpoint.Any, E, R>(
   builder: RouterBuilder.RouterBuilder<A, E, R>
-): App.Default<E, R | SwaggerRouter.SwaggerFiles> => {
-  const swaggerRouter = builder.options.enableDocs ? SwaggerRouter.make(OpenApi.make(builder.api)) : Router.empty
-  return Router.mount(builder.router, builder.options.docsPath, swaggerRouter).pipe(
+): HttpApp.Default<E, R | SwaggerRouter.SwaggerFiles> => {
+  const swaggerRouter = builder.options.enableDocs ? SwaggerRouter.make(OpenApi.make(builder.api)) : HttpRouter.empty
+  return HttpRouter.mount(builder.router, builder.options.docsPath, swaggerRouter).pipe(
     Effect.catchTag("RouteNotFound", () => HttpError.toResponse(HttpError.make(404, "Not Found")))
   )
 }
@@ -163,7 +163,7 @@ export const buildPartial = <A extends ApiEndpoint.ApiEndpoint.Any, E, R>(
 /** @internal */
 export const getRouter = <E, R>(
   builder: RouterBuilder.RouterBuilder<any, E, R>
-): Router.Router<E, R> => builder.router
+): HttpRouter.HttpRouter<E, R> => builder.router
 
 /** @internal */
 const removeRemainingEndpoint = <A extends ApiEndpoint.ApiEndpoint.Any, Id extends ApiEndpoint.ApiEndpoint.Id<A>>(
@@ -176,12 +176,12 @@ const removeRemainingEndpoint = <A extends ApiEndpoint.ApiEndpoint.Any, Id exten
 
 /** @internal */
 export const addRoute = <E1, E2, R1, R2>(
-  router: Router.Router<E1, R1>,
-  route: Router.Route<E2, R2>
-): Router.Router<
+  router: HttpRouter.HttpRouter<E1, R1>,
+  route: HttpRouter.Route<E2, R2>
+): HttpRouter.HttpRouter<
   E1 | E2,
-  Exclude<R1 | R2, Router.RouteContext | ServerRequest.ServerRequest>
-> => Router.concat(Router.fromIterable([route]))(router) as any
+  Exclude<R1 | R2, HttpRouter.RouteContext | HttpServerRequest.HttpServerRequest>
+> => HttpRouter.concat(HttpRouter.fromIterable([route]))(router) as any
 
 /** @internal */
 export const merge: {
@@ -204,7 +204,7 @@ export const merge: {
   return new RouterBuilderImpl(
     builder1.remainingEndpoints.filter((e) => remainingEndpointIds.includes(ApiEndpoint.getId(e))) as any,
     builder1.api,
-    Router.concat(builder1.router, builder2.router),
+    HttpRouter.concat(builder1.router, builder2.router),
     builder1.options
   )
 })

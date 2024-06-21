@@ -1,4 +1,4 @@
-import { HttpServer } from "@effect/platform"
+import { HttpMiddleware } from "@effect/platform"
 import { Schema } from "@effect/schema"
 import * as it from "@effect/vitest"
 import { Array, Context, Effect, Either, Layer, Option, pipe } from "effect"
@@ -203,7 +203,7 @@ it.scoped(
       const app = RouterBuilder.make(exampleApiGet).pipe(
         RouterBuilder.handle("getValue", () => Effect.succeed(1)),
         RouterBuilder.build,
-        HttpServer.middleware.make(() => HttpError.toResponse(HttpError.unauthorizedError("sorry bro")))
+        HttpMiddleware.make(() => HttpError.toResponse(HttpError.unauthorizedError("sorry bro")))
       )
 
       const result = yield* _(

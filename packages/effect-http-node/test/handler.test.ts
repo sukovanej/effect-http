@@ -1,5 +1,4 @@
-import * as ClientRequest from "@effect/platform/Http/ClientRequest"
-import * as HttpServer from "@effect/platform/HttpServer"
+import { HttpClientRequest, HttpRouter } from "@effect/platform"
 import * as it from "@effect/vitest"
 import { Effect, Option } from "effect"
 import type { ApiEndpoint } from "effect-http"
@@ -21,9 +20,9 @@ import {
 
 const testRoute = <R, E>(
   handler: Handler.Handler<ApiEndpoint.ApiEndpoint.Any, R, E>,
-  request: ClientRequest.ClientRequest
+  request: HttpClientRequest.HttpClientRequest
 ) =>
-  NodeTesting.makeRaw(HttpServer.router.fromIterable([Handler.getRoute(handler)])).pipe(
+  NodeTesting.makeRaw(HttpRouter.fromIterable([Handler.getRoute(handler)])).pipe(
     Effect.flatMap(apply(request))
   )
 
@@ -63,7 +62,7 @@ describe("examples", () => {
           Handler.make(() => Effect.succeed(12))
         )
 
-        const response = yield* testRoute(route, ClientRequest.get("/get-value"))
+        const response = yield* testRoute(route, HttpClientRequest.get("/get-value"))
         const body = yield* response.json
 
         expect(body).toEqual(12)
@@ -78,7 +77,7 @@ describe("examples", () => {
           Handler.make(() => Effect.succeed({ value: Option.some("test") }))
         )
 
-        const response = yield* testRoute(route, ClientRequest.post("/test"))
+        const response = yield* testRoute(route, HttpClientRequest.post("/test"))
         const body = yield* response.json
 
         expect(body).toEqual({ value: "test" })
@@ -91,8 +90,8 @@ describe("examples", () => {
       Effect.gen(function*(_) {
         const response = yield* testRoute(
           exampleRouteGetQueryParameter,
-          ClientRequest.get("/hello").pipe(
-            ClientRequest.appendUrlParam("country", "CZ")
+          HttpClientRequest.get("/hello").pipe(
+            HttpClientRequest.appendUrlParam("country", "CZ")
           )
         )
         const body = yield* response.json
@@ -117,7 +116,7 @@ describe("examples", () => {
           )
         )
 
-        const response = yield* testRoute(route, ClientRequest.get("/hello"))
+        const response = yield* testRoute(route, HttpClientRequest.get("/hello"))
         const body = yield* response.json
 
         expect(response.status).toEqual(201)
@@ -142,8 +141,8 @@ describe("examples", () => {
 
         const response = yield* testRoute(
           route,
-          ClientRequest.get("/hello").pipe(
-            ClientRequest.setUrlParam("value", "off")
+          HttpClientRequest.get("/hello").pipe(
+            HttpClientRequest.setUrlParam("value", "off")
           )
         )
         const body = yield* response.json
@@ -157,8 +156,8 @@ describe("examples", () => {
     Effect.gen(function*(_) {
       const response = yield* testRoute(
         exampleRouteRequestBody,
-        ClientRequest.post("/hello").pipe(
-          ClientRequest.unsafeJsonBody({ foo: "hello" })
+        HttpClientRequest.post("/hello").pipe(
+          HttpClientRequest.unsafeJsonBody({ foo: "hello" })
         )
       )
 
@@ -169,7 +168,7 @@ describe("examples", () => {
 
   it.scoped("path parameters", () =>
     Effect.gen(function*(_) {
-      const response = yield* testRoute(exampleRouteParams, ClientRequest.post("/hello/a"))
+      const response = yield* testRoute(exampleRouteParams, HttpClientRequest.post("/hello/a"))
       const body = yield* response.json
 
       expect(body).toEqual("a")
@@ -179,7 +178,7 @@ describe("examples", () => {
 describe("error reporting", () => {
   it.scoped("missing query parameter", () =>
     Effect.gen(function*(_) {
-      const response = yield* testRoute(exampleRouteGetQueryParameter, ClientRequest.get("/hello"))
+      const response = yield* testRoute(exampleRouteGetQueryParameter, HttpClientRequest.get("/hello"))
 
       expect(response.status).toEqual(400)
       expect(yield* response.json).toEqual({
@@ -197,8 +196,8 @@ describe("error reporting", () => {
       Effect.gen(function*(_) {
         const response = yield* testRoute(
           exampleRouteGetQueryParameter,
-          ClientRequest.get("/hello").pipe(
-            ClientRequest.setUrlParam("country", "CZE")
+          HttpClientRequest.get("/hello").pipe(
+            HttpClientRequest.setUrlParam("country", "CZE")
           )
         )
 
@@ -217,7 +216,7 @@ describe("error reporting", () => {
     "invalid JSON body - empty",
     () =>
       Effect.gen(function*(_) {
-        const response = yield* testRoute(exampleRouteRequestBody, ClientRequest.post("/hello"))
+        const response = yield* testRoute(exampleRouteRequestBody, HttpClientRequest.post("/hello"))
 
         expect(response.status).toEqual(400)
         expect(yield* response.json).toEqual({
@@ -234,7 +233,7 @@ describe("error reporting", () => {
       Effect.gen(function*(_) {
         const response = yield* testRoute(
           exampleRouteRequestBody,
-          ClientRequest.post("/hello").pipe(ClientRequest.textBody("value"))
+          HttpClientRequest.post("/hello").pipe(HttpClientRequest.textBody("value"))
         )
 
         expect(response.status).toEqual(400)
@@ -252,8 +251,8 @@ describe("error reporting", () => {
       Effect.gen(function*(_) {
         const response = yield* testRoute(
           exampleRouteRequestBody,
-          ClientRequest.post("/hello").pipe(
-            ClientRequest.unsafeJsonBody({ foo: 1 })
+          HttpClientRequest.post("/hello").pipe(
+            HttpClientRequest.unsafeJsonBody({ foo: 1 })
           )
         )
 
@@ -274,7 +273,7 @@ describe("error reporting", () => {
       Effect.gen(function*(_) {
         const response = yield* testRoute(
           exampleRouteRequestHeaders,
-          ClientRequest.post("/hello")
+          HttpClientRequest.post("/hello")
         )
 
         expect(response.status).toEqual(400)
@@ -292,7 +291,7 @@ describe("error reporting", () => {
     "invalid param",
     () =>
       Effect.gen(function*(_) {
-        const response = yield* testRoute(exampleRouteParams, ClientRequest.post("/hello/c"))
+        const response = yield* testRoute(exampleRouteParams, HttpClientRequest.post("/hello/c"))
 
         expect(response.status).toEqual(400)
         expect(yield* response.json).toEqual({
@@ -317,7 +316,7 @@ describe("error reporting", () => {
 
         const response = yield* testRoute(
           exampleRouteInvalid,
-          ClientRequest.post("/hello/a")
+          HttpClientRequest.post("/hello/a")
         )
 
         expect(response.status).toEqual(500)
@@ -332,7 +331,7 @@ describe("error reporting", () => {
     "multiple errors",
     () =>
       Effect.gen(function*(_) {
-        const response = yield* testRoute(exampleMultipleQueryAllErrors, ClientRequest.post("/test"))
+        const response = yield* testRoute(exampleMultipleQueryAllErrors, HttpClientRequest.post("/test"))
 
         expect(response.status).toEqual(400)
         expect(yield* response.json).toEqual({
@@ -351,7 +350,7 @@ describe("error reporting", () => {
     "multiple errors",
     () =>
       Effect.gen(function*(_) {
-        const response = yield* testRoute(exampleMultipleQueryFirstError, ClientRequest.post("/test"))
+        const response = yield* testRoute(exampleMultipleQueryFirstError, HttpClientRequest.post("/test"))
 
         expect(response.status).toEqual(400)
         expect(yield* response.json).toEqual({

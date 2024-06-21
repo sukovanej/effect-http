@@ -3,13 +3,14 @@
  *
  * @since 1.0.0
  */
-import type * as Method from "@effect/platform/Http/Method"
-import type * as HttpServer from "@effect/platform/HttpServer"
+import type * as HttpMethod from "@effect/platform/HttpMethod"
+import type * as HttpRouter from "@effect/platform/HttpRouter"
 import type * as Schema from "@effect/schema/Schema"
 import type * as Security from "effect-http-security/Security"
 import type * as Array from "effect/Array"
 import type * as Pipeable from "effect/Pipeable"
 import type * as Types from "effect/Types"
+
 import type * as ApiRequest from "./ApiRequest.js"
 import type * as ApiResponse from "./ApiResponse.js"
 import type * as ApiSchema from "./ApiSchema.js"
@@ -173,9 +174,9 @@ export declare namespace ApiEndpoint {
  * @since 1.0.0
  */
 export const make: <Id extends ApiEndpoint.AnyId>(
-  method: Method.Method,
+  method: HttpMethod.HttpMethod,
   id: Id,
-  path: HttpServer.router.PathInput,
+  path: HttpRouter.PathInput,
   options?: Partial<Options>
 ) => ApiEndpoint.Default<Id> = internal.make
 
@@ -185,7 +186,7 @@ export const make: <Id extends ApiEndpoint.AnyId>(
  */
 export const get: <Id extends ApiEndpoint.AnyId>(
   id: Id,
-  path: HttpServer.router.PathInput,
+  path: HttpRouter.PathInput,
   options?: Partial<Options>
 ) => ApiEndpoint.Default<Id> = (...args) => make("GET", ...args)
 
@@ -195,7 +196,7 @@ export const get: <Id extends ApiEndpoint.AnyId>(
  */
 export const post: <Id extends ApiEndpoint.AnyId>(
   id: Id,
-  path: HttpServer.router.PathInput,
+  path: HttpRouter.PathInput,
   options?: Partial<Options>
 ) => ApiEndpoint.Default<Id> = (...args) => make("POST", ...args)
 
@@ -205,7 +206,7 @@ export const post: <Id extends ApiEndpoint.AnyId>(
  */
 export const put: <Id extends ApiEndpoint.AnyId>(
   id: Id,
-  path: HttpServer.router.PathInput,
+  path: HttpRouter.PathInput,
   options?: Partial<Options>
 ) => ApiEndpoint.Default<Id> = (...args) => make("PUT", ...args)
 
@@ -215,13 +216,13 @@ export const put: <Id extends ApiEndpoint.AnyId>(
  */
 export const patch: <Id extends ApiEndpoint.AnyId>(
   id: Id,
-  path: HttpServer.router.PathInput,
+  path: HttpRouter.PathInput,
   options?: Partial<Options>
 ) => ApiEndpoint.Default<Id> = (...args) => make("PATCH", ...args)
 
 const _delete: <Id extends ApiEndpoint.AnyId>(
   id: Id,
-  path: HttpServer.router.PathInput,
+  path: HttpRouter.PathInput,
   options?: Partial<Options>
 ) => ApiEndpoint.Default<Id> = (...args) => make("DELETE", ...args)
 
@@ -389,7 +390,7 @@ export const getPath: <
   Request extends ApiRequest.ApiRequest.Any,
   Response extends ApiResponse.ApiResponse.Any,
   Security extends Security.Security.Any
->(endpoint: ApiEndpoint<Id, Request, Response, Security>) => HttpServer.router.PathInput = internal.getPath
+>(endpoint: ApiEndpoint<Id, Request, Response, Security>) => HttpRouter.PathInput = internal.getPath
 
 /**
  * @category getters
@@ -400,7 +401,7 @@ export const getMethod: <
   Request extends ApiRequest.ApiRequest.Any,
   Response extends ApiResponse.ApiResponse.Any,
   Security extends Security.Security.Any
->(endpoint: ApiEndpoint<Id, Request, Response, Security>) => Method.Method = internal.getMethod
+>(endpoint: ApiEndpoint<Id, Request, Response, Security>) => HttpMethod.HttpMethod = internal.getMethod
 
 /**
  * @category getters

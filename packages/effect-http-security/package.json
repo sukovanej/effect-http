@@ -30,15 +30,15 @@
     "coverage": "vitest --coverage"
   },
   "peerDependencies": {
-    "@effect/platform": "^0.57.0",
+    "@effect/platform": "^0.58.0",
     "@effect/schema": "^0.68.0",
-    "effect": "^3.3.0",
+    "effect": "^3.4.0",
     "effect-http-error": "workspace:^"
   },
   "devDependencies": {
-    "@effect/platform": "^0.57.4",
-    "@effect/schema": "^0.68.1",
-    "effect": "^3.3.5",
+    "@effect/platform": "^0.58.1",
+    "@effect/schema": "^0.68.4",
+    "effect": "^3.4.0",
     "effect-http-error": "workspace:^"
   }
 }

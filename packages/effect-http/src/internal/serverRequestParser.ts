@@ -1,10 +1,11 @@
-import * as Router from "@effect/platform/Http/Router"
-import * as ServerRequest from "@effect/platform/Http/ServerRequest"
+import * as HttpRouter from "@effect/platform/HttpRouter"
+import * as HttpServerRequest from "@effect/platform/HttpServerRequest"
 import type * as AST from "@effect/schema/AST"
 import * as Schema from "@effect/schema/Schema"
 import * as HttpError from "effect-http-error/HttpError"
 import * as Security from "effect-http-security/Security"
 import * as Effect from "effect/Effect"
+
 import * as ApiEndpoint from "../ApiEndpoint.js"
 import * as ApiRequest from "../ApiRequest.js"
 import * as ApiSchema from "../ApiSchema.js"
@@ -14,7 +15,7 @@ interface ServerRequestParser {
   parseRequest: Effect.Effect<
     { query: any; path: any; body: any; headers: any; security: any },
     HttpError.HttpError,
-    ServerRequest.ServerRequest | ServerRequest.ParsedSearchParams | Router.RouteContext
+    HttpServerRequest.HttpServerRequest | HttpServerRequest.ParsedSearchParams | HttpRouter.RouteContext
   >
 }
 
@@ -67,7 +68,7 @@ const parseBody = (
     return Effect.succeed(undefined)
   }
 
-  return ServerRequest.ServerRequest.pipe(
+  return HttpServerRequest.HttpServerRequest.pipe(
     Effect.flatMap((request) => request.json),
     Effect.mapError((error) => {
       if (error.reason === "Transport") {
@@ -96,7 +97,7 @@ const parseQuery = (
   }
 
   return Effect.mapError(
-    ServerRequest.schemaSearchParams(schema, parseOptions),
+    HttpServerRequest.schemaSearchParams(schema, parseOptions),
     (error) => createError("query", error.message)
   )
 }
@@ -114,7 +115,7 @@ const parseHeaders = (
 
   const parse = Schema.decodeUnknown(schema as Schema.Schema<any, any, never>)
 
-  return ServerRequest.ServerRequest.pipe(
+  return HttpServerRequest.HttpServerRequest.pipe(
     Effect.flatMap((request) => parse(request.headers, parseOptions)),
     Effect.mapError((error) => createError("headers", error.message))
   )
@@ -142,7 +143,7 @@ const parsePath = (
 
   const parse = Schema.decodeUnknown(schema as Schema.Schema<any, any, never>)
 
-  return Router.RouteContext.pipe(
+  return HttpRouter.RouteContext.pipe(
     Effect.flatMap((ctx) => parse(ctx.params, parseOptions)),
     Effect.mapError((error) => createError("path", error.message))
   )

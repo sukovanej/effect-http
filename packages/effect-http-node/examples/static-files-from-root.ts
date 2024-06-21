@@ -3,7 +3,7 @@ import { Schema } from "@effect/schema"
 import { Effect, pipe } from "effect"
 import { Api, RouterBuilder } from "effect-http"
 
-import { HttpServer } from "@effect/platform"
+import { HttpMiddleware, HttpServerRequest, HttpServerResponse } from "@effect/platform"
 import { NodeServer } from "effect-http-node"
 import { debugLogger } from "./_utils.js"
 
@@ -13,17 +13,17 @@ const api = Api.make().pipe(
   )
 )
 
-const StaticFilesMiddleware = HttpServer.middleware.make((app) =>
+const StaticFilesMiddleware = HttpMiddleware.make((app) =>
   Effect.gen(function*() {
-    const request = yield* HttpServer.request.ServerRequest
+    const request = yield* HttpServerRequest.HttpServerRequest
 
     if (request.url.startsWith("/api")) {
       return yield* app
     }
 
     return yield* pipe(
-      HttpServer.response.file(request.url.replace("/", "")),
-      Effect.orElse(() => HttpServer.response.text("Not found", { status: 404 }))
+      HttpServerResponse.file(request.url.replace("/", "")),
+      Effect.orElse(() => HttpServerResponse.text("Not found", { status: 404 }))
     )
   })
 )
