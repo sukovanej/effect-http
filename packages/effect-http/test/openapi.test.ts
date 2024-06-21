@@ -4,7 +4,6 @@ import { pipe } from "effect"
 import { Api, ApiGroup, OpenApi } from "effect-http"
 import { Security } from "effect-http-security"
 import { describe } from "node:test"
-import type { OpenAPISpecStatusCode } from "schema-openapi/OpenApiTypes"
 import { expect, it, test } from "vitest"
 
 test("description", () => {
@@ -343,7 +342,7 @@ test("arbitrary status with empty response is allowed", () => {
   const openApi = OpenApi.make(api)
 
   // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
-  expect(((openApi.paths["/my-operation"].post?.responses![401 as OpenAPISpecStatusCode])!).content).toBe(undefined)
+  expect(((openApi.paths["/my-operation"].post?.responses![401])!).content).toBe(undefined)
 })
 
 test("response header as union", () => {
@@ -359,7 +358,7 @@ test("response header as union", () => {
   const openApi = OpenApi.make(api)
 
   // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
-  const headerSpec = ((openApi.paths["/my-operation"].post?.responses![200 as OpenAPISpecStatusCode])!).headers!["a"]
+  const headerSpec = ((openApi.paths["/my-operation"].post?.responses![200])!).headers!["a"]
 
   expect(headerSpec).toEqual({ description: "a string", schema: { description: "a string", type: "string" } })
 })

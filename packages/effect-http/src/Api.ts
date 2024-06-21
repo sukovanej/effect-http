@@ -7,11 +7,11 @@ import type * as Schema from "@effect/schema/Schema"
 import type * as Pipeable from "effect/Pipeable"
 import type * as Types from "effect/Types"
 
-import type * as OpenApiTypes from "schema-openapi/OpenApiTypes"
 import type * as ApiEndpoint from "./ApiEndpoint.js"
 import type * as ApiGroup from "./ApiGroup.js"
 import * as ApiSchema from "./ApiSchema.js"
 import * as internal from "./internal/api.js"
+import type * as OpenApiTypes from "./OpenApiTypes.js"
 
 /**
  * @since 1.0.0

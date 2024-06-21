@@ -12,6 +12,7 @@ import * as ApiRequest from "../ApiRequest.js"
 import * as ApiResponse from "../ApiResponse.js"
 import * as ApiSchema from "../ApiSchema.js"
 import type * as OpenApiTypes from "../OpenApiTypes.js"
+import * as circular from "./circular.js"
 
 /** @internal */
 export const make = (
@@ -329,16 +330,11 @@ const createResponseHeaders = (schema: Schema.Schema.Any, componentSchemaCallbac
 }
 
 /** @internal */
-const OpenApiId = Symbol.for("schema-openapi/OpenApiId")
+export const annotate = circular.annotate
 
 /** @internal */
-export const annotate =
-  (spec: OpenApiTypes.OpenAPISchemaType) => <A, I, R>(self: Schema.Schema<A, I, R>): Schema.Schema<A, I, R> =>
-    Schema.make(AST.annotations(self.ast, { [OpenApiId]: spec }))
-
-/** @internal */
-export const getOpenApiAnnotation = (ast: AST.Annotated) =>
-  AST.getAnnotation<OpenApiTypes.OpenAPISchemaType>(OpenApiId)(ast)
+const getOpenApiAnnotation = (ast: AST.Annotated) =>
+  AST.getAnnotation<OpenApiTypes.OpenAPISchemaType>(circular.OpenApiId)(ast)
 
 /** @internal */
 const convertJsonSchemaAnnotation = (annotations: object) => {
