@@ -1,5 +1,11 @@
 # effect-http-error
 
+## 0.3.0
+
+### Minor Changes
+
+- [#595](https://github.com/sukovanej/effect-http/pull/595) [`c40fb45`](https://github.com/sukovanej/effect-http/commit/c40fb45c82b117b51589c67672074f6eb6b8ad6c) Thanks [@sukovanej](https://github.com/sukovanej)! - Update `effect` to 3.4.0 and `@effect/platform` to 0.58.0.
+
 ## 0.2.0
 
 ### Minor Changes

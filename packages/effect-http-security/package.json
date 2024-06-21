@@ -1,7 +1,7 @@
 {
   "name": "effect-http-security",
   "type": "module",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "license": "MIT",
   "author": "Milan Suk <Milansuk@email.cz>",
   "description": "HTTP Security for effect-ts",
