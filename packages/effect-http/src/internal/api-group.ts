@@ -22,8 +22,8 @@ export class ApiGroupImpl<Endpoints extends ApiEndpoint.ApiEndpoint.Any> impleme
 
   constructor(
     readonly name: string,
-    readonly endpoints: Array<Endpoints>,
-    readonly options: ApiGroup.ApiGroup.Any["options"]
+    readonly endpoints: ReadonlyArray<Endpoints>,
+    readonly options: ApiGroup.Options
   ) {}
 
   pipe() {
@@ -58,3 +58,9 @@ export const addEndpoint =
 
     return new ApiGroupImpl(self.name, [...self.endpoints, endpoint], self.options)
   }
+
+/** @internal */
+export const setOptions =
+  (options: Partial<ApiGroup.Options>) =>
+  <A extends ApiEndpoint.ApiEndpoint.Any>(self: ApiGroup.ApiGroup<A>): ApiGroup.ApiGroup<A> =>
+    new ApiGroupImpl(self.name, self.endpoints, { ...self.options, ...options })

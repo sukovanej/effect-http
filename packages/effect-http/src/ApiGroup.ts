@@ -136,6 +136,11 @@ export {
    */
   put,
   /**
+   * @category modifications
+   * @since 1.0.0
+   */
+  setOptions as setEndpointOptions,
+  /**
    * @category constructors
    * @since 1.0.0
    */
@@ -190,11 +195,15 @@ export {
    * @since 1.0.0
    */
   setSecurity
-  /**
-   * @category modifications
-   * @since 1.0.0
-   */
 } from "./ApiEndpoint.js"
+
+/**
+ * @category modifications
+ * @since 1.0.0
+ */
+export const setOptions: (
+  options: Partial<Options>
+) => <A extends ApiEndpoint.ApiEndpoint.Any>(api: ApiGroup<A>) => ApiGroup<A> = internal.setOptions
 
 /**
  * @category refinements

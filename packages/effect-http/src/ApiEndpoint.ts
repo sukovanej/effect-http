@@ -341,6 +341,13 @@ export const setSecurity: <Security extends Security.Security.Any>(security: Sec
  * @category modifications
  * @since 1.0.0
  */
+export const setOptions: (options: Partial<Options>) => <A extends ApiEndpoint.Any>(endpoint: A) => A =
+  internal.setOptions
+
+/**
+ * @category modifications
+ * @since 1.0.0
+ */
 export const getId: <
   Id extends ApiEndpoint.AnyId,
   Request extends ApiRequest.ApiRequest.Any,

@@ -90,3 +90,8 @@ export const getEndpoint = <A extends Api.Api.Any, Id extends Api.Api.Ids<A>>(
 
   return endpoint as Api.Api.EndpointById<A, Id>
 }
+
+/** @internal */
+export const setOptions =
+  (options: Partial<Api.ApiOptions>) => <A extends ApiEndpoint.ApiEndpoint.Any>(self: Api.Api<A>): Api.Api<A> =>
+    new ApiImpl(self.groups, { ...self.options, ...options })
