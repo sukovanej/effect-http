@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.71.1
+
+### Patch Changes
+
+- [#601](https://github.com/sukovanej/effect-http/pull/601) [`6ba46dd`](https://github.com/sukovanej/effect-http/commit/6ba46dd475f8255aa1a844775eded6954ff6560b) Thanks [@KhraksMamtsov](https://github.com/KhraksMamtsov)! - fix RouterBuilder.handle type arguments order
+
 ## 0.71.0
 
 ### Minor Changes
