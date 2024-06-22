@@ -68,6 +68,11 @@ test.each(
       schema: Schema.Struct({ input: Schema.String })
     },
     {
+      expectFailure: false,
+      path: "/hello/:id/another",
+      schema: Schema.Struct({ id: Schema.Int })
+    },
+    {
       expectFailure: true,
       path: "/hello/:input",
       schema: undefined
