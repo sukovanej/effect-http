@@ -146,7 +146,7 @@ export const handle: {
     id: Id,
     fn: Handler.Handler.Function<ApiEndpoint.ApiEndpoint.ExtractById<A, Id>, E2, R2>
   ): <R1, E1>(
-    builder: RouterBuilder<A, R1, E1>
+    builder: RouterBuilder<A, E1, R1>
   ) => RouterBuilder<
     ApiEndpoint.ApiEndpoint.ExcludeById<A, Id>,
     E1 | Exclude<E2, HttpError.HttpError>,
