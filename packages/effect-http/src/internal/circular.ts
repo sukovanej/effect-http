@@ -1,5 +1,6 @@
 import * as AST from "@effect/schema/AST"
 import * as Schema from "@effect/schema/Schema"
+
 import type * as OpenApiTypes from "../OpenApiTypes.js"
 
 /** @internal */

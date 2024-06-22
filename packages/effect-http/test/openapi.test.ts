@@ -1,10 +1,12 @@
 import SwaggerParser from "@apidevtools/swagger-parser"
 import { Schema } from "@effect/schema"
 import { pipe } from "effect"
+import { expect, it, test } from "vitest"
+
 import { Api, ApiGroup, OpenApi } from "effect-http"
 import { Security } from "effect-http-security"
+
 import { describe } from "node:test"
-import { expect, it, test } from "vitest"
 
 test("description", () => {
   const api = pipe(
