@@ -42,7 +42,7 @@ const DEFAULT_API_OPTIONS: Api.Api.Any["options"] = {
 export const isApi = (u: unknown): u is Api.Api.Any => typeof u === "object" && u !== null && TypeId in u
 
 /** @internal */
-export const make = (options?: Partial<Api.ApiOptions>): Api.Api.Empty =>
+export const make = (options?: Partial<Api.Options>): Api.Api.Empty =>
   new ApiImpl([], { ...DEFAULT_API_OPTIONS, ...options })
 
 /** @internal */
@@ -90,3 +90,8 @@ export const getEndpoint = <A extends Api.Api.Any, Id extends Api.Api.Ids<A>>(
 
   return endpoint as Api.Api.EndpointById<A, Id>
 }
+
+/** @internal */
+export const setOptions =
+  (options: Partial<Api.Options>) => <A extends ApiEndpoint.ApiEndpoint.Any>(self: Api.Api<A>): Api.Api<A> =>
+    new ApiImpl(self.groups, { ...self.options, ...options })

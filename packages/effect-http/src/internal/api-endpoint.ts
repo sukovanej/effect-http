@@ -202,6 +202,19 @@ export const setSecurity = <Security extends Security.Security.Any>(
   )
 
 /** @internal */
+export const setOptions =
+  (options: Partial<ApiEndpoint.Options>) => <A extends ApiEndpoint.ApiEndpoint.Any>(endpoint: A): A =>
+    new ApiEndpointImpl(
+      getId(endpoint),
+      getPath(endpoint),
+      getMethod(endpoint),
+      getRequest(endpoint),
+      getResponse(endpoint),
+      getSecurity(endpoint),
+      { ...getOptions(endpoint), ...options }
+    ) as unknown as A
+
+/** @internal */
 export const getId = <
   Id extends ApiEndpoint.ApiEndpoint.AnyId,
   Request extends ApiRequest.ApiRequest.Any,
