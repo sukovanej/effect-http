@@ -36,7 +36,7 @@ export class ApiGroupImpl<Endpoints extends ApiEndpoint.ApiEndpoint.Any> impleme
 export const isApiGroup = (u: unknown): u is ApiGroup.ApiGroup.Any => typeof u === "object" && u !== null && TypeId in u
 
 /** @internal */
-export const make = (name: string, options?: Partial<Api.ApiOptions>): ApiGroup.ApiGroup.Empty =>
+export const make = (name: string, options?: Partial<Api.Options>): ApiGroup.ApiGroup.Empty =>
   new ApiGroupImpl(name, [], { ...options })
 
 /** @internal */

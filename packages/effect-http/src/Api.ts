@@ -29,7 +29,7 @@ export type TypeId = typeof TypeId
  * @category models
  * @since 1.0.0
  */
-export interface ApiOptions {
+export interface Options {
   readonly title: string
   readonly version: string
   readonly description?: string
@@ -46,7 +46,7 @@ export interface ApiOptions {
  */
 export interface Api<A extends ApiEndpoint.ApiEndpoint.Any> extends Pipeable.Pipeable, Api.Variance<A> {
   readonly groups: ReadonlyArray<ApiGroup.ApiGroup<A>>
-  readonly options: ApiOptions
+  readonly options: Options
 }
 
 /**
@@ -114,7 +114,7 @@ export declare namespace Api {
  * @category constructors
  * @since 1.0.0
  */
-export const make: (options?: Partial<ApiOptions>) => Api.Empty = internal.make
+export const make: (options?: Partial<Options>) => Api.Empty = internal.make
 
 /**
  * @category combining
@@ -242,7 +242,7 @@ export {
  * @since 1.0.0
  */
 export const setOptions: (
-  options: Partial<ApiOptions>
+  options: Partial<Options>
 ) => <A extends ApiEndpoint.ApiEndpoint.Any>(self: Api<A>) => Api<A> = internal.setOptions
 
 /**
