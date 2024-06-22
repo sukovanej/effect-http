@@ -8,6 +8,7 @@ import { pipe } from "effect/Function"
 import * as Order from "effect/Order"
 import * as Pipeable from "effect/Pipeable"
 import * as Predicate from "effect/Predicate"
+import * as Tuple from "effect/Tuple"
 
 import type * as ApiEndpoint from "../ApiEndpoint.js"
 import * as ApiRequest from "../ApiRequest.js"
@@ -536,7 +537,12 @@ const checkPathPatternMatchesSchema = (
   const matched = arrayOfTupleEquals(fromPath, fromSchema)
 
   if (!matched) {
-    throw new Error(`Path doesn't match the param schema (endpoint: "${id}").`)
+    const pathNames = fromPath.map(Tuple.getFirst).join(", ")
+    const schemaNames = fromSchema.map(Tuple.getFirst).join(", ")
+
+    throw new Error(
+      `Path doesn't match the path schema (endpoint: "${id}").\nfrom path - ${pathNames}\nfrom schema - ${schemaNames}`
+    )
   }
 }
 
