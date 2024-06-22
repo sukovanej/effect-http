@@ -84,7 +84,7 @@ export declare namespace Api {
    * @category models
    * @since 1.0.0
    */
-  export type Context<A> = A extends Api<infer E> ? ApiEndpoint.ApiEndpoint.Context<E>
+  export type Context<A> = [A] extends [Api<infer E>] ? ApiEndpoint.ApiEndpoint.Context<E>
     : never
 
   /**
