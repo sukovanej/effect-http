@@ -631,7 +631,7 @@ const mockUserRepository = UserRepository.of({
 const { userExistsByName, storeUser } = Effect.serviceFunctions(UserRepository);
 ```
 
-And finally, we have the actual `App` implementation.
+And finally, we have the actual `HttpApp.HttpApp` implementation.
 
 ```typescript
 
