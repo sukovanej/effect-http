@@ -31,8 +31,7 @@
   },
   "dependencies": {
     "effect-http-error": "workspace:^",
-    "effect-http-security": "workspace:^",
-    "schema-openapi": "^0.39.1"
+    "effect-http-security": "workspace:^"
   },
   "peerDependencies": {
     "@effect/platform": "^0.58.0",
@@ -40,6 +39,7 @@
     "effect": "^3.4.0"
   },
   "devDependencies": {
+    "@apidevtools/swagger-parser": "^10.1.0",
     "@effect/platform": "^0.58.1",
     "@effect/schema": "^0.68.4",
     "effect": "^3.4.0"

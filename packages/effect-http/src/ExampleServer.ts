@@ -8,6 +8,9 @@
  *
  * @since 1.0.0
  */
+import type * as Schema from "@effect/schema/Schema"
+import type * as Effect from "effect/Effect"
+
 import type * as Api from "./Api.js"
 import type * as ApiEndpoint from "./ApiEndpoint.js"
 import * as internal from "./internal/example-server.js"
@@ -51,3 +54,13 @@ export const handle: <
 export const handleRemaining: <A extends ApiEndpoint.ApiEndpoint.Any, E, R>(
   routerBuilder: RouterBuilder.RouterBuilder<A, E, R>
 ) => RouterBuilder.RouterBuilder<never, E, R | ApiEndpoint.ApiEndpoint.Context<A>> = internal.handleRemaining
+
+/**
+ * Generate an example `RouterBuilder` implementation.
+ *
+ * @category utils
+ * @since 1.0.0
+ */
+export const makeSchema: <A, Encoded, R>(
+  schema: Schema.Schema<A, Encoded, R>
+) => Effect.Effect<A> = internal.makeSchema

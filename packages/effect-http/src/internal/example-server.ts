@@ -1,13 +1,14 @@
-import { ExampleCompiler } from "schema-openapi"
-
+import type * as Schema from "@effect/schema/Schema"
 import * as HttpError from "effect-http-error/HttpError"
 import * as Array from "effect/Array"
 import * as Effect from "effect/Effect"
 import { pipe } from "effect/Function"
 import * as Unify from "effect/Unify"
+
 import * as Api from "../Api.js"
 import * as ApiEndpoint from "../ApiEndpoint.js"
 import * as RouterBuilder from "../RouterBuilder.js"
+import * as example_compiler from "./example-compiler.js"
 import * as utils from "./utils.js"
 
 /** @internal */
@@ -61,7 +62,7 @@ const createExampleHandler = (endpoint: ApiEndpoint.ApiEndpoint.Any) => {
 
   return () =>
     pipe(
-      Unify.unify(responseSchema && ExampleCompiler.randomExample(responseSchema) || Effect.void),
+      Unify.unify(responseSchema && example_compiler.randomExample(responseSchema) || Effect.void),
       Effect.mapError((error) =>
         HttpError.internalHttpError(
           `Sorry, I don't have any example response. ${JSON.stringify(error)}`
@@ -69,3 +70,7 @@ const createExampleHandler = (endpoint: ApiEndpoint.ApiEndpoint.Any) => {
       )
     )
 }
+
+export const makeSchema = <A, Encoded, R>(
+  schema: Schema.Schema<A, Encoded, R>
+) => Effect.orDie(example_compiler.randomExample(schema))

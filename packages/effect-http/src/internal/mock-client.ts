@@ -1,5 +1,3 @@
-import { ExampleCompiler } from "schema-openapi"
-
 import type * as HttpClientRequest from "@effect/platform/HttpClientRequest"
 import * as Effect from "effect/Effect"
 import { identity, pipe } from "effect/Function"
@@ -9,6 +7,7 @@ import * as ApiEndpoint from "../ApiEndpoint.js"
 import type * as Client from "../Client.js"
 import type * as MockClient from "../MockClient.js"
 import * as ClientRequestEncoder from "./clientRequestEncoder.js"
+import * as example_compiler from "./example-compiler.js"
 import * as utils from "./utils.js"
 
 /** @internal */
@@ -37,7 +36,7 @@ export const make = <A extends Api.Api.Any>(
             return Effect.void
           }
 
-          return ExampleCompiler.randomExample(responseSchema)
+          return example_compiler.randomExample(responseSchema)
         })
       )
     }
