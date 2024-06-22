@@ -1,5 +1,17 @@
 # effect-http
 
+## 0.71.0
+
+### Minor Changes
+
+- [#600](https://github.com/sukovanej/effect-http/pull/600) [`c35d893`](https://github.com/sukovanej/effect-http/commit/c35d89332e175a025aae2ff290afd18c358e5583) Thanks [@sukovanej](https://github.com/sukovanej)! - Rename `Api.ApiOptions` to `Api.Options`.
+
+- [#597](https://github.com/sukovanej/effect-http/pull/597) [`f3e5ca1`](https://github.com/sukovanej/effect-http/commit/f3e5ca1faec4ec7253fa72391e947366a622477a) Thanks [@sukovanej](https://github.com/sukovanej)! - Move implementation of the OpenApi and Example compiler into effect-http.
+
+### Patch Changes
+
+- [#600](https://github.com/sukovanej/effect-http/pull/600) [`c35d893`](https://github.com/sukovanej/effect-http/commit/c35d89332e175a025aae2ff290afd18c358e5583) Thanks [@sukovanej](https://github.com/sukovanej)! - Add `Api.setOptions`, `Api.setEndpointOptions`, `ApiGroup.setOptions`, `ApiGroup.setEndpointOptions` and `ApiEndpoint.setOptions`.
+
 ## 0.70.0
 
 ### Minor Changes
