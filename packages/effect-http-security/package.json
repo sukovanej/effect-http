@@ -36,8 +36,8 @@
     "effect-http-error": "workspace:^"
   },
   "devDependencies": {
-    "@effect/platform": "^0.58.1",
-    "@effect/schema": "^0.68.4",
+    "@effect/platform": "^0.58.4",
+    "@effect/schema": "^0.68.6",
     "effect": "^3.4.0",
     "effect-http-error": "workspace:^"
   }
