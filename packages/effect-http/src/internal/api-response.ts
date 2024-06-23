@@ -1,10 +1,11 @@
 import type * as Schema from "@effect/schema/Schema"
-import * as Representation from "effect-http/Representation"
 import type * as Array from "effect/Array"
 import * as Pipeable from "effect/Pipeable"
 import * as Predicate from "effect/Predicate"
+
 import type * as ApiResponse from "../ApiResponse.js"
 import * as ApiSchema from "../ApiSchema.js"
+import * as Representation from "../Representation.js"
 
 /** @internal */
 export const TypeId: ApiResponse.TypeId = Symbol.for(

@@ -1,7 +1,8 @@
 import * as Schema from "@effect/schema/Schema"
-import { ApiResponse } from "effect-http"
 import type * as Types from "effect/Types"
+
 import * as ApiEndpoint from "../ApiEndpoint.js"
+import * as ApiResponse from "../ApiResponse.js"
 import * as ApiSchema from "../ApiSchema.js"
 
 /** @internal */

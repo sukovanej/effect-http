@@ -78,7 +78,6 @@ export const makeRaw: <R, E>(
  * @example
  * import { HttpClientRequest } from "@effect/platform"
  * import { Schema } from "@effect/schema"
- * import { expect, it } from "@effect/vitest"
  * import { Effect } from "effect"
  * import { Api, Handler } from "effect-http"
  * import { NodeTesting } from "effect-http-node"
@@ -89,14 +88,13 @@ export const makeRaw: <R, E>(
  *
  * const myHandler = Handler.make(myEndpoint, () => Effect.succeed({ hello: "world" }))
  *
- * it.scoped("myHandler", () =>
- *   Effect.gen(function*() {
- *     const client = yield* NodeTesting.handler(myHandler)
- *     const response = yield* client(HttpClientRequest.get("/my-endpoint"))
+ * Effect.gen(function*() {
+ *   const client = yield* NodeTesting.handler(myHandler)
+ *   const response = yield* client(HttpClientRequest.get("/my-endpoint"))
  *
- *     expect(response.status).toEqual(200)
- *     expect(yield* response.json).toEqual({ hello: "world" })
- *   }))
+ *   assert.deepStrictEqual(response.status, 200)
+ *   assert.deepStrictEqual(yield* response.json, { hello: "world" })
+ * }).pipe(Effect.scoped, Effect.runPromise)
  *
  * @category constructors
  * @since 1.0.0
