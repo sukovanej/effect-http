@@ -1,16 +1,22 @@
+import { createServer } from "http"
+
 import * as NodeContext from "@effect/platform-node/NodeContext"
 import * as NodeHttpServer from "@effect/platform-node/NodeHttpServer"
 import type * as HttpApp from "@effect/platform/HttpApp"
 import * as HttpClient from "@effect/platform/HttpClient"
 import * as HttpClientRequest from "@effect/platform/HttpClientRequest"
+import * as HttpRouter from "@effect/platform/HttpRouter"
 import * as HttpServer from "@effect/platform/HttpServer"
-import type * as Api from "effect-http/Api"
-import * as Client from "effect-http/Client"
-import type * as SwaggerRouter from "effect-http/SwaggerRouter"
 import * as Deferred from "effect/Deferred"
 import * as Effect from "effect/Effect"
 import * as Layer from "effect/Layer"
-import { createServer } from "http"
+
+import type * as Api from "effect-http/Api"
+import type * as ApiEndpoint from "effect-http/ApiEndpoint"
+import * as Client from "effect-http/Client"
+import * as Handler from "effect-http/Handler"
+import type * as SwaggerRouter from "effect-http/SwaggerRouter"
+
 import * as NodeSwaggerFiles from "../NodeSwaggerFiles.js"
 
 /** @internal */
@@ -27,8 +33,6 @@ const startTestServer = <R, E>(
       Effect.flatMap((url) => Deferred.succeed(allocatedUrl, url)),
       Effect.flatMap(() => Layer.launch(HttpServer.serve(app))),
       Effect.provide(NodeServerLive),
-      Effect.provide(NodeSwaggerFiles.SwaggerFilesLive),
-      Effect.provide(NodeContext.layer),
       Effect.forkScoped,
       Effect.flatMap(() => Deferred.await(allocatedUrl))
     ))
@@ -39,28 +43,54 @@ export const make = <R, E, A extends Api.Api.Any>(
   api: A,
   options?: Partial<Client.Options>
 ) =>
-  Effect.map(startTestServer(app), (url) =>
-    Client.make(api, {
-      ...options,
-      httpClient: (options?.httpClient ?? HttpClient.fetch).pipe(
-        HttpClient.mapRequest(HttpClientRequest.prependUrl(url)),
-        HttpClient.transformResponse(
-          HttpClient.withFetchOptions({ keepalive: false })
+  startTestServer(app).pipe(
+    Effect.map((url) =>
+      Client.make(api, {
+        ...options,
+        httpClient: (options?.httpClient ?? HttpClient.fetch).pipe(
+          HttpClient.mapRequest(HttpClientRequest.prependUrl(url)),
+          HttpClient.transformResponse(
+            HttpClient.withFetchOptions({ keepalive: false })
+          )
         )
-      )
-    }))
+      })
+    ),
+    Effect.provide(NodeSwaggerFiles.SwaggerFilesLive),
+    Effect.provide(NodeContext.layer)
+  )
 
 /** @internal */
 export const makeRaw = <R, E>(
   app: HttpApp.Default<E, R | SwaggerRouter.SwaggerFiles>
 ) =>
-  Effect.map(startTestServer(app), (url) =>
-    HttpClient.fetch.pipe(
-      HttpClient.mapRequest(HttpClientRequest.prependUrl(url)),
-      HttpClient.transformResponse(
-        HttpClient.withFetchOptions({ keepalive: false })
+  startTestServer(app).pipe(
+    Effect.map((url) =>
+      HttpClient.fetch.pipe(
+        HttpClient.mapRequest(HttpClientRequest.prependUrl(url)),
+        HttpClient.transformResponse(
+          HttpClient.withFetchOptions({ keepalive: false })
+        )
       )
-    ))
+    ),
+    Effect.provide(NodeSwaggerFiles.SwaggerFilesLive),
+    Effect.provide(NodeContext.layer)
+  )
+
+/** @internal */
+export const handler = <A extends ApiEndpoint.ApiEndpoint.Any, E, R>(
+  handler: Handler.Handler<A, E, R>
+) =>
+  startTestServer(HttpRouter.fromIterable([Handler.getRoute(handler)])).pipe(
+    Effect.map((url) =>
+      HttpClient.fetch.pipe(
+        HttpClient.mapRequest(HttpClientRequest.prependUrl(url)),
+        HttpClient.transformResponse(
+          HttpClient.withFetchOptions({ keepalive: false })
+        )
+      )
+    ),
+    Effect.provide(NodeContext.layer)
+  )
 
 /** @internal */
 const serverUrl = Effect.map(HttpServer.HttpServer, (server) => {
