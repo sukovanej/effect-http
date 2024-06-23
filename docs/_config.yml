@@ -2,4 +2,4 @@ remote_theme: mikearnaldi/just-the-docs
 search_enabled: true
 aux_links:
   "GitHub":
-    - "//github.com/effect-ts/effect"
+    - "//github.com/sukovanej/effect-http"
