@@ -1,5 +1,46 @@
 # effect-http-node
 
+## 0.15.3
+
+### Patch Changes
+
+- [#606](https://github.com/sukovanej/effect-http/pull/606) [`af1fcad`](https://github.com/sukovanej/effect-http/commit/af1fcadebb6f57b7b7c2767998f344fcd7845895) Thanks [@sukovanej](https://github.com/sukovanej)! - Add `NodeTesting.handler`. It accepts a `Handler.Handler<A, E, R>` and produces an instance
+  of `HttpClient.HttpClient.Default`. It start the server with the handler in a background
+  and the produced client has base URL pointing to the server. It behaves exactly like the
+  `NodeTesting.makeRaw`, but it works with handlers instead of `HttpApp.HttpApp` instances.
+
+  It provides a convenient way to test handlers in isolation.
+
+  ```ts
+  import { HttpClientRequest } from "@effect/platform";
+  import { Schema } from "@effect/schema";
+  import { expect, it } from "@effect/vitest";
+  import { Effect } from "effect";
+  import { Api, Handler } from "effect-http";
+  import { NodeTesting } from "effect-http-node";
+
+  const myEndpoint = Api.get("myEndpoint", "/my-endpoint").pipe(
+    Api.setResponseBody(Schema.Struct({ hello: Schema.String })),
+  );
+
+  const myHandler = Handler.make(myEndpoint, () =>
+    Effect.succeed({ hello: "world" }),
+  );
+
+  it.scoped("myHandler", () =>
+    Effect.gen(function* () {
+      const client = yield* NodeTesting.handler(myHandler);
+      const response = yield* client(HttpClientRequest.get("/my-endpoint"));
+
+      expect(response.status).toEqual(200);
+      expect(yield* response.json).toEqual({ hello: "world" });
+    }),
+  );
+  ```
+
+- Updated dependencies [[`6b388fa`](https://github.com/sukovanej/effect-http/commit/6b388faae43d121e5a58c739c2a9d78a108c656b)]:
+  - effect-http@0.71.2
+
 ## 0.15.2
 
 ### Patch Changes
