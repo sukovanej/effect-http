@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.71.2
+
+### Patch Changes
+
+- [#603](https://github.com/sukovanej/effect-http/pull/603) [`6b388fa`](https://github.com/sukovanej/effect-http/commit/6b388faae43d121e5a58c739c2a9d78a108c656b) Thanks [@sukovanej](https://github.com/sukovanej)! - Improve error reporting of path string vs schema mismatch.
+
 ## 0.71.1
 
 ### Patch Changes
