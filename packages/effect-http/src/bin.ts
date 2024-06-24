@@ -1,5 +1,6 @@
 import { Command, Options } from "@effect/cli";
 import { NodeContext, NodeRuntime } from "@effect/platform-node";
+import * as HttpMiddleware from "@effect/platform/HttpMiddleware";
 import * as Path from "@effect/platform/Path";
 import { Data, Effect, Option } from "effect";
 import { NodeServer } from "effect-http-node";
@@ -56,7 +57,11 @@ const command = Command.make("serve", { config: configArg, port: portArg }, (arg
   Effect.gen(function* () {
     const config = yield* loadConfig(args.config);
     const port = Option.getOrUndefined(args.port) ?? config.server?.port ?? 11779;
-    yield* ExampleServer.make(config.api).pipe(RouterBuilder.buildPartial, NodeServer.listen({ port }))
+    yield* ExampleServer.make(config.api).pipe(
+      RouterBuilder.buildPartial,
+      HttpMiddleware.logger,
+      NodeServer.listen({ port })
+    )
   }),
 );
 
