@@ -7,7 +7,7 @@ import * as Record from "effect/Record"
 import { getAbsoluteFSPath } from "swagger-ui-dist"
 
 /** @internal */
-const readFile = (path: string) => Effect.flatMap(FileSystem.FileSystem, (fs) => fs.readFileString(path, "utf-8"))
+const readFile = (path: string) => Effect.flatMap(FileSystem.FileSystem, (fs) => fs.readFile(path))
 
 /** @internal */
 const SWAGGER_FILE_NAMES = [
@@ -34,7 +34,7 @@ export const SwaggerFilesLive = Effect.gen(function*(_) {
   )
 
   const size = Object.entries(files).reduce(
-    (acc, [_, content]) => acc + content.length,
+    (acc, [_, content]) => acc + content.byteLength,
     0
   )
   const sizeMb = (size / 1024 / 1024).toFixed(1)

@@ -13,7 +13,7 @@ import * as internal from "./internal/swagger-router.js"
  * @since 1.0.0
  */
 export interface SwaggerFiles {
-  files: Record<string, string>
+  files: Record<string, Uint8Array>
 }
 
 /**

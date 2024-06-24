@@ -93,7 +93,7 @@ const serverStaticDocsFile = (filename: string, path?: HttpRouter.PathInput) => 
       const { files } = yield* _(SwaggerFiles)
       const content = files[filename]
 
-      return HttpServerResponse.text(content, {
+      return HttpServerResponse.raw(content, {
         headers: Headers.fromInput(headers)
       })
     })
