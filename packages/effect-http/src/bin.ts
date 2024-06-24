@@ -44,7 +44,7 @@ const loadConfig = (relativePath: string) =>
           : new ConfigError({ message: `No default export found in ${path}` }),
       ),
       Effect.flatMap((defaultExport) =>
-        defaultExport instanceof CliConfig.CliConfig
+        CliConfig.isCliConfig(defaultExport)
           ? Effect.succeed(defaultExport)
           : new ConfigError({ message: `Invalid config found in ${path}` }),
       ),

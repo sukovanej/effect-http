@@ -1,7 +1,7 @@
 import { Schema } from "@effect/schema";
 import { pipe } from "effect";
 import * as Api from "./Api.js";
-import { CliConfig } from "./CliConfig.js";
+import * as CliConfig from "./CliConfig.js";
 
 const api = pipe(
   Api.make({ title: "Users API" }),
@@ -12,6 +12,6 @@ const api = pipe(
   )
 )
 
-export default new CliConfig({
+export default CliConfig.make({
     api,
 })
