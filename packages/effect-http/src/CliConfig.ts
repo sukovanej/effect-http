@@ -19,6 +19,9 @@ export class CliConfig extends Data.Class<{
     api: Api.Api.Any;
     server?: Partial<{
         port: number
+    }>;
+    client?: Partial<{
+        baseUrl: string
     }>
 }> {}
 

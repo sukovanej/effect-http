@@ -6,7 +6,7 @@ import * as CliConfig from "./CliConfig.js";
 const api = pipe(
   Api.make({ title: "Users API" }),
   Api.addEndpoint(
-    Api.get("getUser", "/user").pipe(
+    Api.get("getUser", "/user", { "description": "Get a user by their id" }).pipe(
       Api.setResponseBody(Schema.Number),
     )
   )
@@ -14,4 +14,7 @@ const api = pipe(
 
 export default CliConfig.make({
     api,
+    client: {
+      baseUrl: "http://localhost:3000"
+    }
 })
