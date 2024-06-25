@@ -2,8 +2,7 @@ import { Command, HelpDoc, Options, ValidationError } from "@effect/cli";
 import { NodeContext, NodeRuntime } from "@effect/platform-node";
 import * as HttpMiddleware from "@effect/platform/HttpMiddleware";
 import * as Path from "@effect/platform/Path";
-import { Schema } from "@effect/schema";
-import { Console, Data, Effect, Option, pipe } from "effect";
+import { Console, Data, Effect, Option } from "effect";
 import { NodeServer } from "effect-http-node";
 import * as PrettyLogger from "effect-log/PrettyLogger";
 import * as importx from "importx";
@@ -66,15 +65,6 @@ const portArg = Options.integer("port").pipe(
   Options.optional,
 );
 
-const api = pipe(
-  Api.make({ title: "Users API" }),
-  Api.addEndpoint(
-    Api.get("getUser", "/user", { description: "Get a user by their id" }).pipe(
-      Api.setResponseBody(Schema.Number),
-    ),
-  ),
-);
-
 export const genClientCli = (api: Api.Api.Any) => {
   return api.groups
     .map((group) => group.endpoints)
@@ -113,8 +103,8 @@ const clientCommand = Command.make(
   { url: urlArg },
   (args) =>
     Effect.gen(function* () {
-      // const { config } = yield* rootCommand
-      const endpoints = api.groups.map((group) => group.endpoints).flat();
+      const { config } = yield* rootCommand
+      const endpoints = config.api.groups.map((group) => group.endpoints).flat();
       yield* Console.log(endpoints[0].pipe(ApiEndpoint.getId));
     }),
 );
