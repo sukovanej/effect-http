@@ -1,4 +1,10 @@
-import { Command, HelpDoc, Options, ValidationError } from "@effect/cli";
+import {
+  Command,
+  HelpDoc,
+  Options,
+  Prompt,
+  ValidationError,
+} from "@effect/cli";
 import { NodeContext, NodeRuntime } from "@effect/platform-node";
 import * as HttpMiddleware from "@effect/platform/HttpMiddleware";
 import * as Path from "@effect/platform/Path";
@@ -20,26 +26,30 @@ class ConfigError extends Data.TaggedError("ConfigError")<{
 }> {}
 
 const loadConfig = (relativePath: string) =>
-  Effect.flatMap(Path.Path, (path) =>
-    Effect.tryPromise(() =>
-      importx.import(path.join(process.cwd(), relativePath), import.meta.url),
+  Effect.flatMap(Path.Path, (path) => {
+    const fullPath = path.join(process.cwd(), relativePath);
+    return Effect.tryPromise(() =>
+      importx.import(fullPath, import.meta.url),
     ).pipe(
       Effect.mapError(
-        () => new ConfigError({ message: `Failed to find config at ${path}` }),
+        () =>
+          new ConfigError({ message: `Failed to find config at ${fullPath}` }),
       ),
       Effect.flatMap((module) =>
         module?.default
           ? Effect.succeed(module.default)
-          : new ConfigError({ message: `No default export found in ${path}` }),
+          : new ConfigError({
+              message: `No default export found in ${fullPath}`,
+            }),
       ),
       Effect.flatMap((defaultExport) =>
         CliConfig.isCliConfig(defaultExport)
           ? Effect.succeed(defaultExport)
-          : new ConfigError({ message: `Invalid config found in ${path}` }),
+          : new ConfigError({ message: `Invalid config found in ${fullPath}` }),
       ),
-      Effect.withSpan("loadConfig", { attributes: { path } }),
-    ),
-  );
+      Effect.withSpan("loadConfig", { attributes: { fullPath } }),
+    );
+  });
 
 const urlArg = Options.text("url").pipe(
   Options.withDescription("URL to make the request to"),
@@ -82,40 +92,62 @@ export const genClientCli = (api: Api.Api.Any) => {
     });
 };
 
-const serveCommand = Command.make(
-  "serve",
-  { port: portArg },
-  (args) =>
-    Effect.gen(function* () {
-      const { config } = yield* rootCommand
-      const port =
-        Option.getOrUndefined(args.port) ?? config.server?.port ?? 11779;
-      yield* ExampleServer.make(config.api).pipe(
-        RouterBuilder.buildPartial,
-        HttpMiddleware.logger,
-        NodeServer.listen({ port }),
-      );
-    }),
+const serveCommand = Command.make("serve", { port: portArg }, (args) =>
+  Effect.gen(function* () {
+    const { config } = yield* rootCommand;
+    const port =
+      Option.getOrUndefined(args.port) ?? config.server?.port ?? 11779;
+    yield* ExampleServer.make(config.api).pipe(
+      RouterBuilder.buildPartial,
+      HttpMiddleware.logger,
+      NodeServer.listen({ port }),
+    );
+  }),
 ).pipe(Command.withDescription("Start an example server"));
 
-const clientCommand = Command.make(
-  "client",
-  { url: urlArg },
-  (args) =>
-    Effect.gen(function* () {
-      const { config } = yield* rootCommand
-      const endpoints = config.api.groups.map((group) => group.endpoints).flat();
-      yield* Console.log(endpoints[0].pipe(ApiEndpoint.getId));
-    }),
+const clientCommand = Command.make("client", { url: urlArg }, (args) =>
+  Effect.gen(function* () {
+    const { config } = yield* rootCommand;
+    const endpoints = config.api.groups.map((group) => group.endpoints).flat();
+
+    const selectedEndpoint = yield* Prompt.select({
+      message: "Select an endpoint",
+      choices: endpoints.map((endpoint) => ({
+        value: endpoint,
+        title: ApiEndpoint.getId(endpoint),
+        describe: ApiEndpoint.getOptions(endpoint).description,
+      })),
+    });
+
+    yield* Effect.log(selectedEndpoint);
+  }),
 );
 
 const rootCommand = Command.make("effect-http", {
   config: configArg,
-})
+});
+
+/**
+ * List endpoints
+ */
+const listCommand = Command.make("list", {}, (args) =>
+  Effect.gen(function* () {
+    const { config } = yield* rootCommand;
+    const endpoints = config.api.groups.map((group) => group.endpoints).flat();
+    yield* Console.log(
+      endpoints
+        .map(
+          (e) =>
+            `${ApiEndpoint.getId(e)}(${ApiEndpoint.getMethod(e)} ${ApiEndpoint.getPath(e)}): ${ApiEndpoint.getOptions(e).description}`,
+        )
+        .join("\n"),
+    );
+  }),
+).pipe(Command.withDescription("List all endpoints"));
 
 const cli = Command.run(
   rootCommand.pipe(
-    Command.withSubcommands([serveCommand, clientCommand]),
+    Command.withSubcommands([listCommand, serveCommand, clientCommand]),
   ),
   {
     name: "Effect Http Cli",
