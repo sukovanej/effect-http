@@ -1382,4 +1382,55 @@ describe("component schema and reference", () => {
 
     expect(Object.keys(spec.components!.schemas!)).toHaveLength(1)
   })
+
+  it("Schema.optional in parameters", () => {
+    const schema = Schema.Struct({ field: Schema.optional(Schema.String) })
+    const api = pipe(
+      Api.make(),
+      Api.addEndpoint(
+        Api.put("myOperation", "/my-operation").pipe(
+          Api.setResponseBody(schema),
+          Api.setRequestQuery(schema)
+        )
+      )
+    )
+
+    const openApi = OpenApi.make(api)
+
+    expect(openApi.paths["/my-operation"]).toEqual({
+      "put": {
+        "operationId": "myOperation",
+        "parameters": [
+          {
+            "description": "a string",
+            "in": "query",
+            "name": "field",
+            "schema": {
+              "description": "a string",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "field": {
+                      "description": "a string",
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Response 200"
+          }
+        },
+        "tags": ["default"]
+      }
+    })
+  })
 })
