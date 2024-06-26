@@ -3,7 +3,7 @@
  *
  * @since 1.0.0
  */
-import type * as Schema from "@effect/schema/Schema"
+import type * as CliConfig from "@effect/schema/Schema"
 import type * as Pipeable from "effect/Pipeable"
 import type * as Types from "effect/Types"
 
@@ -154,12 +154,12 @@ export {
    * @category constructors
    * @since 1.0.0
    */
-  get,
+  make as endpoint,
   /**
    * @category constructors
    * @since 1.0.0
    */
-  make as endpoint,
+  get,
   /**
    * @category constructors
    * @since 1.0.0
@@ -251,7 +251,7 @@ export const setOptions: (
  * @category schemas
  * @since 1.0.0
  */
-export const FormData: Schema.Schema<FormData> = ApiSchema.FormData
+export const FormData: CliConfig.Schema<FormData> = ApiSchema.FormData
 
 /**
  * @category refinements
