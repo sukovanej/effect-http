@@ -290,7 +290,14 @@ const createParameters = (
       throw new Error(`${type} parameter struct fields must be strings`)
     }
 
-    const schema = Schema.make<unknown, unknown, never>(ps.type)
+    const ast = (ps.type._tag === "Union" && ps.type.types.some(AST.isUndefinedKeyword)) ?
+      AST.Union.make(
+        ps.type.types.filter((ast) => !AST.isUndefinedKeyword(ast)),
+        ps.type.annotations
+      ) :
+      ps.type
+
+    const schema = Schema.make<unknown, unknown, never>(ast)
 
     const parameter: OpenApiTypes.OpenAPISpecParameter = {
       name: ps.name,
