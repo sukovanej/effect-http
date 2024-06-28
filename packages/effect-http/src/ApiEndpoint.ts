@@ -272,8 +272,8 @@ export const setRequestBody: <B, R2>(
  * @category modifications
  * @since 1.0.0
  */
-export const setRequestPath: <P, R2>(
-  schema: Schema.Schema<P, any, R2>
+export const setRequestPath: <P, I extends Readonly<Record<string, string | undefined>>, R2>(
+  schema: Schema.Schema<P, I, R2>
 ) => <
   Id extends ApiEndpoint.AnyId,
   B,
@@ -291,8 +291,8 @@ export const setRequestPath: <P, R2>(
  * @category modifications
  * @since 1.0.0
  */
-export const setRequestQuery: <Q, R2>(
-  schema: Schema.Schema<Q, any, R2>
+export const setRequestQuery: <Q, I extends Readonly<Record<string, string | undefined | ReadonlyArray<string>>>, R2>(
+  schema: Schema.Schema<Q, I, R2>
 ) => <
   Id extends ApiEndpoint.AnyId,
   B,
@@ -310,8 +310,8 @@ export const setRequestQuery: <Q, R2>(
  * @category modifications
  * @since 1.0.0
  */
-export const setRequestHeaders: <H, R2>(
-  schema: Schema.Schema<H, any, R2>
+export const setRequestHeaders: <H, I extends Readonly<Record<string, string | undefined>>, R2>(
+  schema: Schema.Schema<H, I, R2>
 ) => <
   Id extends ApiEndpoint.AnyId,
   B,

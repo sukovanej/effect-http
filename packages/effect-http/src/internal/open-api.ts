@@ -2,7 +2,7 @@ import * as AST from "@effect/schema/AST"
 import * as Schema from "@effect/schema/Schema"
 import * as Security from "effect-http-security/Security"
 import * as Array from "effect/Array"
-import { pipe } from "effect/Function"
+import { identity, pipe } from "effect/Function"
 import * as Option from "effect/Option"
 import * as Record from "effect/Record"
 
@@ -341,7 +341,9 @@ export const annotate = circular.annotate
 
 /** @internal */
 const getOpenApiAnnotation = (ast: AST.Annotated) =>
-  AST.getAnnotation<OpenApiTypes.OpenAPISchemaType>(circular.OpenApiId)(ast)
+  AST.getAnnotation<
+    (compile: (schema: Schema.Schema.Any) => OpenApiTypes.OpenAPISchemaType) => OpenApiTypes.OpenAPISchemaType
+  >(circular.OpenApiId)(ast)
 
 /** @internal */
 const convertJsonSchemaAnnotation = (annotations: object) => {
@@ -645,13 +647,18 @@ export const openAPISchemaForAst = (
           }
         }
 
-        return go(ast.from)
+        const spec = getOpenApiAnnotation(ast).pipe(
+          Option.map((a) => (u: OpenApiTypes.OpenAPISchemaType) => ({ ...u, ...a((schema) => go(schema.ast)) })),
+          Option.getOrElse(() => identity<OpenApiTypes.OpenAPISchemaType>)
+        )
+
+        return spec(go(ast.from))
       }
       case "Declaration": {
         const spec = getOpenApiAnnotation(ast)
 
         if (Option.isSome(spec)) {
-          return spec.value
+          return spec.value((schema) => go(schema.ast))
         }
 
         throw new Error(

@@ -65,13 +65,13 @@ Bootstrap a simple API specification.
 
 ```typescript
 import { Schema } from "@effect/schema";
-import { Api } from "effect-http";
+import { Api, QuerySchema } from "effect-http";
 
 const UserResponse = Schema.Struct({
   name: Schema.String,
   id: pipe(Schema.Number, Schema.int(), Schema.positive()),
 });
-const GetUserQuery = Schema.Struct({ id: Schema.NumberFromString });
+const GetUserQuery = Schema.Struct({ id: QuerySchema.Number });
 
 const api = pipe(
   Api.make({ title: "Users API" }),
@@ -810,7 +810,7 @@ desired description.
 import { NodeRuntime } from "@effect/platform-node";
 import { Schema } from "@effect/schema";
 import { Effect, pipe } from "effect";
-import { Api, RouterBuilder } from "effect-http";
+import { Api, QuerySchema, RouterBuilder } from "effect-http";
 import { NodeServer } from "effect-http-node";
 
 const Response = pipe(
@@ -821,10 +821,7 @@ const Response = pipe(
   Schema.annotations({ description: "User" })
 );
 const Query = Schema.Struct({
-  id: pipe(
-    Schema.NumberFromString,
-    Schema.annotations({ description: "User id" })
-  ),
+  id: pipe(QuerySchema.Number, Schema.annotations({ description: "User id" })),
 });
 
 const api = pipe(

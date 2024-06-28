@@ -13,9 +13,13 @@ export const IgnoredId: ApiSchema.IgnoredId = Symbol.for(
 export const Ignored: ApiSchema.Ignored = { [IgnoredId]: IgnoredId }
 
 /** @internal */
-export const formDataSchema = Schema.instanceOf(FormData, {
-  description: "Multipart form data"
-}).pipe(circular.annotate({}))
+export const formDataSchema = Schema.instanceOf(FormData).pipe(
+  circular.annotate(() => ({
+    type: "string",
+    format: "binary",
+    description: "Multipart form data"
+  }))
+)
 
 /** @internal */
 export const isIgnored = (u: unknown): u is ApiSchema.Ignored =>

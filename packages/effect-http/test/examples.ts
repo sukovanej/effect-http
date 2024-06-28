@@ -1,6 +1,6 @@
 import * as Schema from "@effect/schema/Schema"
 import { pipe } from "effect"
-import { Api, ApiResponse, ApiSchema, Representation } from "effect-http"
+import { Api, ApiResponse, ApiSchema, QuerySchema, Representation } from "effect-http"
 import { Security } from "effect-http-security"
 
 // Example GET
@@ -146,7 +146,7 @@ export const exampleApiPutResponse = Api.make().pipe(
 export const exampleApiMultipleResponses = Api.make().pipe(
   Api.addEndpoint(
     Api.post("hello", "/hello").pipe(
-      Api.setRequestQuery(Schema.Struct({ value: Schema.NumberFromString })),
+      Api.setRequestQuery(Schema.Struct({ value: QuerySchema.Number })),
       Api.setResponseStatus(201),
       Api.setResponseBody(Schema.Number),
       Api.addResponse({
@@ -165,15 +165,15 @@ export const exampleApiOptional = Api.make().pipe(
   Api.addEndpoint(
     Api.post("hello", "/hello/:value/another/:another?").pipe(
       Api.setRequestQuery(Schema.Struct({
-        value: Schema.NumberFromString,
+        value: QuerySchema.Number,
         another: Schema.optional(Schema.String, { exact: true })
       })),
       Api.setRequestPath(Schema.Struct({
-        value: Schema.NumberFromString,
+        value: QuerySchema.Number,
         another: Schema.optional(Schema.String, { exact: true })
       })),
       Api.setRequestHeaders(Schema.Struct({
-        value: Schema.NumberFromString,
+        value: QuerySchema.Number,
         another: Schema.optional(Schema.String, { exact: true }),
         hello: Schema.optional(Schema.String, { exact: true })
       })),
@@ -202,7 +202,7 @@ export const exampleApiOptionalParams = Api.make().pipe(
   Api.addEndpoint(
     Api.post("hello", "/hello/:value/another/:another?").pipe(
       Api.setRequestPath(Schema.Struct({
-        value: Schema.NumberFromString,
+        value: QuerySchema.Number,
         another: Schema.optional(Schema.String, { exact: true })
       })),
       Api.setResponseBody(Schema.Struct({

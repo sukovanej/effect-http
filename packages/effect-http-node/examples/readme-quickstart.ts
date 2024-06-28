@@ -1,14 +1,14 @@
 import { NodeRuntime } from "@effect/platform-node"
 import { Schema } from "@effect/schema"
 import { Effect, pipe } from "effect"
-import { Api, Client, RouterBuilder } from "effect-http"
+import { Api, Client, QuerySchema, RouterBuilder } from "effect-http"
 import { NodeServer } from "effect-http-node"
 
 const UserResponse = Schema.Struct({
   name: Schema.String,
   id: pipe(Schema.Number, Schema.int(), Schema.positive())
 })
-const GetUserQuery = Schema.Struct({ id: Schema.NumberFromString })
+const GetUserQuery = Schema.Struct({ id: QuerySchema.Number })
 
 const api = pipe(
   Api.make({ title: "Users API" }),

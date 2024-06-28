@@ -3,7 +3,7 @@ import { Schema } from "@effect/schema"
 import { pipe } from "effect"
 import { expect, it, test } from "vitest"
 
-import { Api, ApiGroup, OpenApi } from "effect-http"
+import { Api, ApiGroup, OpenApi, QuerySchema } from "effect-http"
 import { Security } from "effect-http-security"
 
 import { describe } from "node:test"
@@ -248,8 +248,8 @@ test("union in query params", () => {
       Api.post("myOperation", "/my-operation").pipe(
         Api.setRequestQuery(Schema.Union(
           Schema.Struct({ a: Schema.String }),
-          Schema.Struct({ a: Schema.Number, b: Schema.String }),
-          Schema.Struct({ a: Schema.Number, c: Schema.String }).pipe(
+          Schema.Struct({ a: QuerySchema.Number, b: Schema.String }),
+          Schema.Struct({ a: QuerySchema.Number, c: Schema.String }).pipe(
             Schema.attachPropertySignature("_tag", "Case2")
           )
         ))
@@ -306,8 +306,8 @@ test("http security scheme", () => {
         Api.setResponseBody(Schema.String),
         Api.setRequestQuery(Schema.Union(
           Schema.Struct({ a: Schema.String }),
-          Schema.Struct({ a: Schema.Number, b: Schema.String }),
-          Schema.Struct({ a: Schema.Number, c: Schema.String }).pipe(
+          Schema.Struct({ a: Schema.NumberFromString, b: Schema.String }),
+          Schema.Struct({ a: Schema.NumberFromString, c: Schema.String }).pipe(
             Schema.attachPropertySignature("_tag", "Case2")
           )
         )),
@@ -460,7 +460,7 @@ describe("records", () => {
 
 test("Declaration", () => {
   const MySchema = Schema.instanceOf(FormData).pipe(
-    OpenApi.annotate({ type: "string" }),
+    OpenApi.annotate(() => ({ type: "string" })),
     Schema.annotations({ description: "form data" })
   )
 

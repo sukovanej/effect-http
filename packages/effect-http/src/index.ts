@@ -108,6 +108,13 @@ export * as OpenApi from "./OpenApi.js"
 export * as OpenApiTypes from "./OpenApiTypes.js"
 
 /**
+ * HTTP query parameters.
+ *
+ * @since 1.0.0
+ */
+export * as QuerySchema from "./QuerySchema.js"
+
+/**
  * `Representation` is a data structure holding information about how to
  * serialize and deserialize a server response for a given conten type.
  *
