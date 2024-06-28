@@ -35,8 +35,8 @@
     "effect": "^3.4.0"
   },
   "devDependencies": {
-    "@effect/platform": "^0.58.4",
-    "@effect/schema": "^0.68.6",
-    "effect": "^3.4.0"
+    "@effect/platform": "^0.58.14",
+    "@effect/schema": "^0.68.12",
+    "effect": "^3.4.5"
   }
 }
