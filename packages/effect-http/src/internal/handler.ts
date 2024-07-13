@@ -56,6 +56,32 @@ export const make: {
 }
 
 /** @internal */
+export const makeRaw: {
+  <A extends ApiEndpoint.ApiEndpoint.Any, E, R>(
+    handler: HttpRouter.Route.Handler<E, R>
+  ): (endpoint: A) => Handler.Handler<A, E, R>
+  <A extends ApiEndpoint.ApiEndpoint.Any, E, R>(
+    endpoint: A,
+    handler: HttpRouter.Route.Handler<E, R>
+  ): Handler.Handler<A, E, R>
+} = (...args: ReadonlyArray<any>) => {
+  if (ApiEndpoint.isApiEndpoint(args[0])) {
+    return _makeRaw(...args as [any, any]) as any
+  }
+
+  return (endpoint) => _makeRaw(endpoint, args[0])
+}
+
+/** @internal */
+const _makeRaw = <A extends ApiEndpoint.ApiEndpoint.Any, E, R>(
+  endpoint: A,
+  handler: HttpRouter.Route.Handler<E, R>
+): Handler.Handler<A, E, R> => {
+  const router = HttpRouter.makeRoute(ApiEndpoint.getMethod(endpoint), ApiEndpoint.getPath(endpoint), handler)
+  return new HandlerImpl(endpoint, router)
+}
+
+/** @internal */
 const _make = <A extends ApiEndpoint.ApiEndpoint.Any, E, R>(
   endpoint: A,
   fn: Handler.Handler.Function<A, E, R>,
@@ -64,27 +90,23 @@ const _make = <A extends ApiEndpoint.ApiEndpoint.Any, E, R>(
   const responseEncoder = ServerResponseEncoder.create(endpoint)
   const requestParser = ServerRequestParser.create(endpoint, options?.parseOptions)
 
-  const router = HttpRouter.makeRoute(
-    ApiEndpoint.getMethod(endpoint),
-    ApiEndpoint.getPath(endpoint),
-    pipe(
-      requestParser.parseRequest,
-      Effect.flatMap((input: any) => {
-        const { security, ...restInput } = input
-        return fn(restInput, security)
-      }),
-      Effect.flatMap((response) => responseEncoder.encodeResponse(response)),
-      Effect.catchAll((error) => {
-        if (HttpError.isHttpError(error)) {
-          return HttpError.toResponse(error)
-        }
+  const handler = pipe(
+    requestParser.parseRequest,
+    Effect.flatMap((input: any) => {
+      const { security, ...restInput } = input
+      return fn(restInput, security)
+    }),
+    Effect.flatMap((response) => responseEncoder.encodeResponse(response)),
+    Effect.catchAll((error) => {
+      if (HttpError.isHttpError(error)) {
+        return HttpError.toResponse(error)
+      }
 
-        return Effect.fail(error as Exclude<E, HttpError.HttpError>)
-      })
-    )
+      return Effect.fail(error as Exclude<E, HttpError.HttpError>)
+    })
   )
 
-  return new HandlerImpl(endpoint, router)
+  return _makeRaw(endpoint, handler)
 }
 
 /** @internal */

@@ -9,6 +9,7 @@ import * as HttpRouter from "@effect/platform/HttpRouter"
 import * as HttpServer from "@effect/platform/HttpServer"
 import * as Deferred from "effect/Deferred"
 import * as Effect from "effect/Effect"
+import * as FiberRef from "effect/FiberRef"
 import * as Layer from "effect/Layer"
 
 import type * as Api from "effect-http/Api"
@@ -60,18 +61,23 @@ export const make = <R, E, A extends Api.Api.Any>(
   )
 
 /** @internal */
-export const makeRaw = <R, E>(
-  app: HttpApp.Default<E, R | SwaggerRouter.SwaggerFiles>
-) =>
-  startTestServer(app).pipe(
-    Effect.map((url) =>
+export const makeClient = <R, E>(app: HttpApp.Default<E, R>) =>
+  Effect.map(
+    Effect.zip(startTestServer(app), FiberRef.get(HttpClient.currentFetchOptions)),
+    ([url, currentFetchOptions]) =>
       HttpClient.fetch.pipe(
         HttpClient.mapRequest(HttpClientRequest.prependUrl(url)),
         HttpClient.transformResponse(
-          HttpClient.withFetchOptions({ keepalive: false })
+          HttpClient.withFetchOptions({ keepalive: false, ...currentFetchOptions })
         )
       )
-    ),
+  )
+
+/** @internal */
+export const makeRaw = <R, E>(
+  app: HttpApp.Default<E, R | SwaggerRouter.SwaggerFiles>
+) =>
+  makeClient(app).pipe(
     Effect.provide(NodeSwaggerFiles.SwaggerFilesLive),
     Effect.provide(NodeContext.layer)
   )
@@ -80,15 +86,7 @@ export const makeRaw = <R, E>(
 export const handler = <A extends ApiEndpoint.ApiEndpoint.Any, E, R>(
   handler: Handler.Handler<A, E, R>
 ) =>
-  startTestServer(HttpRouter.fromIterable([Handler.getRoute(handler)])).pipe(
-    Effect.map((url) =>
-      HttpClient.fetch.pipe(
-        HttpClient.mapRequest(HttpClientRequest.prependUrl(url)),
-        HttpClient.transformResponse(
-          HttpClient.withFetchOptions({ keepalive: false })
-        )
-      )
-    ),
+  makeClient(HttpRouter.fromIterable([Handler.getRoute(handler)])).pipe(
     Effect.provide(NodeContext.layer)
   )
 
