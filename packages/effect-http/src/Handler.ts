@@ -142,6 +142,20 @@ export const make: {
 } = internal.make
 
 /**
+ * @category constructors
+ * @since 1.0.0
+ */
+export const makeRaw: {
+  <A extends ApiEndpoint.ApiEndpoint.Any, E, R>(
+    handler: HttpRouter.Route.Handler<E, R>
+  ): (endpoint: A) => Handler<A, E, R>
+  <A extends ApiEndpoint.ApiEndpoint.Any, E, R>(
+    endpoint: A,
+    handler: HttpRouter.Route.Handler<E, R>
+  ): Handler<A, E, R>
+} = internal.makeRaw
+
+/**
  * @category getters
  * @since 1.0.0
  */

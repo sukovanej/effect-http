@@ -19,7 +19,7 @@ import type * as Client from "effect-http/Client"
 import type * as Handler from "effect-http/Handler"
 import type * as SwaggerRouter from "effect-http/SwaggerRouter"
 
-import * as internal from "./internal/testing.js"
+import * as internal from "./internal/node-testing.js"
 
 /**
  * Create a testing client for the `Server`.

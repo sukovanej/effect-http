@@ -1,7 +1,8 @@
-import { HttpClientRequest } from "@effect/platform"
+import { Cookies, Headers, HttpClient, HttpClientRequest, HttpServerResponse } from "@effect/platform"
+import { Schema } from "@effect/schema"
 import * as it from "@effect/vitest"
 import { Effect, Option } from "effect"
-import { Api, Handler } from "effect-http"
+import { Api, Handler, HttpError } from "effect-http"
 import { NodeTesting } from "effect-http-node"
 import { describe, expect } from "vitest"
 import {
@@ -41,6 +42,35 @@ const exampleMultipleQueryAllErrors = Api.getEndpoint(exampleApiMultipleQueryVal
 
 const exampleMultipleQueryFirstError = Api.getEndpoint(exampleApiMultipleQueryValues, "test").pipe(
   Handler.make(({ query }) => Effect.succeed(`${query.value}, ${query.value}`))
+)
+
+const redirectApi = Api.post("test", "/test").pipe(
+  Api.setResponseStatus(302),
+  Api.setResponseHeaders(
+    Schema.Struct({
+      "set-cookie": Schema.String,
+      location: Schema.String
+    })
+  )
+)
+
+const exampleRedirect = redirectApi.pipe(
+  Handler.make(() =>
+    Effect.fail(HttpError.found(undefined, {
+      cookies: Cookies.fromSetCookie("session=123; Path=/; HttpOnly"),
+      headers: Headers.fromInput({ location: "/" })
+    }))
+  )
+)
+
+const exampleRedirectRaw = redirectApi.pipe(
+  Handler.makeRaw(
+    HttpServerResponse.empty({
+      status: 302,
+      cookies: Cookies.fromSetCookie("session=123; Path=/; HttpOnly"),
+      headers: Headers.fromInput({ location: "/" })
+    })
+  )
 )
 
 describe("examples", () => {
@@ -293,5 +323,27 @@ describe("error reporting", () => {
 └─ ["another"]
    └─ is missing`
       })
+    }))
+
+  it.scoped("redirect using makeRaw", () =>
+    Effect.gen(function*(_) {
+      const client = yield* NodeTesting.handler(exampleRedirectRaw)
+      const response = yield* client(HttpClientRequest.post("/test")).pipe(
+        HttpClient.withFetchOptions({ redirect: "manual" })
+      )
+
+      expect(response.status).toEqual(302)
+      expect(response.headers).toMatchObject({ "set-cookie": "session=123; Path=/; HttpOnly" })
+    }))
+
+  it.scoped("redirect using make", () =>
+    Effect.gen(function*(_) {
+      const client = yield* NodeTesting.handler(exampleRedirect)
+      const response = yield* client(HttpClientRequest.post("/test")).pipe(
+        HttpClient.withFetchOptions({ redirect: "manual" })
+      )
+
+      expect(response.status).toEqual(302)
+      expect(response.headers).toMatchObject({ "set-cookie": "session=123; Path=/; HttpOnly" })
     }))
 })
