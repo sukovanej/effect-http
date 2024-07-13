@@ -24,7 +24,6 @@ import {
   exampleApiParams,
   exampleApiPutResponse
 } from "./examples.js"
-import { runTestEffect } from "./utils.js"
 
 const Service1 = Context.GenericTag<number>("@services/Service1")
 const Service2 = Context.GenericTag<string>("@services/Service2")
@@ -92,7 +91,7 @@ it.scoped("headers", () =>
     })
   }))
 
-test.each(
+it.scoped.each(
   [
     { response: HttpError.conflictError("error"), status: 409 }
   ]
@@ -115,7 +114,7 @@ test.each(
 
     expect(result.left).toMatchObject({ status })
     // TODO
-  }).pipe(runTestEffect))
+  }))
 
 test("Attempt to add a non-existing operation should fail as a safe guard", () => {
   expect(() =>

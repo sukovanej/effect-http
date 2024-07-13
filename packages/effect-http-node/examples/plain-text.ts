@@ -1,9 +1,8 @@
 import { NodeRuntime } from "@effect/platform-node"
 import { Schema } from "@effect/schema"
-import { Effect } from "effect"
+import { Effect, Logger } from "effect"
 import { Api, Representation, RouterBuilder } from "effect-http"
 import { NodeServer } from "effect-http-node"
-import { PrettyLogger } from "effect-log"
 
 export const api = Api.make({ title: "Example API" }).pipe(
   Api.addEndpoint(
@@ -21,6 +20,6 @@ export const app = RouterBuilder.make(api).pipe(
 
 app.pipe(
   NodeServer.listen({ port: 3000 }),
-  Effect.provide(PrettyLogger.layer()),
+  Effect.provide(Logger.pretty),
   NodeRuntime.runMain
 )

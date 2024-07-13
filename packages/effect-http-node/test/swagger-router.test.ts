@@ -1,8 +1,8 @@
 import { HttpClientRequest, HttpRouter } from "@effect/platform"
+import { expect, it } from "@effect/vitest"
 import { Array, Effect } from "effect"
 import { SwaggerRouter } from "effect-http"
 import { NodeTesting } from "effect-http-node"
-import { expect, test } from "vitest"
 
 const docsUrls = [
   "/api/docs",
@@ -13,7 +13,7 @@ const docsUrls = [
   "/api/docs/favicon-32x32.png"
 ]
 
-test("swagger-router mount", () =>
+it.scoped("swagger-router mount", () =>
   Effect.gen(function*(_) {
     const router = HttpRouter.empty.pipe(
       HttpRouter.mount("/api/docs", SwaggerRouter.make({}))
@@ -31,9 +31,9 @@ test("swagger-router mount", () =>
       const html = yield* _(indexResponse.text)
       expect(html).includes("/api/docs/swagger-ui.css")
     }
-  }).pipe(Effect.scoped, Effect.runPromise))
+  }))
 
-test("swagger-router mountApp", () =>
+it.scoped("swagger-router mountApp", () =>
   Effect.gen(function*(_) {
     const router = HttpRouter.empty.pipe(
       HttpRouter.mountApp("/api/docs", SwaggerRouter.make({}))
@@ -51,4 +51,4 @@ test("swagger-router mountApp", () =>
       const html = yield* _(indexResponse.text)
       expect(html).includes("/api/docs/swagger-ui.css")
     }
-  }).pipe(Effect.scoped, Effect.runPromise))
+  }))

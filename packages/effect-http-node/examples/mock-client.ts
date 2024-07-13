@@ -18,4 +18,4 @@ const program = pipe(
   Effect.scoped
 )
 
-Effect.runPromise(program)
+Effect.runFork(program)

@@ -1,8 +1,8 @@
+import { expect, it } from "@effect/vitest"
+import { Effect } from "effect"
 import { Representation } from "effect-http"
-import { expect, test } from "vitest"
-import { runTestEffect } from "./utils.js"
 
-test.each(
+it.effect.each(
   [
     { input: "string", expected: "string" },
     { input: 69, expected: "69" },
@@ -10,8 +10,8 @@ test.each(
     { input: [12, "12"], expected: "[12,\"12\"]" },
     { input: { a: "b" }, expected: "{\"a\":\"b\"}" }
   ] as const
-)("plain text stringify $input", async ({ expected, input }) => {
-  const result = await runTestEffect(Representation.plainText.stringify(input))
-
-  expect(result).toEqual(expected)
-})
+)("plain text stringify $input", ({ expected, input }) =>
+  Effect.gen(function*() {
+    const result = yield* Representation.plainText.stringify(input)
+    expect(result).toEqual(expected)
+  }))

@@ -5,6 +5,7 @@
     { "path": "../effect-http" },
   ],
   "compilerOptions": {
+    "types": ["node"],
     "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo",
     "rootDir": "src",
     "outDir": "build/src",

@@ -1,7 +1,6 @@
 import * as fs from "node:fs"
 
 import { Data, Effect, Layer, Logger, LogLevel, pipe } from "effect"
-import { PrettyLogger } from "effect-log"
 
 export class FileNotFoundError extends Data.TaggedError("FileNotFoundError")<{
   filename: string
@@ -19,6 +18,6 @@ export const readFile = (filename: string) =>
   )
 
 export const debugLogger = pipe(
-  PrettyLogger.layer(),
+  Logger.pretty,
   Layer.merge(Logger.minimumLogLevel(LogLevel.All))
 )

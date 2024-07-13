@@ -94,7 +94,7 @@ export const makeRaw: <R, E>(
  *
  *   assert.deepStrictEqual(response.status, 200)
  *   assert.deepStrictEqual(yield* response.json, { hello: "world" })
- * }).pipe(Effect.scoped, Effect.runPromise)
+ * }).pipe(Effect.scoped, Effect.runFork)
  *
  * @category constructors
  * @since 1.0.0

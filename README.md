@@ -532,17 +532,16 @@ const app = RouterBuilder.make(api).pipe(
 The test might look as follows.
 
 ```ts
+import { it } from '@effect/vitest';
 import { NodeTesting } from 'effect-http-node';
 
-test("test /hello endpoint", async () => {
-  const response = await NodeTesting.make(app, api).pipe(
+it.scoped("test /hello endpoint", () => Effect.gen(function* (){
+  const response = yield* NodeTesting.make(app, api).pipe(
     Effect.flatMap((client) => client.hello({ query: { input: 12 } })),
-    Effect.scoped,
-    Effect.runPromise,
   );
 
   expect(response).toEqual("13");
-});
+}));
 ```
 
 In comparison to the `Client` we need to run our endpoint handlers
