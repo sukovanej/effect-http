@@ -6,9 +6,8 @@ import { Cause, Deferred, Duration, Effect, Either, Exit, Fiber, Layer, Match, p
 import { Api, Client, ExampleServer, RouterBuilder, Security } from "effect-http"
 import { NodeSwaggerFiles, NodeTesting } from "effect-http-node"
 import { createServer } from "node:http"
-import { expect, test, vi } from "vitest"
+import { expect, vi } from "vitest"
 import { exampleApiEmptyResponse, exampleApiGetQueryParameter } from "./examples.js"
-import { runTestEffect } from "./utils.js"
 
 it.scoped(
   "quickstart example e2e",
@@ -39,7 +38,7 @@ it.scoped(
     })
 )
 
-test.each(["GET", "PUT", "POST", "DELETE", "OPTIONS", "PATCH"] as const)(
+it.scoped.each(["GET", "PUT", "POST", "DELETE", "OPTIONS", "PATCH"] as const)(
   "Dummy call - %s",
   (method) =>
     Effect.gen(function*(_) {
@@ -66,7 +65,7 @@ test.each(["GET", "PUT", "POST", "DELETE", "OPTIONS", "PATCH"] as const)(
       )
 
       expect(response).toEqual({ name: "milan" })
-    }).pipe(runTestEffect)
+    })
 )
 
 it.scoped(
