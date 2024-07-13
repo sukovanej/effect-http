@@ -35,19 +35,19 @@
     "@effect/platform": "^0.58.0",
     "@effect/platform-node": "^0.53.0",
     "@effect/schema": "^0.68.0",
-    "effect": "^3.4.0",
+    "effect": "^3.5.0",
     "effect-http": "workspace:^"
   },
   "devDependencies": {
-    "@effect/platform": "^0.58.14",
-    "@effect/platform-bun": "^0.38.13",
-    "@effect/platform-node": "^0.53.13",
-    "@effect/schema": "^0.68.12",
-    "@types/node": "^20.14.9",
-    "effect": "^3.4.5",
+    "@effect/platform": "^0.58.27",
+    "@effect/platform-bun": "^0.38.26",
+    "@effect/platform-node": "^0.53.26",
+    "@effect/schema": "^0.68.23",
+    "@types/node": "^20.14.10",
+    "effect": "^3.5.3",
     "effect-http": "workspace:^",
     "effect-http-error": "workspace:^",
     "effect-http-security": "workspace:^",
-    "effect-log": "^0.31.5"
+    "effect-log": "^0.31.6"
   }
 }
