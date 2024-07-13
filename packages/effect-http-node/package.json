@@ -47,7 +47,6 @@
     "effect": "^3.5.3",
     "effect-http": "workspace:^",
     "effect-http-error": "workspace:^",
-    "effect-http-security": "workspace:^",
-    "effect-log": "^0.31.6"
+    "effect-http-security": "workspace:^"
   }
 }

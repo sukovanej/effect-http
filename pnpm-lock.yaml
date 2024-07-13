@@ -179,9 +179,6 @@ importers:
       effect-http-security:
         specifier: workspace:^
         version: link:../effect-http-security/dist
-      effect-log:
-        specifier: ^0.31.6
-        version: 0.31.6(effect@3.5.3)
     publishDirectory: dist
 
   packages/effect-http-security:
@@ -1750,11 +1747,6 @@ packages:
 
   eastasianwidth@0.2.0:
     resolution: {integrity: sha512-I88TYZWc9XiYHRQ4/3c5rjjfgkjhLyW2luGIheGERbNQ6OY7yTybanSpDXZa8y7VUP9YmDcYa+eyq4ca7iLqWA==}
-
-  effect-log@0.31.6:
-    resolution: {integrity: sha512-cwXr0+5Urw4kjRctpXt7luI2cNvjSmxB8w79wzjtUfQv1bO4QjifM64wGnh3ijQ43zNTFNIfFj91ESyKEZkrUA==}
-    peerDependencies:
-      effect: ^3.5.0
 
   effect@3.5.3:
     resolution: {integrity: sha512-emKAbdsB4jTeppa6fdfdWGhbEjKdvr1xfltpGIwiR46mD97JvWlpbrTIdqDCCizuMbxVys6YrSjKL7aHHa93Gg==}
@@ -5385,10 +5377,6 @@ snapshots:
   dotenv@8.6.0: {}
 
   eastasianwidth@0.2.0: {}
-
-  effect-log@0.31.6(effect@3.5.3):
-    dependencies:
-      effect: 3.5.3
 
   effect@3.5.3: {}
 
