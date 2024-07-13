@@ -13,11 +13,22 @@ import type * as Pipeable from "effect/Pipeable"
 import * as internal from "./internal/http-error.js"
 
 /**
+ * @since 1.0.0
+ * @category type id
+ */
+export const TypeId: unique symbol = internal.TypeId
+
+/**
+ * @since 1.0.0
+ * @category type id
+ */
+export type TypeId = typeof TypeId
+
+/**
  * @category models
  * @since 1.0.0
  */
-export interface HttpError extends Cause.YieldableError, Pipeable.Pipeable {
-  readonly _tag: "HttpError"
+export interface HttpError extends Cause.YieldableError, Pipeable.Pipeable, HttpError.Variance {
   readonly status: number
   readonly content: HttpBody.HttpBody
   readonly headers: Headers.Headers
@@ -28,12 +39,30 @@ export interface HttpError extends Cause.YieldableError, Pipeable.Pipeable {
  * @category models
  * @since 1.0.0
  */
-export interface Options {
-  headers: Headers.Headers
-  cookies: Cookies.Cookies
-}
+export declare namespace HttpError {
+  /**
+   * @category models
+   * @since 1.0.0
+   */
+  export interface Variance {
+    readonly [TypeId]: {}
+  }
 
-export type HttpErrorFn = (body?: unknown, options?: Partial<Options>) => HttpError
+  /**
+   * @category models
+   * @since 1.0.0
+   */
+  export interface Options {
+    readonly headers: Headers.Headers
+    readonly cookies: Cookies.Cookies
+  }
+
+  /**
+   * @category models
+   * @since 1.0.0
+   */
+  export type HttpErrorFn = (body?: unknown, options?: Partial<Options>) => HttpError
+}
 
 /**
  * @category destructors
@@ -47,84 +76,85 @@ export const toResponse: (
  * @category constructors
  * @since 1.0.0
  */
-export const make: (status: number, body?: unknown, options?: Partial<Options>) => HttpError = internal.make
+export const make: (status: number, body?: unknown, options?: Partial<HttpError.Options>) => HttpError = internal.make
 
 /**
  * @category refinements
  * @since 1.0.0
  */
-export const isHttpError: (error?: unknown, options?: Partial<Options>) => error is HttpError = internal.isHttpError
+export const isHttpError: (error?: unknown, options?: Partial<HttpError.Options>) => error is HttpError =
+  internal.isHttpError
 
 /**
  * @category constructors
  * @since 1.0.0
  */
-export const badRequest: HttpErrorFn = internal.fromStatusMaker(400)
+export const badRequest: HttpError.HttpErrorFn = internal.makeStatus(400)
 
 /**
  * @category constructors
  * @since 1.0.0
  */
-export const unauthorizedError: HttpErrorFn = internal.fromStatusMaker(401)
+export const unauthorizedError: HttpError.HttpErrorFn = internal.makeStatus(401)
 
 /**
  * @category constructors
  * @since 1.0.0
  */
-export const forbiddenError: HttpErrorFn = internal.fromStatusMaker(403)
+export const forbiddenError: HttpError.HttpErrorFn = internal.makeStatus(403)
 
 /**
  * @category constructors
  * @since 1.0.0
  */
-export const notFoundError: HttpErrorFn = internal.fromStatusMaker(404)
+export const notFoundError: HttpError.HttpErrorFn = internal.makeStatus(404)
 
 /**
  * @category constructors
  * @since 1.0.0
  */
-export const conflictError: HttpErrorFn = internal.fromStatusMaker(409)
+export const conflictError: HttpError.HttpErrorFn = internal.makeStatus(409)
 
 /**
  * @category constructors
  * @since 1.0.0
  */
-export const unsupportedMediaTypeError: HttpErrorFn = internal.fromStatusMaker(415)
+export const unsupportedMediaTypeError: HttpError.HttpErrorFn = internal.makeStatus(415)
 /**
  * @category constructors
  * @since 1.0.0
  */
-export const tooManyRequestsError: HttpErrorFn = internal.fromStatusMaker(429)
+export const tooManyRequestsError: HttpError.HttpErrorFn = internal.makeStatus(429)
 
 /**
  * @category constructors
  * @since 1.0.0
  */
-export const internalHttpError: HttpErrorFn = internal.fromStatusMaker(500)
+export const internalHttpError: HttpError.HttpErrorFn = internal.makeStatus(500)
 
 /**
  * @category constructors
  * @since 1.0.0
  */
-export const notImplementedError: HttpErrorFn = internal.fromStatusMaker(501)
+export const notImplementedError: HttpError.HttpErrorFn = internal.makeStatus(501)
 
 /**
  * @category constructors
  * @since 1.0.0
  */
-export const badGatewayError: HttpErrorFn = internal.fromStatusMaker(502)
+export const badGatewayError: HttpError.HttpErrorFn = internal.makeStatus(502)
 
 /**
  * @category constructors
  * @since 1.0.0
  */
-export const serviceUnavailableError: HttpErrorFn = internal.fromStatusMaker(503)
+export const serviceUnavailableError: HttpError.HttpErrorFn = internal.makeStatus(503)
 
 /**
  * @category constructors
  * @since 1.0.0
  */
-export const gatewayTimeoutError: HttpErrorFn = internal.fromStatusMaker(504)
+export const gatewayTimeoutError: HttpError.HttpErrorFn = internal.makeStatus(504)
 
 // ************************
 // *    3xx responses     *
@@ -142,7 +172,7 @@ export const gatewayTimeoutError: HttpErrorFn = internal.fromStatusMaker(504)
  * @category constructors
  * @since 1.0.0
  */
-export const multipleChoices: HttpErrorFn = internal.fromStatusMaker(300)
+export const multipleChoices: HttpError.HttpErrorFn = internal.makeStatus(300)
 
 /**
  * 301 Moved Permanently
@@ -154,7 +184,7 @@ export const multipleChoices: HttpErrorFn = internal.fromStatusMaker(300)
  * @category constructors
  * @since 1.0.0
  */
-export const movedPermanently: HttpErrorFn = internal.fromStatusMaker(301)
+export const movedPermanently: HttpError.HttpErrorFn = internal.makeStatus(301)
 
 /**
  * 302 Found
@@ -168,7 +198,7 @@ export const movedPermanently: HttpErrorFn = internal.fromStatusMaker(301)
  * @category constructors
  * @since 1.0.0
  */
-export const found: HttpErrorFn = internal.fromStatusMaker(302)
+export const found: HttpError.HttpErrorFn = internal.makeStatus(302)
 
 /**
  * 303 See Other
@@ -181,7 +211,7 @@ export const found: HttpErrorFn = internal.fromStatusMaker(302)
  * @category constructors
  * @since 1.0.0
  */
-export const seeOther: HttpErrorFn = internal.fromStatusMaker(303)
+export const seeOther: HttpError.HttpErrorFn = internal.makeStatus(303)
 
 /**
  * 304 Not Modified
@@ -194,7 +224,7 @@ export const seeOther: HttpErrorFn = internal.fromStatusMaker(303)
  * @category constructors
  * @since 1.0.0
  */
-export const notModified: HttpErrorFn = internal.fromStatusMaker(304)
+export const notModified: HttpError.HttpErrorFn = internal.makeStatus(304)
 
 /**
  * 307 Temporary Redirect
@@ -209,7 +239,7 @@ export const notModified: HttpErrorFn = internal.fromStatusMaker(304)
  * @category constructors
  * @since 1.0.0
  */
-export const temporaryRedirect: HttpErrorFn = internal.fromStatusMaker(307)
+export const temporaryRedirect: HttpError.HttpErrorFn = internal.makeStatus(307)
 
 /**
  * 308 Permanent Redirect
@@ -224,4 +254,4 @@ export const temporaryRedirect: HttpErrorFn = internal.fromStatusMaker(307)
  * @category constructors
  * @since 1.0.0
  */
-export const permanentRedirect: HttpErrorFn = internal.fromStatusMaker(308)
+export const permanentRedirect: HttpError.HttpErrorFn = internal.makeStatus(308)

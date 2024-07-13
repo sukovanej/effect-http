@@ -5,23 +5,30 @@ import * as HttpServerResponse from "@effect/platform/HttpServerResponse"
 import * as Data from "effect/Data"
 import { absurd, identity, pipe } from "effect/Function"
 import * as Pipeable from "effect/Pipeable"
-import * as Predicate from "effect/Predicate"
 import * as Stream from "effect/Stream"
 
 import type * as HttpError from "../HttpError.js"
+
+/** @internal */
+export const TypeId: HttpError.TypeId = Symbol.for("effect-http/HttpError/TypeId") as HttpError.TypeId
+
+/** @internal */
+export const variance = {}
 
 /** @internal */
 const unsafeIsStream = (u: unknown): u is Stream.Stream<Uint8Array> =>
   typeof u === "object" && u !== null && Stream.StreamTypeId in u
 
 /** @internal */
-export class HttpErrorImpl extends Data.TaggedError("HttpError")<{
-  status: number
-  content: HttpBody.HttpBody
-  headers: Headers.Headers
-  cookies: Cookies.Cookies
+export class HttpErrorImpl extends Data.Error<{
+  readonly status: number
+  readonly content: HttpBody.HttpBody
+  readonly headers: Headers.Headers
+  readonly cookies: Cookies.Cookies
 }> implements HttpError.HttpError {
-  static unsafeFromUnknown(status: number, body: unknown, options?: Partial<HttpError.Options>) {
+  readonly [TypeId] = variance
+
+  static unsafeFromUnknown(status: number, body: unknown, options?: Partial<HttpError.HttpError.Options>) {
     let content = undefined
 
     if (body === undefined) {
@@ -80,11 +87,12 @@ export const toResponse = (error: HttpError.HttpError) => {
 }
 
 /** @internal */
-export const make = (status: number, body?: unknown, options?: Partial<HttpError.Options>) =>
+export const make = (status: number, body?: unknown, options?: Partial<HttpError.HttpError.Options>) =>
   HttpErrorImpl.unsafeFromUnknown(status, body, options)
 
-export const fromStatusMaker = (status: number) => (body?: unknown, options?: Partial<HttpError.Options>) =>
+export const makeStatus = (status: number) => (body?: unknown, options?: Partial<HttpError.HttpError.Options>) =>
   HttpErrorImpl.unsafeFromUnknown(status, body, options)
 
 /** @internal */
-export const isHttpError = (error: unknown): error is HttpError.HttpError => Predicate.isTagged(error, "HttpError")
+export const isHttpError = (error: unknown): error is HttpError.HttpError =>
+  typeof error === "object" && error !== null && TypeId in error

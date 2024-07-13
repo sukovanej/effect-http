@@ -327,10 +327,10 @@ describe("error reporting", () => {
 
   it.scoped("redirect using makeRaw", () =>
     Effect.gen(function*(_) {
-      const client = yield* NodeTesting.handler(exampleRedirectRaw).pipe(
+      const client = yield* NodeTesting.handler(exampleRedirectRaw)
+      const response = yield* client(HttpClientRequest.post("/test")).pipe(
         HttpClient.withFetchOptions({ redirect: "manual" })
       )
-      const response = yield* client(HttpClientRequest.post("/test"))
 
       expect(response.status).toEqual(302)
       expect(response.headers).toMatchObject({ "set-cookie": "session=123; Path=/; HttpOnly" })
@@ -338,10 +338,10 @@ describe("error reporting", () => {
 
   it.scoped("redirect using make", () =>
     Effect.gen(function*(_) {
-      const client = yield* NodeTesting.handler(exampleRedirect).pipe(
+      const client = yield* NodeTesting.handler(exampleRedirect)
+      const response = yield* client(HttpClientRequest.post("/test")).pipe(
         HttpClient.withFetchOptions({ redirect: "manual" })
       )
-      const response = yield* client(HttpClientRequest.post("/test"))
 
       expect(response.status).toEqual(302)
       expect(response.headers).toMatchObject({ "set-cookie": "session=123; Path=/; HttpOnly" })
