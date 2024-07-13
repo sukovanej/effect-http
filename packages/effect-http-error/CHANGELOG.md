@@ -1,5 +1,11 @@
 # effect-http-error
 
+## 0.3.1
+
+### Patch Changes
+
+- [#615](https://github.com/sukovanej/effect-http/pull/615) [`b3e1c67`](https://github.com/sukovanej/effect-http/commit/b3e1c671c5b9f50e347687df2002109eba21d3e4) Thanks [@sukovanej](https://github.com/sukovanej)! - Update effect.
+
 ## 0.3.0
 
 ### Minor Changes

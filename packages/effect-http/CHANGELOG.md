@@ -1,5 +1,19 @@
 # effect-http
 
+## 0.71.3
+
+### Patch Changes
+
+- [#607](https://github.com/sukovanej/effect-http/pull/607) [`4244025`](https://github.com/sukovanej/effect-http/commit/4244025ae8ceccf8916b265414a1f2bfb8babd9c) Thanks [@kosei28](https://github.com/kosei28)! - Fix to read swagger files in proper format
+
+- [#612](https://github.com/sukovanej/effect-http/pull/612) [`7fdf285`](https://github.com/sukovanej/effect-http/commit/7fdf285e6cc94e187c0f6cb6262866c4c0d5ade9) Thanks [@sukovanej](https://github.com/sukovanej)! - Fix handling of `Schema.optional` without `{ exact: true }` when constructing OpenApi parameters.
+
+- [#615](https://github.com/sukovanej/effect-http/pull/615) [`b3e1c67`](https://github.com/sukovanej/effect-http/commit/b3e1c671c5b9f50e347687df2002109eba21d3e4) Thanks [@sukovanej](https://github.com/sukovanej)! - Update effect.
+
+- Updated dependencies [[`b3e1c67`](https://github.com/sukovanej/effect-http/commit/b3e1c671c5b9f50e347687df2002109eba21d3e4)]:
+  - effect-http-security@0.3.1
+  - effect-http-error@0.3.1
+
 ## 0.71.2
 
 ### Patch Changes
