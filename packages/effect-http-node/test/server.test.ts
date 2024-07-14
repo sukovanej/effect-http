@@ -5,7 +5,7 @@ import { Array, Context, Effect, Either, Layer, Option, pipe } from "effect"
 import { createHash } from "node:crypto"
 import { assert, describe, expect, test } from "vitest"
 
-import { Api, ApiResponse, Client, ClientError, RouterBuilder } from "effect-http"
+import { Api, ApiResponse, Client, ClientError, QuerySchema, RouterBuilder } from "effect-http"
 import { HttpError } from "effect-http-error"
 import { NodeTesting } from "effect-http-node"
 import { Security } from "effect-http-security"
@@ -519,4 +519,85 @@ it.scoped("uuid", () =>
       └─ Predicate refinement failure
          └─ Expected UUID, actual "invalid"`
     })
+  }))
+
+it.scoped("array query parameter", () =>
+  Effect.gen(function*() {
+    const api = Api.make().pipe(
+      Api.addEndpoint(
+        Api.get("test", "/test").pipe(
+          Api.setRequestQuery(Schema.Struct({ id: QuerySchema.Array(QuerySchema.Number) })),
+          Api.setResponseBody(Schema.Array(Schema.Number))
+        )
+      )
+    )
+
+    const testHandler = RouterBuilder.handler(api, "test", ({ query }) => Effect.succeed(query.id))
+
+    const app = pipe(
+      RouterBuilder.make(api),
+      RouterBuilder.handle(testHandler),
+      RouterBuilder.build
+    )
+
+    const client = yield* NodeTesting.makeRaw(app)
+
+    // empty array works
+    const response0 = yield* client(HttpClientRequest.get("/test"))
+    expect(response0.status).toEqual(200)
+    expect(yield* response0.json).toEqual([])
+
+    // single-item array works
+    const response1 = yield* client(HttpClientRequest.get("/test?id=1"))
+    expect(response1.status).toEqual(200)
+    expect(yield* response1.json).toEqual([1])
+
+    // array of length >1 works
+    const response2 = yield* client(HttpClientRequest.get("/test?id=1&id=2"))
+    expect(response2.status).toEqual(200)
+    expect(yield* response2.json).toEqual([1, 2])
+  }))
+
+it.scoped("non-empty array query parameter", () =>
+  Effect.gen(function*() {
+    const api = Api.make().pipe(
+      Api.addEndpoint(
+        Api.get("test", "/test").pipe(
+          Api.setRequestQuery(Schema.Struct({ id: QuerySchema.NonEmptyArray(QuerySchema.Number) })),
+          Api.setResponseBody(Schema.Array(Schema.Number))
+        )
+      )
+    )
+
+    const testHandler = RouterBuilder.handler(api, "test", ({ query }) => Effect.succeed(query.id))
+
+    const app = pipe(
+      RouterBuilder.make(api),
+      RouterBuilder.handle(testHandler),
+      RouterBuilder.build
+    )
+
+    const client = yield* NodeTesting.makeRaw(app)
+
+    // empty array errors
+    const response0 = yield* client(HttpClientRequest.get("/test"))
+    expect(response0.status).toEqual(400)
+    expect(yield* response0.json).toEqual({
+      "error": "Request validation error",
+      "location": "query",
+      "message":
+        `{ readonly id: ((string <-> readonly [string, ...string[]]) <-> readonly [NumberFromString, ...NumberFromString[]]) | readonly [NumberFromString, ...NumberFromString[]] }
+└─ ["id"]
+   └─ is missing`
+    })
+
+    // single-item array works
+    const response1 = yield* client(HttpClientRequest.get("/test?id=1"))
+    expect(response1.status).toEqual(200)
+    expect(yield* response1.json).toEqual([1])
+
+    // array of length >1 works
+    const response2 = yield* client(HttpClientRequest.get("/test?id=1&id=2"))
+    expect(response2.status).toEqual(200)
+    expect(yield* response2.json).toEqual([1, 2])
   }))

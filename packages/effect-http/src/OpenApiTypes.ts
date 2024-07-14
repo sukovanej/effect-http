@@ -2,7 +2,7 @@
  * @category models
  * @since 1.0.0
  */
-export type OpenAPISpec = {
+export interface OpenAPISpec {
   openapi: "3.0.3"
   info: OpenAPISpecInfo
   servers?: Array<OpenAPISpecServer>
@@ -17,7 +17,7 @@ export type OpenAPISpec = {
  * @category models
  * @since 1.0.0
  */
-export type OpenAPISpecInfo = {
+export interface OpenAPISpecInfo {
   title: string
   version: string
   description?: string
@@ -28,7 +28,7 @@ export type OpenAPISpecInfo = {
  * @category models
  * @since 1.0.0
  */
-export type OpenAPISpecTag = {
+export interface OpenAPISpecTag {
   name: string
   description?: string
   externalDocs?: OpenAPISpecExternalDocs
@@ -38,7 +38,7 @@ export type OpenAPISpecTag = {
  * @category models
  * @since 1.0.0
  */
-export type OpenAPISpecExternalDocs = {
+export interface OpenAPISpecExternalDocs {
   url: string
   description?: string
 }
@@ -47,7 +47,7 @@ export type OpenAPISpecExternalDocs = {
  * @category models
  * @since 1.0.0
  */
-export type OpenAPISpecLicense = {
+export interface OpenAPISpecLicense {
   name: string
   url?: string
 }
@@ -56,7 +56,7 @@ export type OpenAPISpecLicense = {
  * @category models
  * @since 1.0.0
  */
-export type OpenAPISpecServer = {
+export interface OpenAPISpecServer {
   url: string
   description?: string
   variables?: Record<string, OpenAPISpecServerVariable>
@@ -66,7 +66,7 @@ export type OpenAPISpecServer = {
  * @category models
  * @since 1.0.0
  */
-export type OpenAPISpecServerVariable = {
+export interface OpenAPISpecServerVariable {
   default: string
   enum?: [string, ...Array<string>]
   description?: string
@@ -113,7 +113,7 @@ export type OpenAPISpecPathItem =
  * @category models
  * @since 1.0.0
  */
-export type OpenAPISpecParameter = {
+export interface OpenAPISpecParameter {
   name: string
   in: "query" | "header" | "path" | "cookie"
   schema: OpenAPISchemaType
@@ -147,7 +147,7 @@ export type OpenApiSpecContent = {
  * @category models
  * @since 1.0.0
  */
-export type OpenApiSpecResponseHeader = {
+export interface OpenApiSpecResponseHeader {
   description?: string
   schema: OpenAPISchemaType
 }
@@ -165,7 +165,7 @@ export type OpenApiSpecResponseHeaders = Record<
  * @category models
  * @since 1.0.0
  */
-export type OpenApiSpecResponse = {
+export interface OpenApiSpecResponse {
   content?: OpenApiSpecContent
   headers?: OpenApiSpecResponseHeaders
   description: string
@@ -175,7 +175,7 @@ export type OpenApiSpecResponse = {
  * @category models
  * @since 1.0.0
  */
-export type OpenApiSpecMediaType = {
+export interface OpenApiSpecMediaType {
   schema?: OpenAPISchemaType
   example?: object
   description?: string
@@ -185,7 +185,7 @@ export type OpenApiSpecMediaType = {
  * @category models
  * @since 1.0.0
  */
-export type OpenAPISpecRequestBody = {
+export interface OpenAPISpecRequestBody {
   content: OpenApiSpecContent
   description?: string
   required?: boolean
@@ -195,7 +195,7 @@ export type OpenAPISpecRequestBody = {
  * @category models
  * @since 1.0.0
  */
-export type OpenAPISpecReference = {
+export interface OpenAPISpecReference {
   $ref: string
 }
 
@@ -203,7 +203,7 @@ export type OpenAPISpecReference = {
  * @category models
  * @since 1.0.0
  */
-export type OpenAPIComponents = {
+export interface OpenAPIComponents {
   schemas?: Record<string, OpenAPISchemaType>
   securitySchemes?: Record<string, OpenAPISecurityScheme>
 }
@@ -212,7 +212,7 @@ export type OpenAPIComponents = {
  * @category models
  * @since 1.0.0
  */
-export type OpenAPIHTTPSecurityScheme = {
+export interface OpenAPIHTTPSecurityScheme {
   type: "http"
   description?: string
   scheme: "bearer" | "basic" | string
@@ -224,7 +224,7 @@ export type OpenAPIHTTPSecurityScheme = {
  * @category models
  * @since 1.0.0
  */
-export type OpenAPIApiKeySecurityScheme = {
+export interface OpenAPIApiKeySecurityScheme {
   type: "apiKey"
   description?: string
   name: string
@@ -235,7 +235,7 @@ export type OpenAPIApiKeySecurityScheme = {
  * @category models
  * @since 1.0.0
  */
-export type OpenAPIMutualTLSSecurityScheme = {
+export interface OpenAPIMutualTLSSecurityScheme {
   type: "mutualTLS"
   description?: string
 }
@@ -244,7 +244,7 @@ export type OpenAPIMutualTLSSecurityScheme = {
  * @category models
  * @since 1.0.0
  */
-export type OpenAPIOAuth2SecurityScheme = {
+export interface OpenAPIOAuth2SecurityScheme {
   type: "oauth2"
   description?: string
   flows: Record<
@@ -257,7 +257,7 @@ export type OpenAPIOAuth2SecurityScheme = {
  * @category models
  * @since 1.0.0
  */
-export type OpenAPIOpenIdConnectSecurityScheme = {
+export interface OpenAPIOpenIdConnectSecurityScheme {
   type: "openIdConnect"
   description?: string
   openIdConnectUrl: string
@@ -285,7 +285,7 @@ export type OpenAPISecurityRequirement = Record<string, Array<string>>
  * @category models
  * @since 1.0.0
  */
-export type OpenAPISpecOperation = {
+export interface OpenAPISpecOperation {
   requestBody?: OpenAPISpecRequestBody
   responses?: OpenAPISpecResponses
   operationId?: string
@@ -304,7 +304,7 @@ export type OpenAPISpecOperation = {
  * @category models
  * @since 1.0.0
  */
-export type OpenAPISchemaNullType = {
+export interface OpenAPISchemaNullType {
   type: "null"
 }
 
@@ -312,7 +312,7 @@ export type OpenAPISchemaNullType = {
  * @category models
  * @since 1.0.0
  */
-export type OpenAPISchemaStringType = {
+export interface OpenAPISchemaStringType {
   type: "string"
   minLength?: number
   maxLength?: number
@@ -323,7 +323,7 @@ export type OpenAPISchemaStringType = {
  * @category models
  * @since 1.0.0
  */
-export type OpenAPISchemaNumberType = {
+export interface OpenAPISchemaNumberType {
   type: "number" | "integer"
   minimum?: number
   exclusiveMinimum?: boolean
@@ -336,7 +336,7 @@ export type OpenAPISchemaNumberType = {
  * @category models
  * @since 1.0.0
  */
-export type OpenAPISchemaBooleanType = {
+export interface OpenAPISchemaBooleanType {
   type: "boolean"
   nullable?: boolean
 }
@@ -345,7 +345,7 @@ export type OpenAPISchemaBooleanType = {
  * @category models
  * @since 1.0.0
  */
-export type OpenAPISchemaArrayType = {
+export interface OpenAPISchemaArrayType {
   type: "array"
   items?: OpenAPISchemaType | Array<OpenAPISchemaType>
   minItems?: number
@@ -358,7 +358,7 @@ export type OpenAPISchemaArrayType = {
  * @category models
  * @since 1.0.0
  */
-export type OpenAPISchemaEnumType = {
+export interface OpenAPISchemaEnumType {
   type: "string" | "number" | "boolean"
   enum: Array<string | number | boolean | null>
   nullable?: boolean
@@ -368,7 +368,7 @@ export type OpenAPISchemaEnumType = {
  * @category models
  * @since 1.0.0
  */
-export type OpenAPISchemaOneOfType = {
+export interface OpenAPISchemaOneOfType {
   oneOf: ReadonlyArray<OpenAPISchemaType>
   nullable?: boolean
 }
@@ -377,7 +377,7 @@ export type OpenAPISchemaOneOfType = {
  * @category models
  * @since 1.0.0
  */
-export type OpenAPISchemaAllOfType = {
+export interface OpenAPISchemaAllOfType {
   allOf: Array<OpenAPISchemaType>
   nullable?: boolean
 }
@@ -386,7 +386,7 @@ export type OpenAPISchemaAllOfType = {
  * @category models
  * @since 1.0.0
  */
-export type OpenAPISchemaObjectType = {
+export interface OpenAPISchemaObjectType {
   type: "object"
   required?: Array<string>
   properties?: { [x: string]: OpenAPISchemaType }

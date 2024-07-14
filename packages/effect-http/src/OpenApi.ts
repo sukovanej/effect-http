@@ -33,5 +33,7 @@ export const makeSchema: (api: Schema.Schema.AnyNoContext) => OpenApiTypes.OpenA
  * @since 1.0.0
  */
 export const annotate: (
-  spec: OpenApiTypes.OpenAPISchemaType
-) => <A, I, R>(self: Schema.Schema<A, I, R>) => Schema.Schema<A, I, R> = internal.annotate
+  annotation: (
+    compiler: (schema: Schema.Schema.Any) => OpenApiTypes.OpenAPISchemaType
+  ) => OpenApiTypes.OpenAPISchemaType
+) => <S extends Schema.Annotable.All>(self: S) => Schema.Annotable.Self<S> = internal.annotate
