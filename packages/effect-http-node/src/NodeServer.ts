@@ -3,9 +3,6 @@
  *
  * @since 1.0.0
  */
-import type * as Effect from "effect/Effect"
-import type * as Scope from "effect/Scope"
-
 import type * as NodeContext from "@effect/platform-node/NodeContext"
 import type * as Etag from "@effect/platform/Etag"
 import type * as HttpApp from "@effect/platform/HttpApp"
@@ -14,6 +11,9 @@ import type * as HttpServer from "@effect/platform/HttpServer"
 import type * as HttpServerError from "@effect/platform/HttpServerError"
 import type * as HttpServerRequest from "@effect/platform/HttpServerRequest"
 import type * as SwaggerRouter from "effect-http/SwaggerRouter"
+import type * as Effect from "effect/Effect"
+import type * as Scope from "effect/Scope"
+
 import * as internal from "./internal/node-server.js"
 
 /**
