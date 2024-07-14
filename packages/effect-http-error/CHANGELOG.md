@@ -1,5 +1,19 @@
 # effect-http-error
 
+## 0.4.0
+
+### Minor Changes
+
+- [#618](https://github.com/sukovanej/effect-http/pull/618) [`224c0a5`](https://github.com/sukovanej/effect-http/commit/224c0a5e21d7b1244f0c48ef75391d3251ced344) Thanks [@sukovanej](https://github.com/sukovanej)! - Unify `HttpError` functions naming, add missing statuses and add docstrings.
+
+- [#616](https://github.com/sukovanej/effect-http/pull/616) [`b491f7f`](https://github.com/sukovanej/effect-http/commit/b491f7f40fcd6db458f75aaf4dc1cc06a39029f4) Thanks [@sukovanej](https://github.com/sukovanej)! - Use `TypeId` for `HttpError` identification.
+
+- [#616](https://github.com/sukovanej/effect-http/pull/616) [`b491f7f`](https://github.com/sukovanej/effect-http/commit/b491f7f40fcd6db458f75aaf4dc1cc06a39029f4) Thanks [@sukovanej](https://github.com/sukovanej)! - Add headers and cookies to `HttpError`.
+
+### Patch Changes
+
+- [#616](https://github.com/sukovanej/effect-http/pull/616) [`b491f7f`](https://github.com/sukovanej/effect-http/commit/b491f7f40fcd6db458f75aaf4dc1cc06a39029f4) Thanks [@sukovanej](https://github.com/sukovanej)! - Add 3xx HttpError responses.
+
 ## 0.3.1
 
 ### Patch Changes
