@@ -11,14 +11,14 @@ import type * as Pipeable from "effect/Pipeable"
 import type * as Scope from "effect/Scope"
 import type * as Types from "effect/Types"
 
-import type * as HttpError from "effect-http-error/HttpError"
-import type * as Security from "effect-http/Security"
 import type * as Api from "./Api.js"
 import type * as ApiEndpoint from "./ApiEndpoint.js"
 import type * as ApiRequest from "./ApiRequest.js"
 import type * as ApiResponse from "./ApiResponse.js"
 import type * as Handler from "./Handler.js"
+import type * as HttpError from "./HttpError.js"
 import * as internal from "./internal/router-builder.js"
+import type * as Security from "./Security.js"
 import type * as SwaggerRouter from "./SwaggerRouter.js"
 
 /**

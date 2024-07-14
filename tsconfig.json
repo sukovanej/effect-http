@@ -3,8 +3,6 @@
   "include": [],
   "references": [
     { "path": "packages/effect-http" },
-    { "path": "packages/effect-http-node" },
-    { "path": "packages/effect-http-security" },
-    { "path": "packages/effect-http-error" },
+    { "path": "packages/effect-http-node" }
   ]
 }

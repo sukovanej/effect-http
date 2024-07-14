@@ -6,7 +6,6 @@
 import type * as HttpMethod from "@effect/platform/HttpMethod"
 import type * as HttpRouter from "@effect/platform/HttpRouter"
 import type * as Schema from "@effect/schema/Schema"
-import type * as Security from "effect-http-security/Security"
 import type * as Array from "effect/Array"
 import type * as Pipeable from "effect/Pipeable"
 import type * as Types from "effect/Types"
@@ -16,6 +15,7 @@ import type * as ApiResponse from "./ApiResponse.js"
 import type * as ApiSchema from "./ApiSchema.js"
 import * as internal from "./internal/api-endpoint.js"
 import type * as Representation from "./Representation.js"
+import type * as Security from "./Security.js"
 
 /**
  * @since 1.0.0

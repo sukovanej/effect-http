@@ -1,7 +1,6 @@
 import * as Headers from "@effect/platform/Headers"
 import * as HttpServerRequest from "@effect/platform/HttpServerRequest"
 import * as Schema from "@effect/schema/Schema"
-import * as HttpError from "effect-http-error/HttpError"
 import * as Effect from "effect/Effect"
 import * as Either from "effect/Either"
 import * as Encoding from "effect/Encoding"
@@ -10,11 +9,13 @@ import * as Option from "effect/Option"
 import * as Pipeable from "effect/Pipeable"
 import type * as Record from "effect/Record"
 import * as Unify from "effect/Unify"
+
+import * as HttpError from "../HttpError.js"
 import type * as Security from "../Security.js"
 
 /** @internal */
 export const TypeId: Security.TypeId = Symbol.for(
-  "effect-http-security/Security/TypeId"
+  "effect-http/Security/TypeId"
 ) as Security.TypeId
 
 /** @internal */

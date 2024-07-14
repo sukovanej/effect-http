@@ -6,15 +6,15 @@
 import type * as HttpRouter from "@effect/platform/HttpRouter"
 import type * as AST from "@effect/schema/AST"
 import type * as Effect from "effect/Effect"
+import type * as Pipeable from "effect/Pipeable"
 import type * as Types from "effect/Types"
 
-import type * as Security from "effect-http-security/Security"
-import type * as Pipeable from "effect/Pipeable"
 import type * as ApiEndpoint from "./ApiEndpoint.js"
 import type * as ApiRequest from "./ApiRequest.js"
 import type * as ApiResponse from "./ApiResponse.js"
 import * as internal from "./internal/handler.js"
 import type * as utils from "./internal/utils.js"
+import type * as Security from "./Security.js"
 
 /**
  * @category type id

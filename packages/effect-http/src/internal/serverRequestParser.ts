@@ -2,13 +2,13 @@ import * as HttpRouter from "@effect/platform/HttpRouter"
 import * as HttpServerRequest from "@effect/platform/HttpServerRequest"
 import type * as AST from "@effect/schema/AST"
 import * as Schema from "@effect/schema/Schema"
-import * as HttpError from "effect-http-error/HttpError"
-import * as Security from "effect-http-security/Security"
 import * as Effect from "effect/Effect"
 
 import * as ApiEndpoint from "../ApiEndpoint.js"
 import * as ApiRequest from "../ApiRequest.js"
 import * as ApiSchema from "../ApiSchema.js"
+import * as HttpError from "../HttpError.js"
+import * as Security from "../Security.js"
 
 /** @internal */
 interface ServerRequestParser {

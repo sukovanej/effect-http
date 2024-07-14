@@ -45,8 +45,6 @@
     "@effect/schema": "^0.68.23",
     "@types/node": "^20.14.10",
     "effect": "^3.5.3",
-    "effect-http": "workspace:^",
-    "effect-http-error": "workspace:^",
-    "effect-http-security": "workspace:^"
+    "effect-http": "workspace:^"
   }
 }

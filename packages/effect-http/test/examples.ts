@@ -1,7 +1,6 @@
 import * as Schema from "@effect/schema/Schema"
 import { pipe } from "effect"
-import { Api, ApiResponse, ApiSchema, QuerySchema, Representation } from "effect-http"
-import { Security } from "effect-http-security"
+import { Api, ApiResponse, ApiSchema, QuerySchema, Representation, Security } from "effect-http"
 
 // Example GET
 

@@ -3,8 +3,7 @@ import { Schema } from "@effect/schema"
 import { pipe } from "effect"
 import { expect, it, test } from "vitest"
 
-import { Api, ApiGroup, OpenApi, QuerySchema } from "effect-http"
-import { Security } from "effect-http-security"
+import { Api, ApiGroup, OpenApi, QuerySchema, Security } from "effect-http"
 
 import { describe } from "node:test"
 

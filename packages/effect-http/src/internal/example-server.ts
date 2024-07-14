@@ -1,5 +1,4 @@
 import type * as Schema from "@effect/schema/Schema"
-import * as HttpError from "effect-http-error/HttpError"
 import * as Array from "effect/Array"
 import * as Effect from "effect/Effect"
 import { pipe } from "effect/Function"
@@ -7,6 +6,7 @@ import * as Unify from "effect/Unify"
 
 import * as Api from "../Api.js"
 import * as ApiEndpoint from "../ApiEndpoint.js"
+import * as HttpError from "../HttpError.js"
 import * as RouterBuilder from "../RouterBuilder.js"
 import * as example_compiler from "./example-compiler.js"
 import * as utils from "./utils.js"

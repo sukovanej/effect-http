@@ -8,7 +8,6 @@ import * as Headers from "@effect/platform/Headers"
 import * as HttpMiddleware from "@effect/platform/HttpMiddleware"
 import * as HttpServerRequest from "@effect/platform/HttpServerRequest"
 import * as HttpServerResponse from "@effect/platform/HttpServerResponse"
-import * as HttpError from "effect-http-error/HttpError"
 import * as Effect from "effect/Effect"
 import * as Either from "effect/Either"
 import * as Encoding from "effect/Encoding"
@@ -17,6 +16,7 @@ import { pipe } from "effect/Function"
 import * as HashMap from "effect/HashMap"
 import * as Metric from "effect/Metric"
 
+import * as HttpError from "../HttpError.js"
 import type * as Middlewares from "../Middlewares.js"
 
 /** @internal */
