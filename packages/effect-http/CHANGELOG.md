@@ -1,5 +1,15 @@
 # effect-http
 
+## 0.73.0
+
+### Minor Changes
+
+- [#620](https://github.com/sukovanej/effect-http/pull/620) [`39b22e4`](https://github.com/sukovanej/effect-http/commit/39b22e49d1657ae56aae7815aa60806943552a59) Thanks [@sukovanej](https://github.com/sukovanej)! - Make `Api.setRequestPath`, `Api.setRequestQuery` and `Api.setRequestHeaders` more type-safe by constraining the schema type.
+
+### Patch Changes
+
+- [#620](https://github.com/sukovanej/effect-http/pull/620) [`39b22e4`](https://github.com/sukovanej/effect-http/commit/39b22e49d1657ae56aae7815aa60806943552a59) Thanks [@sukovanej](https://github.com/sukovanej)! - Add `QuerySchema` module.
+
 ## 0.72.0
 
 ### Minor Changes
