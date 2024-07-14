@@ -1,9 +1,8 @@
 import { Schema } from "@effect/schema"
 import * as it from "@effect/vitest"
 import { Effect, flow, pipe } from "effect"
-import { Api, Client, RouterBuilder } from "effect-http"
+import { Api, Client, RouterBuilder, Security } from "effect-http"
 import { NodeTesting } from "effect-http-node"
-import { Security } from "effect-http-security"
 import { expect } from "vitest"
 
 const xApiKey = Security.apiKey({ key: "x-api-key", in: "header" })

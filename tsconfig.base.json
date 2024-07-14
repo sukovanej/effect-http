@@ -40,11 +40,7 @@
       "effect-http": ["./packages/effect-http/src/index.js"],
       "effect-http/*": ["./packages/effect-http/src/*.js"],
       "effect-http-node": ["./packages/effect-http-node/src/index.js"],
-      "effect-http-node/*": ["./packages/effect-http-node/src/*.js"],
-      "effect-http-security": ["./packages/effect-http-security/src/index.js"],
-      "effect-http-security/*": ["./packages/effect-http-security/src/*.js"],
-      "effect-http-error": ["./packages/effect-http-error/src/index.js"],
-      "effect-http-error/*": ["./packages/effect-http-error/src/*.js"],
+      "effect-http-node/*": ["./packages/effect-http-node/src/*.js"]
     }
   }
 }

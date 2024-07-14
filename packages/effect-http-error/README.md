@@ -1,3 +1,0 @@
-# effect-http-error
-
-WIP

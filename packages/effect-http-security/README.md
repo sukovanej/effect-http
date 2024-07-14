@@ -1,3 +1,0 @@
-# effect-http-security
-
-WIP

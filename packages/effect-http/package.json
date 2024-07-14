@@ -30,10 +30,6 @@
     "test": "vitest",
     "coverage": "vitest --coverage"
   },
-  "dependencies": {
-    "effect-http-error": "workspace:^",
-    "effect-http-security": "workspace:^"
-  },
   "peerDependencies": {
     "@effect/platform": "^0.58.0",
     "@effect/schema": "^0.68.0",

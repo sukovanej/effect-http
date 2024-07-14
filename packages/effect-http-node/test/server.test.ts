@@ -5,10 +5,8 @@ import { Array, Context, Effect, Either, Layer, Option, pipe } from "effect"
 import { createHash } from "node:crypto"
 import { assert, describe, expect, test } from "vitest"
 
-import { Api, ApiResponse, Client, ClientError, QuerySchema, RouterBuilder } from "effect-http"
-import { HttpError } from "effect-http-error"
+import { Api, ApiResponse, Client, ClientError, HttpError, QuerySchema, RouterBuilder, Security } from "effect-http"
 import { NodeTesting } from "effect-http-node"
-import { Security } from "effect-http-security"
 
 import {
   exampleApiEmptyResponse,

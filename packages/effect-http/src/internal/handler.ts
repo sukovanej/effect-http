@@ -1,11 +1,11 @@
 import * as HttpRouter from "@effect/platform/HttpRouter"
-import * as HttpError from "effect-http-error/HttpError"
-import { pipe } from "effect/Function"
-
 import * as Effect from "effect/Effect"
+import { pipe } from "effect/Function"
 import * as Pipeable from "effect/Pipeable"
+
 import * as ApiEndpoint from "../ApiEndpoint.js"
 import type * as Handler from "../Handler.js"
+import * as HttpError from "../HttpError.js"
 import * as ServerRequestParser from "./serverRequestParser.js"
 import * as ServerResponseEncoder from "./serverResponseEncoder.js"
 

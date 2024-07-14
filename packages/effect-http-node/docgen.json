@@ -10,14 +10,17 @@
     "moduleResolution": "Bundler",
     "module": "ES2022",
     "target": "ES2022",
-    "lib": ["ES2022", "DOM"],
+    "lib": [
+      "ES2022",
+      "DOM"
+    ],
     "paths": {
-      "effect-http": ["../../../effect-http/src/index.js"],
-      "effect-http/*": ["../../../effect-http/src/*.js"],
-      "effect-http-security": ["../../../effect-http-security/src/index.js"],
-      "effect-http-security/*": ["../../../effect-http-security/src/*.js"],
-      "effect-http-error": ["../../../effect-http-error/src/index.js"],
-      "effect-http-error/*": ["../../../effect-http-error/src/*.js"]
+      "effect-http": [
+        "../../../effect-http/src/index.js"
+      ],
+      "effect-http/*": [
+        "../../../effect-http/src/*.js"
+      ]
     }
   }
 }

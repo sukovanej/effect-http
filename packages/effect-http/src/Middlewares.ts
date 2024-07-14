@@ -3,10 +3,10 @@
  *
  * @since 1.0.0
  */
+import type * as HttpApp from "@effect/platform/HttpApp"
 import type * as Effect from "effect/Effect"
 
-import type * as HttpApp from "@effect/platform/HttpApp"
-import type * as HttpError from "effect-http-error/HttpError"
+import type * as HttpError from "./HttpError.js"
 import * as internal from "./internal/middlewares.js"
 
 /**

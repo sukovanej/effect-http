@@ -1,6 +1,5 @@
 import * as AST from "@effect/schema/AST"
 import * as Schema from "@effect/schema/Schema"
-import * as Security from "effect-http-security/Security"
 import * as Array from "effect/Array"
 import { identity, pipe } from "effect/Function"
 import * as Option from "effect/Option"
@@ -12,6 +11,7 @@ import * as ApiRequest from "../ApiRequest.js"
 import * as ApiResponse from "../ApiResponse.js"
 import * as ApiSchema from "../ApiSchema.js"
 import type * as OpenApiTypes from "../OpenApiTypes.js"
+import * as Security from "../Security.js"
 import * as circular from "./circular.js"
 
 /** @internal */

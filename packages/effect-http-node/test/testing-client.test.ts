@@ -3,10 +3,18 @@ import { NodeContext } from "@effect/platform-node"
 import { Schema } from "@effect/schema"
 import * as it from "@effect/vitest"
 import { Context, Effect, pipe, Predicate } from "effect"
-import { Api, ApiResponse, ApiSchema, Client, ClientError, Representation, RouterBuilder } from "effect-http"
-import { HttpError } from "effect-http-error"
+import {
+  Api,
+  ApiResponse,
+  ApiSchema,
+  Client,
+  ClientError,
+  HttpError,
+  Representation,
+  RouterBuilder,
+  Security
+} from "effect-http"
 import { NodeTesting } from "effect-http-node"
-import { Security } from "effect-http-security"
 import { expect } from "vitest"
 
 it.scoped(
