@@ -110,7 +110,7 @@ export const basicAuth = <R, _>(
       const authHeader = request.headers[headerName.toLowerCase()]
 
       if (authHeader === undefined) {
-        return HttpError.unauthorizedError(
+        return HttpError.unauthorized(
           `Expected header ${headerName}`
         ).pipe(HttpError.toResponse)
       }
@@ -118,13 +118,13 @@ export const basicAuth = <R, _>(
       const authorizationParts = authHeader.split(" ")
 
       if (authorizationParts.length !== 2) {
-        return HttpError.unauthorizedError(
+        return HttpError.unauthorized(
           "Incorrect auhorization scheme. Expected \"Basic <credentials>\""
         ).pipe(HttpError.toResponse)
       }
 
       if (authorizationParts[0] !== "Basic") {
-        return HttpError.unauthorizedError(
+        return HttpError.unauthorized(
           `Incorrect auhorization type. Expected "Basic", got "${authorizationParts[0]}"`
         ).pipe(HttpError.toResponse)
       }
@@ -132,14 +132,14 @@ export const basicAuth = <R, _>(
       const credentialsDecoded = Encoding.decodeBase64String(authorizationParts[1])
 
       if (Either.isLeft(credentialsDecoded)) {
-        return HttpError.unauthorizedError("Invalid base64 encoding").pipe(HttpError.toResponse)
+        return HttpError.unauthorized("Invalid base64 encoding").pipe(HttpError.toResponse)
       }
 
       const credentialsText = credentialsDecoded.right
       const credentialsParts = credentialsText.split(":")
 
       if (credentialsParts.length !== 2) {
-        return HttpError.unauthorizedError(
+        return HttpError.unauthorized(
           "Incorrect basic auth credentials format. Expected base64 encoded \"<user>:<pass>\"."
         ).pipe(HttpError.toResponse)
       }

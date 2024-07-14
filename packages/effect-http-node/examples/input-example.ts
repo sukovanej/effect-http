@@ -18,7 +18,7 @@ const api = pipe(
 
 const stuffHandler = RouterBuilder.handler(api, "stuff", ({ query }) =>
   pipe(
-    Effect.fail(HttpError.notFoundError("I didnt find it")),
+    Effect.fail(HttpError.notFound("I didnt find it")),
     Effect.tap(() => Effect.log(`Received ${query.value}`))
   ))
 

@@ -36,7 +36,7 @@ const app = RouterBuilder.make(api).pipe(
       userExistsByName(body.name),
       Effect.filterOrFail(
         (alreadyExists) => !alreadyExists,
-        () => HttpError.conflictError(`User "${body.name}" already exists.`)
+        () => HttpError.conflict(`User "${body.name}" already exists.`)
       ),
       Effect.andThen(storeUser(body.name)),
       Effect.map(() => `User "${body.name}" stored.`)

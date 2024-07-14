@@ -79,13 +79,13 @@ const app = pipe(
       Effect.filterOrFail(
         Effect.flatMap(ClientsService, (clients) => clients.hasAccess(clientId)),
         (hasAccess) => hasAccess,
-        () => HttpError.unauthorizedError("Wrong api key")
+        () => HttpError.unauthorized("Wrong api key")
       ),
       Effect.flatMap(() => Effect.flatMap(ClientsService, (client) => client.getRemainingUsage(clientId))),
       Effect.tap((remainingUsages) => Effect.log(`Remaining ${remainingUsages} usages.`)),
       Effect.filterOrFail(
         (remainingUsages) => remainingUsages > 0,
-        () => HttpError.tooManyRequestsError("Rate limit exceeded")
+        () => HttpError.tooManyRequests("Rate limit exceeded")
       ),
       Effect.flatMap(() => Effect.flatMap(ClientsService, (client) => client.recordUsage(clientId))),
       Effect.as("hello there")
