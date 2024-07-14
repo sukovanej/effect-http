@@ -69,15 +69,13 @@ import { Api, QuerySchema } from "effect-http";
 
 const UserResponse = Schema.Struct({
   name: Schema.String,
-  id: pipe(Schema.Number, Schema.int(), Schema.positive()),
+  id: Schema.Int.pipe(Schema.positive()),
 });
 const GetUserQuery = Schema.Struct({ id: QuerySchema.Number });
 
-const api = pipe(
-  Api.make({ title: "Users API" }),
+const api = Api.make({ title: "Users API" }).pipe(
   Api.addEndpoint(
-    pipe(
-      Api.get("getUser", "/user"),
+    Api.get("getUser", "/user").pipe(
       Api.setResponseBody(UserResponse),
       Api.setRequestQuery(GetUserQuery)
     )
@@ -88,11 +86,10 @@ const api = pipe(
 Create the app implementation.
 
 ```typescript
-import { Effect, pipe } from "effect";
+import { Effect } from "effect";
 import { RouterBuilder } from "effect-http";
 
-const app = pipe(
-  RouterBuilder.make(api),
+const app = RouterBuilder.make(api).pipe(
   RouterBuilder.handle("getUser", ({ query }) =>
     Effect.succeed({ name: "milan", id: query.id })
   ),
@@ -120,8 +117,7 @@ app.pipe(NodeServer.listen({ port: 3000 }), NodeRuntime.runMain);
 and call it using the `client`.
 
 ```ts
-const response = pipe(
-  client.getUser({ query: { id: 12 } }),
+const response = client.getUser({ query: { id: 12 } }).pipe(
   Effect.flatMap((user) => Effect.log(`Got ${user.name}, nice!`)),
   Effect.scoped
 );
@@ -180,7 +176,6 @@ ommited on the client side.
 
 ```typescript
 import { Schema } from "@effect/schema";
-import { pipe } from "effect";
 import { Api } from "effect-http";
 
 const Stuff = Schema.Struct({ value: Schema.Number });
@@ -189,11 +184,9 @@ const StuffParams = Schema.Struct({
   another: Schema.optional(Schema.String),
 });
 
-export const api = pipe(
-  Api.make({ title: "My api" }),
+export const api = Api.make({ title: "My api" }).pipe(
   Api.addEndpoint(
-    pipe(
-      Api.get("stuff", "/stuff/:param/:another?"),
+    Api.get("stuff", "/stuff/:param/:another?").pipe(
       Api.setResponseBody(Stuff),
       Api.setRequestPath(StuffParams)
     )
@@ -213,7 +206,6 @@ a single endpoint `/hello` which expects a header `X-Client-Id` to be present.
 ```typescript
 import { NodeRuntime } from "@effect/platform-node";
 import { Schema } from "@effect/schema";
-import { pipe } from "effect";
 import { Api, ExampleServer, RouterBuilder } from "effect-http";
 import { NodeServer } from "effect-http-node";
 
@@ -226,8 +218,7 @@ const api = Api.make().pipe(
   )
 );
 
-pipe(
-  ExampleServer.make(api),
+ExampleServer.make(api).pipe(
   RouterBuilder.build,
   NodeServer.listen({ port: 3000 }),
   NodeRuntime.runMain
@@ -323,7 +314,7 @@ The following example show-cases how to construct a security mechanism that vali
 the basic auth credentials and then fetches the user information from the `UserStorage` service.
 
 ```ts
-import { Effect, Layer, pipe } from "effect";
+import { Effect, Layer } from "effect";
 import { Security } from "effect-http";
 
 interface UserInfo {
@@ -342,8 +333,7 @@ class UserStorage extends Effect.Tag("UserStorage")<
   );
 }
 
-const mySecurity = pipe(
-  Security.basic({ description: "My basic auth" }),
+const mySecurity = Security.basic({ description: "My basic auth" }).pipe(
   Security.map((creds) => creds.user),
   Security.mapEffect((user) => UserStorage.getInfo(user))
 );
@@ -449,14 +439,11 @@ body and headers conform the specified response.
 
 ```ts
 import { Schema } from "@effect/schema";
-import { pipe } from "effect";
 import { Api } from "effect-http";
 
-const api = pipe(
-  Api.make(),
+const api = Api.make().pipe(
   Api.addEndpoint(
-    pipe(
-      Api.get("hello", "/hello"),
+    Api.get("hello", "/hello").pipe(
       Api.setResponseStatus(201),
       Api.setResponseBody(Schema.Number),
       Api.setResponseHeaders(Schema.Struct({ "x-hello-world": Schema.String }))
@@ -474,15 +461,14 @@ form `{ status; headers; body}`.
 
 ```ts
 import { Schema } from "@effect/schema";
-import { Effect, pipe } from "effect";
+import { Effect } from "effect";
 import { Api, ApiResponse, RouterBuilder } from "effect-http";
 
 const helloEndpoint = Api.post("hello", "/hello").pipe(
   Api.setResponseBody(Schema.Number),
   Api.setResponseHeaders(
     Schema.Struct({
-      "my-header": pipe(
-        Schema.NumberFromString,
+      "my-header": Schema.NumberFromString.pipe(
         Schema.annotations({ description: "My header" })
       ),
     })
@@ -494,7 +480,7 @@ const helloEndpoint = Api.post("hello", "/hello").pipe(
   })
 );
 
-const api = pipe(Api.make(), Api.addEndpoint(helloEndpoint));
+const api = Api.make().pipe(Api.addEndpoint(helloEndpoint));
 ```
 
 The server implemention is type-checked against the api responses
@@ -504,11 +490,10 @@ Note: the `status` needs to be `as const` because without it Typescript
 will infere the `number` type.
 
 ```ts
-import { Effect, pipe } from "effect";
+import { Effect } from "effect";
 import { Api, RouterBuilder } from "effect-http";
 
-const app = pipe(
-  RouterBuilder.make(api),
+const app = RouterBuilder.make(api).pipe(
   RouterBuilder.handle("hello", () =>
     Effect.succeed({
       body: 12,
@@ -601,8 +586,7 @@ import { Context, Effect, pipe } from "effect";
 import { Api, RouterBuilder, HttpError } from "effect-http";
 import { NodeServer } from "effect-http-node";
 
-const api = pipe(
-  Api.make({ title: "Users API" }),
+const api = Api.make({ title: "Users API" }).pipe(
   Api.addEndpoint(
     Api.post("storeUser", "/users").pipe(
       Api.setResponseBody(Schema.String),
@@ -703,33 +687,31 @@ generation of tags for the OpenAPI specification.
 ```typescript
 import { NodeRuntime } from "@effect/platform-node";
 import { Schema } from "@effect/schema";
-import { Effect, pipe } from "effect";
+import { Effect } from "effect";
 import { Api, ApiGroup, ExampleServer, RouterBuilder } from "effect-http";
 
 import { NodeServer } from "effect-http-node";
 
 const Response = Schema.Struct({ name: Schema.String });
 
-const testApi = pipe(
-  ApiGroup.make("test", {
-    description: "Test description",
-    externalDocs: {
-      description: "Test external doc",
-      url: "https://www.google.com/search?q=effect-http",
-    },
-  }),
+const testApi = ApiGroup.make("test", {
+  description: "Test description",
+  externalDocs: {
+    description: "Test external doc",
+    url: "https://www.google.com/search?q=effect-http",
+  },
+}).pipe(
   ApiGroup.addEndpoint(
     ApiGroup.get("test", "/test").pipe(Api.setResponseBody(Response))
   )
 );
 
-const userApi = pipe(
-  ApiGroup.make("Users", {
-    description: "All about users",
-    externalDocs: {
-      url: "https://www.google.com/search?q=effect-http",
-    },
-  }),
+const userApi = ApiGroup.make("Users", {
+  description: "All about users",
+  externalDocs: {
+    url: "https://www.google.com/search?q=effect-http",
+  },
+}).pipe(
   ApiGroup.addEndpoint(
     ApiGroup.get("getUser", "/user").pipe(Api.setResponseBody(Response))
   ),
@@ -809,23 +791,20 @@ desired description.
 ```ts
 import { NodeRuntime } from "@effect/platform-node";
 import { Schema } from "@effect/schema";
-import { Effect, pipe } from "effect";
+import { Effect } from "effect";
 import { Api, QuerySchema, RouterBuilder } from "effect-http";
 import { NodeServer } from "effect-http-node";
 
-const Response = pipe(
-  Schema.Struct({
-    name: Schema.String,
-    id: pipe(Schema.Number, Schema.int(), Schema.positive()),
-  }),
-  Schema.annotations({ description: "User" })
-);
+const Response = Schema.Struct({
+  name: Schema.String,
+  id: pipe(Schema.Number, Schema.int(), Schema.positive()),
+}).pipe(Schema.annotations({ description: "User" }));
+
 const Query = Schema.Struct({
-  id: pipe(QuerySchema.Number, Schema.annotations({ description: "User id" })),
+  id: QuerySchema.Number.pipe(Schema.annotations({ description: "User id" })),
 });
 
-const api = pipe(
-  Api.make({ title: "Users API" }),
+const api = Api.make({ title: "Users API" }).pipe(
   Api.addEndpoint(
     Api.get("getUser", "/user", { description: "Returns a User by id" }).pipe(
       Api.setResponseBody(Response),
@@ -834,15 +813,14 @@ const api = pipe(
   )
 );
 
-const app = pipe(
-  RouterBuilder.make(api),
+const app = RouterBuilder.make(api).pipe(
   RouterBuilder.handle("getUser", ({ query }) =>
     Effect.succeed({ name: "mike", id: query.id })
   ),
   RouterBuilder.build
 );
 
-pipe(app, NodeServer.listen({ port: 3000 }), NodeRuntime.runMain);
+app.pipe(NodeServer.listen({ port: 3000 }), NodeRuntime.runMain);
 ```
 
 [\[Source code\]](./packages/effect-http-node/examples/description.ts)
@@ -957,7 +935,7 @@ Use `ExampleServer.make` combinator to generate a `RouterBuilder` from an `Api`.
 ```typescript
 import { NodeRuntime } from "@effect/platform-node";
 import { Schema } from "@effect/schema";
-import { Effect, pipe } from "effect";
+import { Effect } from "effect";
 import { Api, ExampleServer, RouterBuilder } from "effect-http";
 import { NodeServer } from "effect-http-node";
 
@@ -966,15 +944,13 @@ const Response = Schema.Struct({
   value: Schema.Number,
 });
 
-const api = pipe(
-  Api.make({
-    servers: ["http://localhost:3000", { description: "hello", url: "/api/" }],
-  }),
+const api = Api.make({
+  servers: ["http://localhost:3000", { description: "hello", url: "/api/" }],
+}).pipe(
   Api.addEndpoint(Api.get("test", "/test").pipe(Api.setResponseBody(Response)))
 );
 
-pipe(
-  ExampleServer.make(api),
+ExampleServer.make(api).pipe(
   RouterBuilder.build,
   NodeServer.listen({ port: 3000 }),
   NodeRuntime.runMain

@@ -1,10 +1,9 @@
 import { NodeRuntime } from "@effect/platform-node"
 import { Schema } from "@effect/schema"
-import { Array, Context, Effect, pipe, Ref } from "effect"
+import { Array, Context, Effect, Logger, LogLevel, pipe, Ref } from "effect"
 import { Api, HttpError, Middlewares, RouterBuilder } from "effect-http"
 
 import { NodeServer } from "effect-http-node"
-import { debugLogger } from "./_utils.js"
 
 interface Clients {
   hasAccess: (clientId: string) => Effect.Effect<boolean>
@@ -92,7 +91,7 @@ const app = pipe(
     )),
   RouterBuilder.build,
   Middlewares.errorLog,
-  Middlewares.accessLog("Debug")
+  Middlewares.accessLog(LogLevel.Debug)
 )
 
 pipe(
@@ -100,6 +99,7 @@ pipe(
   NodeServer.listen({ port: 3000 }),
   Effect.provideService(ClientsService, clients),
   Effect.provideServiceEffect(UsagesService, Ref.make([] as Array<ClientUsage>)),
-  Effect.provide(debugLogger),
+  Effect.provide(Logger.pretty),
+  Logger.withMinimumLogLevel(LogLevel.All),
   NodeRuntime.runMain
 )

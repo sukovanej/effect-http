@@ -1,24 +1,26 @@
+import type { Error } from "@effect/platform"
+import { FileSystem } from "@effect/platform"
 import { NodeRuntime } from "@effect/platform-node"
 import { Schema } from "@effect/schema"
-import { Array, Context, Duration, Effect, pipe, Request, RequestResolver } from "effect"
+import { Array, Context, Duration, Effect, Logger, LogLevel, pipe, Request, RequestResolver } from "effect"
 import { Api, HttpError, RouterBuilder } from "effect-http"
-
 import { NodeServer } from "effect-http-node"
-import type { FileNotFoundError } from "./_utils.js"
-import { debugLogger, readFile } from "./_utils.js"
 
-interface GetValue extends Request.Request<string, FileNotFoundError> {
+interface GetValue extends Request.Request<string, Error.PlatformError> {
   readonly _tag: "GetValue"
 }
 const GetValue = Request.tagged<GetValue>("GetValue")
 
 const GetValueCache = Context.GenericTag<Request.Cache>("@services/GetValueCache")
 
-const GetValueResolver = RequestResolver.fromEffect((_: GetValue) =>
-  pipe(
-    readFile("test-file"),
-    Effect.tap(() => Effect.logDebug("Value read from file"))
-  )
+const GetValueResolver = Effect.map(
+  FileSystem.FileSystem,
+  ({ readFileString }) =>
+    RequestResolver.fromEffect((_: GetValue) =>
+      readFileString("test-file").pipe(
+        Effect.tap(() => Effect.logDebug("Value read from file"))
+      )
+    )
 )
 
 const requestMyValue = Effect.flatMap(GetValueCache, (getValueCache) =>
@@ -58,6 +60,7 @@ pipe(
     GetValueCache,
     Request.makeCache({ capacity: 100, timeToLive: Duration.seconds(5) })
   ),
-  Effect.provide(debugLogger),
+  Effect.provide(Logger.pretty),
+  Logger.withMinimumLogLevel(LogLevel.All),
   NodeRuntime.runMain
 )

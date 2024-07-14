@@ -1,9 +1,8 @@
 import { NodeRuntime } from "@effect/platform-node"
 import { Schema } from "@effect/schema"
-import { Effect, Option } from "effect"
+import { Effect, Logger, LogLevel, Option } from "effect"
 import { Api, Middlewares, RouterBuilder, Security } from "effect-http"
 import { NodeServer } from "effect-http-node"
-import { debugLogger } from "./_utils.js"
 
 const mySecurity = Security.or(
   Security.asSome(Security.basic()),
@@ -31,4 +30,9 @@ const app = RouterBuilder.make(api).pipe(
   Middlewares.errorLog
 )
 
-app.pipe(NodeServer.listen({ port: 3000 }), Effect.provide(debugLogger), NodeRuntime.runMain)
+app.pipe(
+  NodeServer.listen({ port: 3000 }),
+  Effect.provide(Logger.pretty),
+  Logger.withMinimumLogLevel(LogLevel.All),
+  NodeRuntime.runMain
+)

@@ -1,53 +1,51 @@
 import { NodeRuntime } from "@effect/platform-node"
 import { Schema } from "@effect/schema"
-import { Context, Effect, pipe } from "effect"
-import { Api, HttpError, Middlewares, RouterBuilder } from "effect-http"
+import { Effect, Logger, pipe } from "effect"
+import { Api, Handler, HttpError, Middlewares, RouterBuilder } from "effect-http"
 
 import { NodeServer } from "effect-http-node"
-import { debugLogger } from "./_utils.js"
+
+class UserRepository extends Effect.Tag("UserRepository")<UserRepository, {
+  userExistsByName: (name: string) => Effect.Effect<boolean>
+  storeUser: (user: string) => Effect.Effect<void>
+}>() {
+  static dummy = this.of({
+    userExistsByName: () => Effect.succeed(true),
+    storeUser: () => Effect.void
+  })
+}
+
+const storeUserEndpoint = Api.post("storeUser", "/users").pipe(
+  Api.setResponseBody(Schema.String),
+  Api.setRequestBody(Schema.Struct({ name: Schema.String }))
+)
 
 const api = pipe(
   Api.make({ title: "Users API" }),
-  Api.addEndpoint(
-    Api.post("storeUser", "/users").pipe(
-      Api.setResponseBody(Schema.String),
-      Api.setRequestBody(Schema.Struct({ name: Schema.String }))
-    )
-  )
+  Api.addEndpoint(storeUserEndpoint)
 )
 
-interface UserRepository {
-  userExistsByName: (name: string) => Effect.Effect<boolean>
-  storeUser: (user: string) => Effect.Effect<void>
-}
+const storeUserHandler = Handler.make(storeUserEndpoint, ({ body }) =>
+  Effect.gen(function*(_) {
+    const userRepository = yield* UserRepository
 
-const UserRepository = Context.GenericTag<UserRepository>("UserRepository")
+    if (yield* userRepository.userExistsByName(body.name)) {
+      return yield* HttpError.conflict(`User "${body.name}" already exists.`)
+    }
 
-const mockUserRepository = UserRepository.of({
-  userExistsByName: () => Effect.succeed(true),
-  storeUser: () => Effect.void
-})
-
-const { storeUser, userExistsByName } = Effect.serviceFunctions(UserRepository)
+    yield* userRepository.storeUser(body.name)
+    return `User "${body.name}" stored.`
+  }))
 
 const app = RouterBuilder.make(api).pipe(
-  RouterBuilder.handle("storeUser", ({ body }) =>
-    pipe(
-      userExistsByName(body.name),
-      Effect.filterOrFail(
-        (alreadyExists) => !alreadyExists,
-        () => HttpError.conflict(`User "${body.name}" already exists.`)
-      ),
-      Effect.andThen(storeUser(body.name)),
-      Effect.map(() => `User "${body.name}" stored.`)
-    )),
+  RouterBuilder.handle(storeUserHandler),
   RouterBuilder.build,
   Middlewares.errorLog
 )
 
 app.pipe(
   NodeServer.listen({ port: 3000 }),
-  Effect.provideService(UserRepository, mockUserRepository),
-  Effect.provide(debugLogger),
+  Effect.provideService(UserRepository, UserRepository.dummy),
+  Effect.provide(Logger.pretty),
   NodeRuntime.runMain
 )

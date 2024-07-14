@@ -1,10 +1,9 @@
 import { NodeRuntime } from "@effect/platform-node"
 import { Schema } from "@effect/schema"
-import { Effect, Metric, pipe } from "effect"
+import { Effect, Logger, LogLevel, Metric, pipe } from "effect"
 import { Api, Middlewares, RouterBuilder } from "effect-http"
 
 import { NodeServer } from "effect-http-node"
-import { debugLogger } from "./_utils.js"
 
 const api = pipe(
   Api.make({ title: "Users API" }),
@@ -32,6 +31,7 @@ const app = pipe(
 
 app.pipe(
   NodeServer.listen({ port: 3000 }),
-  Effect.provide(debugLogger),
+  Effect.provide(Logger.pretty),
+  Logger.withMinimumLogLevel(LogLevel.All),
   NodeRuntime.runMain
 )

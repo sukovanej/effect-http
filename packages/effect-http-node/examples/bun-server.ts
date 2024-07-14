@@ -3,7 +3,7 @@ import { BunContext, BunHttpServer } from "@effect/platform-bun"
 import { NodeRuntime } from "@effect/platform-node"
 import { Schema } from "@effect/schema"
 import { Effect, Layer, pipe } from "effect"
-import { Api, RouterBuilder } from "effect-http"
+import { Api, Handler, RouterBuilder } from "effect-http"
 import { NodeSwaggerFiles } from "effect-http-node"
 
 const Response = Schema.Struct({
@@ -12,19 +12,21 @@ const Response = Schema.Struct({
 })
 const Query = Schema.Struct({ id: Schema.NumberFromString })
 
+const getUserEndpoint = Api.get("getUser", "/user").pipe(
+  Api.setResponseBody(Response),
+  Api.setRequestQuery(Query)
+)
+
+const getUserHandler = Handler.make(getUserEndpoint, ({ query }) => Effect.succeed({ name: "milan", id: query.id }))
+
 const api = pipe(
   Api.make({ title: "Users API" }),
-  Api.addEndpoint(
-    Api.get("getUser", "/user").pipe(
-      Api.setResponseBody(Response),
-      Api.setRequestQuery(Query)
-    )
-  )
+  Api.addEndpoint(getUserEndpoint)
 )
 
 const app = pipe(
   RouterBuilder.make(api),
-  RouterBuilder.handle("getUser", ({ query }) => Effect.succeed({ name: "milan", id: query.id })),
+  RouterBuilder.handle(getUserHandler),
   RouterBuilder.build
 )
 

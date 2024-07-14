@@ -1,16 +1,13 @@
 import { NodeRuntime } from "@effect/platform-node"
 import { Schema } from "@effect/schema"
-import { Effect, pipe } from "effect"
+import { Effect, Logger, LogLevel, pipe } from "effect"
 import { Api, RouterBuilder } from "effect-http"
 
 import { NodeServer } from "effect-http-node"
-import { debugLogger } from "./_utils.js"
 
-const api = pipe(
-  Api.make(),
+const api = Api.make().pipe(
   Api.addEndpoint(
-    pipe(
-      Api.get("hello", "/hello"),
+    Api.get("hello", "/hello").pipe(
       Api.setResponseStatus(201),
       Api.setResponseBody(Schema.Number),
       Api.setResponseHeaders(Schema.Struct({ "x-hello-world": Schema.String }))
@@ -30,6 +27,7 @@ const app = pipe(
 pipe(
   app,
   NodeServer.listen({ port: 3000 }),
-  Effect.provide(debugLogger),
+  Effect.provide(Logger.pretty),
+  Logger.withMinimumLogLevel(LogLevel.All),
   NodeRuntime.runMain
 )
