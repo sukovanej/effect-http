@@ -90,6 +90,19 @@ export declare namespace ApiEndpoint {
   export type Any = ApiEndpoint<AnyId, ApiRequest.ApiRequest.Any, ApiResponse.ApiResponse.Any, Security.Security.Any>
 
   /**
+   * Any endpoint with `Request = Request.Any` and `Response = Response.Any`.
+   *
+   * @category models
+   * @since 1.0.0
+   */
+  export type Unknown = ApiEndpoint<
+    AnyId,
+    ApiRequest.ApiRequest.Unknown,
+    ApiResponse.ApiResponse.Unknown,
+    Security.Security.Unknown
+  >
+
+  /**
    * Default endpoint spec.
    *
    * @category models

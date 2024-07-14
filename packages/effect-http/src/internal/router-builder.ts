@@ -3,6 +3,7 @@ import * as HttpRouter from "@effect/platform/HttpRouter"
 import type * as HttpServerRequest from "@effect/platform/HttpServerRequest"
 import * as Effect from "effect/Effect"
 import { dual } from "effect/Function"
+import * as Iterable from "effect/Iterable"
 import * as Pipeable from "effect/Pipeable"
 import type * as Scope from "effect/Scope"
 
@@ -113,21 +114,37 @@ const getRemainingEndpoint = <
 
 /** @internal */
 export const handle = (...args: Array<any>) => (builder: RouterBuilder.RouterBuilder.Any): any => {
-  if (args.length === 2) {
-    const [id, handler] = args
-    const endpoint = getRemainingEndpoint(builder, id)
-    return handle(Handler.make(endpoint, handler))(builder)
+  if (Handler.isHandler(args[0])) {
+    return (args as ReadonlyArray<Handler.Handler.Any>).reduce((builder, handler) => {
+      const remainingEndpoints = removeRemainingEndpoint(
+        builder,
+        ApiEndpoint.getId(Handler.getEndpoint(handler))
+      )
+      const router = addRoute(builder.router, Handler.getRoute(handler))
+
+      return new RouterBuilderImpl(remainingEndpoints, builder.api, router, builder.options)
+    }, builder)
   }
 
-  const handler = args[0] as Handler.Handler.Any
-  const remainingEndpoints = removeRemainingEndpoint(
-    builder,
-    ApiEndpoint.getId(Handler.getEndpoint(handler))
-  )
-  const router = addRoute(builder.router, Handler.getRoute(handler))
-
-  return new RouterBuilderImpl(remainingEndpoints, builder.api, router, builder.options)
+  const [id, handler] = args
+  const endpoint = getRemainingEndpoint(builder, id)
+  return handle(Handler.make(endpoint, handler))(builder)
 }
+
+/** @internal */
+export const handleMany =
+  <A extends ApiEndpoint.ApiEndpoint.Any, H extends Handler.Handler.Any>(handlers: Iterable<H>) =>
+  <R1, E1>(builder: RouterBuilder.RouterBuilder<A, E1, R1>) =>
+    Iterable.reduce(
+      handlers,
+      builder as RouterBuilder.RouterBuilder<
+        Exclude<A, Handler.Handler.Endpoint<H>>,
+        E1 | Exclude<Handler.Handler.Error<H>, HttpError.HttpError>,
+        | Exclude<R1 | Handler.Handler.Context<H>, HttpRouter.RouteContext | HttpServerRequest.HttpServerRequest>
+        | ApiEndpoint.ApiEndpoint.Context<Handler.Handler.Context<H>>
+      >,
+      (builder, handler) => handle(handler)(builder)
+    )
 
 /** @internal */
 export const handler = <A extends Api.Api.Any, E, R, Id extends Api.Api.Ids<A>>(

@@ -1,3 +1,4 @@
+import { Iterable } from "effect"
 import * as Array from "effect/Array"
 import * as Pipeable from "effect/Pipeable"
 import type * as Api from "../Api.js"
@@ -61,6 +62,12 @@ export const addEndpoint =
     )
     return new ApiImpl([...groupsWithoutDefault, newDefaultGroup], api.options) as any
   }
+
+/** @internal */
+export const addEndpoints =
+  <A2 extends ReadonlyArray<ApiEndpoint.ApiEndpoint.Any>>(...endpoints: A2) =>
+  <A1 extends ApiEndpoint.ApiEndpoint.Any>(api: Api.Api<A1>): Api.Api<A1 | A2[number]> =>
+    Iterable.reduce(endpoints, api as Api.Api<A1 | A2[number]>, (api, endpoint) => addEndpoint(endpoint)(api))
 
 /** @internal */
 export const addGroup = <E2 extends ApiEndpoint.ApiEndpoint.Any>(

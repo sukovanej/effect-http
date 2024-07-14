@@ -64,6 +64,14 @@ export declare namespace ApiResponse {
   export type Any = ApiResponse<AnyStatus, any, any, unknown>
 
   /**
+   * Any request with all `Body`, `Path`, `Query` and `Headers` set to `Schema.Schema.Any`.
+   *
+   * @category models
+   * @since 1.0.0
+   */
+  export type Unknown = ApiResponse<AnyStatus, unknown, unknown, unknown>
+
+  /**
    * Default response.
    *
    * @category models
