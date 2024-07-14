@@ -24,7 +24,7 @@ const app = pipe(
   RouterBuilder.handle("getValue", () =>
     pipe(
       Effect.all(Array.replicate(readMyValue, 10), { concurrency: 10 }),
-      Effect.mapError(() => HttpError.notFoundError("File not found")),
+      Effect.mapError(() => HttpError.notFound("File not found")),
       Effect.map((values) => values.join(", "))
     )),
   RouterBuilder.build

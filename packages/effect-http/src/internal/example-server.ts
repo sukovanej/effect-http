@@ -64,7 +64,7 @@ const createExampleHandler = (endpoint: ApiEndpoint.ApiEndpoint.Any) => {
     pipe(
       Unify.unify(responseSchema && example_compiler.randomExample(responseSchema) || Effect.void),
       Effect.mapError((error) =>
-        HttpError.internalHttpError(
+        HttpError.internalServerError(
           `Sorry, I don't have any example response. ${JSON.stringify(error)}`
         )
       )

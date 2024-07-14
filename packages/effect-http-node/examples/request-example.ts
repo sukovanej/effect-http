@@ -43,7 +43,7 @@ const app = pipe(
         Effect.all(Array.replicate(requestMyValue, 10), {
           concurrency: 10
         }),
-        Effect.mapError(() => HttpError.notFoundError("File not found")),
+        Effect.mapError(() => HttpError.notFound("File not found")),
         Effect.withRequestCache(getValueCache),
         Effect.withRequestCaching(true),
         Effect.map((values) => values.join(", "))

@@ -33,7 +33,7 @@ it.scoped(
               return Effect.void
             }
 
-            return Effect.fail(HttpError.unauthorizedError("Wrong credentials"))
+            return Effect.fail(HttpError.unauthorized("Wrong credentials"))
           },
           { skipPaths: ["/ping"] }
         ),

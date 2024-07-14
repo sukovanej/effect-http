@@ -51,7 +51,7 @@ it.scoped(
 
       const app = pipe(
         RouterBuilder.make(api),
-        RouterBuilder.handle("hello", () => Effect.fail(HttpError.notFoundError("oh oh"))),
+        RouterBuilder.handle("hello", () => Effect.fail(HttpError.notFound("oh oh"))),
         RouterBuilder.build
       )
 

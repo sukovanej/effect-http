@@ -9,7 +9,7 @@ import { debugLogger } from "./_utils.js"
 const customSecurity = Security.make(
   pipe(
     HttpServerRequest.schemaHeaders(Schema.Struct({ "x-api-key": Schema.String })),
-    Effect.mapError(() => HttpError.unauthorizedError("Expected valid X-API-KEY header")),
+    Effect.mapError(() => HttpError.unauthorized("Expected valid X-API-KEY header")),
     Effect.map((headers) => headers["x-api-key"])
   ),
   { "myApiKey": { name: "X-API-KEY", type: "apiKey", in: "header", description: "My API key" } }

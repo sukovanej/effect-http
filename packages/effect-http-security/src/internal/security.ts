@@ -135,7 +135,7 @@ export const mapSchema = dual(
       Effect.flatMap(handleRequest(self), (token) =>
         pipe(
           parse(token),
-          Effect.mapError((error) => HttpError.unauthorizedError(`Security parsing error, ${error}`))
+          Effect.mapError((error) => HttpError.unauthorized(`Security parsing error, ${error}`))
         )),
       getOpenApi(self)
     )
@@ -168,7 +168,7 @@ export const asSome = <A, E, R>(
 const getAuthorizationHeader = pipe(
   HttpServerRequest.HttpServerRequest,
   Effect.flatMap((request) => Headers.get(request.headers, "authorization")),
-  Effect.mapError(() => HttpError.unauthorizedError("No authorization header"))
+  Effect.mapError(() => HttpError.unauthorized("No authorization header"))
 )
 
 /** @internal */
@@ -177,12 +177,12 @@ const parseAuthorizationHeader = (scheme: string) =>
     const split = value.split(" ")
 
     if (split.length !== 2) {
-      return Effect.fail(HttpError.unauthorizedError("Invalid authorization header"))
+      return Effect.fail(HttpError.unauthorized("Invalid authorization header"))
     }
 
     if (split[0].toLowerCase() !== scheme) {
       return Effect.fail(
-        HttpError.unauthorizedError(`Expected ${scheme.toUpperCase()} authorization`)
+        HttpError.unauthorized(`Expected ${scheme.toUpperCase()} authorization`)
       )
     }
 
@@ -215,13 +215,13 @@ export const bearer = (
 const parseBasicAuthCredentials = Unify.unify((value: string) =>
   pipe(
     Encoding.decodeBase64String(value),
-    Either.mapLeft(() => HttpError.unauthorizedError("Invalid base64-encoded basic authorization")),
+    Either.mapLeft(() => HttpError.unauthorized("Invalid base64-encoded basic authorization")),
     Either.flatMap((value) => {
       const split = value.split(":")
 
       if (split.length !== 2) {
         return Either.left(
-          HttpError.unauthorizedError(
+          HttpError.unauthorized(
             `Invalid basic authorization header, expected "user:password".`
           )
         )
@@ -264,7 +264,7 @@ export const unit: Security.Security<void> = make(Effect.void)
 
 /** @internal */
 export const never: Security.Security<never> = make(
-  Effect.fail(HttpError.unauthorizedError("No security"))
+  Effect.fail(HttpError.unauthorized("No security"))
 )
 
 /** @internal */
@@ -278,7 +278,7 @@ export const apiKey = (
       ? HttpServerRequest.schemaBodyUrlParams(schema)
       : HttpServerRequest.schemaHeaders(schema),
     Effect.map((obj) => obj[options.key]),
-    Effect.mapError(() => HttpError.unauthorizedError(`Expected ${options.key} (${options.in}) api key`))
+    Effect.mapError(() => HttpError.unauthorized(`Expected ${options.key} (${options.in}) api key`))
   )
 
   return make(

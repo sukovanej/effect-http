@@ -55,7 +55,7 @@ it.scoped("layers", () =>
 it.scoped("human-readable error response", () =>
   Effect.gen(function*(_) {
     const app = RouterBuilder.make(exampleApiGet).pipe(
-      RouterBuilder.handle("getValue", () => Effect.fail(HttpError.notFoundError("Didnt find it"))),
+      RouterBuilder.handle("getValue", () => Effect.fail(HttpError.notFound("Didnt find it"))),
       RouterBuilder.build
     )
 
@@ -93,7 +93,7 @@ it.scoped("headers", () =>
 
 it.scoped.each(
   [
-    { response: HttpError.conflictError("error"), status: 409 }
+    { response: HttpError.conflict("error"), status: 409 }
   ]
 )("status codes", ({ response, status }) =>
   Effect.gen(function*(_) {
@@ -187,7 +187,7 @@ it.scoped("failing after unauthorized middleware", () =>
     const app = RouterBuilder.make(exampleApiGet).pipe(
       RouterBuilder.handle("getValue", () => Effect.succeed(1)),
       RouterBuilder.build,
-      HttpMiddleware.make(() => HttpError.toResponse(HttpError.unauthorizedError("sorry bro")))
+      HttpMiddleware.make(() => HttpError.toResponse(HttpError.unauthorized("sorry bro")))
     )
 
     const result = yield* _(
