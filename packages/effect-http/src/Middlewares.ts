@@ -5,6 +5,7 @@
  */
 import type * as HttpApp from "@effect/platform/HttpApp"
 import type * as Effect from "effect/Effect"
+import type * as LogLevel from "effect/LogLevel"
 
 import type * as HttpError from "./HttpError.js"
 import * as internal from "./internal/middlewares.js"
@@ -18,7 +19,7 @@ import * as internal from "./internal/middlewares.js"
  * @since 1.0.0
  */
 export const accessLog: (
-  level?: "Info" | "Warning" | "Debug"
+  level?: LogLevel.LogLevel
 ) => <R, E>(app: HttpApp.Default<E, R>) => HttpApp.Default<E, R> = internal.accessLog
 
 /**

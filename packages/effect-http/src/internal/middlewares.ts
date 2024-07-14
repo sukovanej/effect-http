@@ -14,17 +14,18 @@ import * as Encoding from "effect/Encoding"
 import * as FiberRef from "effect/FiberRef"
 import { pipe } from "effect/Function"
 import * as HashMap from "effect/HashMap"
+import * as LogLevel from "effect/LogLevel"
 import * as Metric from "effect/Metric"
 
 import * as HttpError from "../HttpError.js"
 import type * as Middlewares from "../Middlewares.js"
 
 /** @internal */
-export const accessLog = (level: "Info" | "Warning" | "Debug" = "Info") =>
+export const accessLog = (level: LogLevel.LogLevel = LogLevel.Info) =>
   HttpMiddleware.make((app) =>
     pipe(
       HttpServerRequest.HttpServerRequest,
-      Effect.flatMap((request) => Effect[`log${level}`](`${request.method} ${request.url}`)),
+      Effect.flatMap((request) => Effect.logWithLevel(level, `${request.method} ${request.url}`)),
       Effect.flatMap(() => app)
     )
   )
