@@ -98,7 +98,7 @@ export const make: (status: number, body?: unknown, options?: Partial<HttpError.
  * to be a client error (e.g., malformed request syntax, invalid request message framing,
  * or deceptive request routing).
  *
- * @category constructors
+ * @category 4xx constructors
  * @since 1.0.0
  */
 export const badRequest: HttpError.HttpErrorFn = internal.makeStatus(400)
@@ -109,7 +109,7 @@ export const badRequest: HttpError.HttpErrorFn = internal.makeStatus(400)
  * Although the HTTP standard specifies "unauthorized", semantically this response means
  * "unauthenticated". That is, the client must authenticate itself to get the requested response.
  *
- * @category constructors
+ * @category 4xx constructors
  * @since 1.0.0
  */
 export const unauthorized: HttpError.HttpErrorFn = internal.makeStatus(401)
@@ -121,7 +121,7 @@ export const unauthorized: HttpError.HttpErrorFn = internal.makeStatus(401)
  * the server is refusing to give the requested resource. Unlike 401 Unauthorized, the
  * client's identity is known to the server.
  *
- * @category constructors
+ * @category 4xx constructors
  * @since 1.0.0
  */
 export const forbidden: HttpError.HttpErrorFn = internal.makeStatus(403)
@@ -135,7 +135,7 @@ export const forbidden: HttpError.HttpErrorFn = internal.makeStatus(403)
  * Forbidden to hide the existence of a resource from an unauthorized client. This
  * response code is probably the most well known due to its frequent occurrence on the web.
  *
- * @category constructors
+ * @category 4xx constructors
  * @since 1.0.0
  */
 export const notFound: HttpError.HttpErrorFn = internal.makeStatus(404)
@@ -146,7 +146,7 @@ export const notFound: HttpError.HttpErrorFn = internal.makeStatus(404)
  * The request method is known by the server but is not supported by the target resource.
  * For example, an API may not allow calling `DELETE` to remove a resource.
  *
- * @category constructors
+ * @category 4xx constructors
  * @since 1.0.0
  */
 export const methodNotAllowed: HttpError.HttpErrorFn = internal.makeStatus(405)
@@ -158,7 +158,7 @@ export const methodNotAllowed: HttpError.HttpErrorFn = internal.makeStatus(405)
  * negotiation](https://developer.mozilla.org/en-US/docs/Web/HTTP/Content_negotiation#server-driven_content_negotiation),
  * doesn't find any content that conforms to the criteria given by the user agent.
  *
- * @category constructors
+ * @category 4xx constructors
  * @since 1.0.0
  */
 export const notAcceptable: HttpError.HttpErrorFn = internal.makeStatus(406)
@@ -168,7 +168,7 @@ export const notAcceptable: HttpError.HttpErrorFn = internal.makeStatus(406)
  *
  * This is similar to 401 Unauthorized but authentication is needed to be done by a proxy.
  *
- * @category constructors
+ * @category 4xx constructors
  * @since 1.0.0
  */
 export const proxyAuthenticationRequired: HttpError.HttpErrorFn = internal.makeStatus(407)
@@ -182,7 +182,7 @@ export const proxyAuthenticationRequired: HttpError.HttpErrorFn = internal.makeS
  * Firefox 27+, or IE9, use HTTP pre-connection mechanisms to speed up surfing. Also
  * note that some servers merely shut down the connection without sending this message.
  *
- * @category constructors
+ * @category 4xx constructors
  * @since 1.0.0
  */
 export const requestTimeout: HttpError.HttpErrorFn = internal.makeStatus(408)
@@ -192,7 +192,7 @@ export const requestTimeout: HttpError.HttpErrorFn = internal.makeStatus(408)
  *
  * This response is sent when a request conflicts with the current state of the server.
  *
- * @category constructors
+ * @category 4xx constructors
  * @since 1.0.0
  */
 export const conflict: HttpError.HttpErrorFn = internal.makeStatus(409)
@@ -206,7 +206,7 @@ export const conflict: HttpError.HttpErrorFn = internal.makeStatus(409)
  * used for "limited-time, promotional services". APIs should not feel compelled to
  * indicate resources that have been deleted with this status code.
  *
- * @category constructors
+ * @category 4xx constructors
  * @since 1.0.0
  */
 export const gone: HttpError.HttpErrorFn = internal.makeStatus(410)
@@ -217,7 +217,7 @@ export const gone: HttpError.HttpErrorFn = internal.makeStatus(410)
  * Server rejected the request because the Content-Length header field is not defined
  * and the server requires it.
  *
- * @category constructors
+ * @category 4xx constructors
  * @since 1.0.0
  */
 export const lengthRequired: HttpError.HttpErrorFn = internal.makeStatus(411)
@@ -227,7 +227,7 @@ export const lengthRequired: HttpError.HttpErrorFn = internal.makeStatus(411)
  *
  * The client has indicated preconditions in its headers which the server does not meet.
  *
- * @category constructors
+ * @category 4xx constructors
  * @since 1.0.0
  */
 export const preconditionFailed: HttpError.HttpErrorFn = internal.makeStatus(412)
@@ -238,7 +238,7 @@ export const preconditionFailed: HttpError.HttpErrorFn = internal.makeStatus(412
  * Request entity is larger than limits defined by server. The server might close the
  * connection or return an Retry-After header field.
  *
- * @category constructors
+ * @category 4xx constructors
  * @since 1.0.0
  */
 export const payloadTooLarge: HttpError.HttpErrorFn = internal.makeStatus(413)
@@ -248,7 +248,7 @@ export const payloadTooLarge: HttpError.HttpErrorFn = internal.makeStatus(413)
  *
  * The URI requested by the client is longer than the server is willing to interpret.
  *
- * @category constructors
+ * @category 4xx constructors
  * @since 1.0.0
  */
 export const uriTooLong: HttpError.HttpErrorFn = internal.makeStatus(414)
@@ -259,7 +259,7 @@ export const uriTooLong: HttpError.HttpErrorFn = internal.makeStatus(414)
  * The media format of the requested data is not supported by the server, so the
  * server is rejecting the request.
  *
- * @category constructors
+ * @category 4xx constructors
  * @since 1.0.0
  */
 export const unsupportedMediaType: HttpError.HttpErrorFn = internal.makeStatus(415)
@@ -270,7 +270,7 @@ export const unsupportedMediaType: HttpError.HttpErrorFn = internal.makeStatus(4
  * The range specified by the Range header field in the request cannot be fulfilled. It's
  * possible that the range is outside the size of the target URI's data.
  *
- * @category constructors
+ * @category 4xx constructors
  * @since 1.0.0
  */
 export const rangeNotSatisfiable: HttpError.HttpErrorFn = internal.makeStatus(416)
@@ -281,7 +281,7 @@ export const rangeNotSatisfiable: HttpError.HttpErrorFn = internal.makeStatus(41
  * This response code means the expectation indicated by the Expect request header field
  * cannot be met by the server.
  *
- * @category constructors
+ * @category 4xx constructors
  * @since 1.0.0
  */
 export const expectationFailed: HttpError.HttpErrorFn = internal.makeStatus(417)
@@ -291,7 +291,7 @@ export const expectationFailed: HttpError.HttpErrorFn = internal.makeStatus(417)
  *
  * The server refuses the attempt to brew coffee with a teapot.
  *
- * @category constructors
+ * @category 4xx constructors
  * @since 1.0.0
  */
 export const imATeapot: HttpError.HttpErrorFn = internal.makeStatus(418)
@@ -303,7 +303,7 @@ export const imATeapot: HttpError.HttpErrorFn = internal.makeStatus(418)
  * can be sent by a server that is not configured to produce responses for the
  * combination of scheme and authority that are included in the request URI.
  *
- * @category constructors
+ * @category 4xx constructors
  * @since 1.0.0
  */
 export const misdirectedRequest: HttpError.HttpErrorFn = internal.makeStatus(421)
@@ -315,7 +315,7 @@ export const misdirectedRequest: HttpError.HttpErrorFn = internal.makeStatus(421
  * willing to do so after the client upgrades to a different protocol. The server
  * sends an Upgrade header in a 426 response to indicate the required protocol(s).
  *
- * @category constructors
+ * @category 4xx constructors
  * @since 1.0.0
  */
 export const upgradeRequired: HttpError.HttpErrorFn = internal.makeStatus(426)
@@ -325,7 +325,7 @@ export const upgradeRequired: HttpError.HttpErrorFn = internal.makeStatus(426)
  *
  * The user has sent too many requests in a given amount of time ("rate limiting").
  *
- * @category constructors
+ * @category 4xx constructors
  * @since 1.0.0
  */
 export const tooManyRequests: HttpError.HttpErrorFn = internal.makeStatus(429)
@@ -336,7 +336,7 @@ export const tooManyRequests: HttpError.HttpErrorFn = internal.makeStatus(429)
  * The server is unwilling to process the request because its header fields are too large.
  * The request may be resubmitted after reducing the size of the request header fields.
  *
- * @category constructors
+ * @category 4xx constructors
  * @since 1.0.0
  */
 export const requestHeaderFieldsTooLarge: HttpError.HttpErrorFn = internal.makeStatus(431)
@@ -347,7 +347,7 @@ export const requestHeaderFieldsTooLarge: HttpError.HttpErrorFn = internal.makeS
  * The user agent requested a resource that cannot legally be provided, such as a web
  * page censored by a government.
  *
- * @category constructors
+ * @category 4xx constructors
  * @since 1.0.0
  */
 export const unavailableForLegalReasons: HttpError.HttpErrorFn = internal.makeStatus(451)
@@ -363,7 +363,7 @@ export const unavailableForLegalReasons: HttpError.HttpErrorFn = internal.makeSt
  *
  * The server has encountered a situation it does not know how to handle.
  *
- * @category constructors
+ * @category 5xx constructors
  * @since 1.0.0
  */
 export const internalServerError: HttpError.HttpErrorFn = internal.makeStatus(500)
@@ -375,7 +375,7 @@ export const internalServerError: HttpError.HttpErrorFn = internal.makeStatus(50
  * methods that servers are required to support (and therefore that must not return
  * this code) are GET and HEAD.
  *
- * @category constructors
+ * @category 5xx constructors
  * @since 1.0.0
  */
 export const notImplemented: HttpError.HttpErrorFn = internal.makeStatus(501)
@@ -386,7 +386,7 @@ export const notImplemented: HttpError.HttpErrorFn = internal.makeStatus(501)
  * This error response means that the server, while working as a gateway to get a
  * response needed to handle the request, got an invalid response.
  *
- * @category constructors
+ * @category 5xx constructors
  * @since 1.0.0
  */
 export const badGateway: HttpError.HttpErrorFn = internal.makeStatus(502)
@@ -402,7 +402,7 @@ export const badGateway: HttpError.HttpErrorFn = internal.makeStatus(502)
  * also take care about the caching-related headers that are sent along with this
  * response, as these temporary condition responses should usually not be cached.
  *
- * @category constructors
+ * @category 5xx constructors
  * @since 1.0.0
  */
 export const serviceUnavailable: HttpError.HttpErrorFn = internal.makeStatus(503)
@@ -413,7 +413,7 @@ export const serviceUnavailable: HttpError.HttpErrorFn = internal.makeStatus(503
  * This error response is given when the server is acting as a gateway and
  * cannot get a response in time.
  *
- * @category constructors
+ * @category 5xx constructors
  * @since 1.0.0
  */
 export const gatewayTimeout: HttpError.HttpErrorFn = internal.makeStatus(504)
@@ -423,7 +423,7 @@ export const gatewayTimeout: HttpError.HttpErrorFn = internal.makeStatus(504)
  *
  * The HTTP version used in the request is not supported by the server.
  *
- * @category constructors
+ * @category 5xx constructors
  * @since 1.0.0
  */
 export const httpVersionNotSupported: HttpError.HttpErrorFn = internal.makeStatus(505)
@@ -435,7 +435,7 @@ export const httpVersionNotSupported: HttpError.HttpErrorFn = internal.makeStatu
  * configured to engage in transparent content negotiation itself, and is
  * therefore not a proper end point in the negotiation process.
  *
- * @category constructors
+ * @category 5xx constructors
  * @since 1.0.0
  */
 export const variantAlsoNegotiates: HttpError.HttpErrorFn = internal.makeStatus(506)
@@ -445,7 +445,7 @@ export const variantAlsoNegotiates: HttpError.HttpErrorFn = internal.makeStatus(
  *
  * Further extensions to the request are required for the server to fulfill it.
  *
- * @category constructors
+ * @category 5xx constructors
  * @since 1.0.0
  */
 export const notExtended: HttpError.HttpErrorFn = internal.makeStatus(510)
@@ -455,7 +455,7 @@ export const notExtended: HttpError.HttpErrorFn = internal.makeStatus(510)
  *
  * Indicates that the client needs to authenticate to gain network access.
  *
- * @category constructors
+ * @category 5xx constructors
  * @since 1.0.0
  */
 export const networkAuthenticationRequired: HttpError.HttpErrorFn = internal.makeStatus(511)
@@ -473,7 +473,7 @@ export const networkAuthenticationRequired: HttpError.HttpErrorFn = internal.mak
  * (There is no standardized way of choosing one of the responses, but HTML links to the possibilities
  * are recommended so the user can pick.)
  *
- * @category constructors
+ * @category 3xx constructors
  * @since 1.0.0
  */
 export const multipleChoices: HttpError.HttpErrorFn = internal.makeStatus(300)
@@ -483,7 +483,7 @@ export const multipleChoices: HttpError.HttpErrorFn = internal.makeStatus(300)
  *
  * The URL of the requested resource has been changed permanently. The new URL is given in the response.
  *
- * @category constructors
+ * @category 3xx constructors
  * @since 1.0.0
  */
 export const movedPermanently: HttpError.HttpErrorFn = internal.makeStatus(301)
@@ -495,7 +495,7 @@ export const movedPermanently: HttpError.HttpErrorFn = internal.makeStatus(301)
  * changes in the URI might be made in the future. Therefore, this same URI should be used by the
  * client in future requests.
  *
- * @category constructors
+ * @category 3xx constructors
  * @since 1.0.0
  */
 export const found: HttpError.HttpErrorFn = internal.makeStatus(302)
@@ -506,7 +506,7 @@ export const found: HttpError.HttpErrorFn = internal.makeStatus(302)
  * The server sent this response to direct the client to get the requested resource at another URI
  * with a GET request.
  *
- * @category constructors
+ * @category 3xx constructors
  * @since 1.0.0
  */
 export const seeOther: HttpError.HttpErrorFn = internal.makeStatus(303)
@@ -517,7 +517,7 @@ export const seeOther: HttpError.HttpErrorFn = internal.makeStatus(303)
  * This is used for caching purposes. It tells the client that the response has not been modified,
  * so the client can continue to use the same cached version of the response.
  *
- * @category constructors
+ * @category 3xx constructors
  * @since 1.0.0
  */
 export const notModified: HttpError.HttpErrorFn = internal.makeStatus(304)
@@ -530,7 +530,7 @@ export const notModified: HttpError.HttpErrorFn = internal.makeStatus(304)
  * `302 Found` HTTP response code, with the exception that the user agent must not change the HTTP
  * method * used: if a `POST` was used in the first request, a `POST` must be used in the second request.
  *
- * @category constructors
+ * @category 3xx constructors
  * @since 1.0.0
  */
 export const temporaryRedirect: HttpError.HttpErrorFn = internal.makeStatus(307)
@@ -543,7 +543,7 @@ export const temporaryRedirect: HttpError.HttpErrorFn = internal.makeStatus(307)
  * response code, with the exception that the user agent must not change the HTTP method used:
  * if a POST was used in the first request, a POST must be used in the second request.
  *
- * @category constructors
+ * @category 3xx constructors
  * @since 1.0.0
  */
 export const permanentRedirect: HttpError.HttpErrorFn = internal.makeStatus(308)
