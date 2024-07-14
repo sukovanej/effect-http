@@ -1,13 +1,13 @@
-import { NodeRuntime } from "@effect/platform-node"
+import type { Error } from "@effect/platform"
+import { FileSystem } from "@effect/platform"
+import { NodeContext, NodeRuntime } from "@effect/platform-node"
 import { Schema } from "@effect/schema"
-import { Array, Context, Duration, Effect, pipe, Resource, Schedule } from "effect"
+import { Array, Context, Duration, Effect, Logger, LogLevel, pipe, Resource, Schedule } from "effect"
 import { Api, HttpError, RouterBuilder } from "effect-http"
 
 import { NodeServer } from "effect-http-node"
-import type { FileNotFoundError } from "./_utils.js"
-import { debugLogger, readFile } from "./_utils.js"
 
-const MyValue = Context.GenericTag<Resource.Resource<string, FileNotFoundError>>("@services/MyValue")
+const MyValue = Context.GenericTag<Resource.Resource<string, Error.PlatformError>>("@services/MyValue")
 
 const readMyValue = Effect.flatMap(MyValue, Resource.get)
 
@@ -36,14 +36,16 @@ pipe(
   Effect.provideServiceEffect(
     MyValue,
     Resource.auto(
-      pipe(
-        readFile("test-file"),
+      FileSystem.FileSystem.pipe(
+        Effect.flatMap(({ readFileString }) => readFileString("test-file")),
         Effect.tap(() => Effect.logDebug("MyValue refreshed from file"))
       ),
       Schedule.fixed(Duration.seconds(5))
     )
   ),
   Effect.scoped,
-  Effect.provide(debugLogger),
+  Effect.provide(Logger.pretty),
+  Logger.withMinimumLogLevel(LogLevel.All),
+  Effect.provide(NodeContext.layer),
   NodeRuntime.runMain
 )

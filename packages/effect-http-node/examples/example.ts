@@ -2,10 +2,8 @@ import { Schema } from "@effect/schema"
 import { Effect, Layer, Logger, LogLevel } from "effect"
 import { Api, Handler, Middlewares, RouterBuilder, Security } from "effect-http"
 
-import { HttpApp, HttpMiddleware, HttpRouter, HttpServer } from "@effect/platform"
 import { NodeRuntime } from "@effect/platform-node"
 import { NodeServer } from "effect-http-node"
-import { get } from "http"
 
 class StuffService extends Effect.Tag("@services/StuffService")<StuffService, {
   value: number

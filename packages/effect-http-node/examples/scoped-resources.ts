@@ -4,7 +4,6 @@ import { Context, Effect, pipe } from "effect"
 import { Api, RouterBuilder } from "effect-http"
 
 import { NodeServer } from "effect-http-node"
-import { debugLogger } from "./_utils.js"
 
 interface Resource {
   value: number
@@ -38,6 +37,5 @@ pipe(
   NodeServer.listen({ port: 3000 }),
   Effect.provideServiceEffect(ResourceService, resource),
   Effect.scoped,
-  Effect.provide(debugLogger),
   NodeRuntime.runMain
 )
