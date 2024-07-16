@@ -32,19 +32,19 @@
     "swagger-ui-dist": "^5.17.14"
   },
   "peerDependencies": {
-    "@effect/platform": "^0.58.0",
-    "@effect/platform-node": "^0.53.0",
+    "@effect/platform": "^0.59.0",
+    "@effect/platform-node": "^0.54.0",
     "@effect/schema": "^0.68.0",
     "effect": "^3.5.0",
     "effect-http": "workspace:^"
   },
   "devDependencies": {
-    "@effect/platform": "^0.58.27",
-    "@effect/platform-bun": "^0.38.26",
-    "@effect/platform-node": "^0.53.26",
-    "@effect/schema": "^0.68.23",
+    "@effect/platform": "^0.59.0",
+    "@effect/platform-bun": "^0.39.0",
+    "@effect/platform-node": "^0.54.1",
+    "@effect/schema": "^0.68.24",
     "@types/node": "^20.14.10",
-    "effect": "^3.5.3",
+    "effect": "^3.5.4",
     "effect-http": "workspace:^"
   }
 }

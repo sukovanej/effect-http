@@ -38,8 +38,8 @@ export const endpointClient = <A extends Api.Api.Any, Id extends Api.Api.Ids<A>>
       Effect.map(mapper ?? identity),
       Effect.flatMap(httpClient),
       Effect.catchTags({
-        RequestError: (err) => ClientError.makeClientSide(err.error, err.message),
-        ResponseError: (err) => ClientError.makeServerSide(err.error, err.response.status, err.message),
+        RequestError: (err) => ClientError.makeClientSide(err.cause, err.message),
+        ResponseError: (err) => ClientError.makeServerSide(err.cause, err.response.status, err.message),
         ClientError: (err) => Effect.fail(err)
       }),
       Effect.flatMap(responseParser.parseResponse),
