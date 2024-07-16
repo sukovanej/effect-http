@@ -6,6 +6,11 @@ export const Number = Schema.NumberFromString.pipe(
   circular.annotate(() => ({ type: "number", description: "a number" }))
 )
 
+export const number = <A, R>(schema: Schema.Schema<A, number, R>) =>
+  Schema.compose(Schema.NumberFromString, schema, { strict: true }).pipe(
+    circular.annotate(() => ({ type: "number", description: "a number" }))
+  )
+
 /** @internal */
 export const Array = <A, R>(
   schema: Schema.Schema<A, string, R>
