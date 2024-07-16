@@ -1,5 +1,18 @@
 # effect-http-node
 
+## 0.17.0
+
+### Minor Changes
+
+- [#628](https://github.com/sukovanej/effect-http/pull/628) [`8481868`](https://github.com/sukovanej/effect-http/commit/84818689b8f1b7d485bbe9c8d45579436a3ba75f) Thanks [@sukovanej](https://github.com/sukovanej)! - Update @effect/platform packages.
+
+- [#623](https://github.com/sukovanej/effect-http/pull/623) [`c45b838`](https://github.com/sukovanej/effect-http/commit/c45b83891169efddadd05d5336927f27c3d1e523) Thanks [@sukovanej](https://github.com/sukovanej)! - Merge `HttpError` and `Security` back into the `effect-http` package.
+
+### Patch Changes
+
+- Updated dependencies [[`8481868`](https://github.com/sukovanej/effect-http/commit/84818689b8f1b7d485bbe9c8d45579436a3ba75f), [`16c76f7`](https://github.com/sukovanej/effect-http/commit/16c76f7b41d34647b5efbb565fcd1475ac5d76b3), [`8481868`](https://github.com/sukovanej/effect-http/commit/84818689b8f1b7d485bbe9c8d45579436a3ba75f), [`c45b838`](https://github.com/sukovanej/effect-http/commit/c45b83891169efddadd05d5336927f27c3d1e523)]:
+  - effect-http@0.74.0
+
 ## 0.16.1
 
 ### Patch Changes
