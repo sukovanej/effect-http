@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.75.0
+
+### Minor Changes
+
+- [#629](https://github.com/sukovanej/effect-http/pull/629) [`41427e7`](https://github.com/sukovanej/effect-http/commit/41427e7bedf444e9549fd1fd5201dde9c082ff3f) Thanks [@sukovanej](https://github.com/sukovanej)! - Add `QuerySchema.Int`, `QuerySchema.number` and `QuerySchema.int`.
+
 ## 0.74.0
 
 ### Minor Changes
