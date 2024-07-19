@@ -23,6 +23,18 @@ export const number: <A, R>(schema: Schema.Schema<A, number, R>) => Schema.Schem
  * @category schema
  * @since 1.0.0
  */
+export const Int: Schema.Schema<number, string> = internal.Int
+
+/**
+ * @category schema
+ * @since 1.0.0
+ */
+export const int: <A, R>(schema: Schema.Schema<A, number, R>) => Schema.Schema<A, string, R> = internal.int
+
+/**
+ * @category schema
+ * @since 1.0.0
+ */
 export const Array: <A, R>(
   schema: Schema.Schema<A, string, R>
 ) => Schema.optionalWithOptions<
