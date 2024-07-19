@@ -12,6 +12,16 @@ export const number = <A, R>(schema: Schema.Schema<A, number, R>) =>
   )
 
 /** @internal */
+export const Int = Schema.compose(Schema.NumberFromString, Schema.Int).pipe(
+  circular.annotate(() => ({ type: "integer", description: "an integer" }))
+)
+
+export const int = <A, R>(schema: Schema.Schema<A, number, R>) =>
+  Schema.compose(Int, schema, { strict: true }).pipe(
+    circular.annotate(() => ({ type: "integer", description: "an integer" }))
+  )
+
+/** @internal */
 export const Array = <A, R>(
   schema: Schema.Schema<A, string, R>
 ): Schema.optionalWithOptions<
@@ -24,8 +34,6 @@ export const Array = <A, R>(
   })
   const arraySchema = Schema.Array(schema)
   const stringToArraySchema = Schema.compose(stringToStringArraySchema, arraySchema, { strict: true })
-
-  Schema.withDefaults
 
   return Schema.optional(
     Schema.Union(stringToArraySchema, arraySchema).pipe(
