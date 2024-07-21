@@ -41,26 +41,3 @@ export const uuidLogAnnotation: (
  * @since 1.0.0
  */
 export const errorLog: <R, E>(app: HttpApp.Default<E, R>) => HttpApp.Default<E, R> = internal.errorLog
-
-/**
- * @category models
- * @since 1.0.0
- */
-export interface CorsOptions {
-  allowedOrigins: ReadonlyArray<string>
-  allowedMethods: ReadonlyArray<string>
-  allowedHeaders: ReadonlyArray<string>
-  exposedHeaders: ReadonlyArray<string>
-  maxAge: number
-  credentials: boolean
-}
-
-/**
- * Basic auth middleware.
- *
- * @category authorization
- * @since 1.0.0
- */
-export const cors: (
-  options?: Partial<CorsOptions>
-) => <R, E>(app: HttpApp.Default<E, R>) => HttpApp.Default<E, R> = internal.cors
