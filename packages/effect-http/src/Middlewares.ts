@@ -4,10 +4,8 @@
  * @since 1.0.0
  */
 import type * as HttpApp from "@effect/platform/HttpApp"
-import type * as Effect from "effect/Effect"
 import type * as LogLevel from "effect/LogLevel"
 
-import type * as HttpError from "./HttpError.js"
 import * as internal from "./internal/middlewares.js"
 
 /**
@@ -54,32 +52,6 @@ export const endpointCallsMetric: () => <R, E>(
  * @since 1.0.0
  */
 export const errorLog: <R, E>(app: HttpApp.Default<E, R>) => HttpApp.Default<E, R> = internal.errorLog
-
-/**
- * @category models
- * @since 1.0.0
- */
-export interface BasicAuthCredentials {
-  user: string
-  password: string
-}
-
-/**
- * Basic auth middleware.
- *
- * @category authorization
- * @deprecated Use the `Security` module instead
- * @since 1.0.0
- */
-export const basicAuth: <R2, _>(
-  checkCredentials: (
-    credentials: BasicAuthCredentials
-  ) => Effect.Effect<_, HttpError.HttpError, R2>,
-  options?: Partial<{
-    headerName: string
-    skipPaths: ReadonlyArray<string>
-  }>
-) => <R1, E>(app: HttpApp.Default<E, R1>) => HttpApp.Default<E, R1 | R2> = internal.basicAuth
 
 /**
  * @category models
