@@ -13,7 +13,6 @@ import * as FiberRef from "effect/FiberRef"
 import { pipe } from "effect/Function"
 import * as HashMap from "effect/HashMap"
 import * as LogLevel from "effect/LogLevel"
-import * as Metric from "effect/Metric"
 
 import type * as Middlewares from "../Middlewares.js"
 
@@ -41,24 +40,6 @@ export const uuidLogAnnotation = (logAnnotationKey = "requestId") =>
       Effect.flatMap(() => app)
     )
   )
-
-/** @internal */
-export const endpointCallsMetric = () => {
-  const endpointCalledCounter = Metric.counter("server.endpoint_calls")
-
-  return HttpMiddleware.make((app) =>
-    Effect.gen(function*(_) {
-      const request = yield* _(HttpServerRequest.HttpServerRequest)
-
-      yield* _(
-        Metric.increment(endpointCalledCounter),
-        Effect.tagMetrics("path", request.url)
-      )
-
-      return yield* _(app)
-    })
-  )
-}
 
 /** @internal */
 export const errorLog = HttpMiddleware.make((app) =>

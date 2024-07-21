@@ -35,17 +35,6 @@ export const uuidLogAnnotation: (
 ) => <R, E>(app: HttpApp.Default<E, R>) => HttpApp.Default<E, R> = internal.uuidLogAnnotation
 
 /**
- * Measure how many times each endpoint was called in a
- * `server.endpoint_calls` counter metrics.
- *
- * @category metrics
- * @since 1.0.0
- */
-export const endpointCallsMetric: () => <R, E>(
-  app: HttpApp.Default<E, R>
-) => HttpApp.Default<E, R> = internal.endpointCallsMetric
-
-/**
  * Logs out a handler failure.
  *
  * @category logging
