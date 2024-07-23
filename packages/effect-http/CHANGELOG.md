@@ -1,5 +1,19 @@
 # effect-http
 
+## 0.76.0
+
+### Minor Changes
+
+- [#631](https://github.com/sukovanej/effect-http/pull/631) [`621954d`](https://github.com/sukovanej/effect-http/commit/621954d011359e10a3ffd5cfbab8a722d222db54) Thanks [@sukovanej](https://github.com/sukovanej)! - Remove `Middlewares.basic`, use the `Security` module instead.
+
+- [#631](https://github.com/sukovanej/effect-http/pull/631) [`621954d`](https://github.com/sukovanej/effect-http/commit/621954d011359e10a3ffd5cfbab8a722d222db54) Thanks [@sukovanej](https://github.com/sukovanej)! - Remove `Middlewares.cors`, use the `@effect/platform`'s `HttpMiddlewares.cors` instead.
+
+- [#631](https://github.com/sukovanej/effect-http/pull/631) [`621954d`](https://github.com/sukovanej/effect-http/commit/621954d011359e10a3ffd5cfbab8a722d222db54) Thanks [@sukovanej](https://github.com/sukovanej)! - Remove `Middlewares.endpointCallsMetric`, use the opentelemetry instead.
+
+### Patch Changes
+
+- [#634](https://github.com/sukovanej/effect-http/pull/634) [`cc94f2f`](https://github.com/sukovanej/effect-http/commit/cc94f2f48dc120cf5be4bc7be9ca07fc9ea303d1) Thanks [@sukovanej](https://github.com/sukovanej)! - Update @effect/\* dependencies.
+
 ## 0.75.0
 
 ### Minor Changes
