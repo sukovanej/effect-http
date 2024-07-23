@@ -24,7 +24,7 @@ export const int = <A, R>(schema: Schema.Schema<A, number, R>) =>
 /** @internal */
 export const Array = <A, R>(
   schema: Schema.Schema<A, string, R>
-): Schema.optionalWithOptions<
+): Schema.optionalWith<
   Schema.Schema<ReadonlyArray<A>, string | ReadonlyArray<string>, R>,
   { exact: true; default: () => [] }
 > => {
@@ -35,7 +35,7 @@ export const Array = <A, R>(
   const arraySchema = Schema.Array(schema)
   const stringToArraySchema = Schema.compose(stringToStringArraySchema, arraySchema, { strict: true })
 
-  return Schema.optional(
+  return Schema.optionalWith(
     Schema.Union(stringToArraySchema, arraySchema).pipe(
       circular.annotate((compile) => ({ type: "array", items: compile(schema) }))
     ),

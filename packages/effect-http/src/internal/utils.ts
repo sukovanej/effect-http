@@ -34,7 +34,7 @@ export const createResponseSchema = (
           body: getSchema(ApiResponse.getBodySchema(response)),
           headers: getSchema(
             ApiResponse.getHeadersSchema(response),
-            Schema.Record(Schema.String, Schema.String)
+            Schema.Record({ key: Schema.String, value: Schema.String })
           )
         })
     )

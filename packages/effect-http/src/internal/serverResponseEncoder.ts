@@ -176,7 +176,7 @@ const createHeadersSetter = (schema: ApiResponse.ApiResponse.Any) => {
 /** @internal */
 const FullResponseInput = Schema.Struct({
   body: Schema.optional(Schema.Unknown),
-  headers: Schema.optional(Schema.Record(Schema.String, Schema.Unknown)),
+  headers: Schema.optional(Schema.Record({ key: Schema.String, value: Schema.Unknown })),
   status: Schema.Number
 })
 
