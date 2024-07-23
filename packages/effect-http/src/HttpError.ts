@@ -76,8 +76,7 @@ export const toResponse: (
  * @category refinements
  * @since 1.0.0
  */
-export const isHttpError: (error?: unknown, options?: Partial<HttpError.Options>) => error is HttpError =
-  internal.isHttpError
+export const isHttpError: (error: unknown) => error is HttpError = internal.isHttpError
 
 /**
  * @category constructors
