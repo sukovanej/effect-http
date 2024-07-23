@@ -16,10 +16,10 @@ const HumanSchema = Schema.Struct({
   name: Schema.String
 })
 const Lesnek = Schema.Struct({ name: Schema.String })
-const Standa = Schema.Record(
-  Schema.String,
-  Schema.Union(Schema.String, Schema.Number)
-)
+const Standa = Schema.Record({
+  key: Schema.String,
+  value: Schema.Union(Schema.String, Schema.Number)
+})
 
 const getLesnekEndpoint = Api.get("getLesnek", "/lesnek").pipe(
   Api.setResponseBody(Schema.String),

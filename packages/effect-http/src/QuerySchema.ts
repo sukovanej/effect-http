@@ -37,7 +37,7 @@ export const int: <A, R>(schema: Schema.Schema<A, number, R>) => Schema.Schema<A
  */
 export const Array: <A, R>(
   schema: Schema.Schema<A, string, R>
-) => Schema.optionalWithOptions<
+) => Schema.optionalWith<
   Schema.Schema<ReadonlyArray<A>, string | ReadonlyArray<string>, R>,
   { exact: true; default: () => [] }
 > = internal.Array

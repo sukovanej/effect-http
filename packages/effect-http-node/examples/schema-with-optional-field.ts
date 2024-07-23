@@ -6,7 +6,7 @@ import { Api, RouterBuilder } from "effect-http"
 import { NodeServer } from "effect-http-node"
 
 const Response = Schema.Struct({
-  foo: Schema.optional(Schema.String, { as: "Option" }),
+  foo: Schema.optionalWith(Schema.String, { as: "Option" }),
   bar: Schema.Option(Schema.String)
 })
 

@@ -74,7 +74,7 @@ export const exampleApiGetCustomResponseWithHeaders = Api.make().pipe(
 // Example GET, option response field
 
 const ExampleSchemaOptionalField = Schema.Struct({
-  foo: Schema.optional(Schema.String, { as: "Option", exact: true })
+  foo: Schema.optionalWith(Schema.String, { as: "Option", exact: true })
 })
 
 export const exampleApiGetOptionalField = Api.make().pipe(
@@ -161,30 +161,30 @@ export const exampleApiOptional = Api.make().pipe(
     Api.post("hello", "/hello/:value/another/:another?").pipe(
       Api.setRequestQuery(Schema.Struct({
         value: Schema.NumberFromString,
-        another: Schema.optional(Schema.String, { exact: true })
+        another: Schema.optionalWith(Schema.String, { exact: true })
       })),
       Api.setRequestPath(Schema.Struct({
         value: Schema.NumberFromString,
-        another: Schema.optional(Schema.String, { exact: true })
+        another: Schema.optionalWith(Schema.String, { exact: true })
       })),
       Api.setRequestHeaders(Schema.Struct({
         value: Schema.NumberFromString,
-        another: Schema.optional(Schema.String, { exact: true }),
-        hello: Schema.optional(Schema.String, { exact: true })
+        another: Schema.optionalWith(Schema.String, { exact: true }),
+        hello: Schema.optionalWith(Schema.String, { exact: true })
       })),
       Api.setResponseBody(Schema.Struct({
         query: Schema.Struct({
           value: Schema.Number,
-          another: Schema.optional(Schema.String, { exact: true })
+          another: Schema.optionalWith(Schema.String, { exact: true })
         }),
         path: Schema.Struct({
           value: Schema.Number,
-          another: Schema.optional(Schema.String, { exact: true })
+          another: Schema.optionalWith(Schema.String, { exact: true })
         }),
         headers: Schema.Struct({
           value: Schema.Number,
-          another: Schema.optional(Schema.String, { exact: true }),
-          hello: Schema.optional(Schema.String, { exact: true })
+          another: Schema.optionalWith(Schema.String, { exact: true }),
+          hello: Schema.optionalWith(Schema.String, { exact: true })
         })
       }))
     )
@@ -198,12 +198,12 @@ export const exampleApiOptionalParams = Api.make().pipe(
     Api.post("hello", "/hello/:value/another/:another?").pipe(
       Api.setRequestPath(Schema.Struct({
         value: Schema.NumberFromString,
-        another: Schema.optional(Schema.String, { exact: true })
+        another: Schema.optionalWith(Schema.String, { exact: true })
       })),
       Api.setResponseBody(Schema.Struct({
         path: Schema.Struct({
           value: Schema.Number,
-          another: Schema.optional(Schema.String, { exact: true })
+          another: Schema.optionalWith(Schema.String, { exact: true })
         })
       }))
     )

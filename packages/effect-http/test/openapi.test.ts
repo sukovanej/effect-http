@@ -418,7 +418,7 @@ describe("enums", () => {
 
 describe("records", () => {
   it("string to string map", () => {
-    const schema = Schema.Record(Schema.String, Schema.String)
+    const schema = Schema.Record({ key: Schema.String, value: Schema.String })
 
     expect(OpenApi.makeSchema(schema)).toStrictEqual({
       type: "object",
@@ -430,13 +430,13 @@ describe("records", () => {
   })
 
   it("string to object map", () => {
-    const schema = Schema.Record(
-      Schema.String,
-      Schema.Struct({
-        code: Schema.optional(Schema.Number, { exact: true }),
+    const schema = Schema.Record({
+      key: Schema.String,
+      value: Schema.Struct({
+        code: Schema.optionalWith(Schema.Number, { exact: true }),
         text: Schema.optional(Schema.String)
       })
-    )
+    })
 
     expect(OpenApi.makeSchema(schema)).toStrictEqual({
       type: "object",
@@ -1360,13 +1360,13 @@ describe("component schema and reference", () => {
   // reported in https://github.com/sukovanej/effect-http/issues/471
   it.each(
     [
-      Schema.optional(Schema.Date, { nullable: true, exact: true, as: "Option" }),
-      Schema.optional(Schema.Date, { nullable: true, default: () => new Date() }),
-      Schema.optional(Schema.Date, { exact: true, default: () => new Date() }),
-      Schema.optional(Schema.Date, { exact: true, as: "Option" }),
-      Schema.optional(Schema.Date, { nullable: true, as: "Option" }),
-      Schema.optional(Schema.Date, { as: "Option" }),
-      Schema.optional(Schema.Date, { exact: true }),
+      Schema.optionalWith(Schema.Date, { nullable: true, exact: true, as: "Option" }),
+      Schema.optionalWith(Schema.Date, { nullable: true, default: () => new Date() }),
+      Schema.optionalWith(Schema.Date, { exact: true, default: () => new Date() }),
+      Schema.optionalWith(Schema.Date, { exact: true, as: "Option" }),
+      Schema.optionalWith(Schema.Date, { nullable: true, as: "Option" }),
+      Schema.optionalWith(Schema.Date, { as: "Option" }),
+      Schema.optionalWith(Schema.Date, { exact: true }),
       Schema.optional(Schema.Date)
     ]
   )("optional variants", async (fieldSchema) => {

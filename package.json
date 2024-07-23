@@ -31,11 +31,11 @@
     "@effect/dtslint": "^0.1.0",
     "@effect/eslint-plugin": "^0.2.0",
     "@effect/language-service": "^0.1.0",
-    "@effect/vitest": "^0.6.10",
+    "@effect/vitest": "^0.6.11",
     "@types/node": "^20.14.11",
     "@types/swagger-ui-dist": "^3.30.5",
-    "@typescript-eslint/eslint-plugin": "^7.16.1",
-    "@typescript-eslint/parser": "^7.16.1",
+    "@typescript-eslint/eslint-plugin": "^7.17.0",
+    "@typescript-eslint/parser": "^7.17.0",
     "@vitest/coverage-v8": "^1.6.0",
     "babel-plugin-annotate-pure-calls": "^0.4.0",
     "eslint": "^8.57.0",
@@ -50,7 +50,7 @@
     "prettier": "^3.3.3",
     "rimraf": "^6.0.1",
     "tsx": "^4.16.2",
-    "typescript": "^5.5.3",
+    "typescript": "^5.5.4",
     "vitest": "^1.6.0"
   },
   "pnpm": {
