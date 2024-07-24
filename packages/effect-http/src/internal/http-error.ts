@@ -20,7 +20,7 @@ const unsafeIsStream = (u: unknown): u is Stream.Stream<Uint8Array> =>
   typeof u === "object" && u !== null && Stream.StreamTypeId in u
 
 /** @internal */
-export class HttpErrorImpl extends Data.Error<{
+export class HttpErrorImpl extends Data.TaggedError("HttpError")<{
   readonly status: number
   readonly content: HttpBody.HttpBody
   readonly headers: Headers.Headers
