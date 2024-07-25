@@ -29,6 +29,7 @@ export type TypeId = typeof TypeId
  * @since 1.0.0
  */
 export interface HttpError extends Cause.YieldableError, Pipeable.Pipeable, HttpError.Variance {
+  readonly _tag: "HttpError"
   readonly status: number
   readonly content: HttpBody.HttpBody
   readonly headers: Headers.Headers
