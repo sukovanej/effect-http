@@ -1,5 +1,15 @@
 # effect-http
 
+## 0.77.0
+
+### Minor Changes
+
+- [#636](https://github.com/sukovanej/effect-http/pull/636) [`bf12c11`](https://github.com/sukovanej/effect-http/commit/bf12c11f440541161b6e807d437f54627265def2) Thanks [@sukovanej](https://github.com/sukovanej)! - Make `HttpError` tagged.
+
+### Patch Changes
+
+- [#635](https://github.com/sukovanej/effect-http/pull/635) [`ea261af`](https://github.com/sukovanej/effect-http/commit/ea261afff36bb3fd6b0eeade8a511a111f37e851) Thanks [@sukovanej](https://github.com/sukovanej)! - Fix `HttpError.isHttpError` type signature.
+
 ## 0.76.0
 
 ### Minor Changes
