@@ -37,8 +37,8 @@
   },
   "devDependencies": {
     "@apidevtools/swagger-parser": "^10.1.0",
-    "@effect/platform": "^0.60.0",
-    "@effect/schema": "^0.69.0",
-    "effect": "^3.5.7"
+    "@effect/platform": "^0.60.2",
+    "@effect/schema": "^0.69.2",
+    "effect": "^3.5.8"
   }
 }

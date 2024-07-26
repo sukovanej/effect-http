@@ -32,7 +32,7 @@
     "@effect/eslint-plugin": "^0.2.0",
     "@effect/language-service": "^0.1.0",
     "@effect/vitest": "^0.6.11",
-    "@types/node": "^20.14.11",
+    "@types/node": "^20.14.12",
     "@types/swagger-ui-dist": "^3.30.5",
     "@typescript-eslint/eslint-plugin": "^7.17.0",
     "@typescript-eslint/parser": "^7.17.0",
