@@ -41,12 +41,12 @@ export const make: {
   <A extends ApiEndpoint.ApiEndpoint.Any, E, R>(
     fn: Handler.Handler.Function<A, E, R>,
     options?: Partial<Handler.Options>
-  ): (endpoint: A) => Handler.Handler<A, E, R>
+  ): (endpoint: A) => Handler.Handler<A, Exclude<E, HttpError.HttpError>, R>
   <A extends ApiEndpoint.ApiEndpoint.Any, E, R>(
     endpoint: A,
     fn: Handler.Handler.Function<A, E, R>,
     options?: Partial<Handler.Options>
-  ): Handler.Handler<A, E, R>
+  ): Handler.Handler<A, Exclude<E, HttpError.HttpError>, R>
 } = (...args: readonly [any, any]) => {
   if (ApiEndpoint.isApiEndpoint(args[0])) {
     return _make(...args) as any

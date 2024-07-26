@@ -12,6 +12,7 @@ import type * as Types from "effect/Types"
 import type * as ApiEndpoint from "./ApiEndpoint.js"
 import type * as ApiRequest from "./ApiRequest.js"
 import type * as ApiResponse from "./ApiResponse.js"
+import type * as HttpError from "./HttpError.js"
 import * as internal from "./internal/handler.js"
 import type * as utils from "./internal/utils.js"
 import type * as Security from "./Security.js"
@@ -133,12 +134,12 @@ export const make: {
   <A extends ApiEndpoint.ApiEndpoint.Any, E, R>(
     fn: Handler.Function<A, E, R>,
     options?: Partial<Options>
-  ): (endpoint: A) => Handler<A, E, R>
+  ): (endpoint: A) => Handler<A, Exclude<E, HttpError.HttpError>, R>
   <A extends ApiEndpoint.ApiEndpoint.Any, E, R>(
     endpoint: A,
     fn: Handler.Function<A, E, R>,
     options?: Partial<Options>
-  ): Handler<A, E, R>
+  ): Handler<A, Exclude<E, HttpError.HttpError>, R>
 } = internal.make
 
 /**
