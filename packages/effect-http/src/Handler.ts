@@ -33,7 +33,7 @@ export type TypeId = typeof TypeId
  * @category models
  * @since 1.0.0
  */
-export interface Handler<A extends ApiEndpoint.ApiEndpoint.Any, E, R>
+export interface Handler<A extends ApiEndpoint.ApiEndpoint.Any, E = never, R = never>
   extends Handler.Variance<A, E, R>, Pipeable.Pipeable
 {}
 
@@ -78,6 +78,30 @@ export declare namespace Handler {
    * @since 1.0.0
    */
   export type Any = Handler<ApiEndpoint.ApiEndpoint.Any, any, any>
+
+  /**
+   * @category models
+   * @since 1.0.0
+   */
+  export type Unknown = Handler<ApiEndpoint.ApiEndpoint.Unknown, unknown, unknown>
+
+  /**
+   * @category models
+   * @since 1.0.0
+   */
+  export type Endpoint<H extends Handler.Any> = [H] extends [Handler<infer A, any, any>] ? A : never
+
+  /**
+   * @category models
+   * @since 1.0.0
+   */
+  export type Error<H extends Handler.Any> = [H] extends [Handler<any, infer E, any>] ? E : never
+
+  /**
+   * @category models
+   * @since 1.0.0
+   */
+  export type Context<H extends Handler.Any> = [H] extends [Handler<any, any, infer C>] ? C : never
 
   /**
    * @category models
@@ -171,3 +195,11 @@ export const getRoute: <A extends ApiEndpoint.ApiEndpoint.Any, E, R>(
 export const getEndpoint: <A extends ApiEndpoint.ApiEndpoint.Any, E, R>(
   handler: Handler<A, E, R>
 ) => A = internal.getEndpoint
+
+/**
+ * @category refinements
+ * @since 1.0.0
+ */
+export const isHandler: (
+  u: unknown
+) => u is Handler<ApiEndpoint.ApiEndpoint.Unknown, unknown, unknown> = internal.isHandler

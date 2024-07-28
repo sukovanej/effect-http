@@ -58,6 +58,12 @@ export declare namespace Security {
    * @category models
    * @since 1.0.0
    */
+  export type Unknown = Security<unknown, unknown, unknown>
+
+  /**
+   * @category models
+   * @since 1.0.0
+   */
   export type Context<T extends Any> = [T] extends [Security<any, any, infer R>] ? R
     : never
 

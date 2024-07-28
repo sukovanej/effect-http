@@ -26,9 +26,17 @@ const getLesnekEndpoint = Api.get("getLesnek", "/lesnek").pipe(
   Api.setRequestQuery(Lesnek),
   Api.setSecurity(Security.bearer({ name: "myAwesomeBearerAuth", bearerFormat: "JWT" }))
 )
-const getMilanEndpoint = Api.get("getMilan", "/milan").pipe(Api.setResponseBody(Schema.String))
-const testEndpoint = Api.get("test", "/test").pipe(Api.setResponseBody(Standa), Api.setRequestQuery(Lesnek))
-const standaEndpoint = Api.post("standa", "/standa").pipe(Api.setResponseBody(Standa), Api.setRequestBody(Standa))
+const getMilanEndpoint = Api.get("getMilan", "/milan").pipe(
+  Api.setResponseBody(Schema.String)
+)
+const testEndpoint = Api.get("test", "/test").pipe(
+  Api.setResponseBody(Standa),
+  Api.setRequestQuery(Lesnek)
+)
+const standaEndpoint = Api.post("standa", "/standa").pipe(
+  Api.setResponseBody(Standa),
+  Api.setRequestBody(Standa)
+)
 const handleMilanEndpoint = Api.post("handleMilan", "/petr").pipe(
   Api.setResponseBody(HumanSchema),
   Api.setRequestBody(HumanSchema)
@@ -39,35 +47,38 @@ const callStandaEndpoint = Api.put("callStanda", "/api/zdar").pipe(
 )
 
 const api = Api.make({ title: "My awesome pets API", version: "1.0.0" }).pipe(
-  Api.addEndpoint(getLesnekEndpoint),
-  Api.addEndpoint(getMilanEndpoint),
-  Api.addEndpoint(testEndpoint),
-  Api.addEndpoint(standaEndpoint),
-  Api.addEndpoint(handleMilanEndpoint),
-  Api.addEndpoint(callStandaEndpoint)
+  Api.addEndpoints(
+    getLesnekEndpoint,
+    getMilanEndpoint,
+    testEndpoint,
+    standaEndpoint,
+    handleMilanEndpoint,
+    callStandaEndpoint
+  )
 )
 
-const getLesnekHandler = Handler.make(getLesnekEndpoint, ({ query }) =>
-  Effect.succeed(`hello ${query.name}`).pipe(
-    Effect.tap(() => Effect.logDebug("hello world"))
-  ))
-const handleMilanHandler = Handler.make(handleMilanEndpoint, ({ body }) =>
-  Effect.map(StuffService, ({ value }) => ({
-    ...body,
-    randomValue: body.height + value
-  })))
+const getLesnekHandler = Handler.make(
+  getLesnekEndpoint,
+  ({ query }) => Effect.tap(Effect.succeed(`hello ${query.name}`), () => Effect.logDebug("hello world"))
+)
+const handleMilanHandler = Handler.make(
+  handleMilanEndpoint,
+  ({ body }) => Effect.map(StuffService, ({ value }) => ({ ...body, randomValue: body.height + value }))
+)
 const getMilanHandler = Handler.make(getMilanEndpoint, () => Effect.succeed("Milan"))
 const testHandler = Handler.make(testEndpoint, ({ query }) => Effect.succeed(query))
 const standaHandler = Handler.make(standaEndpoint, ({ body }) => Effect.succeed(body))
 const callStandaHandler = Handler.make(callStandaEndpoint, ({ body }) => Effect.succeed(body.zdar))
 
 const app = RouterBuilder.make(api, { parseOptions: { errors: "all" } }).pipe(
-  RouterBuilder.handle(getLesnekHandler),
-  RouterBuilder.handle(handleMilanHandler),
-  RouterBuilder.handle(getMilanHandler),
-  RouterBuilder.handle(testHandler),
-  RouterBuilder.handle(standaHandler),
-  RouterBuilder.handle(callStandaHandler),
+  RouterBuilder.handle(
+    getLesnekHandler,
+    handleMilanHandler,
+    getMilanHandler,
+    testHandler,
+    standaHandler,
+    callStandaHandler
+  ),
   RouterBuilder.build
 )
 

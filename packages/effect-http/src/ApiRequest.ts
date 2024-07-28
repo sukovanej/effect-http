@@ -54,6 +54,14 @@ export declare namespace ApiRequest {
   export type Any = ApiRequest<any, any, any, any, any>
 
   /**
+   * Any request with all `Body`, `Path`, `Query` and `Headers` set to `any`.
+   *
+   * @category models
+   * @since 1.0.0
+   */
+  export type Unknown = ApiRequest<unknown, unknown, unknown, unknown, unknown>
+
+  /**
    * Default request.
    *
    * @category models

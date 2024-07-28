@@ -133,13 +133,14 @@ export const handleRaw: <
  * @since 1.0.0
  */
 export const handle: {
-  <R2, E2, A extends ApiEndpoint.ApiEndpoint.Any, Endpoint extends A>(
-    handler: Handler.Handler<Endpoint, E2, R2>
-  ): <R1, E1>(builder: RouterBuilder<A, E1, R1>) => RouterBuilder<
-    Exclude<A, Endpoint>,
-    E1 | Exclude<E2, HttpError.HttpError>,
-    | Exclude<R1 | R2, HttpRouter.RouteContext | HttpServerRequest.HttpServerRequest>
-    | ApiEndpoint.ApiEndpoint.Context<Endpoint>
+  <H extends ReadonlyArray<Handler.Handler.Any>>(
+    ...handler: H
+  ): <A extends ApiEndpoint.ApiEndpoint.Any, R1, E1>(builder: RouterBuilder<A, E1, R1>) => RouterBuilder<
+    Exclude<A, Handler.Handler.Endpoint<H[number]>>,
+    E1 | Exclude<Handler.Handler.Error<H[number]>, HttpError.HttpError>,
+    | Exclude<R1 | Handler.Handler.Context<H[number]>, HttpRouter.RouteContext | HttpServerRequest.HttpServerRequest>
+    | Handler.Handler.Context<H[number]>
+    | ApiEndpoint.ApiEndpoint.Context<Handler.Handler.Endpoint<H[number]>>
   >
 
   <A extends ApiEndpoint.ApiEndpoint.Any, E2, R2, Id extends ApiEndpoint.ApiEndpoint.Id<A>>(

@@ -128,6 +128,14 @@ export const addEndpoint: <E2 extends ApiEndpoint.ApiEndpoint.Any>(
  * @category combining
  * @since 1.0.0
  */
+export const addEndpoints: <Endpoints extends ReadonlyArray<ApiEndpoint.ApiEndpoint.Any>>(
+  ...endpoint: Endpoints
+) => <E1 extends ApiEndpoint.ApiEndpoint.Any>(api: Api<E1>) => Api<E1 | Endpoints[number]> = internal.addEndpoints
+
+/**
+ * @category combining
+ * @since 1.0.0
+ */
 export const addGroup: <E2 extends ApiEndpoint.ApiEndpoint.Any>(
   group: ApiGroup.ApiGroup<E2>
 ) => <E1 extends ApiEndpoint.ApiEndpoint.Any>(api: Api<E1>) => Api<E1 | E2> = internal.addGroup

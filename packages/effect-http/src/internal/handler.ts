@@ -118,3 +118,7 @@ export const getRoute = <A extends ApiEndpoint.ApiEndpoint.Any, E, R>(
 export const getEndpoint = <A extends ApiEndpoint.ApiEndpoint.Any, E, R>(
   handler: Handler.Handler<A, E, R>
 ): A => (handler as HandlerImpl<A, E, R>).endpoint
+
+/** @internal */
+export const isHandler = (u: unknown): u is Handler.Handler.Unknown =>
+  typeof u === "object" && u !== null && TypeId in u
