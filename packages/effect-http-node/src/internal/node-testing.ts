@@ -5,7 +5,6 @@ import * as NodeHttpServer from "@effect/platform-node/NodeHttpServer"
 import type * as HttpApp from "@effect/platform/HttpApp"
 import * as HttpClient from "@effect/platform/HttpClient"
 import * as HttpClientRequest from "@effect/platform/HttpClientRequest"
-import * as HttpRouter from "@effect/platform/HttpRouter"
 import * as HttpServer from "@effect/platform/HttpServer"
 import * as Deferred from "effect/Deferred"
 import * as Effect from "effect/Effect"
@@ -50,7 +49,7 @@ export const makeRaw = <R, E>(
 export const handler = <A extends ApiEndpoint.ApiEndpoint.Any, E, R>(
   handler: Handler.Handler<A, E, R>
 ) =>
-  startTestServer(HttpRouter.fromIterable([Handler.getRoute(handler)])).pipe(
+  startTestServer(Handler.getRouter(handler)).pipe(
     Effect.map((url) => makeHttpClient(HttpClient.fetch, url)),
     Effect.provide(NodeContext.layer)
   )

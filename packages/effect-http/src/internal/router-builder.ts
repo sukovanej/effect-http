@@ -120,11 +120,11 @@ export const handle = (...args: Array<any>) => (builder: RouterBuilder.RouterBui
   }
 
   const handler = args[0] as Handler.Handler.Any
-  const remainingEndpoints = removeRemainingEndpoint(
-    builder,
-    ApiEndpoint.getId(Handler.getEndpoint(handler))
+  const handlerEndpointIds = Handler.getEndpoints(handler).map((e) => ApiEndpoint.getId(e))
+  const remainingEndpoints = builder.remainingEndpoints.filter((e1) =>
+    !handlerEndpointIds.includes(ApiEndpoint.getId(e1))
   )
-  const router = addRoute(builder.router, Handler.getRoute(handler))
+  const router = HttpRouter.concat(builder.router, Handler.getRouter(handler))
 
   return new RouterBuilderImpl(remainingEndpoints, builder.api, router, builder.options)
 }

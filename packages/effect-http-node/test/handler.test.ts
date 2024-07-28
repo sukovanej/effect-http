@@ -346,4 +346,45 @@ describe("error reporting", () => {
       expect(response.status).toEqual(302)
       expect(response.headers).toMatchObject({ "set-cookie": "session=123; Path=/; HttpOnly" })
     }))
+
+  it.scoped("concat", () =>
+    Effect.gen(function*() {
+      const getValueHandler = Handler.make(Api.getEndpoint(exampleApiGet, "getValue"), () => Effect.succeed(12))
+      const testHandler = Handler.make(Api.getEndpoint(exampleApiPostNullableField, "test"), () =>
+        Effect.succeed({ value: Option.some("test") }))
+
+      const handler = Handler.concat(getValueHandler, testHandler)
+
+      const client = yield* NodeTesting.handler(handler)
+      const [response1, response2] = yield* Effect.zip(
+        client(HttpClientRequest.get("/get-value")),
+        client(HttpClientRequest.post("/test"))
+      )
+
+      expect(yield* response1.json).toEqual(12)
+      expect(yield* response2.json).toEqual({ value: "test" })
+    }))
+
+  it.scoped("concatAll", () =>
+    Effect.gen(function*() {
+      const helloHandler = Api.getEndpoint(exampleApiParams, "hello").pipe(
+        Handler.make(({ path }) => Effect.succeed(path.value))
+      )
+      const getValueHandler = Handler.make(Api.getEndpoint(exampleApiGet, "getValue"), () => Effect.succeed(12))
+      const testHandler = Handler.make(Api.getEndpoint(exampleApiPostNullableField, "test"), () =>
+        Effect.succeed({ value: Option.some("test") }))
+
+      const handler = Handler.concatAll(getValueHandler, testHandler, helloHandler)
+
+      const client = yield* NodeTesting.handler(handler)
+      const [response1, response2, response3] = yield* Effect.all([
+        client(HttpClientRequest.get("/get-value")),
+        client(HttpClientRequest.post("/test")),
+        client(HttpClientRequest.post("/hello/a"))
+      ])
+
+      expect(yield* response1.json).toEqual(12)
+      expect(yield* response2.json).toEqual({ value: "test" })
+      expect(yield* response3.json).toEqual("a")
+    }))
 })
