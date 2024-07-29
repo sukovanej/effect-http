@@ -99,7 +99,7 @@ export declare namespace ApiEndpoint {
     Id,
     ApiRequest.ApiRequest.Default,
     ApiResponse.ApiResponse.Default,
-    Security.Security<void>
+    Security.Security.Default
   >
 
   /**

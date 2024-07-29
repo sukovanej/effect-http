@@ -1,6 +1,7 @@
 import * as HttpRouter from "@effect/platform/HttpRouter"
+import * as Array from "effect/Array"
 import * as Effect from "effect/Effect"
-import { pipe } from "effect/Function"
+import { dual, pipe } from "effect/Function"
 import * as Pipeable from "effect/Pipeable"
 
 import * as ApiEndpoint from "../ApiEndpoint.js"
@@ -19,22 +20,25 @@ export const variance = {
   /* c8 ignore next */
   _A: (_: any) => _,
   /* c8 ignore next */
-  _E: (_: any) => _,
+  _E: (_: never) => _,
   /* c8 ignore next */
-  _R: (_: any) => _
+  _R: (_: never) => _
 }
 
 /** @internal */
 class HandlerImpl<A extends ApiEndpoint.ApiEndpoint.Any, E, R> implements Handler.Handler<A, E, R> {
   readonly [TypeId] = variance
 
-  constructor(readonly endpoint: A, readonly route: HttpRouter.Route<E, R>) {}
+  constructor(readonly endpoints: ReadonlyArray<A>, readonly router: HttpRouter.HttpRouter<E, R>) {}
 
   pipe() {
     // eslint-disable-next-line prefer-rest-params
     return Pipeable.pipeArguments(this, arguments)
   }
 }
+
+/** @internal */
+export const empty = new HandlerImpl([], HttpRouter.empty) as unknown as Handler.Handler<never, never, never> // TODO check variance
 
 /** @internal */
 export const make: {
@@ -77,8 +81,8 @@ const _makeRaw = <A extends ApiEndpoint.ApiEndpoint.Any, E, R>(
   endpoint: A,
   handler: HttpRouter.Route.Handler<E, R>
 ): Handler.Handler<A, E, R> => {
-  const router = HttpRouter.makeRoute(ApiEndpoint.getMethod(endpoint), ApiEndpoint.getPath(endpoint), handler)
-  return new HandlerImpl(endpoint, router)
+  const route = HttpRouter.makeRoute(ApiEndpoint.getMethod(endpoint), ApiEndpoint.getPath(endpoint), handler)
+  return new HandlerImpl([endpoint], HttpRouter.fromIterable([route]))
 }
 
 /** @internal */
@@ -110,11 +114,45 @@ const _make = <A extends ApiEndpoint.ApiEndpoint.Any, E, R>(
 }
 
 /** @internal */
-export const getRoute = <A extends ApiEndpoint.ApiEndpoint.Any, E, R>(
+export const getRouter = <A extends ApiEndpoint.ApiEndpoint.Any, E, R>(
   handler: Handler.Handler<A, E, R>
-): HttpRouter.Route<E, R> => (handler as HandlerImpl<A, E, R>).route
+): HttpRouter.HttpRouter<E, R> => (handler as HandlerImpl<A, E, R>).router
 
 /** @internal */
-export const getEndpoint = <A extends ApiEndpoint.ApiEndpoint.Any, E, R>(
+export const getEndpoints = <A extends ApiEndpoint.ApiEndpoint.Any, E, R>(
   handler: Handler.Handler<A, E, R>
-): A => (handler as HandlerImpl<A, E, R>).endpoint
+): ReadonlyArray<A> => (handler as HandlerImpl<A, E, R>).endpoints
+
+/** @internal */
+export const concat: {
+  <A extends ApiEndpoint.ApiEndpoint.Any, B extends ApiEndpoint.ApiEndpoint.Any, E1, E2, R1, R2>(
+    self: Handler.Handler<A, E1, R1>,
+    handler: Handler.Handler<B, E2, R2>
+  ): Handler.Handler<A | B, E1 | E2, R1 | R2>
+
+  <B extends ApiEndpoint.ApiEndpoint.Any, E2, R2>(
+    handler: Handler.Handler<B, E2, R2>
+  ): <A extends ApiEndpoint.ApiEndpoint.Any, E1, R1>(
+    self: Handler.Handler<A, E1, R1>
+  ) => Handler.Handler<A | B, E1 | E2, R1 | R2>
+} = dual(2, <A extends ApiEndpoint.ApiEndpoint.Any, B extends ApiEndpoint.ApiEndpoint.Any, E1, E2, R1, R2>(
+  self: Handler.Handler<A, E1, R1>,
+  handler: Handler.Handler<B, E2, R2>
+): Handler.Handler<A | B, E1 | E2, R1 | R2> =>
+  new HandlerImpl(
+    [...getEndpoints(self), ...getEndpoints(handler)],
+    HttpRouter.concat(getRouter(self), getRouter(handler))
+  ))
+
+/** @internal */
+export const concatAll = <Handlers extends ReadonlyArray<Handler.Handler.Any>>(
+  ...handlers: Handlers
+): Handler.Handler<
+  Handler.Handler.Endpoint<Handlers[number]>,
+  Handler.Handler.Error<Handlers[number]>,
+  Handler.Handler.Context<Handlers[number]>
+> =>
+  new HandlerImpl(
+    Array.flatten(handlers.map(getEndpoints)),
+    handlers.map(getRouter).reduce(HttpRouter.concat, HttpRouter.empty)
+  )
