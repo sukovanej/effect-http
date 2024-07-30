@@ -1,5 +1,16 @@
 # effect-http-node
 
+## 0.17.4
+
+### Patch Changes
+
+- [#641](https://github.com/sukovanej/effect-http/pull/641) [`499a183`](https://github.com/sukovanej/effect-http/commit/499a1834d443beadeb0ff1e7a909cb08c1518f44) Thanks [@sukovanej](https://github.com/sukovanej)! - Change internal structure of `Handler` to give it an ability to handler multiple endpoints.
+
+- [#642](https://github.com/sukovanej/effect-http/pull/642) [`215743c`](https://github.com/sukovanej/effect-http/commit/215743c91e1cfa95dd38378cd8096f6afa71d053) Thanks [@sukovanej](https://github.com/sukovanej)! - Update effect packages.
+
+- Updated dependencies [[`499a183`](https://github.com/sukovanej/effect-http/commit/499a1834d443beadeb0ff1e7a909cb08c1518f44), [`215743c`](https://github.com/sukovanej/effect-http/commit/215743c91e1cfa95dd38378cd8096f6afa71d053), [`d942cb3`](https://github.com/sukovanej/effect-http/commit/d942cb3805013b3b3b910f7a3dbce03ee036a1b5)]:
+  - effect-http@0.77.1
+
 ## 0.17.3
 
 ### Patch Changes
