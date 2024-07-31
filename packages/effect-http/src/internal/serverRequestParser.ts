@@ -63,16 +63,22 @@ const parseBody = (
 
   const parse = Schema.decodeUnknown(schema as Schema.Schema<any, any, never>)
 
-  if (schema === ApiSchema.FormData) {
-    // TODO
-    return Effect.succeed(undefined)
+  if (schema === ApiSchema.Persisted) {
+    return HttpServerRequest.HttpServerRequest.pipe(
+      Effect.flatMap((request) => request.multipart),
+      Effect.mapError((error) => createError("body", error.message))
+    )
+  } else if (schema === ApiSchema.FormData) {
+    // Backwards compatibility with old FormData approach, where
+    // handler code grabs the request.multipart on its own.
+    return undefined
   }
 
   return HttpServerRequest.HttpServerRequest.pipe(
     Effect.flatMap((request) => request.json),
     Effect.mapError((error) => {
       if (error.reason === "Transport") {
-        return createError("body", "Unexpect request JSON body error")
+        return createError("body", "Unexpected request JSON body error")
       }
 
       return createError("body", "Invalid JSON")

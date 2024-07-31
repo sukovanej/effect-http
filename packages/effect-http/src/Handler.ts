@@ -112,8 +112,8 @@ export declare namespace Handler {
    * @category models
    * @since 1.0.0
    */
-  export type ToRequest<R extends ApiRequest.ApiRequest.Any> = utils.RemoveIgnoredFields<{
-    readonly body: ApiRequest.ApiRequest.Body<R>
+  export type ToRequest<R extends ApiRequest.ApiRequest.Any, IsClient = false> = utils.RemoveIgnoredFields<{
+    readonly body: IsClient extends true ? ApiRequest.ApiRequest.ClientBody<R> : ApiRequest.ApiRequest.Body<R>
     readonly path: ApiRequest.ApiRequest.Path<R>
     readonly query: ApiRequest.ApiRequest.Query<R>
     readonly headers: ApiRequest.ApiRequest.Headers<R>

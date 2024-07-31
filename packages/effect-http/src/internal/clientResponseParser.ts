@@ -36,7 +36,7 @@ export const create = (
 
   return make((response) =>
     Effect.gen(function*(_) {
-      yield* _(handleUnsucessful(response))
+      yield* _(handleUnsuccessful(response))
 
       if (!(response.status in statusToSchema)) {
         const allowedStatuses = Object.keys(statusToSchema)
@@ -77,7 +77,7 @@ export const create = (
 }
 
 /** @internal */
-const handleUnsucessful = Unify.unify(
+const handleUnsuccessful = Unify.unify(
   (response: HttpClientResponse.HttpClientResponse) => {
     if (response.status >= 300) {
       return response.json.pipe(

@@ -68,7 +68,7 @@ const ignoredSchemaEncoder = (name: string) => (input: unknown) => {
 
 /** @internal */
 const createBodyEncoder = (endpoint: ApiEndpoint.ApiEndpoint.Any) => {
-  const schema = ApiRequest.getBodySchema(ApiEndpoint.getRequest(endpoint))
+  const schema = ApiRequest.getClientBodySchema(ApiEndpoint.getRequest(endpoint))
 
   if (ApiSchema.isIgnored(schema)) {
     return ignoredSchemaEncoder("body")

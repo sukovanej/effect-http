@@ -101,7 +101,7 @@ export const make = (
 
       const request = ApiEndpoint.getRequest(endpoint)
 
-      const body = ApiRequest.getBodySchema(request)
+      const body = ApiRequest.getClientBodySchema(request)
       const headers = ApiRequest.getHeadersSchema(request)
       const path = ApiRequest.getPathSchema(request)
       const query = ApiRequest.getQuerySchema(request)

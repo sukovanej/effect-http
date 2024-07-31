@@ -9,6 +9,7 @@ import * as Pipeable from "effect/Pipeable"
 import * as Predicate from "effect/Predicate"
 import * as Tuple from "effect/Tuple"
 
+import type { Multipart } from "@effect/platform"
 import type * as ApiEndpoint from "../ApiEndpoint.js"
 import * as ApiRequest from "../ApiRequest.js"
 import * as ApiResponse from "../ApiResponse.js"
@@ -110,17 +111,73 @@ export const setRequestBody = <B, R2>(
   Q,
   H,
   R1,
+  __,
   Response extends ApiResponse.ApiResponse.Any,
   Security extends Security.Security.Any
 >(
-  endpoint: ApiEndpoint.ApiEndpoint<Id, ApiRequest.ApiRequest<_, P, Q, H, R1>, Response, Security>
-): ApiEndpoint.ApiEndpoint<Id, ApiRequest.ApiRequest<B, P, Q, H, R1 | R2>, Response, Security> => {
+  endpoint: ApiEndpoint.ApiEndpoint<Id, ApiRequest.ApiRequest<_, P, Q, H, R1, __>, Response, Security>
+): ApiEndpoint.ApiEndpoint<
+  Id,
+  ApiRequest.ApiRequest<B, P, Q, H, R1 | R2, B>,
+  Response,
+  Security
+> => {
   if (getMethod(endpoint) === "GET") {
     throw new Error(`GET ${getPath(endpoint)} (${getId(endpoint)}) cannot have a request body`)
   }
 
   return setRequest(ApiRequest.setBody(schema)(getRequest(endpoint)))(endpoint)
 }
+
+/** @internal */
+export const setRequestBodies = <B, C, R2>(schemas: {
+  server: Schema.Schema<B, any, R2>
+  client: Schema.Schema<C, any, R2>
+}) =>
+<
+  Id extends ApiEndpoint.ApiEndpoint.AnyId,
+  _,
+  P,
+  Q,
+  H,
+  R1,
+  __,
+  Response extends ApiResponse.ApiResponse.Any,
+  Security extends Security.Security.Any
+>(
+  endpoint: ApiEndpoint.ApiEndpoint<Id, ApiRequest.ApiRequest<_, P, Q, H, R1, __>, Response, Security>
+): ApiEndpoint.ApiEndpoint<
+  Id,
+  ApiRequest.ApiRequest<B, P, Q, H, R1 | R2, C>,
+  Response,
+  Security
+> => {
+  if (getMethod(endpoint) === "GET") {
+    throw new Error(`GET ${getPath(endpoint)} (${getId(endpoint)}) cannot have a request body`)
+  }
+
+  return setRequest(ApiRequest.setBodies(schemas)(getRequest(endpoint)))(endpoint)
+}
+
+/** @internal */
+export const formDataRequestBody = <
+  Id extends ApiEndpoint.ApiEndpoint.AnyId,
+  _,
+  P,
+  Q,
+  H,
+  R1,
+  __,
+  Response extends ApiResponse.ApiResponse.Any,
+  Security extends Security.Security.Any
+>(
+  endpoint: ApiEndpoint.ApiEndpoint<Id, ApiRequest.ApiRequest<_, P, Q, H, R1, __>, Response, Security>
+): ApiEndpoint.ApiEndpoint<
+  Id,
+  ApiRequest.ApiRequest<Multipart.Persisted, P, Q, H, R1, FormData>,
+  Response,
+  Security
+> => setRequestBodies({ server: ApiSchema.Persisted, client: ApiSchema.FormData })(endpoint)
 
 /** @internal */
 export const setRequestPath = <P, R2>(
@@ -133,11 +190,12 @@ export const setRequestPath = <P, R2>(
   Q,
   H,
   R1,
+  C,
   Response extends ApiResponse.ApiResponse.Any,
   Security extends Security.Security.Any
 >(
-  endpoint: ApiEndpoint.ApiEndpoint<Id, ApiRequest.ApiRequest<B, _, Q, H, R1>, Response, Security>
-): ApiEndpoint.ApiEndpoint<Id, ApiRequest.ApiRequest<B, P, Q, H, R1 | R2>, Response, Security> =>
+  endpoint: ApiEndpoint.ApiEndpoint<Id, ApiRequest.ApiRequest<B, _, Q, H, R1, C>, Response, Security>
+): ApiEndpoint.ApiEndpoint<Id, ApiRequest.ApiRequest<B, P, Q, H, R1 | R2, C>, Response, Security> =>
   setRequest(ApiRequest.setPath(schema)(getRequest(endpoint)))(endpoint)
 
 /** @internal */
@@ -151,11 +209,12 @@ export const setRequestQuery = <Q, R2>(
   _,
   H,
   R1,
+  C,
   Response extends ApiResponse.ApiResponse.Any,
   Security extends Security.Security.Any
 >(
-  endpoint: ApiEndpoint.ApiEndpoint<Id, ApiRequest.ApiRequest<B, P, _, H, R1>, Response, Security>
-): ApiEndpoint.ApiEndpoint<Id, ApiRequest.ApiRequest<B, P, Q, H, R1 | R2>, Response, Security> =>
+  endpoint: ApiEndpoint.ApiEndpoint<Id, ApiRequest.ApiRequest<B, P, _, H, R1, C>, Response, Security>
+): ApiEndpoint.ApiEndpoint<Id, ApiRequest.ApiRequest<B, P, Q, H, R1 | R2, C>, Response, Security> =>
   setRequest(ApiRequest.setQuery(schema)(getRequest(endpoint)))(endpoint)
 
 /** @internal */
@@ -169,13 +228,14 @@ export const setRequestHeaders = <H, R2>(
   Q,
   _,
   R1,
+  C,
   Response extends ApiResponse.ApiResponse.Any,
   Security extends Security.Security.Any
 >(
-  endpoint: ApiEndpoint.ApiEndpoint<Id, ApiRequest.ApiRequest<B, P, Q, _, R1>, Response, Security>
+  endpoint: ApiEndpoint.ApiEndpoint<Id, ApiRequest.ApiRequest<B, P, Q, _, R1, C>, Response, Security>
 ): ApiEndpoint.ApiEndpoint<
   Id,
-  ApiRequest.ApiRequest<B, P, Q, H, R1 | R2>,
+  ApiRequest.ApiRequest<B, P, Q, H, R1 | R2, C>,
   Response,
   Security
 > => setRequest(ApiRequest.setHeaders(schema)(getRequest(endpoint)))(endpoint)

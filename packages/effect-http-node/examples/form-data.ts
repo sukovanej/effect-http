@@ -3,14 +3,14 @@ import { Schema } from "@effect/schema"
 import { Effect, Logger, LogLevel, pipe } from "effect"
 import { Api, HttpError, Representation, RouterBuilder } from "effect-http"
 
-import { FileSystem, HttpServerRequest } from "@effect/platform"
+import { FileSystem } from "@effect/platform"
 import { NodeServer } from "effect-http-node"
 
 const api = pipe(
   Api.make(),
   Api.addEndpoint(
     Api.post("upload", "/upload").pipe(
-      Api.setRequestBody(Api.FormData),
+      Api.formDataRequestBody, // Short for Api.setRequestBodies({server: Api.Persisted, client: Api.FormData})
       Api.setResponseBody(Schema.String),
       Api.setResponseRepresentations([Representation.plainText])
     )
@@ -19,12 +19,9 @@ const api = pipe(
 
 const app = pipe(
   RouterBuilder.make(api),
-  RouterBuilder.handle("upload", () =>
+  RouterBuilder.handle("upload", ({ body }) =>
     Effect.gen(function*() {
-      const request = yield* HttpServerRequest.HttpServerRequest
-      const formData = yield* request.multipart
-
-      const file = formData["file"]
+      const file = body["file"]
 
       if (typeof file === "string") {
         return yield* HttpError.badRequest("File not found")

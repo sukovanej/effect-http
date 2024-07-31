@@ -10,6 +10,7 @@ import type * as Array from "effect/Array"
 import type * as Pipeable from "effect/Pipeable"
 import type * as Types from "effect/Types"
 
+import type { Multipart } from "@effect/platform"
 import type * as ApiRequest from "./ApiRequest.js"
 import type * as ApiResponse from "./ApiResponse.js"
 import type * as ApiSchema from "./ApiSchema.js"
@@ -262,11 +263,62 @@ export const setRequestBody: <B, R2>(
   Q,
   H,
   R1,
+  __,
   Response extends ApiResponse.ApiResponse.Any,
   Security extends Security.Security.Any
 >(
-  endpoint: ApiEndpoint<Id, ApiRequest.ApiRequest<_, P, Q, H, R1>, Response, Security>
-) => ApiEndpoint<Id, ApiRequest.ApiRequest<B, P, Q, H, R1 | R2>, Response, Security> = internal.setRequestBody
+  endpoint: ApiEndpoint<Id, ApiRequest.ApiRequest<_, P, Q, H, R1, __>, Response, Security>
+) => ApiEndpoint<
+  Id,
+  ApiRequest.ApiRequest<B, P, Q, H, R1 | R2, any>,
+  Response,
+  Security
+> = internal.setRequestBody
+
+/**
+ * @category modifications
+ * @since 1.0.0
+ */
+export const setRequestBodies: <B, C, R2>(schema: {
+  server: Schema.Schema<B, any, R2>
+  client: Schema.Schema<C, any, R2>
+}) => <
+  Id extends ApiEndpoint.AnyId,
+  _,
+  P,
+  Q,
+  H,
+  R1,
+  __,
+  Response extends ApiResponse.ApiResponse.Any,
+  Security extends Security.Security.Any
+>(
+  endpoint: ApiEndpoint<Id, ApiRequest.ApiRequest<_, P, Q, H, R1, __>, Response, Security>
+) => ApiEndpoint<
+  Id,
+  ApiRequest.ApiRequest<B, P, Q, H, R1 | R2, C>,
+  Response,
+  Security
+> = internal.setRequestBodies
+
+export const formDataRequestBody: <
+  Id extends ApiEndpoint.AnyId,
+  _,
+  P,
+  Q,
+  H,
+  R1,
+  __,
+  Response extends ApiResponse.ApiResponse.Any,
+  Security extends Security.Security.Any
+>(
+  endpoint: ApiEndpoint<Id, ApiRequest.ApiRequest<_, P, Q, H, R1, __>, Response, Security>
+) => ApiEndpoint<
+  Id,
+  ApiRequest.ApiRequest<Multipart.Persisted, P, Q, H, R1, FormData>,
+  Response,
+  Security
+> = internal.formDataRequestBody
 
 /**
  * @category modifications
@@ -281,11 +333,12 @@ export const setRequestPath: <P, I extends Readonly<Record<string, string | unde
   Q,
   H,
   R1,
+  C,
   Response extends ApiResponse.ApiResponse.Any,
   Security extends Security.Security.Any
 >(
-  endpoint: ApiEndpoint<Id, ApiRequest.ApiRequest<B, _, Q, H, R1>, Response, Security>
-) => ApiEndpoint<Id, ApiRequest.ApiRequest<B, P, Q, H, R1 | R2>, Response, Security> = internal.setRequestPath
+  endpoint: ApiEndpoint<Id, ApiRequest.ApiRequest<B, _, Q, H, R1, C>, Response, Security>
+) => ApiEndpoint<Id, ApiRequest.ApiRequest<B, P, Q, H, R1 | R2, C>, Response, Security> = internal.setRequestPath
 
 /**
  * @category modifications
@@ -300,11 +353,12 @@ export const setRequestQuery: <Q, I extends Readonly<Record<string, string | und
   _,
   H,
   R1,
+  C,
   Response extends ApiResponse.ApiResponse.Any,
   Security extends Security.Security.Any
 >(
-  endpoint: ApiEndpoint<Id, ApiRequest.ApiRequest<B, P, _, H, R1>, Response, Security>
-) => ApiEndpoint<Id, ApiRequest.ApiRequest<B, P, Q, H, R1 | R2>, Response, Security> = internal.setRequestQuery
+  endpoint: ApiEndpoint<Id, ApiRequest.ApiRequest<B, P, _, H, R1, C>, Response, Security>
+) => ApiEndpoint<Id, ApiRequest.ApiRequest<B, P, Q, H, R1 | R2, C>, Response, Security> = internal.setRequestQuery
 
 /**
  * @category modifications
@@ -319,11 +373,12 @@ export const setRequestHeaders: <H, I extends Readonly<Record<string, string | u
   Q,
   _,
   R1,
+  C,
   Response extends ApiResponse.ApiResponse.Any,
   Security extends Security.Security.Any
 >(
-  endpoint: ApiEndpoint<Id, ApiRequest.ApiRequest<B, P, Q, _, R1>, Response, Security>
-) => ApiEndpoint<Id, ApiRequest.ApiRequest<B, P, Q, H, R1 | R2>, Response, Security> = internal.setRequestHeaders
+  endpoint: ApiEndpoint<Id, ApiRequest.ApiRequest<B, P, Q, _, R1, C>, Response, Security>
+) => ApiEndpoint<Id, ApiRequest.ApiRequest<B, P, Q, H, R1 | R2, C>, Response, Security> = internal.setRequestHeaders
 
 /**
  * @category modifications
