@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.77.2
+
+### Patch Changes
+
+- [#643](https://github.com/sukovanej/effect-http/pull/643) [`88f24aa`](https://github.com/sukovanej/effect-http/commit/88f24aacc054e0de69bcd519842ddf0faaf3d22b) Thanks [@sukovanej](https://github.com/sukovanej)! - Use an identifier annotation of a class schema as an OpenApi reference identifier.
+
 ## 0.77.1
 
 ### Patch Changes
