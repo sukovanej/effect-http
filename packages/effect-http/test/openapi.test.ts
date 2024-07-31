@@ -1432,4 +1432,61 @@ describe("component schema and reference", () => {
       }
     })
   })
+
+  it("reference with class schema", async () => {
+    class ReferencedType extends Schema.Class<ReferencedType>("ReferencedType")(
+      Schema.Struct({ something: Schema.String })
+    ) {}
+
+    const api = Api.make({ title: "test", version: "0.1" }).pipe(
+      Api.addEndpoint(
+        Api.post("getPet", "/pet").pipe(Api.setResponseBody(ReferencedType))
+      )
+    )
+    const spec = OpenApi.make(api)
+
+    const openapi = {
+      openapi: "3.0.3",
+      info: { title: "test", version: "0.1" },
+      tags: [{ "name": "default" }],
+      paths: {
+        "/pet": {
+          post: {
+            tags: ["default"],
+            operationId: "getPet",
+            responses: {
+              200: {
+                content: {
+                  "application/json": {
+                    schema: {
+                      $ref: "#/components/schemas/ReferencedType"
+                    }
+                  }
+                },
+                description: "Response 200"
+              }
+            }
+          }
+        }
+      },
+      components: {
+        schemas: {
+          ReferencedType: {
+            properties: {
+              something: {
+                description: "a string",
+                type: "string"
+              }
+            },
+            required: ["something"],
+            type: "object"
+          }
+        }
+      }
+    }
+    expect(spec).toStrictEqual(openapi)
+
+    // @ts-expect-error
+    SwaggerParser.validate(spec)
+  })
 })

@@ -426,6 +426,17 @@ export const openAPISchemaForAst = (
       componentSchemaCallback(identifier, ast)
       return reference(identifier)
     }
+
+    if (ast._tag === "Transformation") {
+      const identifierTo = Option.getOrUndefined(AST.getIdentifierAnnotation(ast.to))
+      const identifierFrom = Option.getOrUndefined(AST.getIdentifierAnnotation(ast.from))
+
+      if (identifierTo !== undefined && identifierFrom === undefined && componentSchemaCallback) {
+        componentSchemaCallback(identifierTo, ast.from)
+        return reference(identifierTo)
+      }
+    }
+
     return null
   }
 
