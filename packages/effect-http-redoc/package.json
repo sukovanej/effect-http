@@ -1,10 +1,10 @@
 {
-  "name": "effect-http",
+  "name": "effect-http-redoc",
   "type": "module",
-  "version": "0.77.3",
+  "version": "0.0.1",
   "license": "MIT",
   "author": "Milan Suk <Milansuk@email.cz>",
-  "description": "High-level declarative HTTP API for effect-ts",
+  "description": "Redoc router for effect-http",
   "homepage": "https://sukovanej.github.io/effect-http",
   "repository": {
     "type": "git",
@@ -19,26 +19,26 @@
     "directory": "dist"
   },
   "scripts": {
-    "check": "tsc -b tsconfig.json",
-    "check:watch": "tsc -b tsconfig.json --watch",
+    "update-redoc": "curl https://cdn.redoc.ly/redoc/latest/bundles/redoc.standalone.js > src/static/redoc.standalone.js",
     "codegen": "build-utils prepare-v2",
     "build": "pnpm codegen && pnpm build-esm && pnpm build-cjs && pnpm build-annotate && build-utils pack-v2",
     "build-esm": "tsc -b tsconfig.build.json",
     "build-cjs": "babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps",
     "build-annotate": "babel build --plugins annotate-pure-calls --out-dir build --source-maps",
-    "dtslint": "dtslint dtslint",
+    "check": "tsc -b tsconfig.json",
     "test": "vitest",
     "coverage": "vitest --coverage"
   },
   "peerDependencies": {
     "@effect/platform": "^0.61.0",
-    "@effect/schema": "^0.70.0",
-    "effect": "^3.6.0"
+    "effect": "^3.6.0",
+    "effect-http": "workspace:^"
   },
   "devDependencies": {
-    "@apidevtools/swagger-parser": "^10.1.0",
     "@effect/platform": "^0.61.2",
+    "@effect/platform-node": "^0.56.2",
     "@effect/schema": "^0.70.1",
-    "effect": "^3.6.0"
+    "effect": "^3.6.0",
+    "effect-http": "workspace:^"
   }
 }

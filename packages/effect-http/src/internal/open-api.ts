@@ -96,7 +96,7 @@ export const make = (
           parameters = operationSpec.parameters
         }
 
-        parameters.push(...createParameters(type, schema, addComponentSchemaCallback))
+        createParameters(type, schema, addComponentSchemaCallback).forEach((p) => parameters.push(p))
       }
 
       const request = ApiEndpoint.getRequest(endpoint)

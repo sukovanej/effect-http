@@ -1,5 +1,6 @@
 /* eslint-disable no-undef */
 module.exports = {
+  root: true,
   ignorePatterns: ["dist", "build", "docs", "*.md"],
   parser: "@typescript-eslint/parser",
   parserOptions: {
@@ -36,11 +37,14 @@ module.exports = {
     "object-shorthand": "error",
     "prefer-destructuring": "off",
     "sort-imports": "off",
+    "no-restricted-syntax": ["error", {
+      "selector": "CallExpression[callee.property.name='push'] > SpreadElement.arguments",
+      "message": "Do not use spread arguments in Array.push"
+    }],
     "no-unused-vars": "off",
     "prefer-rest-params": "off",
     "prefer-spread": "off",
     "import/first": "error",
-    "import/no-cycle": "error",
     "import/newline-after-import": "error",
     "import/no-duplicates": "error",
     "import/no-unresolved": "off",
