@@ -38,143 +38,141 @@ export const make = (
   }
 
   api.groups.forEach((group) =>
-    group.endpoints.forEach(
-      (endpoint) => {
-        const options = ApiEndpoint.getOptions(endpoint)
-        const security = ApiEndpoint.getSecurity(endpoint)
+    group.endpoints.forEach((endpoint) => {
+      const options = ApiEndpoint.getOptions(endpoint)
+      const security = ApiEndpoint.getSecurity(endpoint)
 
-        const operationSpec: OpenApiTypes.OpenAPISpecOperation = {
-          operationId: ApiEndpoint.getId(endpoint),
-          tags: [group.name]
-        }
+      const operationSpec: OpenApiTypes.OpenAPISpecOperation = {
+        operationId: ApiEndpoint.getId(endpoint),
+        tags: [group.name]
+      }
 
-        for (const response of ApiEndpoint.getResponse(endpoint)) {
-          const body = ApiResponse.getBodySchema(response)
-          const headers = ApiResponse.getHeadersSchema(response)
-          const status = ApiResponse.getStatus(response)
+      for (const response of ApiEndpoint.getResponse(endpoint)) {
+        const body = ApiResponse.getBodySchema(response)
+        const headers = ApiResponse.getHeadersSchema(response)
+        const status = ApiResponse.getStatus(response)
 
-          const responseSpec: OpenApiTypes.OpenApiSpecResponse = { description: `Response ${status}` }
+        const responseSpec: OpenApiTypes.OpenApiSpecResponse = { description: `Response ${status}` }
 
-          if (!ApiSchema.isIgnored(body) && !ApiSchema.isIgnored(headers)) {
-            responseSpec.description = "No content"
-          }
-
-          if (!ApiSchema.isIgnored(body)) {
-            const content: OpenApiTypes.OpenApiSpecMediaType = {
-              schema: makeSchema(body, addComponentSchemaCallback)
-            }
-
-            const description = AST.getDescriptionAnnotation(body.ast)
-
-            if (Option.isSome(description)) {
-              content.description = description.value
-            }
-
-            responseSpec.content = {
-              "application/json": content
-            }
-          }
-
-          if (!ApiSchema.isIgnored(headers)) {
-            responseSpec.headers = createResponseHeaders(headers, addComponentSchemaCallback)
-          }
-
-          operationSpec.responses = {
-            ...operationSpec.responses,
-            [String(status)]: responseSpec
-          }
-        }
-
-        const addParameters = (
-          type: "query" | "header" | "path",
-          schema: Schema.Schema.Any
-        ) => {
-          let parameters: Array<OpenApiTypes.OpenAPISpecParameter> = []
-
-          if (operationSpec.parameters === undefined) {
-            operationSpec.parameters = parameters
-          } else {
-            parameters = operationSpec.parameters
-          }
-
-          parameters.push(...createParameters(type, schema, addComponentSchemaCallback))
-        }
-
-        const request = ApiEndpoint.getRequest(endpoint)
-
-        const body = ApiRequest.getBodySchema(request)
-        const headers = ApiRequest.getHeadersSchema(request)
-        const path = ApiRequest.getPathSchema(request)
-        const query = ApiRequest.getQuerySchema(request)
-
-        if (!ApiSchema.isIgnored(path)) {
-          addParameters("path", path)
-        }
-
-        if (!ApiSchema.isIgnored(query)) {
-          addParameters("query", query)
-        }
-
-        if (!ApiSchema.isIgnored(headers)) {
-          addParameters("header", headers)
+        if (!ApiSchema.isIgnored(body) && !ApiSchema.isIgnored(headers)) {
+          responseSpec.description = "No content"
         }
 
         if (!ApiSchema.isIgnored(body)) {
-          operationSpec.requestBody = {
-            content: {
-              "application/json": {
-                schema: makeSchema(body, addComponentSchemaCallback)
-              }
-            },
-            required: true
+          const content: OpenApiTypes.OpenApiSpecMediaType = {
+            schema: makeSchema(body, addComponentSchemaCallback)
           }
 
           const description = AST.getDescriptionAnnotation(body.ast)
 
           if (Option.isSome(description)) {
-            operationSpec.requestBody.description = description.value
+            content.description = description.value
+          }
+
+          responseSpec.content = {
+            "application/json": content
           }
         }
 
-        const securityList = Record.toEntries(Security.getOpenApi(security))
-
-        if (securityList.length > 0) {
-          operationSpec.security = securityList.map(([name]) => ({ [name]: [] }))
+        if (!ApiSchema.isIgnored(headers)) {
+          responseSpec.headers = createResponseHeaders(headers, addComponentSchemaCallback)
         }
 
-        for (const [name, schemes] of securityList) {
-          const securitySchemes = openApi.components?.securitySchemes ?? {}
-          securitySchemes[name] = schemes as OpenApiTypes.OpenAPISecurityScheme
-
-          const components = openApi.components ?? {}
-          components.securitySchemes = securitySchemes
-
-          openApi.components = components
-        }
-
-        if (options.description !== undefined) {
-          operationSpec.description = options.description
-        }
-
-        if (options.summary !== undefined) {
-          operationSpec.summary = options.summary
-        }
-
-        if (options.deprecated) {
-          operationSpec["deprecated"] = true
-        }
-
-        const pathName = createPath(ApiEndpoint.getPath(endpoint))
-
-        openApi.paths = {
-          ...openApi.paths,
-          [pathName]: {
-            ...openApi.paths[pathName],
-            [ApiEndpoint.getMethod(endpoint).toLowerCase() as OpenApiTypes.OpenAPISpecMethodName]: operationSpec
-          }
+        operationSpec.responses = {
+          ...operationSpec.responses,
+          [String(status)]: responseSpec
         }
       }
-    )
+
+      const addParameters = (
+        type: "query" | "header" | "path",
+        schema: Schema.Schema.Any
+      ) => {
+        let parameters: Array<OpenApiTypes.OpenAPISpecParameter> = []
+
+        if (operationSpec.parameters === undefined) {
+          operationSpec.parameters = parameters
+        } else {
+          parameters = operationSpec.parameters
+        }
+
+        parameters.push(...createParameters(type, schema, addComponentSchemaCallback))
+      }
+
+      const request = ApiEndpoint.getRequest(endpoint)
+
+      const body = ApiRequest.getBodySchema(request)
+      const headers = ApiRequest.getHeadersSchema(request)
+      const path = ApiRequest.getPathSchema(request)
+      const query = ApiRequest.getQuerySchema(request)
+
+      if (!ApiSchema.isIgnored(path)) {
+        addParameters("path", path)
+      }
+
+      if (!ApiSchema.isIgnored(query)) {
+        addParameters("query", query)
+      }
+
+      if (!ApiSchema.isIgnored(headers)) {
+        addParameters("header", headers)
+      }
+
+      if (!ApiSchema.isIgnored(body)) {
+        operationSpec.requestBody = {
+          content: {
+            "application/json": {
+              schema: makeSchema(body, addComponentSchemaCallback)
+            }
+          },
+          required: true
+        }
+
+        const description = AST.getDescriptionAnnotation(body.ast)
+
+        if (Option.isSome(description)) {
+          operationSpec.requestBody.description = description.value
+        }
+      }
+
+      const securityList = Record.toEntries(Security.getOpenApi(security))
+
+      if (securityList.length > 0) {
+        operationSpec.security = securityList.map(([name]) => ({ [name]: [] }))
+      }
+
+      for (const [name, schemes] of securityList) {
+        const securitySchemes = openApi.components?.securitySchemes ?? {}
+        securitySchemes[name] = schemes as OpenApiTypes.OpenAPISecurityScheme
+
+        const components = openApi.components ?? {}
+        components.securitySchemes = securitySchemes
+
+        openApi.components = components
+      }
+
+      if (options.description !== undefined) {
+        operationSpec.description = options.description
+      }
+
+      if (options.summary !== undefined) {
+        operationSpec.summary = options.summary
+      }
+
+      if (options.deprecated) {
+        operationSpec["deprecated"] = true
+      }
+
+      const pathName = createPath(ApiEndpoint.getPath(endpoint))
+
+      openApi.paths = {
+        ...openApi.paths,
+        [pathName]: {
+          ...openApi.paths[pathName],
+          [ApiEndpoint.getMethod(endpoint).toLowerCase() as OpenApiTypes.OpenAPISpecMethodName]: operationSpec
+        }
+      }
+    })
   )
 
   if (Array.isNonEmptyReadonlyArray(api.groups)) {
@@ -206,7 +204,11 @@ export const make = (
       schemas[name] = openAPISchemaForAst(removeIdentifierAnnotation(ast), addComponentSchemaCallback)
     }
 
-    openApi.components = { schemas }
+    if (openApi.components === undefined) {
+      openApi.components = { schemas }
+    }
+
+    openApi.components.schemas = schemas
   }
 
   return openApi
