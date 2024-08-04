@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.77.3
+
+### Patch Changes
+
+- [#647](https://github.com/sukovanej/effect-http/pull/647) [`6793bbd`](https://github.com/sukovanej/effect-http/commit/6793bbde8980bb79b83d3f89e2142672cee24c19) Thanks [@sukovanej](https://github.com/sukovanej)! - Fix #646 - securitySchemes was overwritten by reference schemas.
+
 ## 0.77.2
 
 ### Patch Changes
