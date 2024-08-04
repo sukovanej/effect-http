@@ -1,4 +1,4 @@
-import { FileSystem, HttpClientRequest, HttpRouter, HttpServerRequest } from "@effect/platform"
+import { FileSystem, HttpClientRequest, HttpRouter } from "@effect/platform"
 import { NodeContext } from "@effect/platform-node"
 import { Schema } from "@effect/schema"
 import * as it from "@effect/vitest"
@@ -216,17 +216,18 @@ it.scoped(
           Api.post("upload", "/upload").pipe(
             Api.setResponseBody(Schema.String),
             Api.setResponseRepresentations([Representation.plainText]),
-            Api.setRequestBody(ApiSchema.FormData)
+            Api.setRequestBodies({
+              server: ApiSchema.Persisted,
+              client: ApiSchema.FormData
+            })
           )
         )
       )
 
       const app = pipe(
         RouterBuilder.make(api),
-        RouterBuilder.handle("upload", () =>
+        RouterBuilder.handle("upload", ({ body }) =>
           Effect.gen(function*(_) {
-            const request = yield* _(HttpServerRequest.HttpServerRequest)
-            const body = yield* _(request.multipart)
             const file = body["file"]
 
             if (file === null) {

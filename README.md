@@ -172,7 +172,7 @@ Optional parameter is denoted using a question mark in the path
 match pattern. In the request param schema, use `Schema.optional(<schema>)`.
 
 In the following example the last `:another` path parameter can be
-ommited on the client side.
+omitted on the client side.
 
 ```typescript
 import { Schema } from "@effect/schema";
@@ -195,6 +195,29 @@ export const api = Api.make({ title: "My api" }).pipe(
 ```
 
 [\[Source code\]](./packages/effect-http-node/examples/request-validation-optional-parameter.ts)
+
+#### Form data
+
+When dealing with form data like file uploads, you can set separate client and server-side request bodies to take advantage of `@effect/platform`'s `Multipart.Persisted` handling.
+
+```typescript
+import { Schema } from "@effect/schema";
+import { pipe } from "effect";
+import { Api, Representation } from "effect-http";
+
+const api = pipe(
+  Api.make(),
+  Api.addEndpoint(
+    Api.post("upload", "/upload").pipe(
+      Api.formDataRequestBody, // Short for Api.setRequestBodies({server: Api.Persisted, client: Api.FormData})
+      Api.setResponseBody(Schema.String),
+      Api.setResponseRepresentations([Representation.plainText])
+    )
+  )
+);
+```
+
+[\[Source code\]](./packages/effect-http-node/examples/form-data.ts)
 
 ### Headers
 

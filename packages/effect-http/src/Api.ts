@@ -7,6 +7,7 @@ import type * as Schema from "@effect/schema/Schema"
 import type * as Pipeable from "effect/Pipeable"
 import type * as Types from "effect/Types"
 
+import type { Multipart } from "@effect/platform"
 import type * as ApiEndpoint from "./ApiEndpoint.js"
 import type * as ApiGroup from "./ApiGroup.js"
 import * as ApiSchema from "./ApiSchema.js"
@@ -151,6 +152,11 @@ export {
    */
   delete,
   /**
+   * @category modifications
+   * @since 1.0.0
+   */
+  formDataRequestBody,
+  /**
    * @category constructors
    * @since 1.0.0
    */
@@ -185,6 +191,11 @@ export {
    * @since 1.0.0
    */
   setRequest,
+  /**
+   * @category modifications
+   * @since 1.0.0
+   */
+  setRequestBodies,
   /**
    * @category modifications
    * @since 1.0.0
@@ -252,6 +263,14 @@ export const setOptions: (
  * @since 1.0.0
  */
 export const FormData: Schema.Schema<FormData> = ApiSchema.FormData
+
+/**
+ * Multipart.Persisted schema
+ *
+ * @category schemas
+ * @since 1.0.0
+ */
+export const Persisted: Schema.Schema<Multipart.Persisted> = ApiSchema.Persisted
 
 /**
  * @category refinements

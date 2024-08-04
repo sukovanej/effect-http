@@ -1,6 +1,7 @@
 /**
  * @since 1.0.0
  */
+import type { Multipart } from "@effect/platform"
 import type * as Schema from "@effect/schema/Schema"
 import * as internal from "./internal/api-schema.js"
 
@@ -43,3 +44,11 @@ export const isIgnored: (u: unknown) => u is Ignored = internal.isIgnored
  * @since 1.0.0
  */
 export const FormData: Schema.Schema<FormData> = internal.formDataSchema
+
+/**
+ * Multipart.Persisted schema
+ *
+ * @category schemas
+ * @since 1.0.0
+ */
+export const Persisted: Schema.Schema<Multipart.Persisted> = internal.persistedSchema

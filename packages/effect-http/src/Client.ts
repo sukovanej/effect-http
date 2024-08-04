@@ -46,7 +46,7 @@ export declare namespace Client {
    * @since 1.0.0
    */
   export type Function<E extends ApiEndpoint.ApiEndpoint.Any> = (
-    input: Handler.Handler.ToRequest<ApiEndpoint.ApiEndpoint.Request<E>>,
+    input: Handler.Handler.ToRequest<ApiEndpoint.ApiEndpoint.Request<E>, true>,
     map?: (request: HttpClientRequest.HttpClientRequest) => HttpClientRequest.HttpClientRequest
   ) => Effect.Effect<
     Handler.Handler.ToResponse<ApiEndpoint.ApiEndpoint.Response<E>>,
