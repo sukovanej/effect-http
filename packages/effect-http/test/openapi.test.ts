@@ -1489,4 +1489,25 @@ describe("component schema and reference", () => {
     // @ts-expect-error
     SwaggerParser.validate(spec)
   })
+
+  it("reference and security", async () => {
+    class ReferencedType extends Schema.Class<ReferencedType>("ReferencedType")(
+      Schema.Struct({ something: Schema.String })
+    ) {}
+
+    const api = Api.make({ title: "test", version: "0.1" }).pipe(
+      Api.addEndpoint(
+        Api.post("getPet", "/pet").pipe(
+          Api.setResponseBody(ReferencedType),
+          Api.setSecurity(Security.basic())
+        )
+      )
+    )
+    const spec = OpenApi.make(api)
+    expect(spec.components?.schemas).toBeTruthy()
+    expect(spec.components?.securitySchemes).toBeTruthy()
+
+    // @ts-expect-error
+    SwaggerParser.validate(spec)
+  })
 })
