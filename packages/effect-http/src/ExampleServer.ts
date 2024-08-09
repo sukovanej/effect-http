@@ -1,5 +1,5 @@
 /**
- * The `exampleServer` function generates a `Server` implementation based
+ * The `ExampleServer.make` function generates a `RouterBuilder` implementation based
  * on an instance of `Api`. The listening server will perform all the
  * request and response validations similarly to a real implementation.
  *
@@ -56,7 +56,7 @@ export const handleRemaining: <A extends ApiEndpoint.ApiEndpoint.Any, E, R>(
 ) => RouterBuilder.RouterBuilder<never, E, R | ApiEndpoint.ApiEndpoint.Context<A>> = internal.handleRemaining
 
 /**
- * Generate an example `RouterBuilder` implementation.
+ * Generate an example value for the given schema.
  *
  * @category utils
  * @since 1.0.0

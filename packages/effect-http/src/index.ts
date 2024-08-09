@@ -55,7 +55,7 @@ export * as Client from "./Client.js"
 export * as ClientError from "./ClientError.js"
 
 /**
- * The `exampleServer` function generates a `Server` implementation based
+ * The `ExampleServer.make` function generates a `RouterBuilder` implementation based
  * on an instance of `Api`. The listening server will perform all the
  * request and response validations similarly to a real implementation.
  *
