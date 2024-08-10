@@ -56,7 +56,7 @@ export const make = <A, E, R>(
 ): Security.Security<
   A,
   Exclude<E, HttpError.HttpError>,
-  Exclude<R, HttpServerRequest.HttpServerRequest>
+  Exclude<R, HttpServerRequest.HttpServerRequest | HttpServerRequest.ParsedSearchParams>
 > => new SecurityImpl(openapi ?? {}, parser)
 
 /** @internal */
@@ -80,7 +80,7 @@ export const mapHandler: typeof Security.mapHandler = dual(
   ): Security.Security<
     B,
     Exclude<E2, HttpError.HttpError>,
-    Exclude<R2, HttpServerRequest.HttpServerRequest>
+    Exclude<R2, HttpServerRequest.HttpServerRequest | HttpServerRequest.ParsedSearchParams>
   > => make(f(handleRequest(self)), getOpenApi(self))
 )
 
@@ -119,7 +119,7 @@ export const mapEffect = dual(
   ): Security.Security<
     A2,
     E1 | Exclude<E2, HttpError.HttpError>,
-    R1 | Exclude<R2, HttpServerRequest.HttpServerRequest>
+    R1 | Exclude<R2, HttpServerRequest.HttpServerRequest | HttpServerRequest.ParsedSearchParams>
   > => mapHandler(self, Effect.flatMap(f) as any)
 )
 
@@ -275,9 +275,11 @@ export const apiKey = (
   const schema = Schema.Struct({ [options.key]: Schema.String })
 
   const parse = pipe(
-    options.in === "query"
-      ? HttpServerRequest.schemaBodyUrlParams(schema)
-      : HttpServerRequest.schemaHeaders(schema),
+    Unify.unify(
+      options.in === "query"
+        ? HttpServerRequest.schemaSearchParams(schema)
+        : HttpServerRequest.schemaHeaders(schema)
+    ),
     Effect.map((obj) => obj[options.key]),
     Effect.mapError(() => HttpError.unauthorized(`Expected ${options.key} (${options.in}) api key`))
   )

@@ -1,3 +1,4 @@
+import { HttpClientRequest } from "@effect/platform"
 import { Schema } from "@effect/schema"
 import * as it from "@effect/vitest"
 import { Effect, flow, pipe } from "effect"
@@ -60,6 +61,12 @@ const parameters = [
     security: pipe(Security.bearer(), Security.or(xApiKey)),
     name: "Security.or",
     setAuth: Client.setApiKey("x-api-key", "header", "api-key"),
+    expected: "api-key"
+  },
+  {
+    security: Security.apiKey({ in: "query", key: "key" }),
+    name: "Security.apiKey in query",
+    setAuth: HttpClientRequest.setUrlParam("key", "api-key"),
     expected: "api-key"
   }
 ]
