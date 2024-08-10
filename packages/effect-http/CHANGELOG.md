@@ -1,5 +1,13 @@
 # effect-http
 
+## 0.77.4
+
+### Patch Changes
+
+- [#652](https://github.com/sukovanej/effect-http/pull/652) [`f20929b`](https://github.com/sukovanej/effect-http/commit/f20929b9c35960393ba2d940f9c46304eb4d9231) Thanks [@sukovanej](https://github.com/sukovanej)! - Fix `ExampleServer.makeSchema` docstring.
+
+- [#656](https://github.com/sukovanej/effect-http/pull/656) [`ea0e820`](https://github.com/sukovanej/effect-http/commit/ea0e8206fdf996bdd00d43d175996a54f31f1a2d) Thanks [@sukovanej](https://github.com/sukovanej)! - Fix `Security.apiKey` with `query`. Resolves #655.
+
 ## 0.77.3
 
 ### Patch Changes
