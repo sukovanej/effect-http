@@ -88,7 +88,7 @@ export declare namespace Security {
   export type Handler<A, E, R> = Effect.Effect<
     A,
     E,
-    R | HttpServerRequest.HttpServerRequest
+    R | HttpServerRequest.HttpServerRequest | HttpServerRequest.ParsedSearchParams
   >
 }
 
@@ -105,7 +105,7 @@ export const make: <A, E, R>(
 ) => Security<
   A,
   Exclude<E, HttpError.HttpError>,
-  Exclude<R, HttpServerRequest.HttpServerRequest>
+  Exclude<R, HttpServerRequest.HttpServerRequest | HttpServerRequest.ParsedSearchParams>
 > = internal.make
 
 /**
@@ -208,7 +208,7 @@ export const mapEffect: {
   ) => Security<
     A2,
     E1 | Exclude<E2, HttpError.HttpError>,
-    R1 | Exclude<R2, HttpServerRequest.HttpServerRequest>
+    R1 | Exclude<R2, HttpServerRequest.HttpServerRequest | HttpServerRequest.ParsedSearchParams>
   >
   <A1, E1, R1, A2, E2, R2>(
     self: Security<A1, E1, R1>,
@@ -216,7 +216,7 @@ export const mapEffect: {
   ): Security<
     A2,
     E1 | Exclude<E2, HttpError.HttpError>,
-    R1 | Exclude<R2, HttpServerRequest.HttpServerRequest>
+    R1 | Exclude<R2, HttpServerRequest.HttpServerRequest | HttpServerRequest.ParsedSearchParams>
   >
 } = internal.mapEffect
 
