@@ -3,7 +3,7 @@
 ![download badge](https://img.shields.io/npm/dm/effect-http.svg)
 
 High-level declarative HTTP library for [Effect-TS](https://github.com/Effect-TS) built on top of
-[@effect/platform](https://github.com/effect-ts/platform).
+[@effect/platform](https://github.com/Effect-TS/effect/tree/main/packages/platform).
 
 - :star: **Client derivation**. Write the api specification once, get the type-safe client with runtime validation for free.
 - :rainbow: **OpenAPI derivation**. `/docs` endpoint with OpenAPI UI out of box.
