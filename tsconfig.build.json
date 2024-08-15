@@ -4,5 +4,6 @@
   "references": [
     { "path": "packages/effect-http/tsconfig.build.json" },
     { "path": "packages/effect-http-node/tsconfig.build.json" },
+    { "path": "packages/effect-http-redoc/tsconfig.build.json" }
   ]
 }

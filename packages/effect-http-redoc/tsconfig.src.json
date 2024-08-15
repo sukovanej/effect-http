@@ -1,0 +1,13 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "include": ["src", "src/redoc.js"],
+  "references": [{ "path": "../effect-http" }],
+  "compilerOptions": {
+    "types": ["node"],
+    "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo",
+    "rootDir": "src",
+    "outDir": "build/src",
+    "allowJs": true,
+    "exactOptionalPropertyTypes": false
+  }
+}

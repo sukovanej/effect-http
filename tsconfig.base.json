@@ -40,7 +40,9 @@
       "effect-http": ["./packages/effect-http/src/index.js"],
       "effect-http/*": ["./packages/effect-http/src/*.js"],
       "effect-http-node": ["./packages/effect-http-node/src/index.js"],
-      "effect-http-node/*": ["./packages/effect-http-node/src/*.js"]
+      "effect-http-node/*": ["./packages/effect-http-node/src/*.js"],
+      "effect-http-redoc": ["./packages/effect-http-redoc/src/index.js"],
+      "effect-http-redoc/*": ["./packages/effect-http-redoc/src/*.js"]
     }
   }
 }

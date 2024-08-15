@@ -1,0 +1,13 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "include": ["examples"],
+  "references": [
+    { "path": "tsconfig.src.json" },
+    { "path": "../effect-http-node" }
+  ],
+  "compilerOptions": {
+    "tsBuildInfoFile": ".tsbuildinfo/examples.tsbuildinfo",
+    "rootDir": "examples",
+    "noEmit": true
+  }
+}
