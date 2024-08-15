@@ -1,8 +1,7 @@
 import { HttpServer } from "@effect/platform"
-import { BunContext, BunHttpServer } from "@effect/platform-bun"
-import { NodeRuntime } from "@effect/platform-node"
+import { BunContext, BunHttpServer, BunRuntime } from "@effect/platform-bun"
 import { Schema } from "@effect/schema"
-import { Effect, Layer, pipe } from "effect"
+import { Effect, Layer, Logger, pipe } from "effect"
 import { Api, Handler, RouterBuilder } from "effect-http"
 import { NodeSwaggerFiles } from "effect-http-node"
 
@@ -32,11 +31,12 @@ const app = pipe(
 
 const server = pipe(
   HttpServer.serve(app),
+  HttpServer.withLogAddress,
   Layer.provide(NodeSwaggerFiles.SwaggerFilesLive),
   Layer.provide(BunHttpServer.layer({ port: 3000 })),
   Layer.provide(BunContext.layer),
-  Layer.launch,
-  Effect.scoped
+  Layer.provide(Logger.pretty),
+  Layer.launch
 )
 
-NodeRuntime.runMain(server)
+BunRuntime.runMain(server)
