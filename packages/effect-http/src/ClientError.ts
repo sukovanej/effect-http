@@ -45,7 +45,7 @@ export type ClientError<S extends number = number> =
  * @since 1.0.0
  */
 export interface ClientErrorClientSide extends Cause.YieldableError {
-  readonly [ClientSideErrorTypeId]: {}
+  readonly [ClientSideErrorTypeId]: object
   readonly _tag: "ClientError"
   readonly message: string
   readonly error: unknown
@@ -57,7 +57,7 @@ export interface ClientErrorClientSide extends Cause.YieldableError {
  * @since 1.0.0
  */
 export interface ClientErrorServerSide<S extends number = number> extends Cause.YieldableError {
-  readonly [ServerSideErrorTypeId]: {}
+  readonly [ServerSideErrorTypeId]: object
   readonly _tag: "ClientError"
   readonly message: string
   readonly error: unknown

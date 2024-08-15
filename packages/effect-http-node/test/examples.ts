@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-empty-object-type */
 import * as Schema from "@effect/schema/Schema"
 import { Api, ApiResponse, ApiSchema, Representation } from "effect-http"
 

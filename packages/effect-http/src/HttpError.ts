@@ -46,7 +46,7 @@ export declare namespace HttpError {
    * @since 1.0.0
    */
   export interface Variance {
-    readonly [TypeId]: {}
+    readonly [TypeId]: object
   }
 
   /**

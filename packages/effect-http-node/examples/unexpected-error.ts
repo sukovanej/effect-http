@@ -10,12 +10,12 @@ export const api = Api.make({ title: "Example API" }).pipe(
   )
 )
 
-class MyError extends Data.TaggedError("MyError")<{}> {}
+class MyError extends Data.TaggedError("MyError")<{ message: string }> {}
 
 export const app = RouterBuilder.make(api).pipe(
   RouterBuilder.handle(
     "root",
-    () => Effect.fail(new MyError())
+    () => Effect.fail(new MyError({ message: "Unexpected error" }))
   ),
   RouterBuilder.build
 )
