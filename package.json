@@ -31,7 +31,7 @@
     "@effect/dtslint": "^0.1.0",
     "@effect/eslint-plugin": "^0.2.0",
     "@effect/language-service": "^0.1.0",
-    "@effect/vitest": "^0.8.0",
+    "@effect/vitest": "^0.8.5",
     "@types/node": "^22.0.0",
     "@types/swagger-ui-dist": "^3.30.5",
     "@typescript-eslint/eslint-plugin": "^7.18.0",
@@ -54,9 +54,6 @@
     "vitest": "^2.0.5"
   },
   "pnpm": {
-    "patchedDependencies": {
-      "@changesets/assemble-release-plan@6.0.0": "patches/@changesets__assemble-release-plan@6.0.0.patch"
-    },
     "updateConfig": {
       "ignoreDependencies": [
         "eslint"
