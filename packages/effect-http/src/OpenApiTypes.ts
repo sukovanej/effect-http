@@ -398,7 +398,7 @@ export interface OpenAPISchemaObjectType {
  * @category models
  * @since 1.0.0
  */
-export type OpenAPISchemaAnyType = {}
+export type OpenAPISchemaAnyType = object
 
 /**
  * @category models

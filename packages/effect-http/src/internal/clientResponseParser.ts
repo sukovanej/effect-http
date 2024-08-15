@@ -97,7 +97,7 @@ const representationFromResponse = (
   response: HttpClientResponse.HttpClientResponse
 ): Representation.Representation => {
   if (representations.length === 0) {
-    representations[0]
+    return representations[0]
   }
 
   const contentType = response.headers["content-type"]

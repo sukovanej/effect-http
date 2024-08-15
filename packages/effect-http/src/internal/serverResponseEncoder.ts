@@ -77,7 +77,7 @@ const representationFromRequest = (
   request: HttpServerRequest.HttpServerRequest
 ): Representation.Representation => {
   if (representations.length === 0) {
-    representations[0]
+    return representations[0]
   }
 
   const accept = request.headers["accept"]

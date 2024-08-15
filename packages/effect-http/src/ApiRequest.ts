@@ -24,6 +24,7 @@ export type TypeId = typeof TypeId
  * @category models
  * @since 1.0.0
  */
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface ApiRequest<B, P, Q, H, R> extends ApiRequest.Variance<B, P, Q, H, R> {}
 
 /**
