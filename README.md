@@ -1,5 +1,14 @@
 # effect-http
 
+> [!WARNING]
+>
+> [@effect/platform@0.63.0](https://github.com/Effect-TS/effect/releases/tag/%40effect%2Fplatform%400.63.0) introduced a new
+> set of `HttpApi` modules that are meant to be an effect official continuation of this project.
+>
+> Starting today (2024-08-30), the `effect-http` will be receiving only effect updates and critical patches to give
+> the current users enough time to migrate. Consider the `effect-http` package to be deprecated in favour of the
+> `@effect/platform`.
+
 ![download badge](https://img.shields.io/npm/dm/effect-http.svg)
 
 High-level declarative HTTP library for [Effect-TS](https://github.com/Effect-TS) built on top of
