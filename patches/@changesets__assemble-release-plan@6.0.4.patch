@@ -1,8 +1,8 @@
 diff --git a/dist/changesets-assemble-release-plan.cjs.js b/dist/changesets-assemble-release-plan.cjs.js
-index 60427457c887f2d72168fecec83d79088c68e3a4..007c3509417baed7ef15a1c6dafecbd57c704fd8 100644
+index 4f7b5e5b37bb05874a5c1d8e583e29d4a9593ecf..4e9305b1a864efddec78902c4eae7977a610ab6b 100644
 --- a/dist/changesets-assemble-release-plan.cjs.js
 +++ b/dist/changesets-assemble-release-plan.cjs.js
-@@ -180,16 +180,6 @@ function determineDependents({
+@@ -228,16 +228,6 @@ function determineDependents({
          } of dependencyVersionRanges) {
            if (nextRelease.type === "none") {
              continue;
@@ -20,10 +20,10 @@ index 60427457c887f2d72168fecec83d79088c68e3a4..007c3509417baed7ef15a1c6dafecbd5
              switch (depType) {
                case "dependencies":
 diff --git a/dist/changesets-assemble-release-plan.esm.js b/dist/changesets-assemble-release-plan.esm.js
-index f6583cf3f639e1fe4df764a015689dea74127236..c6c843f7912c01dc74bba4c98bcf656d2d37914b 100644
+index a327d9e4c709a6698f505d60d8bbf0046d4bde74..ac1d8638a13594667c76aa4fa620278841bb463a 100644
 --- a/dist/changesets-assemble-release-plan.esm.js
 +++ b/dist/changesets-assemble-release-plan.esm.js
-@@ -169,16 +169,6 @@ function determineDependents({
+@@ -217,16 +217,6 @@ function determineDependents({
          } of dependencyVersionRanges) {
            if (nextRelease.type === "none") {
              continue;
