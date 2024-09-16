@@ -57,7 +57,7 @@ export const make: <R, E, A extends Api.Api.Any>(
 export const makeRaw: <R, E>(
   app: HttpApp.Default<E, R>
 ) => Effect.Effect<
-  HttpClient.HttpClient.Default,
+  HttpClient.HttpClient.Service,
   never,
   | Scope.Scope
   | Exclude<
@@ -90,7 +90,7 @@ export const makeRaw: <R, E>(
  *
  * Effect.gen(function*() {
  *   const client = yield* NodeTesting.handler(myHandler)
- *   const response = yield* client(HttpClientRequest.get("/my-endpoint"))
+ *   const response = yield* client.execute(HttpClientRequest.get("/my-endpoint"))
  *
  *   assert.deepStrictEqual(response.status, 200)
  *   assert.deepStrictEqual(yield* response.json, { hello: "world" })
@@ -102,7 +102,7 @@ export const makeRaw: <R, E>(
 export const handler: <A extends ApiEndpoint.ApiEndpoint.Any, E, R>(
   app: Handler.Handler<A, E, R>
 ) => Effect.Effect<
-  HttpClient.HttpClient.Default,
+  HttpClient.HttpClient.Service,
   never,
   | Scope.Scope
   | Exclude<

@@ -22,7 +22,7 @@ it.scoped("swagger-router mount", () =>
     const responses = yield* _(
       docsUrls,
       Array.map((url) => HttpClientRequest.get(url)),
-      Effect.forEach(client)
+      Effect.forEach(client.execute)
     )
 
     expect(responses.map((response) => response.status)).toStrictEqual(Array.replicate(200, docsUrls.length))
@@ -42,7 +42,7 @@ it.scoped("swagger-router mountApp", () =>
     const responses = yield* _(
       docsUrls,
       Array.map((url) => HttpClientRequest.get(url)),
-      Effect.forEach(client)
+      Effect.forEach(client.execute)
     )
 
     expect(responses.map((response) => response.status)).toStrictEqual(Array.replicate(200, docsUrls.length))

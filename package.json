@@ -28,15 +28,15 @@
     "@changesets/cli": "^2.27.8",
     "@effect/build-utils": "^0.7.8",
     "@effect/docgen": "^0.4.4",
-    "@effect/dtslint": "^0.1.0",
+    "@effect/dtslint": "^0.1.1",
     "@effect/eslint-plugin": "^0.2.0",
     "@effect/language-service": "^0.1.0",
-    "@effect/vitest": "^0.9.2",
-    "@types/node": "^22.5.4",
+    "@effect/vitest": "^0.10.0",
+    "@types/node": "^22.5.5",
     "@types/swagger-ui-dist": "^3.30.5",
     "@typescript-eslint/eslint-plugin": "^8.5.0",
     "@typescript-eslint/parser": "^8.5.0",
-    "@vitest/coverage-v8": "^2.0.5",
+    "@vitest/coverage-v8": "^2.1.1",
     "babel-plugin-annotate-pure-calls": "^0.4.0",
     "eslint": "^8.57.0",
     "eslint-import-resolver-typescript": "^3.6.3",
@@ -49,9 +49,9 @@
     "madge": "^8.0.0",
     "prettier": "^3.3.3",
     "rimraf": "^6.0.1",
-    "tsx": "^4.19.0",
+    "tsx": "^4.19.1",
     "typescript": "^5.6.2",
-    "vitest": "^2.0.5"
+    "vitest": "^2.1.1"
   },
   "pnpm": {
     "updateConfig": {

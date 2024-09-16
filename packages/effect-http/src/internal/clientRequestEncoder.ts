@@ -44,8 +44,8 @@ export const create = (endpoint: ApiEndpoint.ApiEndpoint.Any): ClientRequestEnco
         body === undefined
           ? identity
           : body instanceof FormData
-          ? HttpClientRequest.formDataBody(body)
-          : HttpClientRequest.unsafeJsonBody(body),
+          ? HttpClientRequest.bodyFormData(body)
+          : HttpClientRequest.bodyUnsafeJson(body),
         query ? HttpClientRequest.setUrlParams(query) : identity,
         headers ? HttpClientRequest.setHeaders(headers) : identity
       )

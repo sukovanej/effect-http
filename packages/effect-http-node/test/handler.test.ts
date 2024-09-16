@@ -1,4 +1,4 @@
-import { Cookies, Headers, HttpClient, HttpClientRequest, HttpServerResponse } from "@effect/platform"
+import { Cookies, FetchHttpClient, Headers, HttpClientRequest, HttpServerResponse } from "@effect/platform"
 import { Schema } from "@effect/schema"
 import * as it from "@effect/vitest"
 import { Effect, Option } from "effect"
@@ -80,7 +80,7 @@ describe("examples", () => {
         Handler.make(() => Effect.succeed(12))
       )
       const client = yield* NodeTesting.handler(getValueHandler)
-      const response = yield* client(HttpClientRequest.get("/get-value"))
+      const response = yield* client.execute(HttpClientRequest.get("/get-value"))
       expect(yield* response.json).toEqual(12)
     }))
 
@@ -90,14 +90,14 @@ describe("examples", () => {
         Handler.make(() => Effect.succeed({ value: Option.some("test") }))
       )
       const client = yield* NodeTesting.handler(route)
-      const response = yield* client(HttpClientRequest.post("/test"))
+      const response = yield* client.execute(HttpClientRequest.post("/test"))
       expect(yield* response.json).toEqual({ value: "test" })
     }))
 
   it.scoped("get, query parameter", () =>
     Effect.gen(function*() {
       const client = yield* NodeTesting.handler(exampleRouteGetQueryParameter)
-      const response = yield* client(
+      const response = yield* client.execute(
         HttpClientRequest.get("/hello").pipe(HttpClientRequest.appendUrlParam("country", "CZ"))
       )
       expect(yield* response.json).toEqual("CZ")
@@ -112,7 +112,7 @@ describe("examples", () => {
       )
 
       const client = yield* NodeTesting.handler(handler)
-      const response = yield* client(HttpClientRequest.get("/hello"))
+      const response = yield* client.execute(HttpClientRequest.get("/hello"))
       const body = yield* response.json
 
       expect(response.status).toEqual(201)
@@ -135,7 +135,7 @@ describe("examples", () => {
       const client = yield* NodeTesting.handler(handler)
       const response = yield* HttpClientRequest.get("/hello").pipe(
         HttpClientRequest.setUrlParam("value", "off"),
-        client
+        client.execute
       )
       const body = yield* response.json
 
@@ -146,9 +146,9 @@ describe("examples", () => {
   it.scoped("post, request body", () =>
     Effect.gen(function*(_) {
       const client = yield* NodeTesting.handler(exampleRouteRequestBody)
-      const response = yield* client(
+      const response = yield* client.execute(
         HttpClientRequest.post("/hello").pipe(
-          HttpClientRequest.unsafeJsonBody({ foo: "hello" })
+          HttpClientRequest.bodyUnsafeJson({ foo: "hello" })
         )
       )
       const body = yield* response.json
@@ -158,7 +158,7 @@ describe("examples", () => {
   it.scoped("path parameters", () =>
     Effect.gen(function*(_) {
       const client = yield* NodeTesting.handler(exampleRouteParams)
-      const response = yield* client(HttpClientRequest.post("/hello/a"))
+      const response = yield* client.execute(HttpClientRequest.post("/hello/a"))
       expect(yield* response.json).toEqual("a")
     }))
 })
@@ -167,7 +167,7 @@ describe("error reporting", () => {
   it.scoped("missing query parameter", () =>
     Effect.gen(function*(_) {
       const client = yield* NodeTesting.handler(exampleRouteGetQueryParameter)
-      const response = yield* client(HttpClientRequest.get("/hello"))
+      const response = yield* client.execute(HttpClientRequest.get("/hello"))
 
       expect(response.status).toEqual(400)
       expect(yield* response.json).toEqual({
@@ -182,7 +182,7 @@ describe("error reporting", () => {
   it.scoped("invalid query parameter", () =>
     Effect.gen(function*(_) {
       const client = yield* NodeTesting.handler(exampleRouteGetQueryParameter)
-      const response = yield* client(
+      const response = yield* client.execute(
         HttpClientRequest.get("/hello").pipe(
           HttpClientRequest.setUrlParam("country", "CZE")
         )
@@ -201,7 +201,7 @@ describe("error reporting", () => {
   it.scoped("invalid JSON body - empty", () =>
     Effect.gen(function*(_) {
       const client = yield* NodeTesting.handler(exampleRouteRequestBody)
-      const response = yield* client(HttpClientRequest.post("/hello"))
+      const response = yield* client.execute(HttpClientRequest.post("/hello"))
 
       expect(response.status).toEqual(400)
       expect(yield* response.json).toEqual({
@@ -214,8 +214,8 @@ describe("error reporting", () => {
   it.scoped("invalid JSON body - text", () =>
     Effect.gen(function*(_) {
       const client = yield* NodeTesting.handler(exampleRouteRequestBody)
-      const response = yield* client(
-        HttpClientRequest.post("/hello").pipe(HttpClientRequest.textBody("value"))
+      const response = yield* client.execute(
+        HttpClientRequest.post("/hello").pipe(HttpClientRequest.bodyText("value"))
       )
 
       expect(response.status).toEqual(400)
@@ -229,9 +229,9 @@ describe("error reporting", () => {
   it.scoped("invalid JSON body - incorrect schema", () =>
     Effect.gen(function*(_) {
       const client = yield* NodeTesting.handler(exampleRouteRequestBody)
-      const response = yield* client(
+      const response = yield* client.execute(
         HttpClientRequest.post("/hello").pipe(
-          HttpClientRequest.unsafeJsonBody({ foo: 1 })
+          HttpClientRequest.bodyUnsafeJson({ foo: 1 })
         )
       )
 
@@ -248,7 +248,7 @@ describe("error reporting", () => {
   it.scoped("invalid header", () =>
     Effect.gen(function*(_) {
       const client = yield* NodeTesting.handler(exampleRouteRequestHeaders)
-      const response = yield* client(HttpClientRequest.post("/hello"))
+      const response = yield* client.execute(HttpClientRequest.post("/hello"))
 
       expect(response.status).toEqual(400)
       expect(yield* response.json).toEqual({
@@ -263,7 +263,7 @@ describe("error reporting", () => {
   it.scoped("invalid param", () =>
     Effect.gen(function*(_) {
       const client = yield* NodeTesting.handler(exampleRouteParams)
-      const response = yield* client(HttpClientRequest.post("/hello/c"))
+      const response = yield* client.execute(HttpClientRequest.post("/hello/c"))
 
       expect(response.status).toEqual(400)
       expect(yield* response.json).toEqual({
@@ -284,7 +284,7 @@ describe("error reporting", () => {
       )
 
       const client = yield* NodeTesting.handler(helloHandler)
-      const response = yield* client(HttpClientRequest.post("/hello/a"))
+      const response = yield* client.execute(HttpClientRequest.post("/hello/a"))
 
       expect(response.status).toEqual(500)
       expect(yield* response.json).toEqual({
@@ -296,7 +296,7 @@ describe("error reporting", () => {
   it.scoped("multiple errors", () =>
     Effect.gen(function*(_) {
       const client = yield* NodeTesting.handler(exampleMultipleQueryAllErrors)
-      const response = yield* client(HttpClientRequest.post("/test"))
+      const response = yield* client.execute(HttpClientRequest.post("/test"))
 
       expect(response.status).toEqual(400)
       expect(yield* response.json).toEqual({
@@ -313,7 +313,7 @@ describe("error reporting", () => {
   it.scoped("multiple errors", () =>
     Effect.gen(function*(_) {
       const client = yield* NodeTesting.handler(exampleMultipleQueryFirstError)
-      const response = yield* client(HttpClientRequest.post("/test"))
+      const response = yield* client.execute(HttpClientRequest.post("/test"))
 
       expect(response.status).toEqual(400)
       expect(yield* response.json).toEqual({
@@ -328,8 +328,8 @@ describe("error reporting", () => {
   it.scoped("redirect using makeRaw", () =>
     Effect.gen(function*(_) {
       const client = yield* NodeTesting.handler(exampleRedirectRaw)
-      const response = yield* client(HttpClientRequest.post("/test")).pipe(
-        HttpClient.withFetchOptions({ redirect: "manual" })
+      const response = yield* client.execute(HttpClientRequest.post("/test")).pipe(
+        Effect.provideService(FetchHttpClient.RequestInit, { redirect: "manual" })
       )
 
       expect(response.status).toEqual(302)
@@ -339,8 +339,8 @@ describe("error reporting", () => {
   it.scoped("redirect using make", () =>
     Effect.gen(function*(_) {
       const client = yield* NodeTesting.handler(exampleRedirect)
-      const response = yield* client(HttpClientRequest.post("/test")).pipe(
-        HttpClient.withFetchOptions({ redirect: "manual" })
+      const response = yield* client.execute(HttpClientRequest.post("/test")).pipe(
+        Effect.provideService(FetchHttpClient.RequestInit, { redirect: "manual" })
       )
 
       expect(response.status).toEqual(302)
@@ -357,8 +357,8 @@ describe("error reporting", () => {
 
       const client = yield* NodeTesting.handler(handler)
       const [response1, response2] = yield* Effect.zip(
-        client(HttpClientRequest.get("/get-value")),
-        client(HttpClientRequest.post("/test"))
+        client.execute(HttpClientRequest.get("/get-value")),
+        client.execute(HttpClientRequest.post("/test"))
       )
 
       expect(yield* response1.json).toEqual(12)
@@ -378,9 +378,9 @@ describe("error reporting", () => {
 
       const client = yield* NodeTesting.handler(handler)
       const [response1, response2, response3] = yield* Effect.all([
-        client(HttpClientRequest.get("/get-value")),
-        client(HttpClientRequest.post("/test")),
-        client(HttpClientRequest.post("/hello/a"))
+        client.execute(HttpClientRequest.get("/get-value")),
+        client.execute(HttpClientRequest.post("/test")),
+        client.execute(HttpClientRequest.post("/hello/a"))
       ])
 
       expect(yield* response1.json).toEqual(12)

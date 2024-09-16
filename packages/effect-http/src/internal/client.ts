@@ -1,8 +1,11 @@
+import * as FetchHttpClient from "@effect/platform/FetchHttpClient"
 import * as HttpClient from "@effect/platform/HttpClient"
 import * as HttpClientRequest from "@effect/platform/HttpClientRequest"
+import * as Context from "effect/Context"
 import * as Effect from "effect/Effect"
 import * as Encoding from "effect/Encoding"
 import { dual, identity, pipe } from "effect/Function"
+import * as Layer from "effect/Layer"
 import * as Api from "../Api.js"
 import * as ApiEndpoint from "../ApiEndpoint.js"
 import type * as Client from "../Client.js"
@@ -11,7 +14,12 @@ import * as ClientRequestEncoder from "./clientRequestEncoder.js"
 import * as ClientResponseParser from "./clientResponseParser.js"
 
 /** @internal */
-const defaultHttpClient = HttpClient.fetch
+const defaultHttpClient = FetchHttpClient.layer.pipe(
+  Layer.build,
+  Effect.map(Context.get(HttpClient.HttpClient)),
+  Effect.scoped,
+  Effect.runSync
+)
 
 /** @internal */
 export const endpointClient = <A extends Api.Api.Any, Id extends Api.Api.Ids<A>>(
@@ -36,7 +44,7 @@ export const endpointClient = <A extends Api.Api.Any, Id extends Api.Api.Ids<A>>
     pipe(
       requestEncoder.encodeRequest(args),
       Effect.map(mapper ?? identity),
-      Effect.flatMap(httpClient),
+      Effect.flatMap(httpClient.execute),
       Effect.catchTags({
         RequestError: (err) => ClientError.makeClientSide(err.cause, err.message),
         ResponseError: (err) => ClientError.makeServerSide(err.cause, err.response.status, err.message),

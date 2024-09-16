@@ -589,13 +589,13 @@
   Instead of
 
   ```ts
-  const client = pipe(api, Http.client(url, options));
+  const client = pipe(api, Http.client.execute(url, options));
   ```
 
   use
 
   ```ts
-  const client = Http.client(api, url, options);
+  const client = Http.client.execute(api, url, options);
   ```
 
 - e0fa6e6: Remove `effect-log` and logging functionality.
@@ -660,7 +660,7 @@
           headers: { "X-Another": Schema.string },
         },
       ],
-    }),
+    })
   );
   ```
 
@@ -1007,7 +1007,7 @@
     server,
     Http.listen({ port: 3000 }),
     Effect.provideLayer(layer),
-    Effect.runPromise,
+    Effect.runPromise
   );
   ```
 
