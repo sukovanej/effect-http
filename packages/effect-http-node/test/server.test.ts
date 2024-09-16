@@ -505,7 +505,7 @@ it.scoped("uuid", () =>
     )
 
     const client = yield* NodeTesting.makeRaw(app)
-    const response = yield* client(HttpClientRequest.get("/test/invalid"))
+    const response = yield* client.execute(HttpClientRequest.get("/test/invalid"))
 
     expect(response.status).toEqual(400)
     expect(yield* response.json).toEqual({
@@ -541,17 +541,17 @@ it.scoped("array query parameter", () =>
     const client = yield* NodeTesting.makeRaw(app)
 
     // empty array works
-    const response0 = yield* client(HttpClientRequest.get("/test"))
+    const response0 = yield* client.execute(HttpClientRequest.get("/test"))
     expect(response0.status).toEqual(200)
     expect(yield* response0.json).toEqual([])
 
     // single-item array works
-    const response1 = yield* client(HttpClientRequest.get("/test?id=1"))
+    const response1 = yield* client.execute(HttpClientRequest.get("/test?id=1"))
     expect(response1.status).toEqual(200)
     expect(yield* response1.json).toEqual([1])
 
     // array of length >1 works
-    const response2 = yield* client(HttpClientRequest.get("/test?id=1&id=2"))
+    const response2 = yield* client.execute(HttpClientRequest.get("/test?id=1&id=2"))
     expect(response2.status).toEqual(200)
     expect(yield* response2.json).toEqual([1, 2])
   }))
@@ -578,7 +578,7 @@ it.scoped("non-empty array query parameter", () =>
     const client = yield* NodeTesting.makeRaw(app)
 
     // empty array errors
-    const response0 = yield* client(HttpClientRequest.get("/test"))
+    const response0 = yield* client.execute(HttpClientRequest.get("/test"))
     expect(response0.status).toEqual(400)
     expect(yield* response0.json).toEqual({
       "error": "Request validation error",
@@ -590,12 +590,12 @@ it.scoped("non-empty array query parameter", () =>
     })
 
     // single-item array works
-    const response1 = yield* client(HttpClientRequest.get("/test?id=1"))
+    const response1 = yield* client.execute(HttpClientRequest.get("/test?id=1"))
     expect(response1.status).toEqual(200)
     expect(yield* response1.json).toEqual([1])
 
     // array of length >1 works
-    const response2 = yield* client(HttpClientRequest.get("/test?id=1&id=2"))
+    const response2 = yield* client.execute(HttpClientRequest.get("/test?id=1&id=2"))
     expect(response2.status).toEqual(200)
     expect(yield* response2.json).toEqual([1, 2])
   }))

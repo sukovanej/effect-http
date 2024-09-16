@@ -152,21 +152,23 @@
   import { NodeTesting } from "effect-http-node";
 
   const myEndpoint = Api.get("myEndpoint", "/my-endpoint").pipe(
-    Api.setResponseBody(Schema.Struct({ hello: Schema.String })),
+    Api.setResponseBody(Schema.Struct({ hello: Schema.String }))
   );
 
   const myHandler = Handler.make(myEndpoint, () =>
-    Effect.succeed({ hello: "world" }),
+    Effect.succeed({ hello: "world" })
   );
 
   it.scoped("myHandler", () =>
     Effect.gen(function* () {
       const client = yield* NodeTesting.handler(myHandler);
-      const response = yield* client(HttpClientRequest.get("/my-endpoint"));
+      const response = yield* client.execute(
+        HttpClientRequest.get("/my-endpoint")
+      );
 
       expect(response.status).toEqual(200);
       expect(yield* response.json).toEqual({ hello: "world" });
-    }),
+    })
   );
   ```
 
@@ -322,13 +324,13 @@
   const myEndpointHandler = RouterBuilder.handler(
     api,
     "myEndpoint",
-    ({ query }) => Effect.succeed(query.country),
+    ({ query }) => Effect.succeed(query.country)
   );
 
   const app = pipe(
     RouterBuilder.make(api),
     RouterBuilder.handle(myEndpointHandler),
-    RouterBuilder.build,
+    RouterBuilder.build
   );
   ```
 
@@ -484,9 +486,9 @@
             scheme: "basic",
           },
           schema: Schema.Secret,
-        }),
-      ),
-    ),
+        })
+      )
+    )
   );
   ```
 
@@ -497,9 +499,9 @@
     Api.addEndpoint(
       Api.post("mySecuredEndpoint", "/my-secured-endpoint").pipe(
         Api.setResponseBody(Schema.string),
-        Api.setSecurity(Security.basic()),
-      ),
-    ),
+        Api.setSecurity(Security.basic())
+      )
+    )
   );
   ```
 
@@ -564,7 +566,7 @@
     Api.get("getUser", "/user", {
       response: User,
       request: { query: GetUserQuery },
-    }),
+    })
   );
   ```
 
@@ -577,9 +579,9 @@
       pipe(
         Api.get("getUser", "/user"),
         Api.setResponseBody(UserResponse),
-        Api.setRequestQuery(GetUserQuery),
-      ),
-    ),
+        Api.setRequestQuery(GetUserQuery)
+      )
+    )
   );
   ```
 
@@ -601,9 +603,9 @@
       pipe(
         Api.post("createUser", "/user"),
         Api.setResponseStatus(201),
-        Api.setResponseBody(UserResponse),
-      ),
-    ),
+        Api.setResponseBody(UserResponse)
+      )
+    )
   );
 
   const client = Client.make(api);
@@ -622,7 +624,7 @@
     Api.addResponse({
       status: 204,
       headers: Schema.struct({ "x-another": Schema.NumberFromString }),
-    }),
+    })
   );
   ```
 
@@ -635,7 +637,7 @@
   ```ts
   const mySecuredEnpoint = Api.post("security", "/testSecurity").pipe(
     Api.setResponseBody(Schema.string),
-    Api.addSecurity("myAwesomeBearerAuth", mySecuritySchema),
+    Api.addSecurity("myAwesomeBearerAuth", mySecuritySchema)
   );
 
   const api = Api.make().pipe(Api.addEndpoint(mySecuredEnpoint));

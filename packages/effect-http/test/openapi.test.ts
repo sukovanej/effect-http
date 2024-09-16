@@ -272,6 +272,11 @@ test("union in query params", () => {
           {
             "description": "a number",
             "type": "number"
+          },
+          // TODO: this doesnt look correct
+          {
+            "description": "a number",
+            "type": "number"
           }
         ]
       }
