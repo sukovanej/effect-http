@@ -157,7 +157,7 @@ it.scoped(
       )
 
       expect(result.message).toEqual(
-        "Failed to encode headers. Expected { readonly another-header: string; readonly x-my-header: NumberFromString }, actual undefined"
+        "Failed to encode headers. Expected { readonly x-my-header: NumberFromString; readonly another-header: string }, actual undefined"
       )
       expect(result.side).toEqual("client")
 

@@ -302,10 +302,10 @@ describe("error reporting", () => {
       expect(yield* response.json).toEqual({
         error: "Request validation error",
         location: "query",
-        message: `{ readonly another: string; readonly value: "x" | "y" }
-├─ ["another"]
+        message: `{ readonly value: "x" | "y"; readonly another: string }
+├─ ["value"]
 │  └─ is missing
-└─ ["value"]
+└─ ["another"]
    └─ is missing`
       })
     }))
@@ -319,8 +319,8 @@ describe("error reporting", () => {
       expect(yield* response.json).toEqual({
         error: "Request validation error",
         location: "query",
-        message: `{ readonly another: string; readonly value: "x" | "y" }
-└─ ["another"]
+        message: `{ readonly value: "x" | "y"; readonly another: string }
+└─ ["value"]
    └─ is missing`
       })
     }))
