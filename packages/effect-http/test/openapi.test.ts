@@ -664,7 +664,7 @@ describe("data types", () => {
 
     expect(OpenApi.makeSchema(schema)).toStrictEqual({
       type: "string",
-      description: "a string"
+      description: "a string that will be parsed into a number"
     })
   })
 })
@@ -815,7 +815,7 @@ describe("objects", () => {
         id: { type: "integer", description: "an integer" },
         name: { type: "string", description: "a string" }
       },
-      required: ["name", "id"]
+      required: ["id", "name"]
     })
   })
 
@@ -842,7 +842,7 @@ describe("objects", () => {
         name: { type: "string", description: "a string" },
         username: { type: "string", description: "a string" }
       },
-      required: ["username", "id"]
+      required: ["id", "username"]
     })
   })
 
@@ -863,7 +863,7 @@ describe("objects", () => {
         name: { description: "a string", type: "string" },
         username: { description: "a string", type: "string" }
       },
-      required: ["username", "id"]
+      required: ["id", "username"]
     })
   })
 })
@@ -971,7 +971,7 @@ describe("description annotation", () => {
         id: { type: "integer", description: "id description" },
         name: { type: "string", enum: ["value"], description: "value description" }
       },
-      required: ["name", "id"],
+      required: ["id", "name"],
       description: "my description"
     })
   })
