@@ -32,7 +32,7 @@ export type Client<A extends Api.Api.Any> = Types.Simplify<
  * @since 1.0.0
  */
 export interface Options {
-  httpClient?: HttpClient.HttpClient.Service
+  httpClient?: HttpClient.HttpClient
   baseUrl?: string
 }
 
