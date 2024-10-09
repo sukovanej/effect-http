@@ -57,7 +57,7 @@ export const make: <R, E, A extends Api.Api.Any>(
 export const makeRaw: <R, E>(
   app: HttpApp.Default<E, R>
 ) => Effect.Effect<
-  HttpClient.HttpClient.Service,
+  HttpClient.HttpClient,
   never,
   | Scope.Scope
   | Exclude<
@@ -102,7 +102,7 @@ export const makeRaw: <R, E>(
 export const handler: <A extends ApiEndpoint.ApiEndpoint.Any, E, R>(
   app: Handler.Handler<A, E, R>
 ) => Effect.Effect<
-  HttpClient.HttpClient.Service,
+  HttpClient.HttpClient,
   never,
   | Scope.Scope
   | Exclude<

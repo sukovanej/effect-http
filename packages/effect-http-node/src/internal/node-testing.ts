@@ -79,7 +79,7 @@ const startTestServer = <R, E>(
     ))
 
 /** @internal */
-const makeHttpClient = (client: HttpClient.HttpClient.Service, url: string) =>
+const makeHttpClient = (client: HttpClient.HttpClient, url: string) =>
   client.pipe(
     HttpClient.mapRequest(HttpClientRequest.prependUrl(url)),
     HttpClient.transformResponse(
