@@ -4,7 +4,7 @@
  * @since 1.0.0
  */
 
-import type * as Schema from "@effect/schema/Schema"
+import type * as Schema from "effect/Schema"
 
 import type * as Api from "./Api.js"
 import * as internal from "./internal/open-api.js"

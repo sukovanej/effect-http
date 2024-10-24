@@ -1,8 +1,8 @@
 import * as HttpRouter from "@effect/platform/HttpRouter"
 import * as HttpServerRequest from "@effect/platform/HttpServerRequest"
-import type * as AST from "@effect/schema/AST"
-import * as Schema from "@effect/schema/Schema"
 import * as Effect from "effect/Effect"
+import * as Schema from "effect/Schema"
+import type * as AST from "effect/SchemaAST"
 
 import * as ApiEndpoint from "../ApiEndpoint.js"
 import * as ApiRequest from "../ApiRequest.js"

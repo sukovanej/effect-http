@@ -1,7 +1,7 @@
-import type * as Schema from "@effect/schema/Schema"
 import type * as Array from "effect/Array"
 import * as Pipeable from "effect/Pipeable"
 import * as Predicate from "effect/Predicate"
+import type * as Schema from "effect/Schema"
 
 import type * as ApiResponse from "../ApiResponse.js"
 import * as ApiSchema from "../ApiSchema.js"

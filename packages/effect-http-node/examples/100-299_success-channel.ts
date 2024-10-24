@@ -1,5 +1,4 @@
-import { Schema } from "@effect/schema"
-import { Effect } from "effect"
+import { Effect, Schema } from "effect"
 import { Api, ApiResponse, Client } from "effect-http"
 
 export const api = Api.make().pipe(

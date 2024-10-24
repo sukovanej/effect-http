@@ -1,8 +1,7 @@
 import { FileSystem, HttpClientRequest, HttpRouter, HttpServerRequest } from "@effect/platform"
 import { NodeContext } from "@effect/platform-node"
-import { Schema } from "@effect/schema"
 import * as it from "@effect/vitest"
-import { Context, Effect, pipe, Predicate } from "effect"
+import { Context, Effect, pipe, Predicate, Schema } from "effect"
 import {
   Api,
   ApiResponse,

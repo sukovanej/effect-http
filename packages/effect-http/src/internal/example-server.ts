@@ -1,7 +1,7 @@
-import type * as Schema from "@effect/schema/Schema"
 import * as Array from "effect/Array"
 import * as Effect from "effect/Effect"
 import { pipe } from "effect/Function"
+import type * as Schema from "effect/Schema"
 import * as Unify from "effect/Unify"
 
 import * as Api from "../Api.js"

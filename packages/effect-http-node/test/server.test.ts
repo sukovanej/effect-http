@@ -1,7 +1,6 @@
 import { HttpClientRequest, HttpMiddleware } from "@effect/platform"
-import { Schema } from "@effect/schema"
 import * as it from "@effect/vitest"
-import { Array, Context, Effect, Either, Layer, Option, pipe } from "effect"
+import { Array, Context, Effect, Either, Layer, Option, pipe, Schema } from "effect"
 import { createHash } from "node:crypto"
 import { assert, describe, expect, test } from "vitest"
 

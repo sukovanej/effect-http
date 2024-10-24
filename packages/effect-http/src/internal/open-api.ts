@@ -1,9 +1,9 @@
-import * as AST from "@effect/schema/AST"
-import * as Schema from "@effect/schema/Schema"
 import * as Array from "effect/Array"
 import { identity, pipe } from "effect/Function"
 import * as Option from "effect/Option"
 import * as Record from "effect/Record"
+import * as Schema from "effect/Schema"
+import * as AST from "effect/SchemaAST"
 
 import type * as Api from "../Api.js"
 import * as ApiEndpoint from "../ApiEndpoint.js"

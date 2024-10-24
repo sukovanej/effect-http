@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-empty-object-type */
-import { Schema } from "@effect/schema"
-import { pipe } from "effect"
+import { pipe, Schema } from "effect"
 import { Api, ApiGroup, ApiResponse, Security } from "effect-http"
 
 interface MyRequirement {}

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-empty-object-type */
-import * as Schema from "@effect/schema/Schema"
 import { pipe } from "effect"
 import { Api, ApiResponse, ApiSchema, QuerySchema, Representation, Security } from "effect-http"
+import * as Schema from "effect/Schema"
 
 // Example GET
 

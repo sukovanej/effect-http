@@ -1,5 +1,3 @@
-import * as AST from "@effect/schema/AST"
-import * as Schema from "@effect/schema/Schema"
 import * as Array from "effect/Array"
 import * as Context from "effect/Context"
 import * as Data from "effect/Data"
@@ -7,6 +5,8 @@ import * as Effect from "effect/Effect"
 import { pipe } from "effect/Function"
 import * as Option from "effect/Option"
 import * as Ref from "effect/Ref"
+import * as Schema from "effect/Schema"
+import * as AST from "effect/SchemaAST"
 import * as Unify from "effect/Unify"
 
 /** @internal */
@@ -262,7 +262,7 @@ export const randomExample = <To, From, R>(
 const createConstraintFromRefinement = Unify.unify((ast: AST.Refinement) => {
   const typeId = pipe(
     ast,
-    AST.getAnnotation<AST.TypeAnnotation>(AST.TypeAnnotationId),
+    AST.getAnnotation<AST.JSONSchemaAnnotation>(AST.SchemaIdAnnotationId),
     Option.getOrUndefined
   )
 
@@ -340,38 +340,38 @@ const resolveConstrainedNumber = (
 
 /** @internal */
 const createNumberConstraint = (
-  typeId: AST.TypeAnnotation,
+  typeId: unknown,
   ast: AST.AST
 ): TypeConstraint | undefined => {
   const jsonSchema: any = ast.annotations[AST.JSONSchemaAnnotationId]
 
-  if (typeId === Schema.IntTypeId) {
+  if (typeId === Schema.IntSchemaId) {
     return TypeConstraint({ integer: true })
-  } else if (typeId === Schema.BetweenTypeId) {
+  } else if (typeId === Schema.BetweenSchemaId) {
     const [min, max] = [jsonSchema.minimum, jsonSchema.maximum]
     return TypeConstraint({ min, max })
-  } else if (typeId === Schema.GreaterThanTypeId) {
+  } else if (typeId === Schema.GreaterThanSchemaId) {
     const min = jsonSchema.exclusiveMinimum
     return TypeConstraint({ min, minExclusive: true })
-  } else if (typeId === Schema.GreaterThanBigIntTypeId) {
+  } else if (typeId === Schema.GreaterThanBigIntSchemaId) {
     const { min }: any = ast.annotations[typeId]
     return TypeConstraint({ min, minExclusive: true })
-  } else if (typeId === Schema.GreaterThanOrEqualToTypeId) {
+  } else if (typeId === Schema.GreaterThanOrEqualToSchemaId) {
     const min = jsonSchema.minimum
     return TypeConstraint({ min })
-  } else if (typeId === Schema.GreaterThanOrEqualToBigIntTypeId) {
+  } else if (typeId === Schema.GreaterThanOrEqualToBigIntSchemaId) {
     const { min }: any = ast.annotations[typeId]
     return TypeConstraint({ min })
-  } else if (typeId === Schema.LessThanTypeId) {
+  } else if (typeId === Schema.LessThanSchemaId) {
     const max = jsonSchema.exclusiveMaximum
     return TypeConstraint({ max, maxExclusive: true })
-  } else if (typeId === Schema.LessThanBigIntTypeId) {
+  } else if (typeId === Schema.LessThanBigIntSchemaId) {
     const { max }: any = ast.annotations[typeId]
     return TypeConstraint({ max, maxExclusive: true })
-  } else if (typeId === Schema.LessThanOrEqualToTypeId) {
+  } else if (typeId === Schema.LessThanOrEqualToSchemaId) {
     const max = jsonSchema.maximum
     return TypeConstraint({ max })
-  } else if (typeId === Schema.LessThanOrEqualToBigIntTypeId) {
+  } else if (typeId === Schema.LessThanOrEqualToBigIntSchemaId) {
     const { max }: any = ast.annotations[typeId]
     return TypeConstraint({ max })
   }
@@ -379,18 +379,18 @@ const createNumberConstraint = (
 
 /** @internal */
 const createTupleConstraint = (
-  typeId: AST.TypeAnnotation,
+  typeId: unknown,
   ast: AST.AST
 ): TypeConstraint | undefined => {
   const jsonSchema: any = ast.annotations[AST.JSONSchemaAnnotationId]
 
-  if (typeId === Schema.MinItemsTypeId) {
+  if (typeId === Schema.MinItemsSchemaId) {
     const min = jsonSchema.minItems
     return TypeConstraint({ min })
-  } else if (typeId === Schema.MaxItemsTypeId) {
+  } else if (typeId === Schema.MaxItemsSchemaId) {
     const max = jsonSchema.maxItems
     return TypeConstraint({ max })
-  } else if (typeId === Schema.ItemsCountTypeId) {
+  } else if (typeId === Schema.ItemsCountSchemaId) {
     const min = jsonSchema.minItems
     const max = jsonSchema.maxItems
     return TypeConstraint({ min, max })

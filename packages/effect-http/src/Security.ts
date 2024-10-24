@@ -3,11 +3,11 @@
  * @since 1.0.0
  */
 import type * as HttpServerRequest from "@effect/platform/HttpServerRequest"
-import type * as Schema from "@effect/schema/Schema"
 import type * as Effect from "effect/Effect"
 import type * as Option from "effect/Option"
 import type * as Pipeable from "effect/Pipeable"
 import type * as Record from "effect/Record"
+import type * as Schema from "effect/Schema"
 import type * as Types from "effect/Types"
 
 import type * as HttpError from "./HttpError.js"

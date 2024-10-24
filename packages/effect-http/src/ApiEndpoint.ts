@@ -5,9 +5,9 @@
  */
 import type * as HttpMethod from "@effect/platform/HttpMethod"
 import type * as HttpRouter from "@effect/platform/HttpRouter"
-import type * as Schema from "@effect/schema/Schema"
 import type * as Array from "effect/Array"
 import type * as Pipeable from "effect/Pipeable"
+import type * as Schema from "effect/Schema"
 import type * as Types from "effect/Types"
 
 import type * as ApiRequest from "./ApiRequest.js"

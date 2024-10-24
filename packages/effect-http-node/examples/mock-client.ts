@@ -1,5 +1,4 @@
-import { Schema } from "@effect/schema"
-import { Effect, pipe } from "effect"
+import { Effect, pipe, Schema } from "effect"
 import { Api, MockClient } from "effect-http"
 
 export const exampleApiGet = Api.make().pipe(

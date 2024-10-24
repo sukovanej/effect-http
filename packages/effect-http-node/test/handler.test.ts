@@ -1,7 +1,6 @@
 import { Cookies, FetchHttpClient, Headers, HttpClientRequest, HttpServerResponse } from "@effect/platform"
-import { Schema } from "@effect/schema"
 import * as it from "@effect/vitest"
-import { Effect, Option } from "effect"
+import { Effect, Option, Schema } from "effect"
 import { Api, Handler, HttpError } from "effect-http"
 import { NodeTesting } from "effect-http-node"
 import { describe, expect } from "vitest"

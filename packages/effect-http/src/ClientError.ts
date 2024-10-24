@@ -3,8 +3,8 @@
  *
  * @since 1.0.0
  */
-import type * as ParseResult from "@effect/schema/ParseResult"
 import type * as Cause from "effect/Cause"
+import type * as ParseResult from "effect/ParseResult"
 
 import * as internal from "./internal/client-error.js"
 

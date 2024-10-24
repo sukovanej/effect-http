@@ -1,4 +1,4 @@
-import { Schema } from "@effect/schema"
+import { Schema } from "effect"
 import { ApiEndpoint } from "effect-http"
 
 // $ExpectType Default<"hello">

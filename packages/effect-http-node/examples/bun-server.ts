@@ -1,7 +1,6 @@
 import { HttpServer } from "@effect/platform"
 import { BunContext, BunHttpServer, BunRuntime } from "@effect/platform-bun"
-import { Schema } from "@effect/schema"
-import { Effect, Layer, Logger, pipe } from "effect"
+import { Effect, Layer, Logger, pipe, Schema } from "effect"
 import { Api, Handler, RouterBuilder } from "effect-http"
 import { NodeSwaggerFiles } from "effect-http-node"
 

@@ -1,4 +1,4 @@
-import { Schema } from "@effect/schema"
+import { Schema } from "effect"
 import { Api } from "effect-http"
 
 const Stuff = Schema.Struct({ value: Schema.Number })

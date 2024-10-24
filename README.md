@@ -73,7 +73,7 @@ The `@effect/platform-node` is needed only for the node version.
 Bootstrap a simple API specification.
 
 ```typescript
-import { Schema } from "@effect/schema";
+import { Schema } from "effect";
 import { Api, QuerySchema } from "effect-http";
 
 const UserResponse = Schema.Struct({
@@ -153,7 +153,7 @@ They are specified in the input schemas object (3rd argument of `Api.get`, `Api.
 #### Example
 
 ```typescript
-import { Schema } from "@effect/schema";
+import { Schema } from "effect";
 import { Api } from "effect-http";
 
 const Stuff = Schema.Struct({ value: Schema.Number });
@@ -184,7 +184,7 @@ In the following example the last `:another` path parameter can be
 ommited on the client side.
 
 ```typescript
-import { Schema } from "@effect/schema";
+import { Schema } from "effect";
 import { Api } from "effect-http";
 
 const Stuff = Schema.Struct({ value: Schema.Number });
@@ -214,7 +214,7 @@ a single endpoint `/hello` which expects a header `X-Client-Id` to be present.
 
 ```typescript
 import { NodeRuntime } from "@effect/platform-node";
-import { Schema } from "@effect/schema";
+import { Schema } from "effect";
 import { Api, ExampleServer, RouterBuilder } from "effect-http";
 import { NodeServer } from "effect-http-node";
 
@@ -265,8 +265,7 @@ using the basic auth.
 
 ```ts
 import { NodeRuntime } from "@effect/platform-node";
-import { Schema } from "@effect/schema";
-import { Effect } from "effect";
+import { Effect, Schema } from "effect";
 import { Api, RouterBuilder, Security } from "effect-http";
 import { NodeServer } from "effect-http-node";
 
@@ -402,8 +401,7 @@ Here is an example of a security validating a `X-API-KEY` header.
 
 ```ts
 import { HttpServer } from "@effect/platform";
-import { Schema } from "@effect/schema";
-import { Effect, pipe } from "effect";
+import { Effect, pipe, Schema } from "effect";
 import { Security, HttpError } from "effect-http";
 
 const customSecurity = Security.make(
@@ -447,7 +445,7 @@ example shows how to enforce (both for types and runtime) that returned status,
 body and headers conform the specified response.
 
 ```ts
-import { Schema } from "@effect/schema";
+import { Schema } from "effect";
 import { Api } from "effect-http";
 
 const api = Api.make().pipe(
@@ -469,8 +467,7 @@ either an `ApiResponse` object created using `ApiResponse.make` or a plain objec
 form `{ status; headers; body}`.
 
 ```ts
-import { Schema } from "@effect/schema";
-import { Effect } from "effect";
+import { Effect, Schema } from "effect";
 import { Api, ApiResponse, RouterBuilder } from "effect-http";
 
 const helloEndpoint = Api.post("hello", "/hello").pipe(
@@ -590,8 +587,7 @@ Let's see it in action and implement the mentioned user management API. The
 API will look as follows.
 
 ```typescript
-import { Schema } from "@effect/schema";
-import { Context, Effect, pipe } from "effect";
+import { Context, Effect, pipe, Schema } from "effect";
 import { Api, RouterBuilder, HttpError } from "effect-http";
 import { NodeServer } from "effect-http-node";
 
@@ -695,8 +691,7 @@ generation of tags for the OpenAPI specification.
 
 ```typescript
 import { NodeRuntime } from "@effect/platform-node";
-import { Schema } from "@effect/schema";
-import { Effect } from "effect";
+import { Effect, Schema } from "effect";
 import { Api, ApiGroup, ExampleServer, RouterBuilder } from "effect-http";
 
 import { NodeServer } from "effect-http-node";
@@ -782,7 +777,7 @@ The OpenAPI logic takes into account
 [description](https://effect-ts.github.io/schema/modules/Schema.ts.html#description)
 annotations and propagates them into the specification.
 
-Some descriptions are provided from the built-in `@effect/schema/Schema` combinators.
+Some descriptions are provided from the built-in `effect/Schema` combinators.
 For example, the usage of `Schema.Int.pipe(Schema.positive())` will result in "_a positive number_"
 description in the OpenApi schema. One can also add custom description using
 `Schema.annotations({ description:  ... })`.
@@ -799,8 +794,7 @@ desired description.
 
 ```ts
 import { NodeRuntime } from "@effect/platform-node";
-import { Schema } from "@effect/schema";
-import { Effect } from "effect";
+import { Effect, Schema } from "effect";
 import { Api, QuerySchema, RouterBuilder } from "effect-http";
 import { NodeServer } from "effect-http-node";
 
@@ -871,8 +865,7 @@ it will choose the first representation in the list.
 
 ```ts
 import { NodeRuntime } from "@effect/platform-node";
-import { Schema } from "@effect/schema";
-import { Effect } from "effect";
+import { Effect, Schema } from "effect";
 import { Api, Representation, RouterBuilder } from "effect-http";
 import { NodeServer } from "effect-http-node";
 
@@ -943,8 +936,7 @@ Use `ExampleServer.make` combinator to generate a `RouterBuilder` from an `Api`.
 
 ```typescript
 import { NodeRuntime } from "@effect/platform-node";
-import { Schema } from "@effect/schema";
-import { Effect } from "effect";
+import { Effect, Schema } from "effect";
 import { Api, ExampleServer, RouterBuilder } from "effect-http";
 import { NodeServer } from "effect-http-node";
 
@@ -981,7 +973,7 @@ with `/get-value` endpoint returning a number. We can model such
 API as follows.
 
 ```typescript
-import { Schema } from "@effect/schema";
+import { Schema } from "effect";
 import { Api } from "effect-http";
 
 const api = Api.make().pipe(

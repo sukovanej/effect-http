@@ -1,7 +1,6 @@
 import { HttpClientRequest } from "@effect/platform"
-import { Schema } from "@effect/schema"
 import * as it from "@effect/vitest"
-import { Effect, flow, pipe } from "effect"
+import { Effect, flow, pipe, Schema } from "effect"
 import { Api, Client, RouterBuilder, Security } from "effect-http"
 import { NodeTesting } from "effect-http-node"
 import { expect } from "vitest"
