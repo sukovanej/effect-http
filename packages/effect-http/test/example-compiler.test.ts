@@ -1,6 +1,4 @@
-import { ParseResult, Schema } from "@effect/schema"
-
-import { Effect, Option, pipe } from "effect"
+import { Effect, Option, ParseResult, pipe, Schema } from "effect"
 import { ExampleServer } from "effect-http"
 
 import { describe, expect, test } from "vitest"

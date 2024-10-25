@@ -6,8 +6,8 @@
 import type * as HttpApp from "@effect/platform/HttpApp"
 import type * as HttpRouter from "@effect/platform/HttpRouter"
 import type * as HttpServerRequest from "@effect/platform/HttpServerRequest"
-import type * as AST from "@effect/schema/AST"
 import type * as Pipeable from "effect/Pipeable"
+import type * as AST from "effect/SchemaAST"
 import type * as Scope from "effect/Scope"
 import type * as Types from "effect/Types"
 

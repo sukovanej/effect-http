@@ -3,7 +3,7 @@
  *
  * @since 1.0.0
  */
-import type * as Schema from "@effect/schema/Schema"
+import type * as Schema from "effect/Schema"
 
 import * as internal from "./internal/query-schema.js"
 

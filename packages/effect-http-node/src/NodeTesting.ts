@@ -77,7 +77,7 @@ export const makeRaw: <R, E>(
  *
  * @example
  * import { HttpClientRequest } from "@effect/platform"
- * import { Schema } from "@effect/schema"
+ * import { Schema } from "effect"
  * import { Effect } from "effect"
  * import { Api, Handler } from "effect-http"
  * import { NodeTesting } from "effect-http-node"

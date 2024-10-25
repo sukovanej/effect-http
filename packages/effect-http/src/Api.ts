@@ -3,8 +3,8 @@
  *
  * @since 1.0.0
  */
-import type * as Schema from "@effect/schema/Schema"
 import type * as Pipeable from "effect/Pipeable"
+import type * as Schema from "effect/Schema"
 import type * as Types from "effect/Types"
 
 import type * as ApiEndpoint from "./ApiEndpoint.js"

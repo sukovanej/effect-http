@@ -1,12 +1,12 @@
 import type * as HttpMethod from "@effect/platform/HttpMethod"
 import type * as HttpRouter from "@effect/platform/HttpRouter"
-import type * as Schema from "@effect/schema/Schema"
 import * as Array from "effect/Array"
 import * as Equivalence from "effect/Equivalence"
 import { pipe } from "effect/Function"
 import * as Order from "effect/Order"
 import * as Pipeable from "effect/Pipeable"
 import * as Predicate from "effect/Predicate"
+import type * as Schema from "effect/Schema"
 import * as Tuple from "effect/Tuple"
 
 import type * as ApiEndpoint from "../ApiEndpoint.js"

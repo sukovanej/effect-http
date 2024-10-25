@@ -1,5 +1,4 @@
-import { Schema } from "@effect/schema"
-import { Array, Effect, pipe } from "effect"
+import { Array, Effect, pipe, Schema } from "effect"
 import { Api, Client } from "effect-http"
 
 // Example client triggering the API from `examples/headers.ts`

@@ -1,6 +1,5 @@
 import { NodeRuntime } from "@effect/platform-node"
-import { Schema } from "@effect/schema"
-import { Context, Effect, pipe } from "effect"
+import { Context, Effect, pipe, Schema } from "effect"
 import { Api, RouterBuilder } from "effect-http"
 
 import { NodeServer } from "effect-http-node"

@@ -1,6 +1,5 @@
 import SwaggerParser from "@apidevtools/swagger-parser"
-import { Schema } from "@effect/schema"
-import { pipe } from "effect"
+import { pipe, Schema } from "effect"
 import { expect, it, test } from "vitest"
 
 import { Api, ApiGroup, OpenApi, QuerySchema, Security } from "effect-http"

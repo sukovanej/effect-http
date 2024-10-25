@@ -1,5 +1,5 @@
-import type * as Schema from "@effect/schema/Schema"
 import * as Pipeable from "effect/Pipeable"
+import type * as Schema from "effect/Schema"
 import type * as ApiRequest from "../ApiRequest.js"
 import * as ApiSchema from "../ApiSchema.js"
 

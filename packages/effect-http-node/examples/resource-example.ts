@@ -1,8 +1,7 @@
 import type { Error } from "@effect/platform"
 import { FileSystem } from "@effect/platform"
 import { NodeContext, NodeRuntime } from "@effect/platform-node"
-import { Schema } from "@effect/schema"
-import { Array, Context, Duration, Effect, Logger, LogLevel, pipe, Resource, Schedule } from "effect"
+import { Array, Context, Duration, Effect, Logger, LogLevel, pipe, Resource, Schedule, Schema } from "effect"
 import { Api, HttpError, RouterBuilder } from "effect-http"
 
 import { NodeServer } from "effect-http-node"

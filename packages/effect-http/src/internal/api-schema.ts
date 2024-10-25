@@ -1,5 +1,5 @@
-import * as Schema from "@effect/schema/Schema"
 import * as Predicate from "effect/Predicate"
+import * as Schema from "effect/Schema"
 
 import type * as ApiSchema from "../ApiSchema.js"
 import * as circular from "./circular.js"

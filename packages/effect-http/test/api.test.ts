@@ -1,4 +1,4 @@
-import { Schema } from "@effect/schema"
+import { Schema } from "effect"
 import { Api, ApiGroup } from "effect-http"
 import { identity, pipe } from "effect/Function"
 import { expect, test } from "vitest"

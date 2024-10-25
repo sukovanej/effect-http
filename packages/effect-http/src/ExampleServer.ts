@@ -8,8 +8,8 @@
  *
  * @since 1.0.0
  */
-import type * as Schema from "@effect/schema/Schema"
 import type * as Effect from "effect/Effect"
+import type * as Schema from "effect/Schema"
 
 import type * as Api from "./Api.js"
 import type * as ApiEndpoint from "./ApiEndpoint.js"

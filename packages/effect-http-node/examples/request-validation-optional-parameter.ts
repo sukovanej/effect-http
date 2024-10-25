@@ -1,5 +1,4 @@
-import { Schema } from "@effect/schema"
-import { pipe } from "effect"
+import { pipe, Schema } from "effect"
 import { Api } from "effect-http"
 
 const Stuff = Schema.Struct({ value: Schema.Number })

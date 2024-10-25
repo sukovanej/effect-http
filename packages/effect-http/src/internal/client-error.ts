@@ -1,5 +1,5 @@
-import type * as ParseResult from "@effect/schema/ParseResult"
 import * as Data from "effect/Data"
+import type * as ParseResult from "effect/ParseResult"
 import * as Predicate from "effect/Predicate"
 import type * as ClientError from "../ClientError.js"
 
