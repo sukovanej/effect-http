@@ -233,10 +233,12 @@ describe("constraints", () => {
     expect(example.length).toBeGreaterThanOrEqual(3)
   })
 
-  // todo
-  // test("max length string", () => {
-  //  const example = Effect.runSync(ExampleServer.makeSchema(Schema.String.pipe(Schema.maxLength(3))))
+  test("optional field", () => {
+    const schema = Schema.Struct({
+      v: Schema.optional(Schema.Number)
+    })
+    const example = Effect.runSync(ExampleServer.makeSchema(schema))
 
-  //  expect(example.length).toBeLessThanOrEqual(3)
-  // })
+    expect(["undefined", "number"].includes(typeof example.v))
+  })
 })
