@@ -1,5 +1,11 @@
 # effect-http
 
+## 0.82.1
+
+### Patch Changes
+
+- [#687](https://github.com/sukovanej/effect-http/pull/687) [`8154ce6`](https://github.com/sukovanej/effect-http/commit/8154ce60cd58f1c6383775ed4e7c52c2f3c8a611) Thanks [@sukovanej](https://github.com/sukovanej)! - Update dependencies + fix `Schema.optional` for example compiler.
+
 ## 0.82.0
 
 ### Minor Changes
