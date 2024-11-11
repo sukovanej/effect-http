@@ -31,12 +31,12 @@
     "coverage": "vitest --coverage"
   },
   "peerDependencies": {
-    "@effect/platform": "^0.69.6",
-    "effect": "^3.10.2"
+    "@effect/platform": "^0.69.21",
+    "effect": "^3.10.14"
   },
   "devDependencies": {
     "@apidevtools/swagger-parser": "^10.1.0",
-    "@effect/platform": "^0.69.6",
-    "effect": "^3.10.2"
+    "@effect/platform": "^0.69.21",
+    "effect": "^3.10.14"
   }
 }
