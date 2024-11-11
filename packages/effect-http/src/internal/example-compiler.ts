@@ -195,7 +195,7 @@ export const randomExample = <To, From, R>(
       case "UniqueSymbol":
         return Effect.fail(RandomExampleErrorImpl.make(`UniqueSymbol`))
       case "UndefinedKeyword":
-        return Effect.fail(RandomExampleErrorImpl.make(`UndefinedKeyword`))
+        return Effect.succeed(undefined)
       case "VoidKeyword":
         return Effect.fail(RandomExampleErrorImpl.make(`VoidKeyword`))
       case "NeverKeyword": {
