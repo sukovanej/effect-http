@@ -1,3 +1,4 @@
+import type { Multipart } from "@effect/platform"
 import { FileSystem, HttpClientRequest, HttpRouter, HttpServerRequest } from "@effect/platform"
 import { NodeContext } from "@effect/platform-node"
 import * as it from "@effect/vitest"
@@ -237,7 +238,7 @@ it.scoped(
             }
 
             const fs = yield* _(FileSystem.FileSystem)
-            return yield* _(fs.readFileString(file[0].path))
+            return yield* _(fs.readFileString((file[0] as Multipart.PersistedFile).path))
           }).pipe(Effect.scoped)),
         RouterBuilder.build
       )

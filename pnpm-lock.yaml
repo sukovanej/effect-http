@@ -35,11 +35,11 @@ importers:
         specifier: ^0.7.8
         version: 0.7.8
       '@effect/docgen':
-        specifier: ^0.5.0
-        version: 0.5.0(tsx@4.19.2)(typescript@5.6.3)
+        specifier: ^0.5.1
+        version: 0.5.1(tsx@4.19.2)(typescript@5.6.3)
       '@effect/dtslint':
-        specifier: ^0.1.1
-        version: 0.1.1(typescript@5.6.3)
+        specifier: ^0.1.2
+        version: 0.1.2(typescript@5.6.3)
       '@effect/eslint-plugin':
         specifier: ^0.2.0
         version: 0.2.0
@@ -47,8 +47,8 @@ importers:
         specifier: ^0.2.0
         version: 0.2.0
       '@effect/vitest':
-        specifier: ^0.13.14
-        version: 0.13.14(effect@3.10.14)(vitest@2.1.4(@types/node@22.9.0))
+        specifier: ^0.14.0
+        version: 0.14.0(effect@3.11.0)(vitest@2.1.4(@types/node@22.9.0))
       '@types/node':
         specifier: ^22.9.0
         version: 22.9.0
@@ -116,11 +116,11 @@ importers:
         specifier: ^10.1.0
         version: 10.1.0(openapi-types@12.1.3)
       '@effect/platform':
-        specifier: ^0.69.21
-        version: 0.69.21(effect@3.10.14)
+        specifier: ^0.70.0
+        version: 0.70.0(effect@3.11.0)
       effect:
-        specifier: ^3.10.14
-        version: 3.10.14
+        specifier: ^3.11.0
+        version: 3.11.0
     publishDirectory: dist
 
   packages/effect-http-node:
@@ -130,20 +130,20 @@ importers:
         version: 5.18.2
     devDependencies:
       '@effect/platform':
-        specifier: ^0.69.21
-        version: 0.69.21(effect@3.10.14)
+        specifier: ^0.70.0
+        version: 0.70.0(effect@3.11.0)
       '@effect/platform-bun':
-        specifier: ^0.49.23
-        version: 0.49.23(@effect/platform@0.69.21(effect@3.10.14))(effect@3.10.14)
+        specifier: ^0.50.0
+        version: 0.50.0(@effect/platform@0.70.0(effect@3.11.0))(effect@3.11.0)
       '@effect/platform-node':
-        specifier: ^0.64.23
-        version: 0.64.23(@effect/platform@0.69.21(effect@3.10.14))(effect@3.10.14)
+        specifier: ^0.65.0
+        version: 0.65.0(@effect/platform@0.70.0(effect@3.11.0))(effect@3.11.0)
       '@types/node':
         specifier: ^22.9.0
         version: 22.9.0
       effect:
-        specifier: ^3.10.14
-        version: 3.10.14
+        specifier: ^3.11.0
+        version: 3.11.0
       effect-http:
         specifier: workspace:^
         version: link:../effect-http/dist
@@ -180,10 +180,6 @@ packages:
     hasBin: true
     peerDependencies:
       '@babel/core': ^7.0.0-0
-
-  '@babel/code-frame@7.25.9':
-    resolution: {integrity: sha512-z88xeGxnzehn2sqZ8UdGQEvYErF1odv2CftxInpSYJt6uHuPe9YjahKZITGs3l5LeI9d2ROG+obuDAoSlqbNfQ==}
-    engines: {node: '>=6.9.0'}
 
   '@babel/code-frame@7.26.2':
     resolution: {integrity: sha512-RJlIHRueQgwWitWgF8OdFYGZX328Ax5BCemNGlqHfplnRT9ESi8JkFlvaVYbS+UubVY6dpv87Fs2u5M29iNFVQ==}
@@ -240,10 +236,6 @@ packages:
 
   '@babel/helpers@7.26.0':
     resolution: {integrity: sha512-tbhNuIxNcVb21pInl3ZSjksLCvgdZy9KwJ8brv993QtIVKJBBkYXz4q4ZbAv31GdnC+R90np23L5FbEBlthAEw==}
-    engines: {node: '>=6.9.0'}
-
-  '@babel/highlight@7.25.9':
-    resolution: {integrity: sha512-llL88JShoCsth8fF8R4SJnIn+WLvR6ccFxu1H3FlMhDontdcmZWf2HgIZ7AIqV3Xcck1idlohrN4EUBQz6klbw==}
     engines: {node: '>=6.9.0'}
 
   '@babel/parser@7.25.7':
@@ -367,16 +359,16 @@ packages:
     engines: {node: '>=16.17.1'}
     hasBin: true
 
-  '@effect/docgen@0.5.0':
-    resolution: {integrity: sha512-Gs6sJUnrPot8f4FBPQzUPXI4hc/Ng1maHhSqJ/fqG6lH2ubKltcOAZRbs7ZkB5mDr0aRNLt/QNhXSY8Bh3VDPw==}
+  '@effect/docgen@0.5.1':
+    resolution: {integrity: sha512-5TW9X7xomC553EkYI7/m5krxqmh064zjcTNDTKXOWQqodcyb546DvtqSsoGmpNHzXkPjn70tqiM9/hWuoeDNHQ==}
     engines: {node: '>=18.0.0'}
     hasBin: true
     peerDependencies:
       tsx: ^4.1.0
       typescript: ^5.2.2
 
-  '@effect/dtslint@0.1.1':
-    resolution: {integrity: sha512-/xbyEjxt31JsBp5YlJiRPlBz01tOgkk2NTgYJFYNS9OoH1x2xaiwMrzJFjg3/6S+D7D2Tqi7jKQTRXTQSSW8AA==}
+  '@effect/dtslint@0.1.2':
+    resolution: {integrity: sha512-fTEN3N2JccgKoF2rlpEi1zQciD0Jl87SBI08sUSdpK3qxcOWUXRxDx+Le5W9wrumzYBwqTdHOsC/EaZRAPvSfg==}
     engines: {node: '>=18.0.0'}
     hasBin: true
     peerDependencies:
@@ -393,33 +385,33 @@ packages:
     engines: {node: '>=0.10.0'}
     hasBin: true
 
-  '@effect/platform-bun@0.49.23':
-    resolution: {integrity: sha512-S9fOvepLOEaZ1E6t6BekzrAVxmNJHTrmtLnv5lBWODpNjd3EI7wjYoA+oV/Q62ZjWyzJqPq+L/Gz7xBR9KNrTw==}
+  '@effect/platform-bun@0.50.0':
+    resolution: {integrity: sha512-dSWhiSTLiz+cEL4ZCa/CV/jZz7XDY1L7lkvmi10nYX3E7aJyTaiPn27jjrCBd/iQRhRsgawa9oDtEuApkTALrQ==}
     peerDependencies:
-      '@effect/platform': ^0.69.21
-      effect: ^3.10.14
+      '@effect/platform': ^0.70.0
+      effect: ^3.11.0
 
-  '@effect/platform-node-shared@0.19.22':
-    resolution: {integrity: sha512-ltneO5yn6DuT9+7R/ADvioqJwxvdOKED8nPajKdzrlj+AOi33QHBJdUWON0Nyh73UvsQaC/775SSgcn6m971Tw==}
+  '@effect/platform-node-shared@0.20.0':
+    resolution: {integrity: sha512-VWUHP1L8o/zFYWLeWxZeBgwCevW99KfioLj32wwoqHIesbSX+syP+tKJRDrGD3ZPo3kbQRQ325oTz3YfiJC3VQ==}
     peerDependencies:
-      '@effect/platform': ^0.69.21
-      effect: ^3.10.14
+      '@effect/platform': ^0.70.0
+      effect: ^3.11.0
 
-  '@effect/platform-node@0.64.23':
-    resolution: {integrity: sha512-3hqoy8WluGQ7CQsvSnjXj0NXTgfNVOjA5pQsVCS7jP1oTiaHra0XHyg78904oiu2gRruLQejevlsHSwaVewRzQ==}
+  '@effect/platform-node@0.65.0':
+    resolution: {integrity: sha512-7QosZxzw4gs14dzvGD3HqJhH9XXDa9QRYSLnA6JJsgz6hrraNMaaPiWaiVXf/mInq4uqizDLq+3dEVNRLefdFQ==}
     peerDependencies:
-      '@effect/platform': ^0.69.21
-      effect: ^3.10.14
+      '@effect/platform': ^0.70.0
+      effect: ^3.11.0
 
-  '@effect/platform@0.69.21':
-    resolution: {integrity: sha512-xTa1mEVlSW/UdE3BSyP3/Y8+DFXCnhVEsvlSXaNoVOffJCvNhQ4w0lUYi03+P5eHu8ZDVlceVfT0XA8k8jy0zw==}
+  '@effect/platform@0.70.0':
+    resolution: {integrity: sha512-3qQGf+TkGB9cL1YDh0UEEuG7j5/ptgLy0OZCAZrrOBflaT19TzGWeYSwwM56uKbXT58AJRI2HHW/dwMnHRnp5Q==}
     peerDependencies:
-      effect: ^3.10.14
+      effect: ^3.11.0
 
-  '@effect/vitest@0.13.14':
-    resolution: {integrity: sha512-nARkTGQOf3mNlR4DqRa4aU0Oo4u8NBSLDwEyfsI36N5P0aG3tmeVdRuWgfZdSYlip6UuBaisIQ1VKW3q0zUYrg==}
+  '@effect/vitest@0.14.0':
+    resolution: {integrity: sha512-2JoZ0h2IfqcvTE2pHNxE5Ce3WrUHXiseDfTZsmoDW2rVWKHrwJGM+6AGuXopKcinoMbYwvwAqV0sK7JSLfkOuQ==}
     peerDependencies:
-      effect: ^3.10.14
+      effect: ^3.11.0
       vitest: ^2.0.5
 
   '@esbuild/aix-ppc64@0.21.5':
@@ -1657,8 +1649,8 @@ packages:
   eastasianwidth@0.2.0:
     resolution: {integrity: sha512-I88TYZWc9XiYHRQ4/3c5rjjfgkjhLyW2luGIheGERbNQ6OY7yTybanSpDXZa8y7VUP9YmDcYa+eyq4ca7iLqWA==}
 
-  effect@3.10.14:
-    resolution: {integrity: sha512-NtEeDltifeP6SX1JptGL+k1k6CDjB++Yc7enAKEj3Pd7/4Llb4CDgZybqyiyqBkGK805ZLOIkyAyELdoJpmcqg==}
+  effect@3.11.0:
+    resolution: {integrity: sha512-uPWp/L0kMaKPi7hgXkfu0KUuxQzpXt20F2p6aBwU/gyJBay6t1XsTi0lFoHdk3fuqQCFt10VUYuPUeh3JY4TMQ==}
 
   electron-to-chromium@1.5.55:
     resolution: {integrity: sha512-6maZ2ASDOTBtjt9FhqYPRnbvKU5tjG0IN9SztUOWYw2AzNDNpKJYLJmlK0/En4Hs/aiWnB+JZ+gW19PIGszgKg==}
@@ -3326,8 +3318,8 @@ packages:
   undici-types@6.19.8:
     resolution: {integrity: sha512-ve2KP6f/JnbPBFyobGHuerC9g1FYGn/F8n1LWTwNxCEzd6IfqTwUQcNXgEtmmQ6DlRrC1hrSrBnCZPokRrDHjw==}
 
-  undici@6.20.1:
-    resolution: {integrity: sha512-AjQF1QsmqfJys+LXfGTNum+qw4S88CojRInG/6t31W/1fk6G59s92bnAvGz5Cmur+kQv2SURXEvvudLmbrE8QA==}
+  undici@6.21.0:
+    resolution: {integrity: sha512-BUgJXc752Kou3oOIuU1i+yZZypyZRqNPW0vqoMPl8VaoalSfeR0D8/t4iAS3yirs79SSMTxTag+ZC86uswv+Cw==}
     engines: {node: '>=18.17'}
 
   unist-util-stringify-position@2.0.3:
@@ -3532,11 +3524,6 @@ snapshots:
       '@nicolo-ribaudo/chokidar-2': 2.1.8-no-fsevents.3
       chokidar: 3.6.0
 
-  '@babel/code-frame@7.25.9':
-    dependencies:
-      '@babel/highlight': 7.25.9
-      picocolors: 1.1.1
-
   '@babel/code-frame@7.26.2':
     dependencies:
       '@babel/helper-validator-identifier': 7.25.9
@@ -3622,13 +3609,6 @@ snapshots:
     dependencies:
       '@babel/template': 7.25.9
       '@babel/types': 7.26.0
-
-  '@babel/highlight@7.25.9':
-    dependencies:
-      '@babel/helper-validator-identifier': 7.25.9
-      chalk: 2.4.2
-      js-tokens: 4.0.0
-      picocolors: 1.1.1
 
   '@babel/parser@7.25.7':
     dependencies:
@@ -3861,7 +3841,7 @@ snapshots:
 
   '@effect/build-utils@0.7.8': {}
 
-  '@effect/docgen@0.5.0(tsx@4.19.2)(typescript@5.6.3)':
+  '@effect/docgen@0.5.1(tsx@4.19.2)(typescript@5.6.3)':
     dependencies:
       '@effect/markdown-toc': 0.1.0
       doctrine: 3.0.0
@@ -3870,7 +3850,7 @@ snapshots:
       tsx: 4.19.2
       typescript: 5.6.3
 
-  '@effect/dtslint@0.1.1(typescript@5.6.3)':
+  '@effect/dtslint@0.1.2(typescript@5.6.3)':
     dependencies:
       fs-extra: 11.2.0
       tslint: 6.1.3(typescript@5.6.3)
@@ -3899,40 +3879,41 @@ snapshots:
       repeat-string: 1.6.1
       strip-color: 0.1.0
 
-  '@effect/platform-bun@0.49.23(@effect/platform@0.69.21(effect@3.10.14))(effect@3.10.14)':
+  '@effect/platform-bun@0.50.0(@effect/platform@0.70.0(effect@3.11.0))(effect@3.11.0)':
     dependencies:
-      '@effect/platform': 0.69.21(effect@3.10.14)
-      '@effect/platform-node-shared': 0.19.22(@effect/platform@0.69.21(effect@3.10.14))(effect@3.10.14)
-      effect: 3.10.14
-
-  '@effect/platform-node-shared@0.19.22(@effect/platform@0.69.21(effect@3.10.14))(effect@3.10.14)':
-    dependencies:
-      '@effect/platform': 0.69.21(effect@3.10.14)
-      '@parcel/watcher': 2.5.0
-      effect: 3.10.14
+      '@effect/platform': 0.70.0(effect@3.11.0)
+      '@effect/platform-node-shared': 0.20.0(@effect/platform@0.70.0(effect@3.11.0))(effect@3.11.0)
+      effect: 3.11.0
       multipasta: 0.2.5
 
-  '@effect/platform-node@0.64.23(@effect/platform@0.69.21(effect@3.10.14))(effect@3.10.14)':
+  '@effect/platform-node-shared@0.20.0(@effect/platform@0.70.0(effect@3.11.0))(effect@3.11.0)':
     dependencies:
-      '@effect/platform': 0.69.21(effect@3.10.14)
-      '@effect/platform-node-shared': 0.19.22(@effect/platform@0.69.21(effect@3.10.14))(effect@3.10.14)
-      effect: 3.10.14
+      '@effect/platform': 0.70.0(effect@3.11.0)
+      '@parcel/watcher': 2.5.0
+      effect: 3.11.0
+      multipasta: 0.2.5
+
+  '@effect/platform-node@0.65.0(@effect/platform@0.70.0(effect@3.11.0))(effect@3.11.0)':
+    dependencies:
+      '@effect/platform': 0.70.0(effect@3.11.0)
+      '@effect/platform-node-shared': 0.20.0(@effect/platform@0.70.0(effect@3.11.0))(effect@3.11.0)
+      effect: 3.11.0
       mime: 3.0.0
-      undici: 6.20.1
+      undici: 6.21.0
       ws: 8.18.0
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
 
-  '@effect/platform@0.69.21(effect@3.10.14)':
+  '@effect/platform@0.70.0(effect@3.11.0)':
     dependencies:
-      effect: 3.10.14
+      effect: 3.11.0
       find-my-way-ts: 0.1.5
       multipasta: 0.2.5
 
-  '@effect/vitest@0.13.14(effect@3.10.14)(vitest@2.1.4(@types/node@22.9.0))':
+  '@effect/vitest@0.14.0(effect@3.11.0)(vitest@2.1.4(@types/node@22.9.0))':
     dependencies:
-      effect: 3.10.14
+      effect: 3.11.0
       vitest: 2.1.4(@types/node@22.9.0)
 
   '@esbuild/aix-ppc64@0.21.5':
@@ -5046,7 +5027,7 @@ snapshots:
 
   eastasianwidth@0.2.0: {}
 
-  effect@3.10.14:
+  effect@3.11.0:
     dependencies:
       fast-check: 3.23.1
 
@@ -6854,7 +6835,7 @@ snapshots:
 
   tslint@6.1.3(typescript@5.6.3):
     dependencies:
-      '@babel/code-frame': 7.25.9
+      '@babel/code-frame': 7.26.2
       builtin-modules: 1.1.1
       chalk: 2.4.2
       commander: 2.20.3
@@ -6936,7 +6917,7 @@ snapshots:
 
   undici-types@6.19.8: {}
 
-  undici@6.20.1: {}
+  undici@6.21.0: {}
 
   unist-util-stringify-position@2.0.3:
     dependencies:
