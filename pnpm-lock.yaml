@@ -35,8 +35,8 @@ importers:
         specifier: ^0.7.8
         version: 0.7.8
       '@effect/docgen':
-        specifier: ^0.5.1
-        version: 0.5.1(tsx@4.19.2)(typescript@5.6.3)
+        specifier: ^0.5.2
+        version: 0.5.2(tsx@4.19.2)(typescript@5.6.3)
       '@effect/dtslint':
         specifier: ^0.1.2
         version: 0.1.2(typescript@5.6.3)
@@ -47,8 +47,8 @@ importers:
         specifier: ^0.2.0
         version: 0.2.0
       '@effect/vitest':
-        specifier: ^0.14.0
-        version: 0.14.0(effect@3.11.0)(vitest@2.1.4(@types/node@22.9.0))
+        specifier: ^0.16.0
+        version: 0.16.0(effect@3.12.0)(vitest@2.1.4(@types/node@22.9.0))
       '@types/node':
         specifier: ^22.9.0
         version: 22.9.0
@@ -116,11 +116,11 @@ importers:
         specifier: ^10.1.0
         version: 10.1.0(openapi-types@12.1.3)
       '@effect/platform':
-        specifier: ^0.70.0
-        version: 0.70.0(effect@3.11.0)
+        specifier: ^0.72.0
+        version: 0.72.0(effect@3.12.0)
       effect:
-        specifier: ^3.11.0
-        version: 3.11.0
+        specifier: ^3.12.0
+        version: 3.12.0
     publishDirectory: dist
 
   packages/effect-http-node:
@@ -130,20 +130,20 @@ importers:
         version: 5.18.2
     devDependencies:
       '@effect/platform':
-        specifier: ^0.70.0
-        version: 0.70.0(effect@3.11.0)
+        specifier: ^0.72.0
+        version: 0.72.0(effect@3.12.0)
       '@effect/platform-bun':
-        specifier: ^0.50.0
-        version: 0.50.0(@effect/platform@0.70.0(effect@3.11.0))(effect@3.11.0)
+        specifier: ^0.52.0
+        version: 0.52.0(@effect/platform@0.72.0(effect@3.12.0))(effect@3.12.0)
       '@effect/platform-node':
-        specifier: ^0.65.0
-        version: 0.65.0(@effect/platform@0.70.0(effect@3.11.0))(effect@3.11.0)
+        specifier: ^0.68.0
+        version: 0.68.0(@effect/platform@0.72.0(effect@3.12.0))(effect@3.12.0)
       '@types/node':
         specifier: ^22.9.0
         version: 22.9.0
       effect:
-        specifier: ^3.11.0
-        version: 3.11.0
+        specifier: ^3.12.0
+        version: 3.12.0
       effect-http:
         specifier: workspace:^
         version: link:../effect-http/dist
@@ -359,8 +359,8 @@ packages:
     engines: {node: '>=16.17.1'}
     hasBin: true
 
-  '@effect/docgen@0.5.1':
-    resolution: {integrity: sha512-5TW9X7xomC553EkYI7/m5krxqmh064zjcTNDTKXOWQqodcyb546DvtqSsoGmpNHzXkPjn70tqiM9/hWuoeDNHQ==}
+  '@effect/docgen@0.5.2':
+    resolution: {integrity: sha512-gqBxAhp58R18vT5+ORobWRQ/2MaF5vH0k1zggSct54J41k8TKF5mYIW1qG5tkOVCejet+8K5MKsWK3gzIkaoMw==}
     engines: {node: '>=18.0.0'}
     hasBin: true
     peerDependencies:
@@ -385,33 +385,33 @@ packages:
     engines: {node: '>=0.10.0'}
     hasBin: true
 
-  '@effect/platform-bun@0.50.0':
-    resolution: {integrity: sha512-dSWhiSTLiz+cEL4ZCa/CV/jZz7XDY1L7lkvmi10nYX3E7aJyTaiPn27jjrCBd/iQRhRsgawa9oDtEuApkTALrQ==}
+  '@effect/platform-bun@0.52.0':
+    resolution: {integrity: sha512-sT2y6tiU090ztSf2a574oDNFy99BlqgIOEfds6XJPljqjcJeViP2y5iU3/fNi9+Yl+rnMtTOpFP8iFrUBB3oEA==}
     peerDependencies:
-      '@effect/platform': ^0.70.0
-      effect: ^3.11.0
+      '@effect/platform': ^0.72.0
+      effect: ^3.12.0
 
-  '@effect/platform-node-shared@0.20.0':
-    resolution: {integrity: sha512-VWUHP1L8o/zFYWLeWxZeBgwCevW99KfioLj32wwoqHIesbSX+syP+tKJRDrGD3ZPo3kbQRQ325oTz3YfiJC3VQ==}
+  '@effect/platform-node-shared@0.22.0':
+    resolution: {integrity: sha512-v5syfSWbek/v5uqRweEjq1zwtl17FMaOeSIt1OZFzQd4GIclVOgM/8chNVtAmpkdQh7SaKNijFruO0VET54e6w==}
     peerDependencies:
-      '@effect/platform': ^0.70.0
-      effect: ^3.11.0
+      '@effect/platform': ^0.72.0
+      effect: ^3.12.0
 
-  '@effect/platform-node@0.65.0':
-    resolution: {integrity: sha512-7QosZxzw4gs14dzvGD3HqJhH9XXDa9QRYSLnA6JJsgz6hrraNMaaPiWaiVXf/mInq4uqizDLq+3dEVNRLefdFQ==}
+  '@effect/platform-node@0.68.0':
+    resolution: {integrity: sha512-0BkiWEw59+C/54+UCPfCFBNrxkHOAUPa/GJKfWVyL7LOA1pbrLrwdse1S3deLwP4IEPuepMyEOL9BHNsorDhcA==}
     peerDependencies:
-      '@effect/platform': ^0.70.0
-      effect: ^3.11.0
+      '@effect/platform': ^0.72.0
+      effect: ^3.12.0
 
-  '@effect/platform@0.70.0':
-    resolution: {integrity: sha512-3qQGf+TkGB9cL1YDh0UEEuG7j5/ptgLy0OZCAZrrOBflaT19TzGWeYSwwM56uKbXT58AJRI2HHW/dwMnHRnp5Q==}
+  '@effect/platform@0.72.0':
+    resolution: {integrity: sha512-uHsW2hlo6AiIW3zpLAVAoNvJngS/JwCZBAM4RSRllm8JTgjjCraef78FJBDNnSXz+2a10Xzzx4qxVsP3s8EV5Q==}
     peerDependencies:
-      effect: ^3.11.0
+      effect: ^3.12.0
 
-  '@effect/vitest@0.14.0':
-    resolution: {integrity: sha512-2JoZ0h2IfqcvTE2pHNxE5Ce3WrUHXiseDfTZsmoDW2rVWKHrwJGM+6AGuXopKcinoMbYwvwAqV0sK7JSLfkOuQ==}
+  '@effect/vitest@0.16.0':
+    resolution: {integrity: sha512-caUXVs8Xsf07XUHRu1pOsHDiww7rE556+0PYZHIg+X6oL6gA9k2+d8ZFmutaW9hJoSQuy+vKyYAFM9/1rVSSAQ==}
     peerDependencies:
-      effect: ^3.11.0
+      effect: ^3.12.0
       vitest: ^2.0.5
 
   '@esbuild/aix-ppc64@0.21.5':
@@ -1649,8 +1649,8 @@ packages:
   eastasianwidth@0.2.0:
     resolution: {integrity: sha512-I88TYZWc9XiYHRQ4/3c5rjjfgkjhLyW2luGIheGERbNQ6OY7yTybanSpDXZa8y7VUP9YmDcYa+eyq4ca7iLqWA==}
 
-  effect@3.11.0:
-    resolution: {integrity: sha512-uPWp/L0kMaKPi7hgXkfu0KUuxQzpXt20F2p6aBwU/gyJBay6t1XsTi0lFoHdk3fuqQCFt10VUYuPUeh3JY4TMQ==}
+  effect@3.12.0:
+    resolution: {integrity: sha512-b/u9s3b9HfTo0qygVouegP0hkbiuxRIeaCe1ppf8P88hPyl6lKCbErtn7Az4jG7LuU7f0Wgm4c8WXbMcL2j8+g==}
 
   electron-to-chromium@1.5.55:
     resolution: {integrity: sha512-6maZ2ASDOTBtjt9FhqYPRnbvKU5tjG0IN9SztUOWYw2AzNDNpKJYLJmlK0/En4Hs/aiWnB+JZ+gW19PIGszgKg==}
@@ -1875,8 +1875,8 @@ packages:
     resolution: {integrity: sha512-hMQ4CX1p1izmuLYyZqLMO/qGNw10wSv9QDCPfzXfyFrOaCSSoRfqE1Kf1s5an66J5JZC62NewG+mK49jOCtQew==}
     engines: {node: '>=4'}
 
-  fast-check@3.23.1:
-    resolution: {integrity: sha512-u/MudsoQEgBUZgR5N1v87vEgybeVYus9VnDVaIkxkkGP2jt54naghQ3PCQHJiogS8U/GavZCUPFfx3Xkp+NaHw==}
+  fast-check@3.23.2:
+    resolution: {integrity: sha512-h5+1OzzfCC3Ef7VbtKdcv7zsstUQwUDlYpUTvjeUsJAssPgLn7QzbboPtL5ro04Mq0rPOsMzl7q5hIbRs2wD1A==}
     engines: {node: '>=8.0.0'}
 
   fast-deep-equal@3.1.3:
@@ -3318,9 +3318,9 @@ packages:
   undici-types@6.19.8:
     resolution: {integrity: sha512-ve2KP6f/JnbPBFyobGHuerC9g1FYGn/F8n1LWTwNxCEzd6IfqTwUQcNXgEtmmQ6DlRrC1hrSrBnCZPokRrDHjw==}
 
-  undici@6.21.0:
-    resolution: {integrity: sha512-BUgJXc752Kou3oOIuU1i+yZZypyZRqNPW0vqoMPl8VaoalSfeR0D8/t4iAS3yirs79SSMTxTag+ZC86uswv+Cw==}
-    engines: {node: '>=18.17'}
+  undici@7.2.0:
+    resolution: {integrity: sha512-klt+0S55GBViA9nsq48/NSCo4YX5mjydjypxD7UmHh/brMu8h/Mhd/F7qAeoH2NOO8SDTk6kjnTFc4WpzmfYpQ==}
+    engines: {node: '>=20.18.1'}
 
   unist-util-stringify-position@2.0.3:
     resolution: {integrity: sha512-3faScn5I+hy9VleOq/qNbAd6pAx7iH5jYBMS9I1HgQVijz/4mv5Bvw5iw1sC/90CODiKo81G/ps8AJrISn687g==}
@@ -3841,7 +3841,7 @@ snapshots:
 
   '@effect/build-utils@0.7.8': {}
 
-  '@effect/docgen@0.5.1(tsx@4.19.2)(typescript@5.6.3)':
+  '@effect/docgen@0.5.2(tsx@4.19.2)(typescript@5.6.3)':
     dependencies:
       '@effect/markdown-toc': 0.1.0
       doctrine: 3.0.0
@@ -3879,41 +3879,41 @@ snapshots:
       repeat-string: 1.6.1
       strip-color: 0.1.0
 
-  '@effect/platform-bun@0.50.0(@effect/platform@0.70.0(effect@3.11.0))(effect@3.11.0)':
+  '@effect/platform-bun@0.52.0(@effect/platform@0.72.0(effect@3.12.0))(effect@3.12.0)':
     dependencies:
-      '@effect/platform': 0.70.0(effect@3.11.0)
-      '@effect/platform-node-shared': 0.20.0(@effect/platform@0.70.0(effect@3.11.0))(effect@3.11.0)
-      effect: 3.11.0
+      '@effect/platform': 0.72.0(effect@3.12.0)
+      '@effect/platform-node-shared': 0.22.0(@effect/platform@0.72.0(effect@3.12.0))(effect@3.12.0)
+      effect: 3.12.0
       multipasta: 0.2.5
 
-  '@effect/platform-node-shared@0.20.0(@effect/platform@0.70.0(effect@3.11.0))(effect@3.11.0)':
+  '@effect/platform-node-shared@0.22.0(@effect/platform@0.72.0(effect@3.12.0))(effect@3.12.0)':
     dependencies:
-      '@effect/platform': 0.70.0(effect@3.11.0)
+      '@effect/platform': 0.72.0(effect@3.12.0)
       '@parcel/watcher': 2.5.0
-      effect: 3.11.0
+      effect: 3.12.0
       multipasta: 0.2.5
 
-  '@effect/platform-node@0.65.0(@effect/platform@0.70.0(effect@3.11.0))(effect@3.11.0)':
+  '@effect/platform-node@0.68.0(@effect/platform@0.72.0(effect@3.12.0))(effect@3.12.0)':
     dependencies:
-      '@effect/platform': 0.70.0(effect@3.11.0)
-      '@effect/platform-node-shared': 0.20.0(@effect/platform@0.70.0(effect@3.11.0))(effect@3.11.0)
-      effect: 3.11.0
+      '@effect/platform': 0.72.0(effect@3.12.0)
+      '@effect/platform-node-shared': 0.22.0(@effect/platform@0.72.0(effect@3.12.0))(effect@3.12.0)
+      effect: 3.12.0
       mime: 3.0.0
-      undici: 6.21.0
+      undici: 7.2.0
       ws: 8.18.0
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
 
-  '@effect/platform@0.70.0(effect@3.11.0)':
+  '@effect/platform@0.72.0(effect@3.12.0)':
     dependencies:
-      effect: 3.11.0
+      effect: 3.12.0
       find-my-way-ts: 0.1.5
       multipasta: 0.2.5
 
-  '@effect/vitest@0.14.0(effect@3.11.0)(vitest@2.1.4(@types/node@22.9.0))':
+  '@effect/vitest@0.16.0(effect@3.12.0)(vitest@2.1.4(@types/node@22.9.0))':
     dependencies:
-      effect: 3.11.0
+      effect: 3.12.0
       vitest: 2.1.4(@types/node@22.9.0)
 
   '@esbuild/aix-ppc64@0.21.5':
@@ -5027,9 +5027,9 @@ snapshots:
 
   eastasianwidth@0.2.0: {}
 
-  effect@3.11.0:
+  effect@3.12.0:
     dependencies:
-      fast-check: 3.23.1
+      fast-check: 3.23.2
 
   electron-to-chromium@1.5.55: {}
 
@@ -5420,7 +5420,7 @@ snapshots:
       iconv-lite: 0.4.24
       tmp: 0.0.33
 
-  fast-check@3.23.1:
+  fast-check@3.23.2:
     dependencies:
       pure-rand: 6.1.0
 
@@ -6917,7 +6917,7 @@ snapshots:
 
   undici-types@6.19.8: {}
 
-  undici@6.21.0: {}
+  undici@7.2.0: {}
 
   unist-util-stringify-position@2.0.3:
     dependencies:
