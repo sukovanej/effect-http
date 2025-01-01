@@ -514,7 +514,7 @@ it.scoped("uuid", () =>
 └─ ["id"]
    └─ UUID
       └─ Predicate refinement failure
-         └─ Expected UUID, actual "invalid"`
+         └─ Expected a Universally Unique Identifier, actual "invalid"`
     })
   }))
 
