@@ -663,7 +663,7 @@ describe("data types", () => {
 
     expect(OpenApi.makeSchema(schema)).toStrictEqual({
       type: "string",
-      description: "a string that will be parsed into a number"
+      description: "a string to be decoded into a number"
     })
   })
 })
