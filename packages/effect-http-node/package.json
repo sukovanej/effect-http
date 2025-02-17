@@ -38,11 +38,11 @@
     "effect-http": "workspace:^"
   },
   "devDependencies": {
-    "@effect/platform": "^0.77.0",
-    "@effect/platform-bun": "^0.57.0",
-    "@effect/platform-node": "^0.73.0",
+    "@effect/platform": "^0.77.1",
+    "@effect/platform-bun": "^0.57.1",
+    "@effect/platform-node": "^0.73.1",
     "@types/node": "^22.9.0",
-    "effect": "^3.13.0",
+    "effect": "^3.13.1",
     "effect-http": "workspace:^"
   }
 }
