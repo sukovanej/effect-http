@@ -31,7 +31,7 @@
     "@effect/dtslint": "^0.1.2",
     "@effect/eslint-plugin": "^0.2.0",
     "@effect/language-service": "^0.2.0",
-    "@effect/vitest": "^0.17.0",
+    "@effect/vitest": "^0.18.0",
     "@types/node": "^22.9.0",
     "@types/swagger-ui-dist": "^3.30.5",
     "@typescript-eslint/eslint-plugin": "^8.13.0",
