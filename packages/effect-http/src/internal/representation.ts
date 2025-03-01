@@ -17,7 +17,6 @@ class RepresentationErrorImpl extends Data.TaggedError("RepresentationError")<{ 
 const representationProto = {
   [TypeId]: TypeId,
   pipe() {
-    // eslint-disable-next-line prefer-rest-params
     return Pipeable.pipeArguments(this, arguments)
   }
 }

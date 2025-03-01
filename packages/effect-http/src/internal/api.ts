@@ -27,7 +27,6 @@ class ApiImpl<Endpoints extends ApiEndpoint.ApiEndpoint.Any> implements Api.Api<
   ) {}
 
   pipe() {
-    // eslint-disable-next-line prefer-rest-params
     return Pipeable.pipeArguments(this, arguments)
   }
 }

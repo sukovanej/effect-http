@@ -96,6 +96,7 @@ export const make = (
           parameters = operationSpec.parameters
         }
 
+        // eslint-disable-next-line no-restricted-syntax
         parameters.push(...createParameters(type, schema, addComponentSchemaCallback))
       }
 
@@ -683,6 +684,7 @@ export const openAPISchemaForAst = (
         const identifier = Option.getOrUndefined(AST.getIdentifierAnnotation(ast)) ??
           Option.getOrUndefined(AST.getIdentifierAnnotation(realAst))
         if (!identifier) {
+          // eslint-disable-next-line no-console
           console.warn(`Lazy schema must have identifier set.`)
           return {}
         }
@@ -696,6 +698,7 @@ export const openAPISchemaForAst = (
       case "NeverKeyword":
       case "BigIntKeyword":
       case "SymbolKeyword": {
+        // eslint-disable-next-line no-console
         console.warn(`Schema tag "${ast._tag}" is not supported for OpenAPI.`)
         return {}
       }

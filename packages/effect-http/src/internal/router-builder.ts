@@ -50,7 +50,6 @@ class RouterBuilderImpl<A extends ApiEndpoint.ApiEndpoint.Any, E, R>
   ) {}
 
   pipe() {
-    // eslint-disable-next-line prefer-rest-params
     return Pipeable.pipeArguments(this, arguments)
   }
 }

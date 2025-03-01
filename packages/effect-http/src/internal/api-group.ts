@@ -27,7 +27,6 @@ export class ApiGroupImpl<Endpoints extends ApiEndpoint.ApiEndpoint.Any> impleme
   ) {}
 
   pipe() {
-    // eslint-disable-next-line prefer-rest-params
     return Pipeable.pipeArguments(this, arguments)
   }
 }
