@@ -32,7 +32,6 @@ class HandlerImpl<A extends ApiEndpoint.ApiEndpoint.Any, E, R> implements Handle
   constructor(readonly endpoints: ReadonlyArray<A>, readonly router: HttpRouter.HttpRouter<E, R>) {}
 
   pipe() {
-    // eslint-disable-next-line prefer-rest-params
     return Pipeable.pipeArguments(this, arguments)
   }
 }

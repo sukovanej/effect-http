@@ -34,7 +34,6 @@ export class ApiRequestImpl<B, P, Q, H, R> implements ApiRequest.ApiRequest<B, P
   ) {}
 
   pipe() {
-    // eslint-disable-next-line prefer-rest-params
     return Pipeable.pipeArguments(this, arguments)
   }
 }

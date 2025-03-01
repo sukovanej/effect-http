@@ -41,7 +41,6 @@ export class SecurityImpl<A, E = never, R = never> implements Security.Security<
   ) {}
 
   pipe() {
-    // eslint-disable-next-line prefer-rest-params
     return Pipeable.pipeArguments(this, arguments)
   }
 }

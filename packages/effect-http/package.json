@@ -26,7 +26,6 @@
     "build-esm": "tsc -b tsconfig.build.json",
     "build-cjs": "babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps",
     "build-annotate": "babel build --plugins annotate-pure-calls --out-dir build --source-maps",
-    "dtslint": "dtslint dtslint",
     "test": "vitest",
     "coverage": "vitest --coverage"
   },
@@ -36,7 +35,7 @@
   },
   "devDependencies": {
     "@apidevtools/swagger-parser": "^10.1.1",
-    "@effect/platform": "^0.77.1",
-    "effect": "^3.13.1"
+    "@effect/platform": "^0.77.4",
+    "effect": "^3.13.4"
   }
 }

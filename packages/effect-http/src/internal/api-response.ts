@@ -38,7 +38,6 @@ class ApiResponseImpl<S extends ApiResponse.ApiResponse.AnyStatus, B, H, R>
   ) {}
 
   pipe() {
-    // eslint-disable-next-line prefer-rest-params
     return Pipeable.pipeArguments(this, arguments)
   }
 }
