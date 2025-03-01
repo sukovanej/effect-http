@@ -804,7 +804,7 @@ describe("arrays", () => {
 describe("objects", () => {
   it("object", () => {
     const schema = Schema.Struct({
-      id: Schema.int()(Schema.Number),
+      id: Schema.Int,
       name: Schema.String
     })
 
@@ -829,7 +829,7 @@ describe("objects", () => {
 
   it("object with non-required", () => {
     const schema = Schema.Struct({
-      id: Schema.int()(Schema.Number),
+      id: Schema.Int,
       username: Schema.String,
       name: Schema.optional(Schema.String)
     })
@@ -848,7 +848,7 @@ describe("objects", () => {
   it("brands", () => {
     const schema = pipe(
       Schema.Struct({
-        id: Schema.int()(Schema.Number),
+        id: Schema.Int,
         username: Schema.String,
         name: Schema.optional(Schema.String)
       }),
