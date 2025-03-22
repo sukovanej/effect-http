@@ -51,7 +51,6 @@ export const endpointClient = <A extends Api.Api.Any, Id extends Api.Api.Ids<A>>
         ClientError: (err) => Effect.fail(err)
       }),
       Effect.flatMap(responseParser.parseResponse),
-      Effect.scoped,
       Effect.annotateLogs("clientOperationId", ApiEndpoint.getId(endpoint))
     ))
 }

@@ -23,4 +23,4 @@ Effect.all(
     Effect.catchAll((e) => Effect.logInfo(`Error ${JSON.stringify(e)}`)),
     Array.replicate(1000000)
   )
-).pipe(Effect.scoped, Effect.runFork)
+).pipe(Effect.runFork)

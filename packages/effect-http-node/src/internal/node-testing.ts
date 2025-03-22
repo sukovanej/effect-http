@@ -11,7 +11,6 @@ import * as Context from "effect/Context"
 import * as Deferred from "effect/Deferred"
 import * as Effect from "effect/Effect"
 import * as Layer from "effect/Layer"
-import type * as Scope from "effect/Scope"
 
 import type * as Api from "effect-http/Api"
 import type * as ApiEndpoint from "effect-http/ApiEndpoint"
@@ -83,7 +82,7 @@ const makeHttpClient = (client: HttpClient.HttpClient, url: string) =>
   client.pipe(
     HttpClient.mapRequest(HttpClientRequest.prependUrl(url)),
     HttpClient.transformResponse(
-      Effect.mapInputContext((ctx: Context.Context<Scope.Scope>) => {
+      Effect.mapInputContext((ctx: Context.Context<never>) => {
         const init = ctx.unsafeMap.get(FetchHttpClient.RequestInit.key) ?? {}
         return Context.add(ctx, FetchHttpClient.RequestInit, { keepalive: false, ...init })
       })

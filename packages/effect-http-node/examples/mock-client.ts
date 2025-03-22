@@ -13,8 +13,7 @@ const client = MockClient.make(exampleApiGet)
 
 const program = pipe(
   client.getValue({}),
-  Effect.tap(Effect.log),
-  Effect.scoped
+  Effect.tap(Effect.log)
 )
 
 Effect.runFork(program)

@@ -128,7 +128,6 @@ and call it using the `client`.
 ```ts
 const response = client.getUser({ query: { id: 12 } }).pipe(
   Effect.flatMap((user) => Effect.log(`Got ${user.name}, nice!`)),
-  Effect.scoped
 );
 ```
 
